@@ -1,5 +1,6 @@
-"""Draft evaluation protocol v3: links to frozen v2, covers L1-L3 and R-01..R-17, keeps the
-primary comparator free of restricted data.
+"""Draft evaluation protocol v3: links to frozen v2, answers every review finding (L1-L4,
+V3-01..V3-15, R-01..R-17), keeps restricted and unverified sources out of the comparator, and
+keeps the licence register outside the protocol file.
 
 While status is DRAFT the file may change. Once FROZEN it needs a pinned SHA-256
 (evaluation_protocol_v3.sha256) and an approved meta-gate, exactly like v1 and v2.
@@ -11,10 +12,19 @@ ROOT = Path(__file__).resolve().parents[1]
 V2_PINNED = ROOT / "protocols" / "evaluation_protocol_v2.sha256"
 V3 = ROOT / "protocols" / "evaluation_protocol_v3.json"
 V3_PINNED = ROOT / "protocols" / "evaluation_protocol_v3.sha256"
+REGISTER = ROOT / "protocols" / "licence_register.json"
 
 
 def load():
     return json.loads(V3.read_text(encoding="utf-8"))
+
+
+def register():
+    return json.loads(REGISTER.read_text(encoding="utf-8"))
+
+
+def status_by_id():
+    return {e["id"]: e["status"] for e in register()["entries"]}
 
 
 def resolve(data, dotted):
@@ -24,6 +34,18 @@ def resolve(data, dotted):
             return False
         node = node[part]
     return True
+
+
+def members_for(p, target, statuses):
+    """Comparator members of a target whose inputs are all OPEN in the register."""
+    out = []
+    for b in p["baselines"]:
+        if not b.get("comparator_member") or not b.get("scored", True) or target not in b["applies_to"]:
+            continue
+        inputs = b["inputs_by_target"][target]
+        if all(statuses.get(i) == "OPEN" for i in inputs):
+            out.append(b["id"])
+    return out
 
 
 class ProtocolV3(unittest.TestCase):
@@ -40,11 +62,14 @@ class ProtocolV3(unittest.TestCase):
         else:
             self.assertFalse(V3_PINNED.exists(), "a DRAFT must not have a pinned hash")
             self.assertEqual(p["meta_gate"]["approval"], "PENDING")
+            self.assertTrue(p["meta_gate"]["owner_confirmation_needed"])
 
     def test_every_change_is_mapped_to_existing_content(self):
         p = load()
         ids = [c["id"] for c in p["changes_from_v2"]]
-        self.assertEqual(ids, ["L1", "L2", "L3", "L4"] + [f"R-{i:02d}" for i in range(1, 18)])
+        expected = (["L1", "L2", "L3", "L4"] + [f"V3-{i:02d}" for i in range(1, 16)]
+                    + [f"R-{i:02d}" for i in range(1, 18)])
+        self.assertEqual(ids, expected)
         for change in p["changes_from_v2"]:
             self.assertIn(change["disposition"], {"adopted", "adopted_needs_owner_confirmation",
                                                   "recorded_as_caveat", "no_change"}, change["id"])
@@ -52,82 +77,101 @@ class ProtocolV3(unittest.TestCase):
             for path in change["paths"]:
                 self.assertTrue(resolve(p, path), f"{change['id']}: {path} not found")
 
-    def test_primary_comparator_has_no_restricted_or_unverified_member(self):
+    def test_register_is_separate_and_well_formed(self):
         p = load()
-        status = {k: v["status"] for k, v in p["licence_policy"]["register"].items() if isinstance(v, dict)}
-        members = [b for b in p["baselines"] if b.get("comparator_member")]
-        self.assertTrue(members)
-        for b in members:
-            sources = b.get("licence_sources")
-            self.assertTrue(sources, b["id"])
-            for src in sources:
-                self.assertIn(src, status, f"{b['id']}: {src}")
-                if status[src] == "RESTRICTED":
-                    self.fail(f"{b['id']} draws on a RESTRICTED source")
-                # an UNVERIFIED source is allowed only with the explicit "once its sources are OPEN" condition
-                if status[src] == "UNVERIFIED":
-                    self.assertIn("once its sources are OPEN", b["note"], f"{b['id']}: {src}")
+        self.assertNotIn("register", p["licence_policy"], "the register must live outside the frozen file")
+        self.assertEqual(p["licence_policy"]["register_file"], "protocols/licence_register.json")
+        reg = register()
+        ids = [e["id"] for e in reg["entries"]]
+        self.assertEqual(len(ids), len(set(ids)), "register ids must be unique")
+        for e in reg["entries"]:
+            self.assertIn(e["status"], {"OPEN", "RESTRICTED", "UNVERIFIED"}, e["id"])
+            self.assertIn(e["level"], {"full", "extraction", "none"}, e["id"])
+            self.assertTrue(e["date"], e["id"])
+            self.assertTrue(e["basis"], e["id"])
+
+    def test_register_statuses_that_the_protocol_relies_on(self):
+        s = status_by_id()
+        self.assertEqual(s["ATLANTA_FED_GDPNOW"], "RESTRICTED")
+        self.assertEqual(s["FRED_ALFRED_SERVICES"], "OPEN")
+        self.assertEqual(s["ALFRED:CPIAUCSL"], "OPEN")
+        self.assertEqual(s["FRED-MD_FRED-QD"], "UNVERIFIED")
+        self.assertEqual(s["BLS_BEA_PRIMARY"], "UNVERIFIED")
+        fred = next(e for e in register()["entries"] if e["id"] == "FRED_ALFRED_SERVICES")
+        text = " ".join(fred["conditions"])
+        self.assertIn("manual download", text)
+        self.assertIn("no training", text)
+
+    def test_comparator_members_use_no_restricted_or_unverified_input_unless_flagged(self):
+        p = load()
+        s = status_by_id()
+        for b in p["baselines"]:
+            if not b.get("comparator_member"):
+                continue
+            for target, inputs in b["inputs_by_target"].items():
+                self.assertIn(target, b["applies_to"], b["id"])
+                for src in inputs:
+                    self.assertIn(src, s, f"{b['id']}: {src} not in the register")
+                    self.assertNotEqual(s[src], "RESTRICTED", f"{b['id']} uses a RESTRICTED source")
+                    if s[src] == "UNVERIFIED":
+                        self.assertIn("once its register entry is OPEN", b["note"], f"{b['id']}: {src}")
+
+    def test_every_target_has_the_minimum_number_of_open_members_today(self):
+        p = load()
+        s = status_by_id()
+        minimum = p["comparator_minimum"]["min_members"]
+        self.assertEqual(minimum, 2)
+        for t in p["targets"]:
+            got = members_for(p, t["id"], s)
+            self.assertGreaterEqual(len(got), minimum, f"{t['id']}: {got}")
 
     def test_gdpnow_is_not_used_anywhere(self):
         p = load()
-        self.assertEqual(p["licence_policy"]["register"]["ATLANTA_FED_GDPNOW"]["status"], "RESTRICTED")
+        s = status_by_id()
+        self.assertEqual(s["ATLANTA_FED_GDPNOW"], "RESTRICTED")
         for b in p["baselines"]:
-            self.assertNotIn("ATLANTA_FED_GDPNOW", b.get("licence_sources", []), b["id"])
+            for inputs in b.get("inputs_by_target", {}).values():
+                self.assertFalse([i for i in inputs if "GDPNOW" in i.upper()], b["id"])
         self.assertNotIn("NOWCAST_EXTERNAL", [b["id"] for b in p["baselines"]])
         self.assertNotIn("NOWCAST_EXTERNAL", p["forward_registry"]["control_arms"])
         self.assertTrue(p["licence_policy"]["gdpnow"]["use"].startswith("none"))
         self.assertIn("NOT PURSUED", p["licence_policy"]["gdpnow"]["permission_request"])
 
-    def test_no_baseline_of_any_kind_uses_a_restricted_source(self):
-        # the owner decision: RESTRICTED sources are not used anywhere, control arms included
-        p = load()
-        status = {k: v["status"] for k, v in p["licence_policy"]["register"].items() if isinstance(v, dict)}
-        for b in p["baselines"]:
-            for src in b.get("licence_sources", []):
-                self.assertIn(src, status, f"{b['id']}: {src}")
-                self.assertNotEqual(status[src], "RESTRICTED", f"{b['id']} draws on a RESTRICTED source")
-
     def test_nyfed_nowcast_is_a_control_arm_only(self):
         p = load()
         arm = next(b for b in p["baselines"] if b["id"] == "NOWCAST_NYFED")
         self.assertFalse(arm["comparator_member"])
-        self.assertIn("NOWCAST_NYFED", p["forward_registry"]["control_arms"])
+        self.assertNotIn("NOWCAST_NYFED", p["forward_registry"]["control_arms"])
 
     def test_own_nowcast_replaces_external_nowcasts(self):
         p = load()
         own = next(b for b in p["baselines"] if b["id"] == "OWN_NOWCAST_BRIDGE")
         self.assertEqual(own["applies_to"], ["T2_GDP_GROWTH"])
-        self.assertEqual(own["horizons_quarters"], [0])
+        self.assertEqual(own["horizons"], "0")
         self.assertTrue(own["comparator_member"])
-        self.assertTrue(own["approximation_of"])
-        self.assertIn("approximation", p["licence_policy"])
+        self.assertIn("hash", own["specification_required"])
         self.assertIn("OWN_NOWCAST_BRIDGE", p["licence_policy"]["gdpnow"]["replacement"])
+        self.assertIn("approximation", p["licence_policy"])
 
     def test_owner_decision_no_permissions_is_recorded(self):
         p = load()
-        decisions = p["meta_gate"]["owner_decisions"]
-        self.assertTrue(any("No permission is requested" in d["decision"] for d in decisions))
+        self.assertTrue(any("No permission is requested" in d["decision"]
+                            for d in p["meta_gate"]["owner_decisions"]))
         self.assertIn("requests no permission", p["licence_policy"]["no_permissions"])
+        self.assertIn("never committed", p["licence_policy"]["raw_data"])
+        self.assertIn("private", p["licence_policy"]["privacy"])
 
-    def test_licence_policy_forbids_committing_raw_archives(self):
-        lp = load()["licence_policy"]
-        self.assertIn("never committed", lp["raw_data"])
-
-    def test_point_only_baselines_do_not_enter_density_losses(self):
+    def test_point_only_baselines_and_density_comparator(self):
         p = load()
         spf = next(b for b in p["baselines"] if b["id"] == "SPF_MEDIAN")
         self.assertTrue(spf["point_only"])
         ids = {b["id"] for b in p["baselines"]}
         self.assertTrue({"EQUAL_WEIGHT_POINT", "EQUAL_WEIGHT_DENSITY"} <= ids)
         self.assertNotIn("EQUAL_WEIGHT", ids)
+        self.assertIn("Averaging quantiles is not the pool", p["forecast_product"]["pool"])
+        self.assertIn("0.01", p["forecast_product"]["log_score"])
 
-    def test_every_target_has_a_scored_baseline_and_a_comparator(self):
-        p = load()
-        for t in p["targets"]:
-            self.assertTrue(any(t["id"] in b["applies_to"] and b.get("scored", True)
-                                and b.get("comparator_member") for b in p["baselines"]), t["id"])
-
-    def test_windows_ordered_disjoint(self):
+    def test_windows_ordered_disjoint_and_covid_origins(self):
         w = load()["windows"]
         order = ["W1", "W2", "W3"]
         self.assertLess(w["training_start"], w["W1"]["start"])
@@ -135,12 +179,15 @@ class ProtocolV3(unittest.TestCase):
             self.assertLess(w[a]["end"], w[b]["start"], f"{a} overlaps {b}")
         self.assertEqual(w["W3"]["end"], "2026-10")
         self.assertIsNone(w["forward_registry"]["start"])
+        self.assertIn("2020-03 to 2021-02", w["origin_exclusion"]["covid_targets"])
+        self.assertIn("origin and by the date of the target", w["defined_by"])
 
     def test_estimation_windows(self):
         e = load()["estimation"]
         self.assertEqual(e["scheme"], "rolling")
         self.assertEqual(e["window_months"], 180)
         self.assertEqual(e["T3"]["window_months"], 240)
+        self.assertEqual(e["T3"]["sensitivity_windows_months"], [180, 360])
         self.assertIn("owner", e["T3"]["status"])
 
     def test_criteria_and_gating(self):
@@ -149,26 +196,37 @@ class ProtocolV3(unittest.TestCase):
         gating = {c["id"]: c["gating"] for c in a["criteria"]}
         self.assertFalse(gating["C3"])
         self.assertTrue(all(gating[i] for i in ("C1", "C2", "C4", "C5", "C6")))
+        c4 = next(c for c in a["criteria"] if c["id"] == "C4")
+        self.assertNotIn("T3_RECESSION", c4["applies_to"])
+        self.assertIn("inconclusive", c4["text"])
         self.assertEqual(a["threshold_rule"]["value"], "min(0.97, q05_equal_methods)")
         self.assertEqual(a["T3_ceiling"], "LIMITED_DEPLOYMENT")
         self.assertEqual(a["long_horizon"]["min_independent_outcomes_for_ACTIVE"], 8)
+        self.assertIn("CONTAMINATED", a["stages"]["CANDIDATE_to_SHADOW_TEST"])
 
-    def test_data_depth_facts_unchanged(self):
-        d = load()["data_depth"]["first_realtime_vintage"]
-        self.assertEqual(d["FRED-MD"], "1999-08")
-        self.assertEqual(d["FRED-QD"], "2018-05")
-        self.assertEqual(d["ALFRED_CPIAUCSL"], "1972-07-21")
-        self.assertEqual(d["GDPNow_live"], "2014Q2")
+    def test_t3_resolution_and_calibration(self):
+        p = load()
+        t3 = next(t for t in p["targets"] if t["id"] == "T3_RECESSION")
+        self.assertIn("12 months after", t3["resolution"])
+        self.assertIn("C4 does not apply", t3["c4_not_applicable"])
+        c6 = next(c for c in p["admission"]["criteria"] if c["id"] == "C6")
+        self.assertIn("calibration replaces coverage", c6["text"])
+
+    def test_data_depth_facts(self):
+        d = load()["data_depth"]
+        v = d["first_realtime_vintage"]
+        self.assertEqual(v["FRED-MD"], "1999-08")
+        self.assertEqual(v["FRED-QD"], "2018-05")
+        self.assertEqual(v["ALFRED_CPIAUCSL"], "1972-07-21")
+        self.assertNotIn("GDPNow", " ".join(v))
+        self.assertIn("REAL_TIME_TAPE", d["classification_rule"])
+        self.assertIn("1990-2026", d["gate"])
 
     def test_llm_rules_and_registry_access(self):
         r = load()["model_class_rules"]
         self.assertIn("CONTAMINATED", r["llm_evidence"])
         self.assertIn("open to every candidate", r["registry_access"])
-
-    def test_owner_confirmation_list_is_present_while_draft(self):
-        p = load()
-        if p["status"] == "DRAFT":
-            self.assertTrue(p["meta_gate"]["owner_confirmation_needed"])
+        self.assertIn("Training or fine-tuning on FRED", r["data"])
 
 
 if __name__ == "__main__":

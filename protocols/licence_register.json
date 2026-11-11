@@ -1,0 +1,65 @@
+{
+  "register_id": "AMFE-LICENCE-REGISTER",
+  "kind": "append-only journal of source terms; a change of status is a new dated entry, never an edit",
+  "protocol": "evaluation_protocol_v3.json (licence_policy)",
+  "intended_use": "Non-commercial research. Published artifacts contain derived statistics only (error metrics, charts, scores), never raw third-party data. The repository is private; if it becomes public, every entry must be re-verified.",
+  "statuses": {
+    "OPEN": "The published terms allow the intended use without asking anyone; conditions, if any, are listed and followed.",
+    "RESTRICTED": "The published terms do not allow the intended use without permission. Not used anywhere in the project.",
+    "UNVERIFIED": "Terms not found or not read. Not used anywhere until verified."
+  },
+  "verification_levels": {"full": "terms page read completely", "extraction": "answer to a query about the page; quotes may be incomplete", "none": "not read"},
+  "terms_change_without_notice": "All verified sites reserve the right to change terms without notice. Each entry keeps its verification date; R2 adds a hash of the terms text and re-checks before the comparator composition is recorded.",
+  "entries": [
+    {
+      "id": "ATLANTA_FED_GDPNOW", "date": "2026-11-11", "status": "RESTRICTED", "level": "full",
+      "url": ["https://www.atlantafed.org/terms-of-use", "https://www.atlantafed.org/research-and-data/data/gdpnow"],
+      "basis": "Data page: reproduction for personal and educational use only. Site terms: non-commercial reproduction with attribution; modifying, publishing and creating derivative works are prohibited unless the Bank expressly authorises them. The stricter reading applies.",
+      "conditions": [], "decision": "not used; replaced by OWN_NOWCAST_BRIDGE built from OPEN data"
+    },
+    {
+      "id": "FRED_ALFRED_SERVICES", "date": "2026-11-11", "status": "OPEN", "level": "full",
+      "url": ["https://fred.stlouisfed.org/legal/", "https://fred.stlouisfed.org/docs/api/terms_of_use.html"],
+      "basis": "Series labelled public domain may be used without permission; copyrighted series with citation required may be used with attribution. General terms: content may not be duplicated, downloaded in bulk, collected by a robot or put into another database without written permission, except personal non-commercial use (view, download, print). API terms prohibit storing, caching or archiving content and use in developing or training any program, system or machine-learning model.",
+      "conditions": [
+        "CHANNEL: series are obtained by manual download of the vintage file of each series from the ALFRED site, a personal non-commercial use; no robot, no bulk scraping, no API cache",
+        "STORAGE: downloaded files stay in the ignored data directory; nothing from FRED or ALFRED is committed or published",
+        "ML: no training or fine-tuning of any model on FRED or ALFRED content; classical statistical estimation on the downloaded series is the intended use",
+        "ATTRIBUTION: cite FRED and the original source of each series",
+        "SCOPE: only series listed in this register; every other series is UNVERIFIED until its label is read"
+      ],
+      "decision": "usable under the listed conditions"
+    },
+    {"id": "ALFRED:CPIAUCSL", "date": "2026-11-11", "status": "OPEN", "level": "full", "url": ["https://alfred.stlouisfed.org/series?seid=CPIAUCSL"], "basis": "Label: public domain, citation requested.", "conditions": ["see FRED_ALFRED_SERVICES"]},
+    {"id": "ALFRED:CPILFESL", "date": "2026-11-11", "status": "OPEN", "level": "extraction", "url": [], "basis": "Label: public domain, citation requested (reported by the independent review of 2026-11-11).", "conditions": ["see FRED_ALFRED_SERVICES"]},
+    {"id": "ALFRED:GDPC1", "date": "2026-11-11", "status": "OPEN", "level": "extraction", "url": [], "basis": "Label: public domain, citation requested (reported by the independent review).", "conditions": ["see FRED_ALFRED_SERVICES"]},
+    {"id": "ALFRED:UNRATE", "date": "2026-11-11", "status": "OPEN", "level": "extraction", "url": [], "basis": "Label: public domain, citation requested (reported by the independent review).", "conditions": ["see FRED_ALFRED_SERVICES"]},
+    {"id": "ALFRED:GS10", "date": "2026-11-11", "status": "OPEN", "level": "extraction", "url": [], "basis": "Label: public domain, citation requested (reported by the independent review).", "conditions": ["see FRED_ALFRED_SERVICES"]},
+    {"id": "ALFRED:TB3MS", "date": "2026-11-11", "status": "OPEN", "level": "extraction", "url": [], "basis": "Label: public domain, citation requested (reported by the independent review).", "conditions": ["see FRED_ALFRED_SERVICES"]},
+    {"id": "ALFRED:T10Y3M", "date": "2026-11-11", "status": "OPEN", "level": "extraction", "url": [], "basis": "Label: copyrighted, citation required; starts 1982-01-04.", "conditions": ["see FRED_ALFRED_SERVICES", "citation required"]},
+    {"id": "NBER_CYCLE_DATES", "date": "2026-11-11", "status": "OPEN", "level": "extraction", "url": ["https://www.nber.org/research/data/us-business-cycle-expansions-and-contractions"], "basis": "Permission to copy is granted provided the source is attributed.", "conditions": ["attribution"]},
+    {
+      "id": "PHILADELPHIA_FED", "date": "2026-11-11", "status": "OPEN", "level": "extraction",
+      "url": ["https://www.philadelphiafed.org/about-us/privacy-notice"],
+      "basis": "Online Terms of Use: content may be used for informational, educational and research purposes; third-party material needs the owner's permission; names and logos may not be used. Non-commercial research is the intended use. The SPF documentation and data file pages were not read (level none) and may add terms.",
+      "conditions": ["research use only", "no use of the Bank's names or logos as endorsement", "re-check the SPF documentation before the first download"],
+      "decision": "usable for SPF and the Real-Time Data Set; the owner may reverse this reading"
+    },
+    {
+      "id": "CLEVELAND_FED", "date": "2026-11-11", "status": "OPEN", "level": "extraction",
+      "url": ["https://www.clevelandfed.org/privacy"],
+      "basis": "Reproduction of publications from the website without limit is authorised for non-commercial, personal or educational purposes with credit to the Bank; a suggested citation is given on the nowcast page (DOI 10.26509/frbc-inflationnowcast). Whether the nowcast series is an archive of values published in real time is not confirmed.",
+      "conditions": ["non-commercial use", "credit to the Federal Reserve Bank of Cleveland"],
+      "decision": "licence readable as OPEN for non-commercial research; the archive question is a separate R2 check"
+    },
+    {
+      "id": "NY_FED", "date": "2026-11-11", "status": "OPEN", "level": "extraction",
+      "url": ["https://www.newyorkfed.org/privacy/termsofuse"],
+      "basis": "Non-exclusive licence to use, copy and distribute content for personal or business purposes with attribution, no distortion, marked modifications and the same terms on redistribution. The Staff Nowcast is not on the list of content with special restrictions.",
+      "conditions": ["attribution", "mark modifications", "redistribute on the same terms", "archive of real-time nowcasts not verified (R2)"],
+      "decision": "licence OPEN; usable only as a control arm and only if R2 confirms a real-time archive"
+    },
+    {"id": "FRED-MD_FRED-QD", "date": "2026-11-11", "status": "UNVERIFIED", "level": "extraction", "url": ["https://www.stlouisfed.org/research/economists/mccracken/fred-databases"], "basis": "The download page states no terms; the sets are compiled from FRED series with different owners; vintage archives start 1999-08 (FRED-MD) and 2018-05 (FRED-QD).", "conditions": [], "decision": "not used until R2 reads the terms"},
+    {"id": "BLS_BEA_PRIMARY", "date": "2026-11-11", "status": "UNVERIFIED", "level": "none", "url": [], "basis": "US government sources; terms not read.", "conditions": [], "decision": "to be read in R2 as the alternative channel for the core series"}
+  ]
+}
