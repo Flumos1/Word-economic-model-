@@ -218,9 +218,9 @@ class ProtocolV4(unittest.TestCase):
         v4 = load(V4)
         ch = v4["licence_policy"]["data_channel"]
         text = " ".join(ch.values())
-        for phrase in ("automated", "rate-limit", "no human download", "vintage_date",
+        for phrase in ("automated", "rate-limit", "human download", "download-data form",
                        "requires or permits a human download"):
-            if phrase == "vintage_date":
+            if phrase == "download-data form":
                 self.assertIn(phrase, text)
             elif phrase == "requires or permits a human download":
                 self.assertIn(phrase, ch["automation"])
@@ -232,11 +232,14 @@ class ProtocolV4(unittest.TestCase):
         self.assertEqual(retrieval["workflow"], ".github/workflows/data-refresh.yml")
         self.assertEqual(retrieval["data_log"], "protocols/data_log.json")
         self.assertIn("last_observation", retrieval["log_fields"])
-        self.assertIn("vintage", retrieval["modes"])
+        self.assertIn("vintage_check", retrieval["log_fields"])
+        self.assertIn("download-data form", retrieval["modes"])
         self.assertTrue(TOOL.exists())
         self.assertTrue(PLAN.exists())
         self.assertTrue(WORKFLOW.exists())
-        self.assertIn("--include-vintages", WORKFLOW.read_text(encoding="utf-8"))
+        workflow_text = WORKFLOW.read_text(encoding="utf-8")
+        self.assertIn("--include-vintages", workflow_text)
+        self.assertIn("download", TOOL.read_text(encoding="utf-8"))
 
     def test_dataset_plan_covers_the_r2_gate(self):
         plan = load(PLAN)

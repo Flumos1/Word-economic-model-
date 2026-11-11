@@ -95,7 +95,7 @@
     "rule": "OPEN sources may be used in the primary comparator, in control arms and in criteria, under the conditions listed in their register entries. RESTRICTED and UNVERIFIED sources are not used anywhere in the project. An UNVERIFIED source becomes usable only through a new register entry (OPEN) made after its terms are read.",
     "substitute": "A model quantity that is available only through a RESTRICTED or UNVERIFIED source is replaced by the project's own model built from OPEN data (for example OWN_NOWCAST_BRIDGE). The substitute is never presented as equal to the source it replaces and is validated only against OPEN actuals, like any baseline. Naming the source it replaces is allowed; using its data is not. The principle covers model quantities only: a survey or an opinion (for example the SPF) is not replaced by a model, and if its source is not OPEN the quantity is simply not used. The quality of a substitute relative to the excluded sources is unknown and cannot be checked; the admission bar for a combination whose comparator contains a substitute can therefore be lower than with the best excluded source, and every report of such a combination says so.",
     "data_channel": {
-      "fred_alfred": "Vintage files of the registered series are retrieved by the project retrieval tool, automatically, one series per request: no human download step, no FRED API key or API cache, no crawling of the catalogue. The tool identifies itself, rate-limits the requests and logs every retrieval. Latest and vintage files are requested through the public CSV endpoint by series id and, for a vintage, by vintage_date; the qualified prohibition on robots and scraping covers disruptive or bulk gathering, which a rate-limited single-series retrieval avoids; the general terms allow personal non-commercial use.",
+      "fred_alfred": "Vintage files of the registered series are retrieved by the project retrieval tool, automatically: latest files through the public FRED CSV endpoint, and vintage sets through one POST per series to the ALFRED download-data form (entered vintage dates, 'Observations by Vintage Date, All Observations', zipped CSV). One series per request, no FRED API key or API cache, no crawling of the catalogue. The tool identifies itself, rate-limits the requests and logs every retrieval. The qualified prohibition on robots and scraping covers disruptive or bulk gathering, which a rate-limited single-series retrieval avoids; the general terms allow personal non-commercial use.",
       "automation": "No step of the data pipeline requires or permits a human download. The retrieval tool runs in the project CI on a schedule and can be triggered through the GitHub API; it writes only metadata (into the repository when the log is committed, otherwise into the private CI artifact) and keeps raw files outside the repository. Every source currently used is in protocols/data_plan.json; a source that is not automated is not used. If a quantity cannot be retrieved automatically within the published terms, it is replaced by the project model (licence_policy.substitute) or dropped, and the decision is recorded.",
       "ml_training": "No training or fine-tuning of any model on FRED or ALFRED content; foundation models and LLM forecasters therefore use only series from sources whose register entry allows it.",
       "alternative": "Primary public-domain sources (BLS, BEA, Treasury, Federal Reserve Board) are the alternative channel and are retrieved by the same automated tool once R2 has read their archive terms. BLS and BEA terms were read on 2026-11-11 (public domain, citation requested; docs/63, docs/65)."
@@ -207,7 +207,7 @@
       "ALFRED_GS10": "1996-12-03",
       "ALFRED_TB3MS": "1996-12-03",
       "ALFRED_T10Y3M": "2014-01-27",
-      "ALFRED_USREC": "to be recorded by the automated retrieval (USREC latest file)"
+      "ALFRED_USREC": "latest file retrieved automatically; vintage announcements are a later R2 refinement"
     },
     "verification_notes": {
       "source": "docs/58 and docs/61, primary sources opened on 2026-11-11",
@@ -237,7 +237,7 @@
       "workflow": ".github/workflows/data-refresh.yml",
       "data_log": "protocols/data_log.json",
       "rule": "Automated retrieval only; no human download step. Raw files are never committed; the CI run keeps them outside the repository (private artifacts). The data log records URL, retrieval date, bytes, SHA-256, row count and last observation - metadata only, never values.",
-      "modes": "latest and vintage (vintage_date parameter of the public CSV endpoint)",
+      "modes": "latest via the public FRED CSV endpoint; vintage sets via one POST per series to the ALFRED download-data form (file_type 2 = observations by vintage date, zipped CSV)",
       "log_fields": [
         "series",
         "register",
@@ -248,7 +248,11 @@
         "sha256",
         "file",
         "rows",
-        "last_observation"
+        "last_observation",
+        "vintage_dates",
+        "vintage_count",
+        "vintage_last_observation",
+        "vintage_check"
       ],
       "trigger": "monthly schedule, manual workflow dispatch and GitHub API workflow_dispatch",
       "failure_rule": "A failed retrieval is logged with its reason, retried on the next run, and the affected source is not used until it succeeds; no manual download is substituted."
@@ -1013,7 +1017,7 @@
         "data_depth.retrieval",
         "data_depth.vintage_sources"
       ],
-      "summary": "Automated retrieval replaces the human download step: tool plus CI, latest and vintage files, NBER chronology through USREC, rate-limited single-series requests, no API cache, no raw data in the repository. SPF_MEDIAN is not a comparator member until its files are automated and mapped in R2 (D-132)."
+      "summary": "Automated retrieval replaces the human download step: tool plus CI; latest files through FRED and vintage sets through one ALFRED download-form POST per series; NBER chronology through USREC; rate-limited, no API cache, no raw data in the repository. SPF_MEDIAN is not a comparator member until its files are automated and mapped in R2 (D-132)."
     }
   ]
 }
