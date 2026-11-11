@@ -48,6 +48,7 @@ class InternationalAccounts:
         k={key:D(v) for key,v in capital.items()}
         c={key:D(v) for key,v in current.items()}
         if any(key not in COUNTRIES for key in (*g,*k)):raise AccountingError("invalid country")
+        if any(not isinstance(key,tuple) or len(key)!=4 for key in f):raise AccountingError("invalid financial key")
         if any(key not in [(cc,ss) for cc in COUNTRIES for ss in SECTORS] for key in c):
             raise AccountingError("invalid sector")
         nf=self.financial.copy();ng=self.goods.copy();nk=self.capital.copy()
@@ -77,7 +78,7 @@ class InternationalAccounts:
 
     def transfer(self,c,payer,receiver,n,currency=None):
         n=D(n);cur=currency or CURRENCIES[c]
-        if c not in COUNTRIES or payer==receiver or payer not in ("firm","household","government") or receiver not in ("firm","household","government") or n<0:
+        if c not in COUNTRIES or cur not in CURRENCIES.values() or payer==receiver or payer not in ("firm","household","government") or receiver not in ("firm","household","government") or n<0:
             raise AccountingError("invalid transfer")
         self.post("transfer",{(c,payer,"deposit",cur):-n,(c,receiver,"deposit",cur):n},current={(c,payer):-n,(c,receiver):n})
 
