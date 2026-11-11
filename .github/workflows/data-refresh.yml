@@ -27,7 +27,10 @@ jobs:
           python-version: '3.11'
       - name: Automated retrieval of registered series (latest and vintages)
         run: python tools/fetch_data.py --out data/raw --log protocols/data_log.json --include-vintages
-      - name: Upload raw data and the metadata log as a private artifact
+      - name: R2 data gate check (initial releases against the vintage sets)
+        if: always()
+        run: python tools/verify_data_gate.py --data data/raw --report protocols/r2_gate_report.json
+      - name: Upload raw data, the metadata log and the gate report
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -35,4 +38,5 @@ jobs:
           path: |
             data/raw/
             protocols/data_log.json
+            protocols/r2_gate_report.json
           retention-days: 90

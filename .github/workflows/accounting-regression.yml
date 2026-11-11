@@ -58,3 +58,5 @@ jobs:
         run: python tests/test_r3_specification.py
       - name: Protocol v4 delta (T3 W1 1996-12, automated retrieval, integrity against v3)
         run: python tests/test_protocol_v4.py
+      - name: R2 data gate report (structure, when the report exists)
+        run: python tests/test_data_gate_report.py

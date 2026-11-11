@@ -271,12 +271,13 @@
       "url": [
         "https://www.bls.gov/bls/linksite.htm"
       ],
-      "basis": "'...everything that we publish ... is in the public domain, except for previously copyrighted photographs and illustrations. You are free to use our public domain material without specific permission, although we do ask that you cite the Bureau of Labor Statistics as the source.' This is a terms statement, not yet a verified vintage channel.",
+      "basis": "'...everything that we publish ... is in the public domain, except for previously copyrighted photographs and illustrations. You are free to use our public domain material without specific permission, although we do ask that you cite the Bureau of Labor Statistics as the source.' This is a terms statement, not yet a verified vintage channel. The BLS site answers automated requests with HTTP 403 Access Denied and its bot policy, so no automated retrieval is attempted from bls.gov; ALFRED archives the BLS releases and is the channel used for the same series.",
       "conditions": [
         "attribution requested",
-        "vintage availability is a separate R2 check"
+        "vintage availability is a separate R2 check",
+        "no automated requests to bls.gov (bot policy, HTTP 403); use ALFRED"
       ],
-      "decision": "alternative channel for the BLS series, subject to the R2 archive check"
+      "decision": "alternative source for BLS series; direct automated retrieval is blocked by the BLS bot policy, so BLS data enter through ALFRED only"
     },
     {
       "id": "BEA_PRIMARY",
