@@ -44,7 +44,7 @@ class ProtocolV3(unittest.TestCase):
     def test_every_change_is_mapped_to_existing_content(self):
         p = load()
         ids = [c["id"] for c in p["changes_from_v2"]]
-        self.assertEqual(ids, ["L1", "L2", "L3"] + [f"R-{i:02d}" for i in range(1, 18)])
+        self.assertEqual(ids, ["L1", "L2", "L3", "L4"] + [f"R-{i:02d}" for i in range(1, 18)])
         for change in p["changes_from_v2"]:
             self.assertIn(change["disposition"], {"adopted", "adopted_needs_owner_confirmation",
                                                   "recorded_as_caveat", "no_change"}, change["id"])
@@ -68,19 +68,41 @@ class ProtocolV3(unittest.TestCase):
                 if status[src] == "UNVERIFIED":
                     self.assertIn("once its sources are OPEN", b["note"], f"{b['id']}: {src}")
 
-    def test_gdpnow_is_a_control_arm_only(self):
+    def test_gdpnow_is_not_used_anywhere(self):
         p = load()
-        arm = next(b for b in p["baselines"] if b["id"] == "NOWCAST_EXTERNAL")
-        self.assertFalse(arm["comparator_member"])
         self.assertEqual(p["licence_policy"]["register"]["ATLANTA_FED_GDPNOW"]["status"], "RESTRICTED")
-        self.assertIn("ATLANTA_FED_GDPNOW", arm["licence_sources"])
-        self.assertIn("NOWCAST_EXTERNAL", p["forward_registry"]["control_arms"])
-        self.assertNotIn("NOWCAST_EXTERNAL", p["primary_comparator_rule"].split("Members:")[0])
+        for b in p["baselines"]:
+            self.assertNotIn("ATLANTA_FED_GDPNOW", b.get("licence_sources", []), b["id"])
+        self.assertNotIn("NOWCAST_EXTERNAL", [b["id"] for b in p["baselines"]])
+        self.assertNotIn("NOWCAST_EXTERNAL", p["forward_registry"]["control_arms"])
+        self.assertTrue(p["licence_policy"]["gdpnow"]["use"].startswith("none"))
+        self.assertIn("NOT PURSUED", p["licence_policy"]["gdpnow"]["permission_request"])
+
+    def test_nyfed_nowcast_is_a_control_arm_only(self):
+        p = load()
+        arm = next(b for b in p["baselines"] if b["id"] == "NOWCAST_NYFED")
+        self.assertFalse(arm["comparator_member"])
+        self.assertIn("NOWCAST_NYFED", p["forward_registry"]["control_arms"])
+
+    def test_own_nowcast_replaces_external_nowcasts(self):
+        p = load()
+        own = next(b for b in p["baselines"] if b["id"] == "OWN_NOWCAST_BRIDGE")
+        self.assertEqual(own["applies_to"], ["T2_GDP_GROWTH"])
+        self.assertEqual(own["horizons"], "0")
+        self.assertTrue(own["comparator_member"])
+        self.assertTrue(own["approximation_of"])
+        self.assertIn("approximation", p["licence_policy"])
+        self.assertIn("OWN_NOWCAST_BRIDGE", p["licence_policy"]["gdpnow"]["replacement"])
+
+    def test_owner_decision_no_permissions_is_recorded(self):
+        p = load()
+        decisions = p["meta_gate"]["owner_decisions"]
+        self.assertTrue(any("No permission is requested" in d["decision"] for d in decisions))
+        self.assertIn("requests no permission", p["licence_policy"]["no_permissions"])
 
     def test_licence_policy_forbids_committing_raw_archives(self):
         lp = load()["licence_policy"]
         self.assertIn("never committed", lp["raw_data"])
-        self.assertIn("PENDING", lp["gdpnow"]["permission_request"])
 
     def test_point_only_baselines_do_not_enter_density_losses(self):
         p = load()

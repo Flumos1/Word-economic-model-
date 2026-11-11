@@ -12,7 +12,10 @@
     "impact_analysis": "No result was ever produced under v1 or v2, so no verdict changes and the replay is empty.",
     "independent_review": "PENDING. Must be done by a session other than the author of this draft; a human reviewer is preferred.",
     "approval": "PENDING",
-    "owner_confirmation_needed": ["estimation.T3 (window 240 months instead of 180)", "the tightening readings R-05, R-06, R-08, R-09 in changes_from_v2", "licence_policy.unverified_sources_are_excluded"],
+    "owner_decisions": [
+      {"date": "2026-11-11", "decision": "No permission is requested from any data provider. The project works with openly available information only and approximates any other needed quantity with its own models."}
+    ],
+    "owner_confirmation_needed": ["estimation.T3 (window 240 months instead of 180)", "the tightening readings R-05, R-06, R-08, R-09 in changes_from_v2", "licence_policy.rule (a source with unverified terms stays out of the primary comparator)"],
     "on_approval": "Add decision D-128, freeze this file with a pinned SHA-256 in evaluation_protocol_v3.sha256, leave v1 and v2 untouched."
   },
   "amendment_rule": "Once FROZEN this file is never edited. A change is a new file evaluation_protocol_v4.json approved through the D-100 meta-gate.",
@@ -30,11 +33,13 @@
     "reason": "A benchmark that nobody else can recompute is not a benchmark. The primary comparator must be reproducible from data whose licence allows publishing derived statistics.",
     "statuses": {
       "OPEN": "Terms verified: public domain or reuse with attribution, publication of derived statistics allowed.",
-      "RESTRICTED": "Terms verified: reuse limited (for example personal and educational use only) or publication and derivative works need written permission.",
+      "RESTRICTED": "Terms verified: reuse limited (for example personal and educational use only) or publication and derivative works need written permission. Not used by the project at all.",
       "UNVERIFIED": "Terms not found or not read."
     },
-    "rule": "The primary comparator may use only OPEN sources. RESTRICTED and UNVERIFIED sources are control arms: they are scored and reported but never enter the primary comparator or any admission criterion.",
-    "resolution": "R2 must resolve every UNVERIFIED source to OPEN or RESTRICTED before the comparator composition is recorded; an unresolved source stays a control arm.",
+    "no_permissions": "The project requests no permission, licence or approval from any data provider. It uses only data whose published terms allow the intended use without asking.",
+    "rule": "The primary comparator may use only OPEN sources. RESTRICTED sources are not used anywhere in the project (comparator, control arms, criteria, reports). UNVERIFIED sources may be used only as control arms and only after R2 reads their terms and finds them OPEN; they never enter the primary comparator or an admission criterion until OPEN.",
+    "approximation": "A quantity that is available only through a RESTRICTED or UNVERIFIED source is approximated by the project's own model built from OPEN data (for example OWN_NOWCAST_BRIDGE). An approximation is never presented as equal to the source it replaces and is validated only against OPEN actuals, like any baseline.",
+    "resolution": "R2 must resolve every UNVERIFIED source to OPEN or RESTRICTED before the comparator composition is recorded; an unresolved source stays excluded.",
     "raw_data": "Raw third-party archives are never committed to the repository. They are fetched by script into an ignored directory and the URL, retrieval date and SHA-256 of each file are recorded.",
     "register": {
       "verified_on": "2026-11-11",
@@ -47,9 +52,9 @@
       "ATLANTA_FED_GDPNOW": {"status": "RESTRICTED", "basis": "data file: reproduction for personal and educational use only; site terms: derivative works and publication need written permission from the Bank's Public Affairs department"}
     },
     "gdpnow": {
-      "use": "control arm for private evaluation only",
-      "permission_request": "PENDING, to be sent by the project owner; it is not sent",
-      "if_granted": "Status may become OPEN in the register for the granted uses; the primary comparator stays unchanged until a later protocol version."
+      "use": "none: not downloaded, not stored, not scored, not reported",
+      "permission_request": "NOT PURSUED by owner decision of 2026-11-11",
+      "replacement": "OWN_NOWCAST_BRIDGE, a nowcast built by the project from OPEN data; the published description of GDPNow-type bridge equations is a method, and implementing a method from public descriptions does not use the archive"
     }
   },
   "targets": [
@@ -143,7 +148,8 @@
     {"id": "SAHM_RULE", "applies_to": ["T3_RECESSION"], "comparator_member": true, "licence_sources": ["ALFRED_OTHER_SERIES"], "note": "Sahm recession indicator converted to a probability by logistic calibration on the rolling window; a member only once its sources are OPEN"},
     {"id": "SPF_MEDIAN", "applies_to": ["T1_CPI_YOY", "T2_GDP_GROWTH"], "comparator_member": true, "licence_sources": ["PHILADELPHIA_FED_SPF_and_RTDSM"], "point_only": true, "note": "SPF median at survey deadlines only; a point forecast, so it enters point losses only; scored only after the definitions are mapped (SPF CPI is q/q and 4Q/4Q, the target is a monthly y/y); a member only once its sources are OPEN"},
     {"id": "SPF_NEG_GDP_PROB", "applies_to": ["T3_RECESSION"], "scored": false, "comparator_member": false, "event_mismatch": true, "note": "SPF reports the probability of negative quarterly real GDP growth, not an NBER recession; descriptive only"},
-    {"id": "NOWCAST_EXTERNAL", "applies_to": ["T2_GDP_GROWTH"], "comparator_member": false, "licence_sources": ["ATLANTA_FED_GDPNOW", "NY_FED_STAFF_NOWCAST"], "note": "Atlanta Fed GDPNow and NY Fed Staff Nowcast, horizon 0 only; control arm, never part of the primary comparator"},
+    {"id": "OWN_NOWCAST_BRIDGE", "applies_to": ["T2_GDP_GROWTH"], "horizons": "0", "comparator_member": true, "licence_sources": ["ALFRED_OTHER_SERIES", "FRED-MD_FRED-QD"], "approximation_of": "external GDP nowcasts that the project does not use", "note": "the project's own nowcast of the current quarter from OPEN monthly data (bridge equations and a dynamic factor model); horizon 0 only; a member only once its sources are OPEN"},
+    {"id": "NOWCAST_NYFED", "applies_to": ["T2_GDP_GROWTH"], "horizons": "0", "comparator_member": false, "licence_sources": ["NY_FED_STAFF_NOWCAST"], "note": "NY Fed Staff Nowcast, horizon 0 only; a control arm, used only if R2 finds its terms OPEN; never part of the primary comparator"},
     {"id": "EQUAL_WEIGHT_POINT", "applies_to": ["T1_CPI_YOY", "T2_GDP_GROWTH"], "comparator_member": false, "note": "mean of the point forecasts of the comparator members; the primary comparator for point losses"},
     {"id": "EQUAL_WEIGHT_DENSITY", "applies_to": ["T1_CPI_YOY", "T2_GDP_GROWTH", "T3_RECESSION"], "comparator_member": false, "note": "equal-weight linear pool of the predictive distributions of the comparator members that provide one; the primary comparator for distribution and event losses"}
   ],
@@ -214,7 +220,7 @@
   "forward_registry": {
     "cadence": "monthly, after the last data release of the month",
     "record": ["candidate_id", "code_commit", "data_vintage_hash", "target", "horizon", "origin", "quantiles_5_to_95_step_5", "point", "scoring_rule_commit"],
-    "control_arms": ["RW", "EQUAL_WEIGHT_POINT", "EQUAL_WEIGHT_DENSITY", "SPF_MEDIAN", "NOWCAST_EXTERNAL"],
+    "control_arms": ["RW", "EQUAL_WEIGHT_POINT", "EQUAL_WEIGHT_DENSITY", "SPF_MEDIAN", "OWN_NOWCAST_BRIDGE", "NOWCAST_NYFED"],
     "integrity": "committed to the repository before the actual value is published; rows are append-only; a correction is a new row that references the old one"
   },
   "drift_triggers": {
@@ -224,8 +230,9 @@
   },
   "changes_from_v2": [
     {"id": "L1", "disposition": "adopted", "paths": ["licence_policy", "primary_comparator_rule"], "summary": "Primary comparator uses OPEN sources only; RESTRICTED and UNVERIFIED sources are control arms."},
-    {"id": "L2", "disposition": "adopted", "paths": ["baselines", "forward_registry"], "summary": "NOWCAST_EXTERNAL (GDPNow, NY Fed) leaves the comparator and stays a scored control arm."},
-    {"id": "L3", "disposition": "adopted", "paths": ["licence_policy.raw_data", "licence_policy.gdpnow"], "summary": "Raw archives are never committed; permission request to Atlanta Fed is pending."},
+    {"id": "L2", "disposition": "adopted", "paths": ["baselines", "forward_registry"], "summary": "GDPNow is dropped; the NY Fed nowcast becomes a control arm used only if its terms are found OPEN; the project's own OWN_NOWCAST_BRIDGE replaces external nowcasts in the comparator."},
+    {"id": "L3", "disposition": "adopted", "paths": ["licence_policy.raw_data", "licence_policy.gdpnow"], "summary": "Raw archives are never committed; no permission is requested from anyone (owner decision 2026-11-11)."},
+    {"id": "L4", "disposition": "adopted", "paths": ["licence_policy.no_permissions", "licence_policy.approximation", "meta_gate.owner_decisions"], "summary": "Open information only; quantities available only through restricted sources are approximated by the project's own models and validated against OPEN actuals."},
     {"id": "R-01", "disposition": "adopted", "paths": ["data_depth.first_release_tape"], "summary": "First-release tape for CPIAUCSL before 1994-02-17, documented and spot-checked, else PSEUDO_REAL_TIME."},
     {"id": "R-02", "disposition": "adopted", "paths": ["data_depth.gate"], "summary": "The R2 gate covers 1990-2026, with at least 10 spot-check pairs before 2000."},
     {"id": "R-03", "disposition": "adopted", "paths": ["admission.threshold_rule.noise_floor_study"], "summary": "NF-SIM uses the effective REAL_TIME length and the h-1 overlap."},
