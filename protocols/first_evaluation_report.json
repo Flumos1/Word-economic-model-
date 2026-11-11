@@ -1,0 +1,537 @@
+{
+  "report_id": "AMFE-FIRST-EVALUATION-PILOT",
+  "pilot": true,
+  "admission": false,
+  "generated_at": "2026-11-11T19:24:34Z",
+  "mode": "latest",
+  "window": "W2",
+  "range": [
+    "2018-01-01",
+    "2019-12-31"
+  ],
+  "actuals": "latest vintage (first-publication actuals are a separate R2 layer)",
+  "deferred": [
+    "density losses (CRPS of the mixture pool)",
+    "window W1",
+    "first-publication actuals",
+    "admission stages and multiplicity"
+  ],
+  "protocol": {
+    "file": "protocols/evaluation_protocol_v4.json",
+    "version": "4.0.0",
+    "sha256": "bd965f4d9f23151b4ccfd27202f0669d0a7807e642639ed18c0b864bf68dedc9"
+  },
+  "r3_specification": {
+    "file": "protocols/r3_specification.json",
+    "version": "0.6.0-proposed",
+    "sha256": "4d7423eb0b792136ae6d99d9a21f43e95631026599cc6540435764d9ec91cb75"
+  },
+  "composition": {
+    "file": "comparator_composition_2026-11-11.json",
+    "sha256": "a7605531eba3ab7fcab8f8d7eead1493df3119cb091554a5b29722b10ef36090"
+  },
+  "pairs": [
+    {
+      "target": "T1_CPI_YOY",
+      "horizon": 1,
+      "loss": "RMSE",
+      "candidate": "AO",
+      "candidate_role": "comparator member (pipeline validation, not a real candidate)",
+      "origins": 24,
+      "comparator_members": [
+        "AO",
+        "AR_BIC",
+        "BVAR_MINNESOTA",
+        "RW"
+      ],
+      "candidate_loss": 0.585101,
+      "comparator_loss": 0.419496,
+      "relative_loss": 1.3948,
+      "threshold": 0.97,
+      "c1_pass": false,
+      "dm_p_value_one_sided": 0.9999,
+      "model_failures": 0
+    },
+    {
+      "target": "T1_CPI_YOY",
+      "horizon": 1,
+      "loss": "RMSE",
+      "candidate": "AR_BIC",
+      "candidate_role": "comparator member (pipeline validation, not a real candidate)",
+      "origins": 24,
+      "comparator_members": [
+        "AO",
+        "AR_BIC",
+        "BVAR_MINNESOTA",
+        "RW"
+      ],
+      "candidate_loss": 0.40743,
+      "comparator_loss": 0.419496,
+      "relative_loss": 0.9712,
+      "threshold": 0.97,
+      "c1_pass": false,
+      "dm_p_value_one_sided": 0.3638,
+      "model_failures": 0
+    },
+    {
+      "target": "T1_CPI_YOY",
+      "horizon": 1,
+      "loss": "RMSE",
+      "candidate": "BVAR_MINNESOTA",
+      "candidate_role": "comparator member (pipeline validation, not a real candidate)",
+      "origins": 24,
+      "comparator_members": [
+        "AO",
+        "AR_BIC",
+        "BVAR_MINNESOTA",
+        "RW"
+      ],
+      "candidate_loss": 0.425311,
+      "comparator_loss": 0.419496,
+      "relative_loss": 1.0139,
+      "threshold": 0.97,
+      "c1_pass": false,
+      "dm_p_value_one_sided": 0.6493,
+      "model_failures": 0
+    },
+    {
+      "target": "T1_CPI_YOY",
+      "horizon": 1,
+      "loss": "RMSE",
+      "candidate": "RW",
+      "candidate_role": "comparator member (pipeline validation, not a real candidate)",
+      "origins": 24,
+      "comparator_members": [
+        "AO",
+        "AR_BIC",
+        "BVAR_MINNESOTA",
+        "RW"
+      ],
+      "candidate_loss": 0.417586,
+      "comparator_loss": 0.419496,
+      "relative_loss": 0.9954,
+      "threshold": 0.97,
+      "c1_pass": false,
+      "dm_p_value_one_sided": 0.5836,
+      "model_failures": 0
+    },
+    {
+      "target": "T1_CPI_YOY",
+      "horizon": 12,
+      "loss": "RMSE",
+      "candidate": "AO",
+      "candidate_role": "comparator member (pipeline validation, not a real candidate)",
+      "origins": 13,
+      "comparator_members": [
+        "AO",
+        "AR_BIC",
+        "BVAR_MINNESOTA",
+        "RW"
+      ],
+      "candidate_loss": 0.547898,
+      "comparator_loss": 0.643792,
+      "relative_loss": 0.851,
+      "threshold": 0.9505,
+      "c1_pass": true,
+      "dm_p_value_one_sided": 0.3273,
+      "model_failures": 0
+    },
+    {
+      "target": "T1_CPI_YOY",
+      "horizon": 12,
+      "loss": "RMSE",
+      "candidate": "AR_BIC",
+      "candidate_role": "comparator member (pipeline validation, not a real candidate)",
+      "origins": 13,
+      "comparator_members": [
+        "AO",
+        "AR_BIC",
+        "BVAR_MINNESOTA",
+        "RW"
+      ],
+      "candidate_loss": 0.577175,
+      "comparator_loss": 0.643792,
+      "relative_loss": 0.8965,
+      "threshold": 0.9505,
+      "c1_pass": true,
+      "dm_p_value_one_sided": 0.3638,
+      "model_failures": 0
+    },
+    {
+      "target": "T1_CPI_YOY",
+      "horizon": 12,
+      "loss": "RMSE",
+      "candidate": "BVAR_MINNESOTA",
+      "candidate_role": "comparator member (pipeline validation, not a real candidate)",
+      "origins": 13,
+      "comparator_members": [
+        "AO",
+        "AR_BIC",
+        "BVAR_MINNESOTA",
+        "RW"
+      ],
+      "candidate_loss": 0.638757,
+      "comparator_loss": 0.643792,
+      "relative_loss": 0.9922,
+      "threshold": 0.9505,
+      "c1_pass": false,
+      "dm_p_value_one_sided": 0.4852,
+      "model_failures": 0
+    },
+    {
+      "target": "T1_CPI_YOY",
+      "horizon": 12,
+      "loss": "RMSE",
+      "candidate": "RW",
+      "candidate_role": "comparator member (pipeline validation, not a real candidate)",
+      "origins": 13,
+      "comparator_members": [
+        "AO",
+        "AR_BIC",
+        "BVAR_MINNESOTA",
+        "RW"
+      ],
+      "candidate_loss": 0.798427,
+      "comparator_loss": 0.643792,
+      "relative_loss": 1.2402,
+      "threshold": 0.9505,
+      "c1_pass": false,
+      "dm_p_value_one_sided": 0.7053,
+      "model_failures": 0
+    },
+    {
+      "target": "T2_GDP_GROWTH",
+      "horizon": 0,
+      "loss": "RMSE",
+      "candidate": "AO",
+      "candidate_role": "comparator member (pipeline validation, not a real candidate)",
+      "origins": 24,
+      "comparator_members": [
+        "AO",
+        "AR_BIC",
+        "BVAR_MINNESOTA",
+        "OWN_NOWCAST_BRIDGE"
+      ],
+      "candidate_loss": 1.107209,
+      "comparator_loss": 0.987992,
+      "relative_loss": 1.1207,
+      "threshold": 0.97,
+      "c1_pass": false,
+      "dm_p_value_one_sided": 0.9973,
+      "model_failures": 0
+    },
+    {
+      "target": "T2_GDP_GROWTH",
+      "horizon": 0,
+      "loss": "RMSE",
+      "candidate": "AR_BIC",
+      "candidate_role": "comparator member (pipeline validation, not a real candidate)",
+      "origins": 24,
+      "comparator_members": [
+        "AO",
+        "AR_BIC",
+        "BVAR_MINNESOTA",
+        "OWN_NOWCAST_BRIDGE"
+      ],
+      "candidate_loss": 1.001079,
+      "comparator_loss": 0.987992,
+      "relative_loss": 1.0132,
+      "threshold": 0.97,
+      "c1_pass": false,
+      "dm_p_value_one_sided": 0.3956,
+      "model_failures": 0
+    },
+    {
+      "target": "T2_GDP_GROWTH",
+      "horizon": 0,
+      "loss": "RMSE",
+      "candidate": "BVAR_MINNESOTA",
+      "candidate_role": "comparator member (pipeline validation, not a real candidate)",
+      "origins": 24,
+      "comparator_members": [
+        "AO",
+        "AR_BIC",
+        "BVAR_MINNESOTA",
+        "OWN_NOWCAST_BRIDGE"
+      ],
+      "candidate_loss": 0.968734,
+      "comparator_loss": 0.987992,
+      "relative_loss": 0.9805,
+      "threshold": 0.97,
+      "c1_pass": false,
+      "dm_p_value_one_sided": 0.0044,
+      "model_failures": 0
+    },
+    {
+      "target": "T2_GDP_GROWTH",
+      "horizon": 0,
+      "loss": "RMSE",
+      "candidate": "OWN_NOWCAST_BRIDGE",
+      "candidate_role": "comparator member (pipeline validation, not a real candidate)",
+      "origins": 24,
+      "comparator_members": [
+        "AO",
+        "AR_BIC",
+        "BVAR_MINNESOTA",
+        "OWN_NOWCAST_BRIDGE"
+      ],
+      "candidate_loss": 0.978716,
+      "comparator_loss": 0.987992,
+      "relative_loss": 0.9906,
+      "threshold": 0.97,
+      "c1_pass": false,
+      "dm_p_value_one_sided": 0.1685,
+      "model_failures": 0
+    },
+    {
+      "target": "T3_RECESSION",
+      "horizon": 3,
+      "loss": "Brier",
+      "candidate": "PROBIT_SPREAD",
+      "candidate_role": "comparator member (pipeline validation, not a real candidate)",
+      "origins": 21,
+      "comparator_members": [
+        "PROBIT_SPREAD",
+        "SAHM_RULE"
+      ],
+      "candidate_loss": 0.000442,
+      "comparator_loss": 0.001112,
+      "relative_loss": 0.3979,
+      "threshold": 0.7669,
+      "c1_pass": true,
+      "dm_p_value_one_sided": 0.0,
+      "model_failures": 0
+    },
+    {
+      "target": "T3_RECESSION",
+      "horizon": 3,
+      "loss": "Brier",
+      "candidate": "SAHM_RULE",
+      "candidate_role": "comparator member (pipeline validation, not a real candidate)",
+      "origins": 21,
+      "comparator_members": [
+        "PROBIT_SPREAD",
+        "SAHM_RULE"
+      ],
+      "candidate_loss": 0.002087,
+      "comparator_loss": 0.001112,
+      "relative_loss": 1.8777,
+      "threshold": 0.7669,
+      "c1_pass": false,
+      "dm_p_value_one_sided": 1.0,
+      "model_failures": 0
+    },
+    {
+      "target": "T3_RECESSION",
+      "horizon": 3,
+      "loss": "log_score",
+      "candidate": "PROBIT_SPREAD",
+      "candidate_role": "comparator member (pipeline validation, not a real candidate)",
+      "origins": 21,
+      "comparator_members": [
+        "PROBIT_SPREAD",
+        "SAHM_RULE"
+      ],
+      "candidate_loss": 0.021202,
+      "comparator_loss": 0.0339,
+      "relative_loss": 0.6254,
+      "threshold": 0.8286,
+      "c1_pass": true,
+      "dm_p_value_one_sided": 0.0,
+      "model_failures": 0
+    },
+    {
+      "target": "T3_RECESSION",
+      "horizon": 3,
+      "loss": "log_score",
+      "candidate": "SAHM_RULE",
+      "candidate_role": "comparator member (pipeline validation, not a real candidate)",
+      "origins": 21,
+      "comparator_members": [
+        "PROBIT_SPREAD",
+        "SAHM_RULE"
+      ],
+      "candidate_loss": 0.046762,
+      "comparator_loss": 0.0339,
+      "relative_loss": 1.3794,
+      "threshold": 0.8286,
+      "c1_pass": false,
+      "dm_p_value_one_sided": 1.0,
+      "model_failures": 0
+    },
+    {
+      "target": "T3_RECESSION",
+      "horizon": 12,
+      "loss": "Brier",
+      "candidate": "PROBIT_SPREAD",
+      "candidate_role": "comparator member (pipeline validation, not a real candidate)",
+      "origins": 12,
+      "comparator_members": [
+        "PROBIT_SPREAD",
+        "SAHM_RULE"
+      ],
+      "candidate_loss": 0.025046,
+      "comparator_loss": 0.021692,
+      "relative_loss": 1.1546,
+      "threshold": 0.7938,
+      "c1_pass": false,
+      "dm_p_value_one_sided": 0.5,
+      "model_failures": 0
+    },
+    {
+      "target": "T3_RECESSION",
+      "horizon": 12,
+      "loss": "Brier",
+      "candidate": "SAHM_RULE",
+      "candidate_role": "comparator member (pipeline validation, not a real candidate)",
+      "origins": 12,
+      "comparator_members": [
+        "PROBIT_SPREAD",
+        "SAHM_RULE"
+      ],
+      "candidate_loss": 0.018784,
+      "comparator_loss": 0.021692,
+      "relative_loss": 0.8659,
+      "threshold": 0.7938,
+      "c1_pass": false,
+      "dm_p_value_one_sided": 0.5,
+      "model_failures": 0
+    },
+    {
+      "target": "T3_RECESSION",
+      "horizon": 12,
+      "loss": "log_score",
+      "candidate": "PROBIT_SPREAD",
+      "candidate_role": "comparator member (pipeline validation, not a real candidate)",
+      "origins": 12,
+      "comparator_members": [
+        "PROBIT_SPREAD",
+        "SAHM_RULE"
+      ],
+      "candidate_loss": 0.170731,
+      "comparator_loss": 0.158911,
+      "relative_loss": 1.0744,
+      "threshold": 0.8501,
+      "c1_pass": false,
+      "dm_p_value_one_sided": 0.5,
+      "model_failures": 0
+    },
+    {
+      "target": "T3_RECESSION",
+      "horizon": 12,
+      "loss": "log_score",
+      "candidate": "SAHM_RULE",
+      "candidate_role": "comparator member (pipeline validation, not a real candidate)",
+      "origins": 12,
+      "comparator_members": [
+        "PROBIT_SPREAD",
+        "SAHM_RULE"
+      ],
+      "candidate_loss": 0.147405,
+      "comparator_loss": 0.158911,
+      "relative_loss": 0.9276,
+      "threshold": 0.8501,
+      "c1_pass": false,
+      "dm_p_value_one_sided": 0.5,
+      "model_failures": 0
+    }
+  ],
+  "coverage": [
+    {
+      "target": "T1_CPI_YOY",
+      "horizon": 1,
+      "loss": "RMSE",
+      "origins": 24,
+      "models_with_forecasts": [
+        "AO",
+        "AR_BIC",
+        "BVAR_MINNESOTA",
+        "RW"
+      ]
+    },
+    {
+      "target": "T1_CPI_YOY",
+      "horizon": 12,
+      "loss": "RMSE",
+      "origins": 13,
+      "models_with_forecasts": [
+        "AO",
+        "AR_BIC",
+        "BVAR_MINNESOTA",
+        "RW"
+      ]
+    },
+    {
+      "target": "T2_GDP_GROWTH",
+      "horizon": 0,
+      "loss": "RMSE",
+      "origins": 24,
+      "models_with_forecasts": [
+        "AO",
+        "AR_BIC",
+        "BVAR_MINNESOTA",
+        "OWN_NOWCAST_BRIDGE"
+      ]
+    },
+    {
+      "target": "T2_GDP_GROWTH",
+      "horizon": 4,
+      "loss": "RMSE",
+      "origins": 4,
+      "models_with_forecasts": [
+        "AO",
+        "AR_BIC",
+        "BVAR_MINNESOTA"
+      ]
+    },
+    {
+      "target": "T3_RECESSION",
+      "horizon": 3,
+      "loss": "Brier",
+      "origins": 21,
+      "models_with_forecasts": [
+        "PROBIT_SPREAD",
+        "SAHM_RULE"
+      ]
+    },
+    {
+      "target": "T3_RECESSION",
+      "horizon": 3,
+      "loss": "log_score",
+      "origins": 21,
+      "models_with_forecasts": [
+        "PROBIT_SPREAD",
+        "SAHM_RULE"
+      ]
+    },
+    {
+      "target": "T3_RECESSION",
+      "horizon": 12,
+      "loss": "Brier",
+      "origins": 12,
+      "models_with_forecasts": [
+        "PROBIT_SPREAD",
+        "SAHM_RULE"
+      ]
+    },
+    {
+      "target": "T3_RECESSION",
+      "horizon": 12,
+      "loss": "log_score",
+      "origins": 12,
+      "models_with_forecasts": [
+        "PROBIT_SPREAD",
+        "SAHM_RULE"
+      ]
+    }
+  ],
+  "summary": {
+    "pairs": 20,
+    "c1_pass_pairs": 4,
+    "relative_loss_range": [
+      0.3979,
+      1.8777
+    ],
+    "conclusion": "Pipeline validated end to end: PIT data -> models -> comparator composition -> losses, thresholds and C1/C2. This is not an admission result."
+  }
+}

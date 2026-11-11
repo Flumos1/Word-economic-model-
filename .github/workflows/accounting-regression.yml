@@ -62,3 +62,5 @@ jobs:
         run: python tests/test_data_gate_report.py
       - name: NF-SIM threshold table (completeness, hash, threshold rule)
         run: python tests/test_nf_sim.py
+      - name: First evaluation pilot report (pilot, no admission)
+        run: python tests/test_first_evaluation.py
