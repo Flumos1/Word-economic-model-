@@ -31,8 +31,8 @@ class InternationalAccounts:
                 raise AccountingError("unknown instrument")
             if inst=="deposit" and ((s=="bank" and v>0) or (s!="bank" and v<0)):
                 raise AccountingError("deposit sign")
-            if inst=="loan" and s not in ("firm","bank"):raise AccountingError("loan party")
-            if inst=="bond" and s not in ("government","bank"):raise AccountingError("bond party")
+            if inst=="loan" and (s not in ("firm","bank") or (s=="bank" and v<0) or (s=="firm" and v>0)):raise AccountingError("loan party/sign")
+            if inst=="bond" and (s not in ("government","bank") or (s=="bank" and v<0) or (s=="government" and v>0)):raise AccountingError("bond party/sign")
         for inst in ("deposit","loan","bond"):
             for cur in CURRENCIES.values():
                 if sum((v for (_,_,i,cc),v in f.items() if (i,cc)==(inst,cur)),D(0))!=0:
