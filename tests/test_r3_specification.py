@@ -11,7 +11,7 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PROTOCOL = ROOT / "protocols" / "evaluation_protocol_v3.json"
+PROTOCOL = ROOT / "protocols" / "evaluation_protocol_v4.json"
 SPEC = ROOT / "protocols" / "r3_specification.json"
 REGISTER = ROOT / "protocols" / "licence_register.json"
 
@@ -187,8 +187,10 @@ class R3Specification(unittest.TestCase):
         self.assertIn("100*ln(1+g/100)", spf["point"])
         self.assertIn("scored for that target", s["comparator_procedure"]["rule"])
         text = " ".join(s["open_items"])
-        self.assertIn("1996-12-03", text)
-        self.assertIn("single REAL_TIME member", text)
+        self.assertIn("NBER announcement dates", text)
+        self.assertIn("code hashes", text)
+        v4 = load_protocol()
+        self.assertEqual(v4["windows"]["target_overrides"]["T3_RECESSION"]["W1_start"], "1996-12")
 
 
 if __name__ == "__main__":

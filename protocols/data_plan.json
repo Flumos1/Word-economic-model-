@@ -1,7 +1,7 @@
 {
   "plan_id": "AMFE-DATA-PLAN",
   "version": "0.2.0",
-  "purpose": "Automated retrieval plan for the R2 data gate (protocol v4, D-132). Every series is registered OPEN; retrieval is one series per request, rate-limited, without the FRED API service. Vintage files are requested by the vintage_date parameter of the public CSV endpoint.",
+  "purpose": "Automated retrieval plan for the R2 data gate (protocol v4, D-132). Every series is registered OPEN; retrieval is one series per request, rate-limited, without the FRED API service. Latest files come from the public FRED CSV endpoint; vintage sets come from the ALFRED download-data form (actual vintage dates entered into the form, planned year-end dates are mapped to the latest actual vintage date in the same year).",
   "rate_limit_seconds": 2.0,
   "user_agent": "AMFE-research/0.1 (+https://github.com/Flumos1/Word-economic-model-)",
   "series": [

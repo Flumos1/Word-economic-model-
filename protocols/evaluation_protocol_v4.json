@@ -1,7 +1,7 @@
 {
   "protocol_id": "AMFE-EVAL",
   "version": "4.0.0",
-  "status": "DRAFT",
+  "status": "FROZEN",
   "supersedes": {
     "version": "3.0.0",
     "file": "evaluation_protocol_v3.json",
@@ -30,11 +30,11 @@
   ],
   "meta_gate": {
     "reference": "D-100",
-    "stage": "OWNER_DECISION_AMENDMENT",
+    "stage": "APPROVED",
     "diff": "changes_from_v3 below",
     "impact_analysis": "No evaluation has been run under v1, v2 or v3, so there are no verdicts to revise. Both changes are pre-registered owner decisions made before any data were collected: they narrow the T3 evaluation window to the data that actually exists and replace the human download step with automated retrieval.",
-    "independent_review": "docs/67_Независимая_проверка_протокола_v4.md found three blocking findings in the first v4 draft (B-1: PROBIT still depended on T10Y3M; B-2: vintage files were promised but not retrieved; B-3: automation coverage was overstated). All three are fixed in this revision: PROBIT uses GS10-TB3MS only, the tool and plan retrieve latest and vintage files, and every used source is automated (NBER chronology through USREC). The delta is checked against docs/67 section 7 by the reviewer.",
-    "approval": "PENDING",
+    "independent_review": "docs/67_Независимая_проверка_протокола_v4.md checked the v3->v4 delta in three passes: the first draft had three blocking findings (B-1: the probit still depended on T10Y3M; B-2: vintage files were promised but not retrieved; B-3: automation coverage was overstated); after the fixes it found one more blocking text/logic item (B-4: USREC, SPF and the NBER representation), and after B-4 one text item (B-5: the frozen text still described the obsolete vintage_date mechanism) plus the control-arm note N-1. All findings are fixed in this file; docs/67 section 10 finds no blocking remainder. The vintage retrieval is evidenced by protocols/data_log.json (6 series x 10 actual ALFRED vintages, vintage_check true).",
+    "approval": "APPROVED",
     "owner_decisions": [
       {
         "date": "2026-11-11",
@@ -50,7 +50,7 @@
       },
       {
         "date": "2026-11-11",
-        "decision": "D-131 implementation: to make the narrowed T3 W1 REAL_TIME, PROBIT_SPREAD uses only the GS10-TB3MS spread; T10Y3M is dropped from its inputs because its ALFRED vintages start 2014-01-27. D-132 implementation: automatic retrieval covers vintage files (vintage_date), the NBER chronology through USREC, and every source the pipeline actually uses; a source that is not automated is not used."
+        "decision": "D-131 implementation: to make the narrowed T3 W1 REAL_TIME, PROBIT_SPREAD uses only the GS10-TB3MS spread; T10Y3M is dropped from its inputs because its ALFRED vintages start 2014-01-27. D-132 implementation: automatic retrieval covers vintage sets through the ALFRED download-data form (actual vintage dates entered into the form), the NBER chronology through USREC, and every source the pipeline actually uses; a source that is not automated is not used."
       }
     ],
     "owner_confirmations": [
@@ -66,7 +66,8 @@
       }
     ],
     "owner_confirmation_needed": [],
-    "on_approval": "Add decision D-133, freeze this file with a pinned SHA-256 in evaluation_protocol_v4.sha256, leave v1, v2 and v3 untouched."
+    "on_approval": "Add decision D-133, freeze this file with a pinned SHA-256 in evaluation_protocol_v4.sha256, leave v1, v2 and v3 untouched.",
+    "approved_on": "2026-11-11"
   },
   "amendment_rule": "Once FROZEN this file is never edited. A change is a new file evaluation_protocol_v5.json approved through the D-100 meta-gate. The licence register is a separate append-only file and is not frozen.",
   "universe": "US",
@@ -260,7 +261,7 @@
       "failure_rule": "A failed retrieval is logged with its reason, retried on the next run, and the affected source is not used until it succeeds; no manual download is substituted."
     },
     "nber_rule": "The T3 target and the C4 split use the NBER chronology as of the evaluation date (a published record, not a vintage series). For model estimation a recession label enters only if the NBER announcement that covers it was published before the origin. The automated pipeline retrieves the machine-readable NBER chronology through the USREC series (register ALFRED:USREC, citation required) and records the retrieval; the NBER cycle-dates page remains the attribution source.",
-    "automation_coverage": "Every source that the current pipeline uses is in protocols/data_plan.json directly or through its machine-readable representation (NBER_CYCLE_DATES via ALFRED:USREC): the FRED/ALFRED series, including vintage files requested by vintage_date, and the NBER chronology. Sources whose file layout is fixed in R2 (SPF, RTDSM) are added to the plan before they are used; a source that is not automated is not used, and the project never falls back to a human download. FRED-MD/QD is UNVERIFIED and is not used.",
+    "automation_coverage": "Every source that the current pipeline uses is in protocols/data_plan.json directly or through its machine-readable representation (NBER_CYCLE_DATES via ALFRED:USREC): the FRED/ALFRED series, including vintage sets requested through the ALFRED download-data form, and the NBER chronology. Sources whose file layout is fixed in R2 (SPF, RTDSM) are added to the plan before they are used; a source that is not automated is not used, and the project never falls back to a human download. FRED-MD/QD is UNVERIFIED and is not used.",
     "nber_source_id": "NBER_CYCLE_DATES is represented in the automated plan by ALFRED:USREC (the monthly NBER recession indicator, citation required); the NBER cycle-dates page is the attribution source. The protocol keeps the target series id NBER_CYCLE_DATES."
   },
   "windows": {
@@ -645,10 +646,9 @@
       "RW",
       "EQUAL_WEIGHT_POINT",
       "EQUAL_WEIGHT_DENSITY",
-      "SPF_MEDIAN",
       "OWN_NOWCAST_BRIDGE"
     ],
-    "control_arm_rule": "A control arm enters the registry only while its inputs are OPEN in the register. Rows of control arms contain our own forecasts and derived statistics; a single third-party forecast (for example the SPF median) is recorded only where its register entry is OPEN and the terms allow it, always with attribution, and raw third-party datasets are never recorded. NOWCAST_NYFED joins only after R2 confirms that its archive is usable as a control arm, with the NY Fed attribution.",
+    "control_arm_rule": "A control arm enters the registry only while its inputs are OPEN in the register. Rows of control arms contain our own forecasts and derived statistics; a single third-party forecast (for example the SPF median) is recorded only where its register entry is OPEN and the terms allow it, always with attribution, and raw third-party datasets are never recorded. NOWCAST_NYFED joins only after R2 confirms that its archive is usable as a control arm, with the NY Fed attribution. SPF joins as a control arm only after R2 automates its files and fixes the definition mapping.",
     "integrity": "committed to the repository before the actual value is published; rows are append-only; a correction is a new row that references the old one"
   },
   "drift_triggers": {
@@ -1019,7 +1019,7 @@
         "data_depth.retrieval",
         "data_depth.vintage_sources"
       ],
-      "summary": "Automated retrieval replaces the human download step: tool plus CI; latest files through FRED and vintage sets through one ALFRED download-form POST per series; NBER chronology through USREC; rate-limited, no API cache, no raw data in the repository. SPF_MEDIAN is not a comparator member until its files are automated and mapped in R2 (D-132)."
+      "summary": "Automated retrieval replaces the human download step: tool plus CI; latest files through FRED and vintage sets through one ALFRED download-form POST per series; NBER chronology through USREC; rate-limited, no API cache, no raw data in the repository. SPF_MEDIAN is not a comparator member until its files are automated and mapped in R2 (D-132). The SPF median leaves the control arms until R2."
     }
   ]
 }

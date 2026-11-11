@@ -51,7 +51,7 @@
         "PUBLICATION: only derived statistics are published; the conflict in the terms is an acknowledged uncertainty, not a settled permission",
         "SCOPE: only series listed in this register; every other series is UNVERIFIED until its label is read"
       ],
-      "decision": "usable under the listed conditions; vintage files are requested through the public CSV endpoint by vintage_date, one series per request, rate-limited, without the API service"
+      "decision": "usable under the listed conditions; latest files come from the public CSV endpoint and vintage sets from the ALFRED download-data form (entered vintage dates), one series per request, rate-limited, without the API service"
     },
     {
       "id": "ALFRED:CPIAUCSL",

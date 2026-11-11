@@ -26,19 +26,19 @@ WORKFLOW = ROOT / ".github" / "workflows" / "data-refresh.yml"
 
 ALLOWED_CHANGED_KEYS = {
     "version", "status", "supersedes", "decision_ids", "meta_gate", "amendment_rule",
-    "licence_policy", "windows", "admission", "data_depth", "changes_from_v3", "baselines", "multiplicity",
+    "licence_policy", "windows", "admission", "data_depth", "changes_from_v3", "baselines", "multiplicity", "forward_registry",
 }
 ALLOWED_CHANGED_PATHS = (
     "licence_policy.data_channel", "licence_policy.raw_data",
     "windows.target_overrides", "admission.window_note", "admission.criteria",
     "data_depth.retrieval", "data_depth.vintage_sources", "baselines",
     "data_depth.automation_coverage", "data_depth.nber_rule", "data_depth.first_realtime_vintage",
-    "data_depth.nber_source_id", "multiplicity.primary",
+    "data_depth.nber_source_id", "multiplicity.primary", "forward_registry.control_arms",
 )
 
 IMMUTABLE = (
     "targets", "actuals", "estimation", "comparator_minimum", "primary_comparator_rule",
-    "losses", "model_class_rules", "covid_handling", "forward_registry",
+    "losses", "model_class_rules", "covid_handling",
     "drift_triggers", "comparison_unit", "origin_policy", "forecast_product", "universe",
     "protocol_id",
 )
