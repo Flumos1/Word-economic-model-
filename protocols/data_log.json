@@ -1,0 +1,82 @@
+{
+  "log_id": "AMFE-DATA-LOG",
+  "tool": "tools/fetch_data.py",
+  "protocol": "protocols/evaluation_protocol_v4.json",
+  "generated_at": "2026-11-11T16:58:16Z",
+  "no_human_download": true,
+  "rate_limit_seconds": 2.0,
+  "plan": "/home/runner/work/Word-economic-model-/Word-economic-model-/protocols/data_plan.json",
+  "entries": [
+    {
+      "series": "CPIAUCSL",
+      "register": "ALFRED:CPIAUCSL",
+      "vintage": "latest",
+      "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=CPIAUCSL",
+      "retrieved_at": "2026-11-11T16:58:01Z",
+      "bytes": 17782,
+      "sha256": "c9be2d4909ffd28d91f07df5d113151b0fe7ba602144ee6fd453d3bc8426efde",
+      "file": "data/raw/CPIAUCSL/latest.csv"
+    },
+    {
+      "series": "CPILFESL",
+      "register": "ALFRED:CPILFESL",
+      "vintage": "latest",
+      "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=CPILFESL",
+      "retrieved_at": "2026-11-11T16:58:03Z",
+      "bytes": 15622,
+      "sha256": "b9f2504703e841cc721242ffab7c638f2e26a97baec9783502c8b606e352f58c",
+      "file": "data/raw/CPILFESL/latest.csv"
+    },
+    {
+      "series": "GDPC1",
+      "register": "ALFRED:GDPC1",
+      "vintage": "latest",
+      "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=GDPC1",
+      "retrieved_at": "2026-11-11T16:58:05Z",
+      "bytes": 6548,
+      "sha256": "1c6c6e9f59e383e20c849dd299175c7a307526c09abdc18f18da9754fc5b3343",
+      "file": "data/raw/GDPC1/latest.csv"
+    },
+    {
+      "series": "UNRATE",
+      "register": "ALFRED:UNRATE",
+      "vintage": "latest",
+      "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=UNRATE",
+      "retrieved_at": "2026-11-11T16:58:08Z",
+      "bytes": 14226,
+      "sha256": "fb669461abc34e00324b940be6bad1c7f89117652f28587196a7b8bf4a9f56a1",
+      "file": "data/raw/UNRATE/latest.csv"
+    },
+    {
+      "series": "GS10",
+      "register": "ALFRED:GS10",
+      "vintage": "latest",
+      "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=GS10",
+      "retrieved_at": "2026-11-11T16:58:10Z",
+      "bytes": 14222,
+      "sha256": "018e609eb98c52ec8d2cf0ea9f8e1450c24974c31cca455cc19717a77703af78",
+      "file": "data/raw/GS10/latest.csv"
+    },
+    {
+      "series": "TB3MS",
+      "register": "ALFRED:TB3MS",
+      "vintage": "latest",
+      "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=TB3MS",
+      "retrieved_at": "2026-11-11T16:58:12Z",
+      "bytes": 17881,
+      "sha256": "33fae406051a658c316580f8e8b5e461157e6663bc03b35648cc7cd3e89ee26b",
+      "file": "data/raw/TB3MS/latest.csv"
+    },
+    {
+      "series": "T10Y3M",
+      "register": "ALFRED:T10Y3M",
+      "vintage": "latest",
+      "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=T10Y3M",
+      "retrieved_at": "2026-11-11T16:58:14Z",
+      "bytes": 186545,
+      "sha256": "e6f1e558a40d9d09bedb65654cd66180cdb3897ac93bf0d8258c73ca35073cc8",
+      "file": "data/raw/T10Y3M/latest.csv"
+    }
+  ],
+  "failures": []
+}
