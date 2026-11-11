@@ -45,4 +45,15 @@ class IntegrationTests(unittest.TestCase):
     def test_no_post_after_close(self):
         w=self.scenario();w.close()
         with self.assertRaises(AccountingError):w.transfer("A","firm","household",1)
+    def test_reject_wrong_loan_and_bond_signs(self):
+        w=InternationalAccounts()
+        w.endow("A","AAA",100)
+        before=(dict(w.financial),len(w.journal))
+        for inst,sector in (("loan","firm"),("bond","government")):
+            with self.assertRaises(AccountingError):
+                w.post("invalid_"+inst,financial={
+                    ("A","bank",inst,"AAA"):-1,
+                    ("A",sector,inst,"AAA"):1
+                },current={("A","bank"):-1,("A",sector):1})
+            self.assertEqual((dict(w.financial),len(w.journal)),before)
 if __name__=="__main__":unittest.main(verbosity=2)
