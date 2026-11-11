@@ -1,0 +1,218 @@
+{
+  "spec_id": "AMFE-R3",
+  "version": "0.1.0-proposed",
+  "status": "PROPOSED",
+  "purpose": "Fix the content of the R3 layer - the baselines of the frozen evaluation protocol v3, the project's own nowcast, the predictive distributions and the pooling, the comparator composition, the scoring and the NF-SIM threshold study - before any candidate is evaluated.",
+  "frozen_protocol": {
+    "file": "protocols/evaluation_protocol_v3.json",
+    "version": "3.0.0",
+    "sha256": "d56c628e9e3391c0ed4afc3a263d5f8f50fdbfe759b8703d47cd2b10a2de8d82"
+  },
+  "freeze_rule": "This specification is frozen together with (a) the hash of this file, (b) the code hashes of every model in this file and (c) the hash of the NF-SIM threshold table, before any candidate is evaluated. After freezing a change is a new version approved through the protocol's meta-gate; the protocol file itself stays frozen. Until freezing, every change is a new revision of this file, and the current revision does not permit evaluating candidates.",
+  "windows": {
+    "training_start": "1960-01",
+    "W1": ["1990-01", "2006-12"],
+    "W2": ["2007-01", "2019-12"],
+    "W3": ["2020-01", "2026-10"],
+    "defined_by": "origin and target dates inside the window",
+    "covid_targets": ["2020-03", "2021-02"],
+    "forward_registry_start": null
+  },
+  "origins": {
+    "T1_CPI_YOY": "month end; horizon h is the y/y inflation of month t-1+h, computed from the vintage of the publication month",
+    "T2_GDP_GROWTH": "h=0: every month end (months 1, 2, 3 of the quarter, reported separately); h=1, 2, 4: the third month end of the quarter, one origin per quarter",
+    "T3_RECESSION": "month end; event = at least one NBER recession month in (t, t+h]"
+  },
+  "quantile_grid": [0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90, 0.95],
+  "targets": {
+    "T1_CPI_YOY": {"series": ["CPIAUCSL", "CPILFESL"], "horizons": [1, 3, 6, 12], "unit": "percent, y/y, monthly", "evaluated": "headline and core separately"},
+    "T2_GDP_GROWTH": {"series": ["GDPC1"], "horizons": [0, 1, 2, 4], "unit": "percent, quarterly annualised", "evaluated": "h=0 separately for origin months 1, 2 and 3"},
+    "T3_RECESSION": {"series": ["NBER_CYCLE_DATES"], "horizons": [3, 6, 12], "unit": "probability of a binary event", "evaluated": "ceiling LIMITED_DEPLOYMENT"}
+  },
+  "models": [
+    {
+      "id": "RW", "kind": "point_and_distribution", "applies_to": ["T1_CPI_YOY"],
+      "inputs_by_target": {"T1_CPI_YOY": ["ALFRED:CPIAUCSL", "ALFRED:CPILFESL"]},
+      "point": "Last published y/y value of the target series: for origin month end t the value of month t-1 as published at t.",
+      "density": "Empirical quantiles of the h-step errors of the RW forecast over the rolling estimation window, centred on the point forecast; linear interpolation between grid quantiles, Gaussian tails outside 5% and 95%.",
+      "estimation_window_months": 180, "horizons_months": [1, 3, 6, 12], "comparator_member": true,
+      "code_hash": null, "spec_hash": null, "status": "PROPOSED"
+    },
+    {
+      "id": "AO", "kind": "point_and_distribution", "applies_to": ["T1_CPI_YOY", "T2_GDP_GROWTH"],
+      "inputs_by_target": {"T1_CPI_YOY": ["ALFRED:CPIAUCSL", "ALFRED:CPILFESL"], "T2_GDP_GROWTH": ["ALFRED:GDPC1"]},
+      "point": "T1: average of the target series over the estimation window (historical mean, as in Atkeson-Ohanian for inflation). T2: average GDP growth of the last four quarters (Atkeson-Ohanian).",
+      "density": "As RW: empirical h-step error quantiles over the rolling window, centred on the point forecast.",
+      "estimation_window_months": 180, "horizons_months": [1, 3, 6, 12], "horizons_quarters": [0, 1, 2, 4], "comparator_member": true,
+      "code_hash": null, "spec_hash": null, "status": "PROPOSED"
+    },
+    {
+      "id": "AR_BIC", "kind": "point_and_distribution", "applies_to": ["T1_CPI_YOY", "T2_GDP_GROWTH"],
+      "inputs_by_target": {"T1_CPI_YOY": ["ALFRED:CPIAUCSL", "ALFRED:CPILFESL"], "T2_GDP_GROWTH": ["ALFRED:GDPC1"]},
+      "point": "Univariate autoregression of the target in its own monthly (T1) or quarterly (T2) values, order p chosen by BIC on the rolling window, maximum order 12 (T1) / 4 (T2); forecasts iterated to the horizon.",
+      "density": "Empirical h-step error quantiles over the rolling window, centred on the point forecast.",
+      "estimation_window_months": 180, "horizons_months": [1, 3, 6, 12], "horizons_quarters": [0, 1, 2, 4], "comparator_member": true,
+      "code_hash": null, "spec_hash": null, "status": "PROPOSED"
+    },
+    {
+      "id": "BVAR_MINNESOTA", "kind": "point_and_distribution", "applies_to": ["T1_CPI_YOY", "T2_GDP_GROWTH"],
+      "inputs_by_target": {"T1_CPI_YOY": ["ALFRED:CPIAUCSL", "ALFRED:CPILFESL", "ALFRED:UNRATE", "ALFRED:GS10", "ALFRED:TB3MS"], "T2_GDP_GROWTH": ["ALFRED:GDPC1", "ALFRED:UNRATE", "ALFRED:GS10", "ALFRED:TB3MS"]},
+      "point": "BVAR with the Minnesota prior. T1: monthly VAR of the target series (headline or core), UNRATE, GS10, TB3MS; lag order by BIC, maximum 12. T2: quarterly VAR of GDPC1 and the quarter averages of UNRATE, GS10, TB3MS, where the quarter average uses only months published at the origin; lag order by BIC, maximum 4.",
+      "density": "Gaussian predictive density centred on the point forecast with the standard deviation of the model's rolling h-step forecast errors; if fewer than 20 errors are available the empirical error quantiles of RW are used and the model is flagged in the report.",
+      "estimation_window_months": 180, "horizons_months": [1, 3, 6, 12], "horizons_quarters": [0, 1, 2, 4], "comparator_member": true,
+      "code_hash": null, "spec_hash": null, "status": "PROPOSED"
+    },
+    {
+      "id": "DFM_FREDMD", "kind": "point_and_distribution", "applies_to": ["T1_CPI_YOY", "T2_GDP_GROWTH"],
+      "inputs_by_target": {"T1_CPI_YOY": ["FRED-MD_FRED-QD"], "T2_GDP_GROWTH": ["FRED-MD_FRED-QD"]},
+      "point": "Dynamic factor model on the FRED-MD panel (stationary transformations), factors by principal components on standardised data, number of factors by the Bai-Ng information criterion (maximum 8), factor-augmented regression on the target, factors filtered with the ragged edge at the origin.",
+      "density": "Gaussian predictive density centred on the point forecast with the rolling h-step RMSE of the model.",
+      "estimation_window_months": 180, "horizons_months": [1, 3, 6, 12], "horizons_quarters": [0, 1, 2, 4], "comparator_member": true,
+      "availability": "Only from the register entry OPEN; today FRED-MD_FRED-QD is UNVERIFIED, so the model is outside the comparator and this section is a specification, not an available member.",
+      "code_hash": null, "spec_hash": null, "status": "PROPOSED_BLOCKED_ON_REGISTER"
+    },
+    {
+      "id": "PROBIT_SPREAD", "kind": "event_probability", "applies_to": ["T3_RECESSION"],
+      "inputs_by_target": {"T3_RECESSION": ["ALFRED:GS10", "ALFRED:TB3MS", "ALFRED:T10Y3M", "NBER_CYCLE_DATES"]},
+      "point": "Estrella-Mishkin yield-curve probit. Binary outcome 1 if at least one NBER recession month lies in (t, t+h]; regressors constant and the term spread: GS10 minus TB3MS before 1982-01, T10Y3M from 1982-01. Probit MLE on the rolling 240-month window; the fitted probability is the forecast. Overlapping observations do not enter the estimation of the forecast, only its reported uncertainty.",
+      "density": "Bernoulli(p) with p the fitted probability; the event pool is the average of member probabilities.",
+      "estimation_window_months": 240, "horizons_months": [3, 6, 12], "comparator_member": true,
+      "code_hash": null, "spec_hash": null, "status": "PROPOSED"
+    },
+    {
+      "id": "SAHM_RULE", "kind": "event_probability", "applies_to": ["T3_RECESSION"],
+      "inputs_by_target": {"T3_RECESSION": ["ALFRED:UNRATE", "NBER_CYCLE_DATES"]},
+      "point": "Sahm rule: 3-month moving average of UNRATE minus its 12-month minimum; the signal fires when the difference reaches 0.50 percentage points. The signal is converted to a probability by a logistic regression of the h-step event on the indicator, fitted on the rolling 240-month window; with a degenerate indicator (no signal in the window) the reported probability is the base rate of the event in the window.",
+      "density": "Bernoulli(p); the event pool is the average of member probabilities.",
+      "estimation_window_months": 240, "horizons_months": [3, 6, 12], "comparator_member": true,
+      "code_hash": null, "spec_hash": null, "status": "PROPOSED"
+    },
+    {
+      "id": "SPF_MEDIAN", "kind": "point_only", "applies_to": ["T1_CPI_YOY", "T2_GDP_GROWTH"],
+      "inputs_by_target": {"T1_CPI_YOY": ["PHILADELPHIA_FED"], "T2_GDP_GROWTH": ["PHILADELPHIA_FED"]},
+      "point": "Median SPF forecast at the survey deadline. Mapping to the target is fixed after the SPF documentation is read in R2 (the SPF reports quarterly and annual inflation forecasts and quarterly GDP forecasts; the target is a monthly y/y and a quarterly annualised growth); the mapping document and its hash are part of this specification before freezing. No SPF value is interpolated to a month that the survey did not cover; comparisons are run at survey deadlines only (origin_policy.spf_alignment).",
+      "density": "None. The model enters point losses only; it is excluded from the density and event comparators.",
+      "estimation_window_months": null, "horizons_months": [1, 3, 6, 12], "horizons_quarters": [0, 1, 2, 4], "comparator_member": true, "point_only": true,
+      "code_hash": null, "spec_hash": null, "status": "PROPOSED_OPEN_MAPPING"
+    },
+    {
+      "id": "SPF_NEG_GDP_PROB", "kind": "descriptive", "applies_to": ["T3_RECESSION"],
+      "inputs_by_target": {"T3_RECESSION": ["PHILADELPHIA_FED"]},
+      "point": "SPF probability of negative quarterly GDP growth. Event mismatch with the NBER recession target; recorded as descriptive only.",
+      "density": null, "estimation_window_months": null,
+      "comparator_member": false, "scored": false, "code_hash": null, "spec_hash": null, "status": "DESIGN_ONLY"
+    },
+    {
+      "id": "OWN_NOWCAST_BRIDGE", "kind": "point_and_distribution", "applies_to": ["T2_GDP_GROWTH"],
+      "inputs_by_target": {"T2_GDP_GROWTH": ["ALFRED:GDPC1", "ALFRED:UNRATE", "ALFRED:GS10", "ALFRED:TB3MS"]},
+      "point": "The project's own nowcast of the current quarter (h=0). Two blocks: (a) a small dynamic factor model on the monthly panel of UNRATE, GS10 and TB3MS, standardised over the rolling window, with one or two factors chosen by the Bai-Ng information criterion (maximum 2); (b) a bridge regression of quarterly annualised GDP growth on the quarter's factor estimates, the last published GDP growth and a constant, estimated on the rolling 60-quarter window. The factor estimate of month m uses only values published by the origin; months of the current quarter not yet published are forecast from the factor model and the nowcast is the fitted value for the quarter. Implemented only from the published description of bridge and factor nowcasting methods, without parameters, data or forecasts from any bank's GDPNow files. The specification and the code hash are fixed in this file before any candidate is evaluated.",
+      "density": "Empirical quantiles of the rolling h=0 errors of the nowcast, centred on the point forecast.",
+      "estimation_window_months": 180, "horizons_quarters": [0], "comparator_member": true,
+      "report": "Every T2 h=0 report states that the quality of this substitute relative to excluded external nowcasts is unknown and cannot be checked, so the admission bar may be lower than with the best public nowcast.",
+      "code_hash": null, "spec_hash": null, "status": "PROPOSED"
+    },
+    {
+      "id": "NOWCAST_NYFED", "kind": "control_arm", "applies_to": ["T2_GDP_GROWTH"],
+      "inputs_by_target": {"T2_GDP_GROWTH": ["NY_FED"]},
+      "point": "NY Fed Staff Nowcast value at the origin, recorded with attribution. A control arm only; joins the registry only after R2 accepts the values-only archive as usable and after the archive's real-time character is checked for the reporting years.",
+      "density": null, "estimation_window_months": null, "horizons_quarters": [0], "comparator_member": false,
+      "code_hash": null, "spec_hash": null, "status": "DESIGN_ONLY"
+    }
+  ],
+  "derived_comparators": [
+    {"id": "EQUAL_WEIGHT_POINT", "applies_to": ["T1_CPI_YOY", "T2_GDP_GROWTH"], "rule": "arithmetic mean of the point forecasts of the comparator members for the target, including point_only members"},
+    {"id": "EQUAL_WEIGHT_DENSITY", "applies_to": ["T1_CPI_YOY", "T2_GDP_GROWTH", "T3_RECESSION"], "rule": "equal-weight mixture of the CDFs of the members that provide a predictive distribution; for T3 the equal-weight average of the event probabilities; point_only members are excluded"}
+  ],
+  "comparator_procedure": {
+    "rule": "Members are those baselines with comparator_member true, scored, REAL_TIME or REAL_TIME_TAPE at the origin, and with every input for the target OPEN in the licence register on the evaluation date.",
+    "minimum": "At least 2 members for the loss that serves (point, density, event); otherwise the combination stays CANDIDATE.",
+    "composition_record": "For every evaluation date the member list per target and loss is written to protocols/comparator_composition_<date>.json, canonical JSON with sorted keys, and its SHA-256 is recorded in protocols/comparator_composition_<date>.sha256 before any candidate is evaluated.",
+    "no_fitting": "The composition is a mechanical function of the register and the data gate; it is never a researcher choice. A register change after the composition is recorded applies only to candidates evaluated after the change.",
+    "fixed_composition_sensitivity": "Each report additionally compares against the comparator of fixed composition (members available over the whole window); this sensitivity is reported, never used for admission."
+  },
+  "losses": {
+    "point": "RMSE",
+    "density": "CRPS = twice the mean pinball loss over the 19 quantiles",
+    "event": ["Brier", "log score with probabilities clipped to [0.01, 0.99]"],
+    "rule": "Every criterion that uses a loss holds for each loss applicable to the pair; the loss is never chosen after seeing results."
+  },
+  "nf_sim": {
+    "purpose": "Estimate q05, the 5th percentile of the relative loss between two statistically equivalent forecasting methods, separately for every (target, horizon, loss, window), and set the C1 threshold to min(0.97, q05).",
+    "timing": "Run after the R2 data gate has fixed the effective lengths and the comparator composition can be recorded; complete and frozen before any candidate is evaluated.",
+    "replications": 10000,
+    "effective_length": {
+      "rule": "Number of REAL_TIME origins in the window minus the h-1 overlap of the forecast errors, with the tape and pseudo-real-time reductions of the protocol applied",
+      "reference_months": [156, 204],
+      "reference_quarters": [52, 68]
+    },
+    "dgp": [
+      "AR(p) calibrated on the target's own history in W1 and W2, residuals bootstrapped",
+      "random walk with drift calibrated on the target",
+      "block bootstrap of the baseline forecast errors"
+    ],
+    "pairs": "Two methods with the same data-generating process but different estimation noise (window, AR order, a small perturbation of one parameter), scored on the same simulated origins.",
+    "combination_variant": "The primary comparator is a combination and has less noise than a single method; the study repeats the calculation with an equal-weight combination of two equivalent methods and the stricter of the two thresholds is used.",
+    "output_table": {
+      "keys": ["target", "horizon", "loss", "window"],
+      "value": "q05 of the relative loss",
+      "file": "protocols/nf_sim_thresholds.json",
+      "hash_file": "protocols/nf_sim_thresholds.sha256",
+      "freeze_before": "any candidate evaluation"
+    },
+    "threshold_rule": "min(0.97, q05_equal_methods)"
+  },
+  "data_manifest": {
+    "rule": "Every series used by any model is listed in the licence register first and obtained through its channel; the data log records URL, retrieval date and SHA-256; raw files stay in the ignored data directory and are never committed.",
+    "series": [
+      {"register": "ALFRED:CPIAUCSL", "frequency": "M", "role": ["T1 target", "RW/AO/AR_BIC/BVAR inputs"], "depth": "vintages from 1990-01, first vintage and tape assembly before 1994-02-17"},
+      {"register": "ALFRED:CPILFESL", "frequency": "M", "role": ["T1 core target", "RW/AO/AR_BIC/BVAR inputs"], "depth": "vintages from 1990-01"},
+      {"register": "ALFRED:GDPC1", "frequency": "Q", "role": ["T2 target", "AO/AR_BIC/BVAR/OWN inputs"], "depth": "vintages from 1990Q1"},
+      {"register": "ALFRED:UNRATE", "frequency": "M", "role": ["BVAR and SAHM and OWN inputs"], "depth": "vintages from 1990-01"},
+      {"register": "ALFRED:GS10", "frequency": "M", "role": ["BVAR, PROBIT and OWN inputs"], "depth": "vintages from 1990-01"},
+      {"register": "ALFRED:TB3MS", "frequency": "M", "role": ["BVAR, PROBIT and OWN inputs"], "depth": "vintages from 1990-01"},
+      {"register": "ALFRED:T10Y3M", "frequency": "M", "role": ["PROBIT input from 1982"], "depth": "vintages from 1990-01"},
+      {"register": "NBER_CYCLE_DATES", "frequency": "event", "role": ["T3 target", "PROBIT and SAHM labels"], "depth": "chronology as of the evaluation date"},
+      {"register": "PHILADELPHIA_FED", "frequency": "Q", "role": ["SPF_MEDIAN and SPF_NEG_GDP_PROB inputs"], "depth": "SPF files from 1990; mapping document read in R2"},
+      {"register": "NY_FED", "frequency": "Q", "role": ["NOWCAST_NYFED control arm"], "depth": "values-only archive after R2 acceptance"},
+      {"register": "FRED-MD_FRED-QD", "frequency": "M", "role": ["DFM_FREDMD inputs"], "depth": "vintage archive; blocked until the register entry is OPEN"},
+      {"register": "BLS_PRIMARY", "frequency": "M", "role": ["alternative channel for CPI and UNRATE"], "depth": "archive availability checked in R2"},
+      {"register": "BEA_PRIMARY", "frequency": "Q", "role": ["alternative channel for GDPC1"], "depth": "terms read in R2"}
+    ],
+    "gate": {
+      "period": "1990-2026",
+      "spot_check": "at least 30 (series, date) pairs match the primary-source release of that time within rounding, at least 10 of them before 2000",
+      "failure_rule": "a failed pair turns every origin whose estimation window relies on it into PSEUDO_REAL_TIME",
+      "tape": "where one vintage is too short for the estimation window (CPIAUCSL before 1994-02-17), assemble the latest value of each observation among the vintages available at the origin; document the method and spot-check it; a failed spot check turns every origin of the affected window into PSEUDO_REAL_TIME",
+      "alfred_panel": "for the DFM before 1999-08, a panel of 30-50 monthly series, every one listed in the register first",
+      "data_log": "URL, retrieval date and SHA-256 of every downloaded file; raw files never committed"
+    }
+  },
+  "acceptance_checklist": [
+    "R2 gate passed: at least 30 (series, date) pairs, at least 10 before 2000, tape assembled and spot-checked, panel series registered",
+    "data log complete; no raw third-party file committed",
+    "NF-SIM table complete for every (target, horizon, loss, window) and hashed",
+    "code hashes of every model recorded in this file",
+    "hash of this specification file pinned",
+    "comparator composition for the first evaluation date recorded and hashed",
+    "every comparator member OPEN in the register on the evaluation date; at least 2 members per loss",
+    "test suite green, including test_protocol_v3 and test_r3_specification",
+    "forward registry opened and the first registry commit made; candidates registered before any evaluation"
+  ],
+  "open_items": [
+    "SPF definition mapping (quarterly and annual SPF forecasts to the monthly y/y target) is fixed after the SPF documentation is read in R2; the hash of the mapping document joins this specification before freezing.",
+    "BVAR mixed frequency for T2 uses quarter averages of monthly series published by the origin; a midas or Kalman alternative is not part of this revision.",
+    "DFM_FREDMD stays outside the comparator until the FRED-MD register entry is OPEN.",
+    "The depth of ALFRED vintages for UNRATE, GS10 and TB3MS before 1990 and the start date of T10Y3M are unverified and are part of R2.",
+    "T3 calibration power with 12 resolved forecasts is low; the C6 calibration check is reported with its power.",
+    "Unresolved T3 forecasts do not enter the C6 count and delay the registry; this is stated in every T3 report.",
+    "No executable code exists for any model yet: this revision fixes the specification only, and the code hashes stay null until freezing.",
+    "The exact architecture of OWN_NOWCAST_BRIDGE (factor estimation and bridge regression details) is confirmed by its code hash before evaluation; any change after freezing is a new version of the protocol."
+  ],
+  "references": [
+    "docs/60_Черновик_протокола_оценки_v3.md (frozen protocol description)",
+    "docs/55_Закрытие_Q-001-Q-006_протокол_оценки_v1.md (Q-001..Q-006)",
+    "docs/56_Проверка_идеи_аналоги_методология_математический_аппарат.md sections 5.3-5.4 (estimation, mixed frequency, density forecasts, shrinkage, forecast tests)",
+    "docs/54_Внешний_аудит_оснований_архитектуры_и_литература.md (forward registry against knowledge leakage; data budget)",
+    "docs/62_Сверка_правок_протокола_v3.md and docs/63_Лицензионный_аудит_2026-11-11.md (review and licence facts)"
+  ]
+}

@@ -52,5 +52,7 @@ jobs:
         run: python tests/test_protocol_v1.py
       - name: Draft evaluation protocol v2 (link to v1, M1-M14 coverage)
         run: python tests/test_protocol_v2.py
-      - name: Draft evaluation protocol v3 (link to v2, licence policy, R-01..R-17 coverage)
+      - name: Frozen evaluation protocol v3 (hash pin and structure)
         run: python tests/test_protocol_v3.py
+      - name: R3 specification (baselines against the frozen protocol, NF-SIM, R2 manifest)
+        run: python tests/test_r3_specification.py
