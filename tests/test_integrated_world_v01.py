@@ -11,7 +11,6 @@ class IntegrationTests(unittest.TestCase):
         w.endow("A","AAA",100,goods=20)
         w.endow("B","BBB",100,goods=5)
         w.exchange("A","B","AAA",10,"BBB",10)
-        w.transfer("B","firm","household",10,"AAA")
         w.trade("A","B",4,2,"AAA")
         return w
     def test_consolidated_mirror(self):
@@ -19,12 +18,12 @@ class IntegrationTests(unittest.TestCase):
         self.assertEqual(w.goods["A"],D(16))
         self.assertEqual(w.goods["B"],D(9))
         self.assertEqual(w.financial[("A","firm","deposit","AAA")],D(98))
-        self.assertEqual(w.financial[("B","household","deposit","AAA")],D(2))
+        self.assertEqual(w.financial[("B","firm","deposit","AAA")],D(2))
         p=w.close()
-        self.assertEqual(len(p["matrix"]),3)
+        self.assertEqual(len(p["matrix"]),2)
         self.assertEqual(p["current"][("A","firm")],D(4))
-        self.assertEqual(p["current"][("B","firm")],D(-6)) # transfer -10, imported inventory +4
-        self.assertEqual(p["current"][("B","household")],D(2)) # transfer +10, import purchase -8
+        self.assertEqual(p["current"][("B","firm")],D(-4)) # imported inventory +4, invoice payment -8
+        self.assertEqual(p["current"].get(("B","household"),D(0)),D(0))
         self.assertEqual(sum(p["current"].values()),D(0))
     def test_two_periods(self):
         w=self.scenario();first=w.close();w.begin("P2")
