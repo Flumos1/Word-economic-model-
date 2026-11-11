@@ -1,9 +1,10 @@
 name: Data refresh (automated retrieval, no human download)
 
-# Protocol v4, owner decision D-132: the data pipeline is automated. This workflow runs the
-# project retrieval tool against the registered OPEN series. No FRED API service is used, one
-# series per request, rate-limited. Raw third-party files are never committed: they are kept
-# as private workflow artifacts for the run and the metadata log is uploaded with them.
+# Protocol v4, owner decisions D-131/D-132: the data pipeline is automated. This workflow runs the
+# project retrieval tool against the registered OPEN series - latest files and the vintage files
+# listed in protocols/data_plan.json (vintage_date parameter). No FRED API service is used, one
+# series per request, rate-limited. Raw third-party files are never committed: they stay in the
+# private workflow artifact for this run; the metadata log is uploaded with them.
 on:
   schedule:
     - cron: '0 5 1 * *'
@@ -24,8 +25,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Automated retrieval of registered series
-        run: python tools/fetch_data.py --out data/raw --log protocols/data_log.json
+      - name: Automated retrieval of registered series (latest and vintages)
+        run: python tools/fetch_data.py --out data/raw --log protocols/data_log.json --include-vintages
       - name: Upload raw data and the metadata log as a private artifact
         if: always()
         uses: actions/upload-artifact@v4

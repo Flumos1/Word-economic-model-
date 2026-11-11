@@ -1,12 +1,13 @@
-"""Protocol v4: two pre-registered owner decisions on top of the frozen v3.
+"""Protocol v4: three pre-registered owner decisions on top of the frozen v3.
 
-(1) D-131 narrows the T3 evaluation window W1 to 1996-12, because ALFRED vintages of
-    GS10/TB3MS start 1996-12-03 and before that date the T3 comparator has a single
-    REAL_TIME member.
-(2) D-132 replaces the human download step with automated retrieval through the project
-    tool and CI within the published terms; raw third-party files stay out of the repo.
+D-131: the T3 evaluation window W1 starts 1996-12, and PROBIT_SPREAD uses only the
+       GS10-TB3MS spread (T10Y3M dropped: its ALFRED vintages start 2014-01-27), so both
+       T3 comparator members are REAL_TIME over the narrowed window.
+D-132: the human download step is replaced by automated retrieval - latest and vintage
+       files through the public CSV endpoint, the NBER chronology through USREC, and every
+       source the pipeline uses is in protocols/data_plan.json. Raw files stay out of git.
 
-Integrity test: v4 must be the frozen v3 plus exactly these documented changes.
+Integrity: v4 must be the frozen v3 plus exactly these documented changes.
 """
 import hashlib
 import json
@@ -25,12 +26,20 @@ WORKFLOW = ROOT / ".github" / "workflows" / "data-refresh.yml"
 
 ALLOWED_CHANGED_KEYS = {
     "version", "status", "supersedes", "decision_ids", "meta_gate", "amendment_rule",
-    "licence_policy", "windows", "admission", "data_depth", "changes_from_v3",
+    "licence_policy", "windows", "admission", "data_depth", "changes_from_v3", "baselines",
 }
 ALLOWED_CHANGED_PATHS = (
     "licence_policy.data_channel", "licence_policy.raw_data",
     "windows.target_overrides", "admission.window_note", "admission.criteria",
-    "data_depth.retrieval", "data_depth.vintage_sources",
+    "data_depth.retrieval", "data_depth.vintage_sources", "baselines",
+    "data_depth.automation_coverage", "data_depth.nber_rule", "data_depth.first_realtime_vintage",
+)
+
+IMMUTABLE = (
+    "targets", "actuals", "estimation", "comparator_minimum", "primary_comparator_rule",
+    "losses", "multiplicity", "model_class_rules", "covid_handling", "forward_registry",
+    "drift_triggers", "comparison_unit", "origin_policy", "forecast_product", "universe",
+    "protocol_id",
 )
 
 
@@ -57,7 +66,6 @@ def resolve(data, dotted):
 
 
 def diff_paths(a, b, prefix=""):
-    """Paths (dotted) where two JSON structures differ."""
     out = []
     if type(a) is not type(b):
         return [prefix or "<root>"]
@@ -108,34 +116,45 @@ class ProtocolV4(unittest.TestCase):
         for path in changed:
             top = path.split(".")[0].split("[")[0]
             self.assertIn(top, ALLOWED_CHANGED_KEYS, f"unexpected change outside the v4 amendment: {path}")
-            if top in {"licence_policy", "windows", "admission", "data_depth"}:
+            if top in {"licence_policy", "windows", "admission", "data_depth", "baselines"}:
                 self.assertTrue(any(path == p or path.startswith(p) for p in ALLOWED_CHANGED_PATHS),
-                                f"change outside the two owner decisions: {path}")
-        # everything not listed above must be byte-identical in meaning
-        for key in ("targets", "actuals", "estimation", "baselines", "comparator_minimum",
-                    "primary_comparator_rule", "losses", "multiplicity", "model_class_rules",
-                    "covid_handling", "forward_registry", "drift_triggers", "comparison_unit",
-                    "origin_policy", "forecast_product", "universe", "protocol_id"):
+                                f"change outside the owner decisions: {path}")
+        for key in IMMUTABLE:
             self.assertEqual(v3[key], v4[key], f"{key} must not change in v4")
 
+    def test_v3_baselines_untouched_except_the_probit(self):
+        v3b = {b["id"]: b for b in load(V3)["baselines"]}
+        v4b = {b["id"]: b for b in load(V4)["baselines"]}
+        self.assertEqual(set(v3b), set(v4b))
+        for bid, b in v4b.items():
+            if bid == "PROBIT_SPREAD":
+                continue
+            self.assertEqual(b, v3b[bid], f"{bid} must not change")
+        probit = v4b["PROBIT_SPREAD"]
+        self.assertEqual(probit["inputs_by_target"]["T3_RECESSION"],
+                         ["ALFRED:GS10", "ALFRED:TB3MS", "NBER_CYCLE_DATES"])
+        self.assertIn("T10Y3M series is not used", probit["point"])
+        self.assertIn("2014-01-27", probit["point"])
+
     def test_t3_window_override(self):
-        v4 = load(V4)
-        w = v4["windows"]
+        w = load(V4)["windows"]
         self.assertEqual(w["target_overrides"]["T3_RECESSION"]["W1_start"], "1996-12")
         self.assertLess(w["target_overrides"]["T3_RECESSION"]["W1_start"], w["W1"]["end"])
         self.assertGreater(w["target_overrides"]["T3_RECESSION"]["W1_start"], w["W1"]["start"])
         self.assertEqual(list(w["target_overrides"]), ["T3_RECESSION"], "no other target may change its window")
-        note = v4["admission"]["window_note"]
+        note = load(V4)["admission"]["window_note"]
         self.assertIn("T3", note)
         self.assertIn("1996-12", note)
-        for crit in v4["admission"]["criteria"]:
+        for crit in load(V4)["admission"]["criteria"]:
             if crit["id"] in ("C1", "C2", "C5"):
                 self.assertIn("admission.window_note", crit["text"], crit["id"])
-        self.assertIn("data availability", v4["windows"]["target_overrides"]["T3_RECESSION"]["reason"])
 
-    def test_t3_comparator_meets_the_minimum_on_the_narrowed_w1(self):
+    def test_t3_comparator_is_real_time_on_the_narrowed_w1(self):
         v4 = load(V4)
         statuses = status_by_id()
+        first = v4["data_depth"]["first_realtime_vintage"]
+        key = {"ALFRED:GS10": "ALFRED_GS10", "ALFRED:TB3MS": "ALFRED_TB3MS",
+               "ALFRED:UNRATE": "ALFRED_UNRATE"}
         members = []
         for b in v4["baselines"]:
             if not b.get("comparator_member") or not b.get("scored", True):
@@ -143,48 +162,79 @@ class ProtocolV4(unittest.TestCase):
             if "T3_RECESSION" not in b["applies_to"]:
                 continue
             inputs = b["inputs_by_target"]["T3_RECESSION"]
-            if all(statuses.get(i) == "OPEN" for i in inputs):
-                members.append(b["id"])
+            if not all(statuses.get(i) == "OPEN" for i in inputs):
+                continue
+            dates = [first[key[i]] for i in inputs if i in key]
+            for d in dates:
+                self.assertLessEqual(d, "1996-12-31", f"{b['id']}: {d} is later than the T3 W1 start")
+            members.append(b["id"])
         self.assertGreaterEqual(len(members), v4["comparator_minimum"]["min_members"], members)
         self.assertIn("PROBIT_SPREAD", members)
         self.assertIn("SAHM_RULE", members)
+
+    def test_first_vintage_facts_and_nber_rule(self):
+        dd = load(V4)["data_depth"]
+        first = dd["first_realtime_vintage"]
+        self.assertEqual(first["ALFRED_GS10"], "1996-12-03")
+        self.assertEqual(first["ALFRED_TB3MS"], "1996-12-03")
+        self.assertEqual(first["ALFRED_T10Y3M"], "2014-01-27")
+        self.assertIn("USREC", dd["nber_rule"])
+        self.assertIn("published before the origin", dd["nber_rule"])
+        self.assertIn("Every source that the current pipeline uses", dd["automation_coverage"])
+        self.assertIn("not automated is not used", dd["automation_coverage"])
 
     def test_automated_retrieval_policy(self):
         v4 = load(V4)
         ch = v4["licence_policy"]["data_channel"]
         text = " ".join(ch.values())
-        for phrase in ("automated", "rate-limit", "no human download", "no FRED API key"):
-            self.assertIn(phrase, text)
+        for phrase in ("automated", "rate-limit", "no human download", "vintage_date",
+                       "requires or permits a human download"):
+            if phrase == "vintage_date":
+                self.assertIn(phrase, text)
+            elif phrase == "requires or permits a human download":
+                self.assertIn(phrase, ch["automation"])
+            else:
+                self.assertIn(phrase, text)
         self.assertNotIn("manual download", text.lower())
-        self.assertIn("No step of the data pipeline requires a human download", ch["automation"])
-        self.assertIn("replaced by the project model", ch["automation"])
         retrieval = v4["data_depth"]["retrieval"]
         self.assertEqual(retrieval["tool"], "tools/fetch_data.py")
         self.assertEqual(retrieval["workflow"], ".github/workflows/data-refresh.yml")
         self.assertEqual(retrieval["data_log"], "protocols/data_log.json")
-        # the promised tools exist
-        self.assertTrue(TOOL.exists(), "tools/fetch_data.py is promised by the protocol")
-        self.assertTrue(PLAN.exists(), "protocols/data_plan.json is promised by the protocol")
-        self.assertTrue(WORKFLOW.exists(), "the data-refresh workflow is promised by the protocol")
-        self.assertIn("never", v4["licence_policy"]["raw_data"].lower())
+        self.assertIn("last_observation", retrieval["log_fields"])
+        self.assertIn("vintage", retrieval["modes"])
+        self.assertTrue(TOOL.exists())
+        self.assertTrue(PLAN.exists())
+        self.assertTrue(WORKFLOW.exists())
+        self.assertIn("--include-vintages", WORKFLOW.read_text(encoding="utf-8"))
 
-    def test_dataset_plan_is_registered_and_open(self):
+    def test_dataset_plan_covers_the_r2_gate(self):
         plan = load(PLAN)
         statuses = status_by_id()
-        for series in plan["series"]:
-            self.assertIn(series["register"], statuses, series["register"])
-            self.assertEqual(statuses[series["register"]], "OPEN", series["register"])
-            self.assertTrue(series["url"].startswith("https://fred.stlouisfed.org/"), series["url"])
+        pairs = 0
+        pre_2000 = 0
+        for s in plan["series"]:
+            self.assertIn(s["register"], statuses, s["register"])
+            self.assertEqual(statuses[s["register"]], "OPEN", s["register"])
+            self.assertTrue(s["url"].startswith("https://fred.stlouisfed.org/"), s["url"])
+            for date in s.get("vintages", []):
+                pairs += 1
+                if date < "2000-01-01":
+                    pre_2000 += 1
+        self.assertGreaterEqual(pairs, 30, "the R2 gate needs at least 30 (series, date) pairs")
+        self.assertGreaterEqual(pre_2000, 10, "at least 10 pairs must be before 2000")
+        self.assertIn("USREC", {s["id"] for s in plan["series"]})
 
     def test_owner_decisions_are_recorded(self):
         v4 = load(V4)
         decisions = " ".join(d["decision"] for d in v4["meta_gate"]["owner_decisions"])
         self.assertIn("D-131", decisions)
         self.assertIn("D-132", decisions)
+        self.assertIn("T10Y3M", decisions)
         self.assertIn("D-131", v4["decision_ids"])
         self.assertIn("D-132", v4["decision_ids"])
         self.assertEqual(v4["meta_gate"]["owner_confirmation_needed"], [])
-        self.assertIn("D-133", v4["meta_gate"]["on_approval"])
+        confirmations = " ".join(c["decision"] for c in v4["meta_gate"]["owner_confirmations"])
+        self.assertIn("меняй правила", confirmations)
 
     def test_changes_from_v3(self):
         v4 = load(V4)

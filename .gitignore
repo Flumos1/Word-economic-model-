@@ -3,7 +3,8 @@ __pycache__/
 *.pyc
 
 # Third-party raw data archives are never committed (licence_policy in protocols/evaluation_protocol_v3.json):
-# files are obtained by manual download; record URL, retrieval date and SHA-256 instead.
+# files are retrieved automatically by tools/fetch_data.py in CI; only URL, retrieval date and SHA-256
+# are recorded (protocols/data_log.json), never the files themselves.
 /data/raw/
 /data/external/
 GDPTrackingModelDataAndForecasts*.xlsx

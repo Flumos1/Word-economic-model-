@@ -33,7 +33,7 @@
     "stage": "OWNER_DECISION_AMENDMENT",
     "diff": "changes_from_v3 below",
     "impact_analysis": "No evaluation has been run under v1, v2 or v3, so there are no verdicts to revise. Both changes are pre-registered owner decisions made before any data were collected: they narrow the T3 evaluation window to the data that actually exists and replace the human download step with automated retrieval.",
-    "independent_review": "The v4 delta is checked independently in docs/67_Независимая_проверка_протокола_v4.md; the fixes are checked against it before freezing.",
+    "independent_review": "docs/67_Независимая_проверка_протокола_v4.md found three blocking findings in the first v4 draft (B-1: PROBIT still depended on T10Y3M; B-2: vintage files were promised but not retrieved; B-3: automation coverage was overstated). All three are fixed in this revision: PROBIT uses GS10-TB3MS only, the tool and plan retrieve latest and vintage files, and every used source is automated (NBER chronology through USREC). The delta is checked against docs/67 section 7 by the reviewer.",
     "approval": "PENDING",
     "owner_decisions": [
       {
@@ -47,12 +47,21 @@
       {
         "date": "2026-11-11",
         "decision": "D-132: every data acquisition step is automated. No human download is required or allowed as a pipeline step. Retrieval runs through the project tool and CI within the published terms; a quantity that cannot be retrieved automatically is replaced by the project model or dropped, and the decision is recorded. Raw third-party files are never committed."
+      },
+      {
+        "date": "2026-11-11",
+        "decision": "D-131 implementation: to make the narrowed T3 W1 REAL_TIME, PROBIT_SPREAD uses only the GS10-TB3MS spread; T10Y3M is dropped from its inputs because its ALFRED vintages start 2014-01-27. D-132 implementation: automatic retrieval covers vintage files (vintage_date), the NBER chronology through USREC, and every source the pipeline actually uses; a source that is not automated is not used."
       }
     ],
     "owner_confirmations": [
       {
         "date": "2026-11-11",
         "decision": "The owner instructed both changes directly on 2026-11-11: narrow the T3 W1 start to 1996-12 and make all data acquisition automatic.",
+        "source": "owner message of 2026-11-11"
+      },
+      {
+        "date": "2026-11-11",
+        "decision": "The owner instructed 'меняй правила' for T3 and 'выполняй все автоматически, любые загрузки человеком исключены' for the data pipeline; both cover the implementation choices above.",
         "source": "owner message of 2026-11-11"
       }
     ],
@@ -86,12 +95,12 @@
     "rule": "OPEN sources may be used in the primary comparator, in control arms and in criteria, under the conditions listed in their register entries. RESTRICTED and UNVERIFIED sources are not used anywhere in the project. An UNVERIFIED source becomes usable only through a new register entry (OPEN) made after its terms are read.",
     "substitute": "A model quantity that is available only through a RESTRICTED or UNVERIFIED source is replaced by the project's own model built from OPEN data (for example OWN_NOWCAST_BRIDGE). The substitute is never presented as equal to the source it replaces and is validated only against OPEN actuals, like any baseline. Naming the source it replaces is allowed; using its data is not. The principle covers model quantities only: a survey or an opinion (for example the SPF) is not replaced by a model, and if its source is not OPEN the quantity is simply not used. The quality of a substitute relative to the excluded sources is unknown and cannot be checked; the admission bar for a combination whose comparator contains a substitute can therefore be lower than with the best excluded source, and every report of such a combination says so.",
     "data_channel": {
-      "fred_alfred": "Vintage files of the registered series are retrieved by the project retrieval tool, automatically, one series per request: no human download step, no FRED API key or API cache, no crawling of the catalogue. The tool identifies itself, rate-limits the requests and logs every retrieval. The qualified prohibition on robots and scraping covers disruptive or bulk gathering, which a rate-limited single-series retrieval avoids; the general terms allow personal non-commercial use.",
-      "automation": "No step of the data pipeline requires a human download. The retrieval tool runs in the project CI on a schedule, writes only derived metadata into the repository and keeps raw files out of it. If a quantity cannot be retrieved automatically within the published terms, it is replaced by the project model (licence_policy.substitute) or dropped, and the decision is recorded.",
+      "fred_alfred": "Vintage files of the registered series are retrieved by the project retrieval tool, automatically, one series per request: no human download step, no FRED API key or API cache, no crawling of the catalogue. The tool identifies itself, rate-limits the requests and logs every retrieval. Latest and vintage files are requested through the public CSV endpoint by series id and, for a vintage, by vintage_date; the qualified prohibition on robots and scraping covers disruptive or bulk gathering, which a rate-limited single-series retrieval avoids; the general terms allow personal non-commercial use.",
+      "automation": "No step of the data pipeline requires or permits a human download. The retrieval tool runs in the project CI on a schedule and can be triggered through the GitHub API; it writes only metadata into the repository and keeps raw files outside it. Every source currently used is in protocols/data_plan.json; a source that is not automated is not used. If a quantity cannot be retrieved automatically within the published terms, it is replaced by the project model (licence_policy.substitute) or dropped, and the decision is recorded.",
       "ml_training": "No training or fine-tuning of any model on FRED or ALFRED content; foundation models and LLM forecasters therefore use only series from sources whose register entry allows it.",
       "alternative": "Primary public-domain sources (BLS, BEA, Treasury, Federal Reserve Board) are the alternative channel and are retrieved by the same automated tool once R2 has read their archive terms. BLS and BEA terms were read on 2026-11-11 (public domain, citation requested; docs/63, docs/65)."
     },
-    "raw_data": "Raw third-party archives are never committed to the repository. The retrieval tool records the URL, the retrieval date and the SHA-256 of each file in protocols/data_log.json and keeps the downloaded files outside the repository.",
+    "raw_data": "Raw third-party archives are never committed to the repository. The retrieval tool records the URL, the retrieval date, the bytes and the SHA-256 of each file in protocols/data_log.json together with the row count and the last observation date read from the file; the downloaded files stay outside the repository.",
     "privacy": "The repository is private. If it becomes public, every register entry is re-verified before the next evaluation.",
     "audit": "The register was checked against the primary terms pages on 2026-11-11; the quotes, the corrections and the items still unverified are in docs/63_Лицензионный_аудит_2026-11-11.md.",
     "gdpnow": {
@@ -193,7 +202,12 @@
       "FRED-QD": "2018-05",
       "SPF_GDP_quarterly_forecasts": "1968Q4",
       "SPF_CPI": "1981Q3",
-      "Cleveland_inflation_nowcast": "2013-07"
+      "Cleveland_inflation_nowcast": "2013-07",
+      "ALFRED_UNRATE": "1960-03-15",
+      "ALFRED_GS10": "1996-12-03",
+      "ALFRED_TB3MS": "1996-12-03",
+      "ALFRED_T10Y3M": "2014-01-27",
+      "ALFRED_USREC": "first vintage to be recorded by the automated retrieval in R2"
     },
     "verification_notes": {
       "source": "docs/58 and docs/61, primary sources opened on 2026-11-11",
@@ -222,8 +236,24 @@
       "tool": "tools/fetch_data.py",
       "workflow": ".github/workflows/data-refresh.yml",
       "data_log": "protocols/data_log.json",
-      "rule": "Automated retrieval only; no human download step. Raw files are never committed; the CI run keeps them outside the repository (private artifacts) and records only URL, date and SHA-256 in the data log."
-    }
+      "rule": "Automated retrieval only; no human download step. Raw files are never committed; the CI run keeps them outside the repository (private artifacts) and records only URL, date and SHA-256 in the data log.",
+      "modes": "latest and vintage (vintage_date parameter of the public CSV endpoint)",
+      "log_fields": [
+        "series",
+        "register",
+        "vintage",
+        "url",
+        "retrieved_at",
+        "bytes",
+        "sha256",
+        "file",
+        "rows",
+        "last_observation"
+      ],
+      "trigger": "monthly schedule, manual workflow dispatch and GitHub API workflow_dispatch"
+    },
+    "nber_rule": "The T3 target and the C4 split use the NBER chronology as of the evaluation date (a published record, not a vintage series). For model estimation a recession label enters only if the NBER announcement that covers it was published before the origin. The automated pipeline retrieves the machine-readable NBER chronology through the USREC series (register ALFRED:USREC, citation required) and records the retrieval; the NBER cycle-dates page remains the attribution source.",
+    "automation_coverage": "Every source that the current pipeline uses is in protocols/data_plan.json and is retrieved automatically: the FRED/ALFRED series, including vintage files requested by vintage_date, and the NBER chronology through USREC. Sources whose file layout is fixed in R2 (SPF, RTDSM) are added to the plan before they are used; a source that is not automated is not used, and the project never falls back to a human download. FRED-MD/QD is UNVERIFIED and is not used."
   },
   "windows": {
     "training_start": "1960-01",
@@ -254,7 +284,7 @@
     "target_overrides": {
       "T3_RECESSION": {
         "W1_start": "1996-12",
-        "reason": "ALFRED vintages of GS10 and TB3MS start 1996-12-03. Before that date PROBIT_SPREAD is PSEUDO_REAL_TIME and the T3 comparator has a single REAL_TIME member (SAHM_RULE), below comparator_minimum, so C1 on W1 would be undefined. The start is fixed by data availability; owner decision D-131."
+        "reason": "ALFRED vintages of GS10 and TB3MS start 1996-12-03, and PROBIT_SPREAD uses only these two rates (T10Y3M is dropped because its vintages start 2014-01-27). Before 1996-12-03 PROBIT_SPREAD is PSEUDO_REAL_TIME and the T3 comparator has a single REAL_TIME member (SAHM_RULE), below comparator_minimum, so C1 on W1 would be undefined. The start is fixed by data availability; owner decision D-131."
       }
     }
   },
@@ -360,11 +390,11 @@
         "T3_RECESSION": [
           "ALFRED:GS10",
           "ALFRED:TB3MS",
-          "ALFRED:T10Y3M",
           "NBER_CYCLE_DATES"
         ]
       },
-      "note": "Estrella-Mishkin yield-curve probit; GS10 and TB3MS before 1982"
+      "note": "Estrella-Mishkin yield-curve probit with the GS10-TB3MS spread only; T10Y3M is dropped because its ALFRED vintages start 2014-01-27 (docs/65), which would leave the T3 comparator with one REAL_TIME member for the whole W1.",
+      "point": "Estrella-Mishkin yield-curve probit. Binary outcome 1 if at least one NBER recession month lies in (t, t+h]; regressors constant and the term spread GS10 minus TB3MS, both with ALFRED vintages from 1996-12-03. The T10Y3M series is not used: its ALFRED vintages start 2014-01-27, which would make the model PSEUDO_REAL_TIME for the whole W1 and for W2 before 2014. Probit MLE on the rolling 240-month window; the fitted probability is the forecast. A recession label enters the estimation only if the NBER announcement that covers it was published before the origin."
     },
     {
       "id": "SAHM_RULE",
@@ -965,9 +995,11 @@
       "paths": [
         "windows.target_overrides",
         "admission.window_note",
-        "admission.criteria"
+        "admission.criteria",
+        "baselines",
+        "data_depth"
       ],
-      "summary": "T3 is evaluated on W1 from 1996-12 because ALFRED vintages of the yield inputs start there; the criteria apply W1 per target (D-131)."
+      "summary": "T3 is evaluated on W1 from 1996-12; PROBIT_SPREAD uses the GS10-TB3MS spread only (T10Y3M dropped, its ALFRED vintages start 2014-01-27), so both T3 members are REAL_TIME over the narrowed W1; the criteria apply W1 per target (D-131)."
     },
     {
       "id": "W4-02",
@@ -978,7 +1010,7 @@
         "data_depth.retrieval",
         "data_depth.vintage_sources"
       ],
-      "summary": "Automated data retrieval replaces the human download step: tool plus CI, rate-limited single-series requests, no API cache, no raw data in the repository (D-132)."
+      "summary": "Automated retrieval replaces the human download step: tool plus CI, latest and vintage files, NBER chronology through USREC, rate-limited single-series requests, no API cache, no raw data in the repository (D-132)."
     }
   ]
 }

@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-"""Automated data retrieval for AMFE (protocol v4, owner decision D-132).
+"""Automated data retrieval for AMFE (protocol v4, owner decisions D-131/D-132).
 
 No human download step: the tool fetches the registered OPEN series from the public
-FRED/ALFRED download endpoints, one series per request, rate-limited, with a project
-User-Agent and no API key or API cache. Raw files are written outside the repository
-(data/ is git-ignored); only URL, retrieval date and SHA-256 go into the data log.
+FRED/ALFRED CSV endpoint, one series per request, rate-limited, with a project User-Agent
+and no API key or API cache. It retrieves the latest file and, when asked, the vintage
+files listed in protocols/data_plan.json through the vintage_date parameter. Raw files are
+written outside the repository (data/ is git-ignored); only metadata goes into the data log
+(URL, date, bytes, SHA-256, row count, last observation date).
 
 The FRED API service is not used. This is the project's reading of the terms in
 protocols/licence_register.json (FRED_ALFRED_SERVICES); it is not legal advice.
@@ -56,10 +58,28 @@ def fetch(url: str, user_agent: str, timeout: int = 60, retries: int = 3) -> byt
     raise RuntimeError(f"could not fetch {url}: {last!r}")
 
 
+def csv_meta(data: bytes) -> dict:
+    """Row count and last observation date of a FRED CSV file (metadata only)."""
+    try:
+        text = data.decode("utf-8", "replace").strip().splitlines()
+    except Exception:
+        return {"rows": None, "last_observation": None, "csv": False}
+    if not text or "," not in text[0]:
+        return {"rows": None, "last_observation": None, "csv": False}
+    body = text[1:]
+    dates = [row.split(",")[0].strip() for row in body if row.strip()]
+    return {
+        "rows": len(dates),
+        "last_observation": dates[-1] if dates else None,
+        "first_observation": dates[0] if dates else None,
+        "csv": True,
+    }
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="Automated retrieval of registered OPEN series")
     ap.add_argument("--out", default="data/raw", help="ignored output directory for raw files")
-    ap.add_argument("--log", default="data_log.json", help="data log path (metadata only)")
+    ap.add_argument("--log", default="protocols/data_log.json", help="data log path (metadata only)")
     ap.add_argument("--plan", default=str(PLAN))
     ap.add_argument("--include-vintages", action="store_true",
                     help="also fetch the vintage dates listed in the plan")
@@ -96,9 +116,11 @@ def main(argv=None) -> int:
                 continue
             folder = out / s["id"]
             folder.mkdir(parents=True, exist_ok=True)
-            path = folder / f"{label}.csv"
+            name = "latest.csv" if label == "latest" else f"vintage_{label}.csv"
+            path = folder / name
             path.write_bytes(data)
-            entries.append({
+            meta = csv_meta(data)
+            entry = {
                 "series": s["id"],
                 "register": s["register"],
                 "vintage": label,
@@ -107,7 +129,14 @@ def main(argv=None) -> int:
                 "bytes": len(data),
                 "sha256": hashlib.sha256(data).hexdigest(),
                 "file": str(path).replace("\\", "/"),
-            })
+                "rows": meta["rows"],
+                "last_observation": meta["last_observation"],
+                "first_observation": meta["first_observation"],
+                "is_csv": meta["csv"],
+            }
+            if label != "latest" and meta["last_observation"] and meta["last_observation"] > label:
+                entry["warning"] = "last observation is later than the requested vintage date"
+            entries.append(entry)
             time.sleep(rate)
 
     log = {
@@ -116,6 +145,7 @@ def main(argv=None) -> int:
         "protocol": "protocols/evaluation_protocol_v4.json",
         "generated_at": utc_now(),
         "no_human_download": True,
+        "include_vintages": args.include_vintages,
         "rate_limit_seconds": rate,
         "plan": str(args.plan).replace("\\", "/"),
         "entries": entries,

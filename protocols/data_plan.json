@@ -1,16 +1,124 @@
 {
   "plan_id": "AMFE-DATA-PLAN",
-  "version": "0.1.0",
-  "purpose": "Automated retrieval plan for the R2 data gate (protocol v4, D-132). Every series is registered OPEN; retrieval is one series per request, rate-limited, without the FRED API service.",
+  "version": "0.2.0",
+  "purpose": "Automated retrieval plan for the R2 data gate (protocol v4, D-132). Every series is registered OPEN; retrieval is one series per request, rate-limited, without the FRED API service. Vintage files are requested by the vintage_date parameter of the public CSV endpoint.",
   "rate_limit_seconds": 2.0,
   "user_agent": "AMFE-research/0.1 (+https://github.com/Flumos1/Word-economic-model-)",
   "series": [
-    {"id": "CPIAUCSL", "register": "ALFRED:CPIAUCSL", "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=CPIAUCSL", "vintages": [], "purpose": "T1 target and inputs"},
-    {"id": "CPILFESL", "register": "ALFRED:CPILFESL", "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=CPILFESL", "vintages": [], "purpose": "T1 core target and inputs"},
-    {"id": "GDPC1", "register": "ALFRED:GDPC1", "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=GDPC1", "vintages": [], "purpose": "T2 target and inputs"},
-    {"id": "UNRATE", "register": "ALFRED:UNRATE", "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=UNRATE", "vintages": [], "purpose": "BVAR, SAHM and own-nowcast inputs"},
-    {"id": "GS10", "register": "ALFRED:GS10", "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=GS10", "vintages": [], "purpose": "BVAR, PROBIT and own-nowcast inputs"},
-    {"id": "TB3MS", "register": "ALFRED:TB3MS", "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=TB3MS", "vintages": [], "purpose": "BVAR, PROBIT and own-nowcast inputs"},
-    {"id": "T10Y3M", "register": "ALFRED:T10Y3M", "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=T10Y3M", "vintages": [], "purpose": "PROBIT spread input"}
+    {
+      "id": "CPIAUCSL",
+      "register": "ALFRED:CPIAUCSL",
+      "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=CPIAUCSL",
+      "vintages": [
+        "1996-12-31",
+        "1997-12-31",
+        "1998-12-31",
+        "1999-12-31",
+        "2001-12-31",
+        "2004-12-31",
+        "2007-12-31",
+        "2010-12-31",
+        "2013-12-31",
+        "2020-04-30"
+      ],
+      "purpose": "T1 target and inputs"
+    },
+    {
+      "id": "CPILFESL",
+      "register": "ALFRED:CPILFESL",
+      "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=CPILFESL",
+      "vintages": [
+        "1996-12-31",
+        "1997-12-31",
+        "1998-12-31",
+        "1999-12-31",
+        "2001-12-31",
+        "2004-12-31",
+        "2007-12-31",
+        "2010-12-31",
+        "2013-12-31",
+        "2020-04-30"
+      ],
+      "purpose": "T1 core target and inputs"
+    },
+    {
+      "id": "GDPC1",
+      "register": "ALFRED:GDPC1",
+      "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=GDPC1",
+      "vintages": [
+        "1996-12-31",
+        "1997-12-31",
+        "1998-12-31",
+        "1999-12-31",
+        "2001-12-31",
+        "2004-12-31",
+        "2007-12-31",
+        "2010-12-31",
+        "2013-12-31",
+        "2020-04-30"
+      ],
+      "purpose": "T2 target and inputs"
+    },
+    {
+      "id": "UNRATE",
+      "register": "ALFRED:UNRATE",
+      "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=UNRATE",
+      "vintages": [
+        "1996-12-31",
+        "1997-12-31",
+        "1998-12-31",
+        "1999-12-31",
+        "2001-12-31",
+        "2004-12-31",
+        "2007-12-31",
+        "2010-12-31",
+        "2013-12-31",
+        "2020-04-30"
+      ],
+      "purpose": "BVAR, SAHM and own-nowcast inputs"
+    },
+    {
+      "id": "GS10",
+      "register": "ALFRED:GS10",
+      "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=GS10",
+      "vintages": [
+        "1996-12-31",
+        "1997-12-31",
+        "1998-12-31",
+        "1999-12-31",
+        "2001-12-31",
+        "2004-12-31",
+        "2007-12-31",
+        "2010-12-31",
+        "2013-12-31",
+        "2020-04-30"
+      ],
+      "purpose": "BVAR, PROBIT and own-nowcast inputs"
+    },
+    {
+      "id": "TB3MS",
+      "register": "ALFRED:TB3MS",
+      "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=TB3MS",
+      "vintages": [
+        "1996-12-31",
+        "1997-12-31",
+        "1998-12-31",
+        "1999-12-31",
+        "2001-12-31",
+        "2004-12-31",
+        "2007-12-31",
+        "2010-12-31",
+        "2013-12-31",
+        "2020-04-30"
+      ],
+      "purpose": "BVAR, PROBIT and own-nowcast inputs"
+    },
+    {
+      "id": "USREC",
+      "register": "ALFRED:USREC",
+      "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=USREC",
+      "vintages": [],
+      "purpose": "machine-readable NBER chronology for T3 and for the C4 split"
+    }
   ]
 }
