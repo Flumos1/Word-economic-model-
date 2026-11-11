@@ -129,7 +129,16 @@ def initial_release(seid: str, dates: list, first: str, last: str, ua: str) -> l
         ("form[download_data]", ""),
     ]
     body = urllib.parse.urlencode(fields).encode()
-    return parse_initial_release(request(ALFRED_FORM.format(seid=seid), ua, data=body))
+    url = ALFRED_FORM.format(seid=seid)
+    last_error = None
+    for attempt in range(1, 4):
+        raw = request(url, ua, data=body)
+        if raw[:2] == b"PK":
+            return parse_initial_release(raw)
+        head = raw[:160].decode("utf-8", "replace").replace("\n", " | ")
+        last_error = f"not a zip (attempt {attempt}): {head!r}"
+        time.sleep(8 * attempt)
+    raise RuntimeError(f"initial-release output unavailable for {seid}: {last_error}")
 
 
 def main(argv=None) -> int:
@@ -154,14 +163,19 @@ def main(argv=None) -> int:
         if not zpath.exists():
             report["excluded"].append({"series": s["id"], "reason": "no vintage set retrieved"})
             continue
-        raw = zpath.read_bytes()
-        columns = parse_vintage_zip(raw)
-        if not columns:
-            report["excluded"].append({"series": s["id"], "reason": "vintage set has no dated columns"})
+        try:
+            raw = zpath.read_bytes()
+            columns = parse_vintage_zip(raw)
+            if not columns:
+                report["excluded"].append({"series": s["id"], "reason": "vintage set has no dated columns"})
+                continue
+            dates = sorted(columns)
+            first, last = latest_range(s["id"], ua)
+            time.sleep(float(plan.get("rate_limit_seconds", 2.0)))
+            rows = initial_release(s["id"], dates, first, last, ua)
+        except Exception as exc:
+            report["excluded"].append({"series": s["id"], "reason": f"check failed: {exc}"})
             continue
-        dates = sorted(columns)
-        first, last = latest_range(s["id"], ua)
-        rows = initial_release(s["id"], dates, first, last, ua)
         entry = {"series": s["id"], "vintage_dates": dates, "initial_release_rows": len(rows),
                  "checked": 0, "matched": 0, "mismatches": []}
         for period, value, release in rows:
