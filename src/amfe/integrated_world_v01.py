@@ -65,7 +65,7 @@ class InternationalAccounts:
         self.journal.append((self.period,kind,f,g,k,c))
 
     def endow(self,c,currency,amount,goods=0):
-        if self.journal or any(self.financial.values()) or any(self.goods.values()):
+        if self.journal or self.periods:
             raise AccountingError("endowment only before first operation")
         if c not in COUNTRIES or currency!=CURRENCIES[c]:raise AccountingError("invalid endowment")
         n=D(amount);q=D(goods)
