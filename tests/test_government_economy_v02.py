@@ -27,7 +27,7 @@ def scenario(sales=70, tax=30, transfer=10, public_purchase=15,
              interest=5, government_borrowing=0):
     """One country, one good, price=1; no intermediates or product taxes.
 
-    The government tax is a tax on firm income, not a tax on products.
+    The government tax is an exogenous direct levy on the firm, not a tax on products.\n    It is NOT computed from accounting profit (which may be zero).
     All flows are nominal integer amounts in one period.
     """
     l = Ledger()
@@ -53,7 +53,7 @@ def scenario(sales=70, tax=30, transfer=10, public_purchase=15,
     assert 0 <= sales <= 100
     transfer_cash('household consumption', 'household', 'firm', sales)
     assert tax >= 0 and transfer >= 0 and public_purchase >= 0
-    transfer_cash('firm income tax', 'firm', 'government', tax)
+    transfer_cash('direct firm levy', 'firm', 'government', tax)
     transfer_cash('government transfer', 'government', 'household', transfer)
     assert sales + public_purchase <= 100
     transfer_cash('government purchase', 'government', 'firm', public_purchase)
