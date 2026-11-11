@@ -21,6 +21,7 @@ class ExtendedAccounts(Accounts):
             raise AccountingError("receivable sign")
 
     def apply(self,tx):
+        if self._opening is None: raise AccountingError("period closed")
         # The base ledger validates known instruments; receivables require a
         # separate, equally strict atomic posting route.
         if tx.kind not in {"accrued_wages","settle_wages"}:
@@ -56,6 +57,7 @@ class ExtendedAccounts(Accounts):
              ("firm","deposit"):-n,("household","deposit"):n}))
 
     def _nontransaction_change(self,kind,sector,asset,amount,category):
+        if self._opening is None: raise AccountingError("period closed")
         n=D(amount)
         if category not in ("revaluation","other_volume") or kind not in ("fixed_capital","inventory") or asset!=kind or sector!="firm":
             raise AccountingError("unsupported nontransaction change")
