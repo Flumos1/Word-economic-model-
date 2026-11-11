@@ -1,18 +1,19 @@
 {
   "protocol_id": "AMFE-EVAL",
-  "version": "2.0.0-draft",
-  "status": "DRAFT",
+  "version": "2.0.0",
+  "status": "FROZEN",
   "supersedes": {"version": "1.0.0", "file": "evaluation_protocol_v1.json", "sha256": "10c0af80bcdcb8348b564b4ac59c8b08667b0d32392fdfad536fc7a7e24879b0"},
-  "decision_ids": ["D-121", "D-122", "D-123", "D-124", "D-125", "D-126"],
+  "decision_ids": ["D-121", "D-122", "D-123", "D-124", "D-125", "D-126", "D-127"],
   "closes_questions": ["Q-001", "Q-002", "Q-003", "Q-004", "Q-005", "Q-006"],
   "meta_gate": {
     "reference": "D-100",
-    "stage": "PROPOSE",
+    "stage": "APPROVED",
     "diff": "changes_from_v1 below",
     "impact_analysis": "No result was ever produced under v1, so no verdict changes and the replay is empty.",
-    "independent_review": "PENDING. The same agent wrote v1 and this draft, so this review is not independent; a human or separate reviewer must sign.",
-    "approval": "PENDING",
-    "on_approval": "Add decision D-127, freeze this file with a pinned SHA-256 like v1, keep v1 untouched."
+    "independent_review": "docs/58_Независимая_проверка_протокола_v2.md, 2026-11-11: no blocking findings, 17 non-blocking findings R-01..R-17. Limit of independence: the reviewer is a separate instance of the same language model (Claude Sonnet 5.5), not a human; it did not see the conversation that produced v1 and v2 and checked primary sources, but errors shared by the model family may remain.",
+    "approval": "APPROVED",
+    "approved_by": "project owner, 2026-11-11, quote: \"все подтверждаю\" (initial parameters: 15-year window = 180 months / 60 quarters, 8 independent outcomes for ACTIVE, at least 12 recession months for C4, coverage tolerance +-10 pp, threshold min(0.97, q05), and the launch of approval)",
+    "on_approval": "Done: decision D-127 added to docs/04, this file frozen with a pinned SHA-256 in evaluation_protocol_v2.sha256, v1 untouched."
   },
   "amendment_rule": "Once FROZEN this file is never edited. A change is a new file evaluation_protocol_v3.json approved through the D-100 meta-gate.",
   "universe": "US",
@@ -73,6 +74,12 @@
       "SPF_CPI": "1981Q3",
       "GDPNow": "2011Q3",
       "Cleveland_inflation_nowcast": "2013-07"
+    },
+    "verification_notes": {
+      "source": "docs/58, primary sources opened on 2026-11-11",
+      "GDPNow": "2011Q3-2014Q1 is the archive tab before the model went live (reconstruction, not a real-time forecast); live forecasts start 2014Q2.",
+      "Cleveland_inflation_nowcast": "Chart range starts 2013-07; whether the series is an archive of values published in real time is not confirmed (level U).",
+      "ALFRED_CPIAUCSL": "Vintages dated 1972-07-21 to 1994-02-16 hold only the final 1.5 years of data, so an estimation window of 180 months cannot be built from a single vintage before 1994-02-17."
     },
     "classification_rule": "A forecast is REAL_TIME only if every input series comes from the vintage available at the origin; otherwise it is PSEUDO_REAL_TIME. Only REAL_TIME forecasts count toward C1, C2, C4 and C5; PSEUDO_REAL_TIME forecasts are reported separately.",
     "consequence": "DFM_FREDMD is REAL_TIME only from origin 1999-08, so W1 (1990-2006) is mostly pseudo-real-time for it.",
@@ -142,7 +149,8 @@
       "independent_outcome": "A resolved forecast whose target window does not overlap another counted forecast.",
       "min_independent_outcomes_for_ACTIVE": 8,
       "ceiling_when_fewer": "LIMITED_DEPLOYMENT",
-      "pairs_expected_to_hit_ceiling": ["T1_CPI_YOY h=12", "T2_GDP_GROWTH h=4", "T3_RECESSION all horizons"]
+      "pairs_expected_to_hit_ceiling": ["T1_CPI_YOY h=12", "T2_GDP_GROWTH h=4", "T3_RECESSION all horizons"],
+      "pairs_expected_note": "The list is an informal expectation, not a rule; independent_outcome and min_independent_outcomes_for_ACTIVE decide. The target window of T1 is the 12 months of the y/y change, of T2 one quarter, of T3 the interval (t, t+h]."
     },
     "stages": {
       "CANDIDATE_to_SHADOW_TEST": "C1, C2, C4, C5 on REAL_TIME historical forecasts",
