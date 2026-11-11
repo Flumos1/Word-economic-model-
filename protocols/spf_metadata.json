@@ -1,0 +1,138 @@
+{
+  "dataset": "Survey of Professional Forecasters - median forecasts (metadata only)",
+  "tool": "tools/fetch_spf.py",
+  "source_url": "https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/median-forecasts",
+  "retrieved_at": "2026-11-11T19:19:45Z",
+  "licence_register_entry": "PHILADELPHIA_FED",
+  "licence_reading": "research use only, no use of the Bank's names or logos as endorsement (see protocols/licence_register.json; not a legal opinion)",
+  "attribution": "Source: Federal Reserve Bank of Philadelphia, Survey of Professional Forecasters, https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/survey-of-professional-forecasters",
+  "publication_rule": "the SPF median values are third-party data: they are written only to the git-ignored data directory and are never committed or published; only this metadata file (URLs, hashes, shapes, date ranges) is committed",
+  "raw_files_committed": false,
+  "values_location": "data/raw/spf/spf_median.json",
+  "files": [
+    {
+      "key": "inflation",
+      "name": "Inflation.xlsx",
+      "url": "https://www.philadelphiafed.org/-/media/FRBP/Assets/Surveys-And-Data/survey-of-professional-forecasters/historical-data/Inflation.xlsx",
+      "sheet": "INFLATION",
+      "columns_used": [
+        "INFCPI1YR",
+        "INFCPI10YR"
+      ],
+      "sheet_header": [
+        "YEAR",
+        "QUARTER",
+        "INFPGDP1YR",
+        "INFCPI1YR",
+        "INFCPI10YR"
+      ],
+      "bytes": 11774,
+      "sha256": "2bef852b0b4c4365ce9d38796c408ecb2648f024b2cc1d40a8c1426afe62e2e5",
+      "rows_used": 287
+    },
+    {
+      "key": "growth",
+      "name": "medianGrowth.xlsx",
+      "url": "https://www.philadelphiafed.org/-/media/FRBP/Assets/Surveys-And-Data/survey-of-professional-forecasters/historical-data/medianGrowth.xlsx",
+      "sheet": "RGDP",
+      "columns_used": [
+        "drgdp2",
+        "drgdp3",
+        "drgdp4",
+        "drgdp5",
+        "drgdp6"
+      ],
+      "sheet_header": [
+        "YEAR",
+        "QUARTER",
+        "drgdp2",
+        "drgdp3",
+        "drgdp4",
+        "drgdp5",
+        "drgdp6"
+      ],
+      "bytes": 144611,
+      "sha256": "fdcf9ca0299de022c58f8fc35fd20761d8e52b45e038781ae3c4826d1a3cbb5c",
+      "rows_used": 735
+    }
+  ],
+  "variables": [
+    {
+      "code": "INFCPI1YR",
+      "variable": "CPI inflation",
+      "horizon": "1 year ahead",
+      "observations": 147,
+      "first_survey_quarter": "1990Q1",
+      "last_survey_quarter": "2026Q3",
+      "values_sha256": "54ed6e0656c8b7531dc61707f14748a6cccde0acb65b9e369d6b1c713517e37d"
+    },
+    {
+      "code": "INFCPI10YR",
+      "variable": "CPI inflation",
+      "horizon": "10 years ahead",
+      "observations": 140,
+      "first_survey_quarter": "1991Q4",
+      "last_survey_quarter": "2026Q3",
+      "values_sha256": "7b549d08c9c56e90096bafc684900b74c525cba29af1f6d558b968983b1a6895"
+    },
+    {
+      "code": "drgdp2",
+      "variable": "Real GDP growth",
+      "horizon": "h2 (published SPF horizon code)",
+      "observations": 147,
+      "first_survey_quarter": "1990Q1",
+      "last_survey_quarter": "2026Q3",
+      "values_sha256": "dbe411218f148f833040d956e9a46f7437a1eb8fef420fe8de0612b7e56b5298"
+    },
+    {
+      "code": "drgdp3",
+      "variable": "Real GDP growth",
+      "horizon": "h3 (published SPF horizon code)",
+      "observations": 147,
+      "first_survey_quarter": "1990Q1",
+      "last_survey_quarter": "2026Q3",
+      "values_sha256": "a11fe0d07ec0d3673f4a0f799d96feaf3c9af6b6cc36c373c4e46404f170991e"
+    },
+    {
+      "code": "drgdp4",
+      "variable": "Real GDP growth",
+      "horizon": "h4 (published SPF horizon code)",
+      "observations": 147,
+      "first_survey_quarter": "1990Q1",
+      "last_survey_quarter": "2026Q3",
+      "values_sha256": "29418e602a965f69caca75deac530b71520db0180cf2f942bf35436c286bd018"
+    },
+    {
+      "code": "drgdp5",
+      "variable": "Real GDP growth",
+      "horizon": "h5 (published SPF horizon code)",
+      "observations": 147,
+      "first_survey_quarter": "1990Q1",
+      "last_survey_quarter": "2026Q3",
+      "values_sha256": "8ab2081cf04bb8a8f974d8b35ebd40f990e28b80179826010f5ebe74060c101b"
+    },
+    {
+      "code": "drgdp6",
+      "variable": "Real GDP growth",
+      "horizon": "h6 (published SPF horizon code)",
+      "observations": 147,
+      "first_survey_quarter": "1990Q1",
+      "last_survey_quarter": "2026Q3",
+      "values_sha256": "3be17b32de1689cb5a2e6e273aa081b5e1c68329233ce321999438de12855db5"
+    }
+  ],
+  "coverage": {
+    "first_survey_quarter": "1990Q1",
+    "last_survey_quarter": "2026Q3",
+    "survey_quarters": 147,
+    "observations": 1022,
+    "first_survey_date": "1990-02-01",
+    "last_survey_date": "2026-08-01"
+  },
+  "limitations": [
+    "survey_date is an anchor (first day of the middle month of the survey quarter); the exact SPF deadline day comes from the release calendar and is not machine-parsed here",
+    "real GDP growth horizons keep the published SPF horizon codes drgdp2..drgdp6; the mapping from code to quarter offset must be read from the SPF documentation before scoring",
+    "CPI inflation is published by the SPF as INFPGDP1YR/INFCPI1YR/INFCPI10YR only - there is no monthly year-over-year CPI series in this file (see the licence register note)",
+    "the median values themselves are not committed; reproduce them by running this tool (workflow .github/workflows/r2-metadata.yml) and reading the git-ignored output"
+  ]
+}

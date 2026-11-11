@@ -1,0 +1,215 @@
+{
+  "dataset": "NBER Business Cycle Dating Committee announcements",
+  "tool": "tools/nber_dates.py",
+  "source_url": "https://www.nber.org/research/business-cycle-dating/business-cycle-dating-committee-announcements",
+  "retrieved_at": "2026-11-11T19:15:31Z",
+  "permission": "NBER data page: 'Permission to copy is granted, provided attribution of source is given.' (https://www.nber.org/research/data/us-business-cycle-expansions-and-contractions)",
+  "attribution": "Source: National Bureau of Economic Research (NBER), Business Cycle Dating Committee announcements, https://www.nber.org",
+  "announcements": [
+    {
+      "announcement_date": "2021-07-19",
+      "type": "trough",
+      "cycle_date": "2020-04",
+      "peak": null,
+      "trough": "2020-04",
+      "title": "Determination of the April 2020 Trough in US Economic Activity",
+      "source_url": "https://www.nber.org/news/business-cycle-dating-committee-announcement-july-19-2021"
+    },
+    {
+      "announcement_date": "2020-06-08",
+      "type": "peak",
+      "cycle_date": "2020-02",
+      "peak": "2020-02",
+      "trough": null,
+      "title": "Determination of the February 2020 Peak in US Economic Activity",
+      "source_url": "https://www.nber.org/news/business-cycle-dating-committee-announcement-june-8-2020"
+    },
+    {
+      "announcement_date": "2010-09-20",
+      "type": "trough",
+      "cycle_date": "2009-06",
+      "peak": null,
+      "trough": "2009-06",
+      "title": "Announcement of June 2009 business cycle trough/end of last recession",
+      "source_url": "https://www.nber.org/news/business-cycle-dating-committee-announcement-september-20-2010"
+    },
+    {
+      "announcement_date": "2010-04-12",
+      "type": "memo",
+      "cycle_date": null,
+      "peak": null,
+      "trough": null,
+      "title": "Memo from the Business Cycle Dating Committee",
+      "source_url": "https://www.nber.org/news/business-cycle-dating-committee-announcement-april-12-2010"
+    },
+    {
+      "announcement_date": "2008-12-01",
+      "type": "peak",
+      "cycle_date": "2007-12",
+      "peak": "2007-12",
+      "trough": null,
+      "title": "Announcement of December 2007 business cycle peak/beginning of last recession",
+      "source_url": "https://www.nber.org/news/business-cycle-dating-committee-announcement-december-1-2008"
+    },
+    {
+      "announcement_date": "2008-01-07",
+      "type": "memo",
+      "cycle_date": null,
+      "peak": null,
+      "trough": null,
+      "title": "Memo from the Business Cycle Dating Committee",
+      "source_url": "https://www.nber.org/news/business-cycle-dating-committee-announcement-january-7-2008"
+    },
+    {
+      "announcement_date": "2003-10-21",
+      "type": "memo",
+      "cycle_date": null,
+      "peak": null,
+      "trough": null,
+      "title": "Memo from the Business Cycle Dating Committee",
+      "source_url": "https://www.nber.org/news/business-cycle-dating-committee-announcement-october-21-2003"
+    },
+    {
+      "announcement_date": "2003-07-17",
+      "type": "trough",
+      "cycle_date": "2001-11",
+      "peak": null,
+      "trough": "2001-11",
+      "title": "Announcement of November 2001 business cycle trough/end of last recession",
+      "source_url": "https://www.nber.org/news/business-cycle-dating-committee-announcement-july-17-2003"
+    },
+    {
+      "announcement_date": "2001-11-26",
+      "type": "peak",
+      "cycle_date": "2001-03",
+      "peak": "2001-03",
+      "trough": null,
+      "title": "Announcement of March 2001 business cycle peak/beginning of last recession",
+      "source_url": "https://www.nber.org/news/business-cycle-dating-committee-announcement-november-26-2001"
+    },
+    {
+      "announcement_date": "1992-12-22",
+      "type": "trough",
+      "cycle_date": "1991-03",
+      "peak": null,
+      "trough": "1991-03",
+      "title": "Announcement of March 1991 business cycle trough/end of last recession",
+      "source_url": "https://www.nber.org/news/business-cycle-dating-committee-announcement-december-22-1992"
+    },
+    {
+      "announcement_date": "1991-04-25",
+      "type": "peak",
+      "cycle_date": "1990-07",
+      "peak": "1990-07",
+      "trough": null,
+      "title": "Announcement of July 1990 business cycle peak/beginning of last recession",
+      "source_url": "https://www.nber.org/news/business-cycle-dating-committee-announcement-april-25-1991"
+    },
+    {
+      "announcement_date": "1990-12-21",
+      "type": "memo",
+      "cycle_date": null,
+      "peak": null,
+      "trough": null,
+      "title": "Memo from the Business Cycle Dating Committee",
+      "source_url": "https://www.nber.org/news/business-cycle-dating-committee-announcement-december-21-1990"
+    },
+    {
+      "announcement_date": "1983-07-08",
+      "type": "trough",
+      "cycle_date": "1982-11",
+      "peak": null,
+      "trough": "1982-11",
+      "title": "Announcement of November 1982 business cycle trough/end of last recession",
+      "source_url": "https://www.nber.org/news/business-cycle-dating-committee-announcement-july-8-1983"
+    },
+    {
+      "announcement_date": "1982-01-06",
+      "type": "peak",
+      "cycle_date": "1981-07",
+      "peak": "1981-07",
+      "trough": null,
+      "title": "Announcement of July 1981 business cycle peak/beginning of last recession",
+      "source_url": "https://www.nber.org/news/business-cycle-dating-committee-announcement-january-6-1982"
+    },
+    {
+      "announcement_date": "1981-07-08",
+      "type": "trough",
+      "cycle_date": "1980-07",
+      "peak": null,
+      "trough": "1980-07",
+      "title": "Announcement of July 1980 business cycle trough/end of last recession",
+      "source_url": "https://www.nber.org/news/business-cycle-dating-committee-announcement-july-8-1981"
+    },
+    {
+      "announcement_date": "1980-06-03",
+      "type": "peak",
+      "cycle_date": "1980-01",
+      "peak": "1980-01",
+      "trough": null,
+      "title": "Announcement of January 1980 business cycle peak/beginning of last recession",
+      "source_url": "https://www.nber.org/news/business-cycle-dating-committee-announcement-june-3-1980"
+    },
+    {
+      "announcement_date": "1979-12-31",
+      "type": "memo",
+      "cycle_date": null,
+      "peak": null,
+      "trough": null,
+      "title": "Memo from the Business Cycle Dating Committee",
+      "source_url": "https://www.nber.org/news/business-cycle-dating-committee-announcement-december-31-1979"
+    }
+  ],
+  "reference_dates": [
+    {
+      "peak": "1980-01",
+      "peak_announcement": "1980-06-03",
+      "trough": "1980-07",
+      "trough_announcement": "1981-07-08"
+    },
+    {
+      "peak": "1981-07",
+      "peak_announcement": "1982-01-06",
+      "trough": "1982-11",
+      "trough_announcement": "1983-07-08"
+    },
+    {
+      "peak": "1990-07",
+      "peak_announcement": "1991-04-25",
+      "trough": "1991-03",
+      "trough_announcement": "1992-12-22"
+    },
+    {
+      "peak": "2001-03",
+      "peak_announcement": "2001-11-26",
+      "trough": "2001-11",
+      "trough_announcement": "2003-07-17"
+    },
+    {
+      "peak": "2007-12",
+      "peak_announcement": "2008-12-01",
+      "trough": "2009-06",
+      "trough_announcement": "2010-09-20"
+    },
+    {
+      "peak": "2020-02",
+      "peak_announcement": "2020-06-08",
+      "trough": "2020-04",
+      "trough_announcement": "2021-07-19"
+    }
+  ],
+  "coverage": {
+    "first_announcement": "1979-12-31",
+    "last_announcement": "2021-07-19",
+    "announcements": 17,
+    "peaks": 6,
+    "troughs": 6
+  },
+  "source_page_sha256": "f19b720f7613eacae7564bdffec50722fa1ec583d36ffde8e50ea42bc2d0da75",
+  "announcements_sha256": "4910eb6edf24845f41ee052478aa4186601cac45ec0f44f443e29ea903be6fb6",
+  "limitations": [
+    "only the announcements listed on the NBER announcements page are extracted; older committee announcements from before 1990 are not on that page",
+    "the page lists announcements newest first; the extraction relies on the page markup (<p><a href='/news/business-cycle-dating-committee-announcement-...'>date</a>text</p>)",
+    "memos carry no peak/trough determination (type='memo', cycle_date=null)"
+  ]
+}

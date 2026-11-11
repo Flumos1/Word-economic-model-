@@ -1,0 +1,74 @@
+name: R2 metadata refresh (NBER dates, SPF metadata, RTDSM probe)
+
+# Protocol v4, R2 leftovers (docs/68 -> docs/71): the NBER announcement dates and the Philadelphia Fed
+# SPF medians are needed by the model (announcement dates to avoid using a recession determination
+# before it existed; survey medians as an expectation input).
+#
+# Licence policy: only metadata is committed. This workflow writes
+#   * protocols/nber_dates.json - public NBER dates with attribution (committable metadata);
+#   * protocols/spf_metadata.json - SPF sources, SHA-256 of the xlsx files, sheet/column names,
+#     observation counts and date ranges; NO median values;
+#   * data/raw/spf/spf_median.json - the extracted SPF median values, in the git-ignored data
+#     directory; uploaded only as the private run artifact (same rule as data-refresh).
+# The xlsx workbooks themselves are parsed in memory and never written anywhere.
+#
+# RTDSM: the step probes the Real-Time Data Set xlsx files and prints their metadata (sizes, SHA-256,
+# sheet dimensions) into the run log; nothing is stored.
+on:
+  schedule:
+    - cron: '0 6 3 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  metadata:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install openpyxl (SPF and RTDSM workbooks are .xlsx)
+        run: python -m pip install --quiet openpyxl
+      - name: NBER business-cycle announcement dates (metadata only, attribution stored)
+        run: python tools/nber_dates.py --out protocols/nber_dates.json
+      - name: Philadelphia Fed SPF medians (values -> git-ignored data/, metadata -> protocols/)
+        run: python tools/fetch_spf.py --values-out data/raw/spf/spf_median.json --out protocols/spf_metadata.json
+      - name: RTDSM availability probe (metadata in the log, nothing stored)
+        run: python tools/fetch_spf.py --check-rtdsm
+      - name: Show the produced metadata summary
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          for path in ("protocols/nber_dates.json", "protocols/spf_metadata.json"):
+              try:
+                  doc = json.load(open(path, encoding="utf-8"))
+                  print(path, json.dumps(doc.get("coverage", {}), ensure_ascii=False))
+              except Exception as exc:
+                  print(path, "MISSING:", exc)
+          PY
+      - name: Confirm the SPF metadata carries no median values
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          doc = json.load(open("protocols/spf_metadata.json", encoding="utf-8"))
+          assert "series" not in doc, "values must not be written to the metadata file"
+          for var in doc["variables"]:
+              assert "value" not in var and "values" not in var, var
+          print("metadata only: ok", doc["coverage"])
+          PY
+      - name: Upload metadata (committable) and SPF values (private artifact only)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: r2-metadata-${{ github.run_id }}
+          path: |
+            protocols/nber_dates.json
+            protocols/spf_metadata.json
+            data/raw/spf/spf_median.json
+          retention-days: 90
+          if-no-files-found: warn

@@ -18,7 +18,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Probe ALFRED download form POST variants
-        run: python tools/probe_vintages.py
+        run: python tools/probe_vintages.py --series GDPC1
       - name: Upload probe results and any zip
         if: always()
         uses: actions/upload-artifact@v4
@@ -26,6 +26,6 @@ jobs:
           name: vintage-probe-${{ github.run_id }}
           path: |
             probe_results.json
-            vintages_*.zip
+            probe_output_*.zip
           retention-days: 30
           if-no-files-found: warn
