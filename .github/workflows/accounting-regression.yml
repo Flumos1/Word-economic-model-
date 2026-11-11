@@ -30,3 +30,5 @@ jobs:
         run: python tests/test_sfc_accounts_v05.py
       - name: Formal sector accounts v06 (7 tests, 432 scenarios)
         run: python tests/test_accounting_core_v06.py
+      - name: Accruals and other changes v07
+        run: python tests/test_extended_accounts_v07.py
