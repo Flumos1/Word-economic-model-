@@ -23,3 +23,5 @@ jobs:
         run: python tests/test_government_economy_v02.py
       - name: Four-sector parameter-grid regression (10,000 cases)
         run: python tests/test_government_parameter_grid_v03.py
+      - name: Four-sector net-worth accounts v04
+        run: python tests/test_sector_accounts_v04.py
