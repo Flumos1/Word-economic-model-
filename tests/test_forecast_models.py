@@ -332,7 +332,7 @@ class SpecificationMapping(unittest.TestCase):
 
     def test_implemented_models_match_the_specification_models(self):
         spec = json.loads(SPEC.read_text(encoding="utf-8"))
-        spec_models = {m["id"] for m in spec["models"] if m["status"] in ("PROPOSED", "PROPOSED_T2_ONLY")}
+        spec_models = {m["id"] for m in spec["models"] if m["status"] in ("PROPOSED", "PROPOSED_T2_ONLY", "IMPLEMENTED")}
         for model_id in fm.MODEL_IDS:
             self.assertIn(model_id, spec_models)
         # DFM_FREDMD is specified but blocked on the licence register; SPF is not implemented in R3
