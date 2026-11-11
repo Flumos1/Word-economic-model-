@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Probe the ALFRED 'Initial Release Only' output (R2 data gate evidence)."""
+"""Probe the ALFRED 'Initial Release Only' output with actual vintage dates (R2 gate)."""
 from __future__ import annotations
 
 import io
@@ -13,14 +13,15 @@ from pathlib import Path
 UA = "AMFE-research/0.1 (+https://github.com/Flumos1/Word-economic-model-)"
 SERIES = "CPIAUCSL"
 PAGE = f"https://alfred.stlouisfed.org/series/downloaddata?seid={SERIES}"
+ACTUAL = ["1996-12-12", "1999-12-14", "2004-12-17", "2007-12-14", "2013-12-17", "2020-12-10"]
 
 
-def post(file_type: str, file_format: str, label: str) -> dict:
+def post(file_type: str, file_format: str, dates: list, label: str) -> dict:
     fields = [
         ("form[units]", "lin"),
         ("form[obs_start_date]", "1947-01-01"),
         ("form[obs_end_date]", datetime.now(timezone.utc).strftime("%Y-%m-%d")),
-        ("form[entered_vintage_dates]", "1996-12-31 2000-12-31 2010-12-31 2020-12-31"),
+        ("form[entered_vintage_dates]", " ".join(dates)),
         ("form[file_type]", file_type),
         ("form[file_format]", file_format),
         ("form[download_data]", ""),
@@ -42,22 +43,24 @@ def post(file_type: str, file_format: str, label: str) -> dict:
                 item["header"] = lines[0]
                 item["sample"] = lines[1:4]
                 item["row_count"] = len(lines) - 1
+    else:
+        item["head"] = raw[:140].decode("utf-8", "replace").replace("\n", " | ")
     return item
 
 
 def main() -> int:
-    out = {"series": SERIES, "attempts": []}
-    for label, ft, ff in [
-        ("initial_csv", "4", "csv"),
-        ("initial_xlsx", "4", "xlsx"),
-        ("realtime_period_csv", "1", "csv"),
+    out = {"series": SERIES, "actual_dates": ACTUAL, "attempts": []}
+    for label, ft, ff, dates in [
+        ("initial_csv_actual", "4", "csv", ACTUAL),
+        ("initial_csv_nodates", "4", "csv", []),
+        ("realtime_csv_actual", "1", "csv", ACTUAL),
     ]:
         try:
-            out["attempts"].append(post(ft, ff, label))
+            out["attempts"].append(post(ft, ff, dates, label))
         except Exception as exc:
             out["attempts"].append({"label": label, "error": repr(exc)})
     Path("probe_results.json").write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(json.dumps([{k: a.get(k) for k in ("label", "is_zip", "bytes", "header", "row_count")}
+    print(json.dumps([{k: a.get(k) for k in ("label", "is_zip", "bytes", "header", "row_count", "head")}
                       for a in out["attempts"]]))
     return 0
 
