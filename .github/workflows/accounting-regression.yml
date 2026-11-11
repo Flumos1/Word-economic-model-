@@ -56,3 +56,5 @@ jobs:
         run: python tests/test_protocol_v3.py
       - name: R3 specification (baselines against the frozen protocol, NF-SIM, R2 manifest)
         run: python tests/test_r3_specification.py
+      - name: Protocol v4 delta (T3 W1 1996-12, automated retrieval, integrity against v3)
+        run: python tests/test_protocol_v4.py

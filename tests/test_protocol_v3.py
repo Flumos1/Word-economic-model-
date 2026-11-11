@@ -117,7 +117,7 @@ class ProtocolV3(unittest.TestCase):
         self.assertEqual(s["ALFRED:USREC"], "OPEN")
         fred = next(e for e in register()["entries"] if e["id"] == "FRED_ALFRED_SERVICES")
         text = " ".join(fred["conditions"])
-        self.assertIn("manual download", text)
+        self.assertIn("CHANNEL:", text)
         self.assertIn("no training", text)
 
     def test_comparator_members_use_no_restricted_or_unverified_input_unless_flagged(self):

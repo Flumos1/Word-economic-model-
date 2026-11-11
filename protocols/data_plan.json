@@ -1,0 +1,16 @@
+{
+  "plan_id": "AMFE-DATA-PLAN",
+  "version": "0.1.0",
+  "purpose": "Automated retrieval plan for the R2 data gate (protocol v4, D-132). Every series is registered OPEN; retrieval is one series per request, rate-limited, without the FRED API service.",
+  "rate_limit_seconds": 2.0,
+  "user_agent": "AMFE-research/0.1 (+https://github.com/Flumos1/Word-economic-model-)",
+  "series": [
+    {"id": "CPIAUCSL", "register": "ALFRED:CPIAUCSL", "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=CPIAUCSL", "vintages": [], "purpose": "T1 target and inputs"},
+    {"id": "CPILFESL", "register": "ALFRED:CPILFESL", "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=CPILFESL", "vintages": [], "purpose": "T1 core target and inputs"},
+    {"id": "GDPC1", "register": "ALFRED:GDPC1", "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=GDPC1", "vintages": [], "purpose": "T2 target and inputs"},
+    {"id": "UNRATE", "register": "ALFRED:UNRATE", "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=UNRATE", "vintages": [], "purpose": "BVAR, SAHM and own-nowcast inputs"},
+    {"id": "GS10", "register": "ALFRED:GS10", "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=GS10", "vintages": [], "purpose": "BVAR, PROBIT and own-nowcast inputs"},
+    {"id": "TB3MS", "register": "ALFRED:TB3MS", "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=TB3MS", "vintages": [], "purpose": "BVAR, PROBIT and own-nowcast inputs"},
+    {"id": "T10Y3M", "register": "ALFRED:T10Y3M", "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=T10Y3M", "vintages": [], "purpose": "PROBIT spread input"}
+  ]
+}

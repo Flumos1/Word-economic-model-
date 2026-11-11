@@ -1,0 +1,37 @@
+name: Data refresh (automated retrieval, no human download)
+
+# Protocol v4, owner decision D-132: the data pipeline is automated. This workflow runs the
+# project retrieval tool against the registered OPEN series. No FRED API service is used, one
+# series per request, rate-limited. Raw third-party files are never committed: they are kept
+# as private workflow artifacts for the run and the metadata log is uploaded with them.
+on:
+  schedule:
+    - cron: '0 5 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: data-refresh
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Automated retrieval of registered series
+        run: python tools/fetch_data.py --out data/raw --log protocols/data_log.json
+      - name: Upload raw data and the metadata log as a private artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: amfe-data-${{ github.run_id }}
+          path: |
+            data/raw/
+            protocols/data_log.json
+          retention-days: 90
