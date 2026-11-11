@@ -48,3 +48,5 @@ jobs:
         run: python tests/test_domestic_journal_v01.py
       - name: Frozen evaluation protocol v1 (hash and structure)
         run: python tests/test_protocol_v1.py
+      - name: Draft evaluation protocol v2 (link to v1, M1-M14 coverage)
+        run: python tests/test_protocol_v2.py

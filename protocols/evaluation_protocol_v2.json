@@ -1,0 +1,198 @@
+{
+  "protocol_id": "AMFE-EVAL",
+  "version": "2.0.0-draft",
+  "status": "DRAFT",
+  "supersedes": {"version": "1.0.0", "file": "evaluation_protocol_v1.json", "sha256": "10c0af80bcdcb8348b564b4ac59c8b08667b0d32392fdfad536fc7a7e24879b0"},
+  "decision_ids": ["D-121", "D-122", "D-123", "D-124", "D-125", "D-126"],
+  "closes_questions": ["Q-001", "Q-002", "Q-003", "Q-004", "Q-005", "Q-006"],
+  "meta_gate": {
+    "reference": "D-100",
+    "stage": "PROPOSE",
+    "diff": "changes_from_v1 below",
+    "impact_analysis": "No result was ever produced under v1, so no verdict changes and the replay is empty.",
+    "independent_review": "PENDING. The same agent wrote v1 and this draft, so this review is not independent; a human or separate reviewer must sign.",
+    "approval": "PENDING",
+    "on_approval": "Add decision D-127, freeze this file with a pinned SHA-256 like v1, keep v1 untouched."
+  },
+  "amendment_rule": "Once FROZEN this file is never edited. A change is a new file evaluation_protocol_v3.json approved through the D-100 meta-gate.",
+  "universe": "US",
+  "origin_policy": {
+    "default": "End of a calendar month; only information with a publication time on or before the origin may be used.",
+    "spf_alignment": "Comparisons with the SPF re-run every model at the survey deadline date published in the SPF documentation, using only data published by then. Month-end origins are never compared with SPF forecasts."
+  },
+  "comparison_unit": "The object under test is a forecasting method (model, estimation window and procedure), not the truth of a model.",
+  "forecast_product": {
+    "distribution": "A precise predictive distribution given as quantiles 5% to 95% in 5% steps, so that proper scoring rules apply.",
+    "imprecise_probabilities": "Allowed only in the scenario layer; never in a scored forecast."
+  },
+  "targets": [
+    {
+      "id": "T1_CPI_YOY",
+      "kind": "point_and_distribution",
+      "series": ["CPIAUCSL", "CPILFESL"],
+      "definition": "100*(CPI_t/CPI_(t-12) - 1), headline and core, evaluated separately",
+      "horizons_months": [1, 3, 6, 12]
+    },
+    {
+      "id": "T2_GDP_GROWTH",
+      "kind": "point_and_distribution",
+      "series": ["GDPC1"],
+      "definition": "400*ln(GDP_q/GDP_(q-1)), real GDP, quarter-on-quarter annualised",
+      "horizons_quarters": [0, 1, 2, 4],
+      "note": "Horizon 0 is the nowcast of the current quarter, reported separately for origins in months 1, 2 and 3 of the quarter."
+    },
+    {
+      "id": "T3_RECESSION",
+      "kind": "event_probability",
+      "series": ["USREC"],
+      "definition": "1 if at least one month in (t, t+h] is an NBER recession month in the chronology available at evaluation time",
+      "horizons_months": [3, 6, 12],
+      "note": "About eight post-war recessions: low statistical power. Ceiling LIMITED_DEPLOYMENT."
+    }
+  ],
+  "actuals": {
+    "primary": "first publication of the target value",
+    "secondary": "value in the vintage available 12 months after the reference period",
+    "rule": "Both are always reported, never pooled. T3 uses the NBER chronology as of the evaluation date."
+  },
+  "estimation": {
+    "scheme": "rolling",
+    "window_months": 180,
+    "window_quarters": 60,
+    "sensitivity_windows_months": [120, 240],
+    "reason": "Giacomini-White tests require a finite estimation window; a recursive (expanding) window is excluded.",
+    "recursive_variant": {"allowed": true, "test": "Clark-West", "reported": "separately, never counted toward admission"}
+  },
+  "data_depth": {
+    "verified_on": "2026-11-11",
+    "first_realtime_vintage": {
+      "ALFRED_CPIAUCSL": "1972-07-21",
+      "FRED-MD": "1999-08",
+      "FRED-QD": "2018-05",
+      "SPF_GDP_quarterly_forecasts": "1968Q4",
+      "SPF_CPI": "1981Q3",
+      "GDPNow": "2011Q3",
+      "Cleveland_inflation_nowcast": "2013-07"
+    },
+    "classification_rule": "A forecast is REAL_TIME only if every input series comes from the vintage available at the origin; otherwise it is PSEUDO_REAL_TIME. Only REAL_TIME forecasts count toward C1, C2, C4 and C5; PSEUDO_REAL_TIME forecasts are reported separately.",
+    "consequence": "DFM_FREDMD is REAL_TIME only from origin 1999-08, so W1 (1990-2006) is mostly pseudo-real-time for it.",
+    "alfred_panel": {
+      "purpose": "real-time DFM before 1999-08",
+      "series_count_range": [30, 50],
+      "status": "R2 task, not built",
+      "fallback": "DFM counts toward admission from 1999-08 only"
+    },
+    "gate": "R2 acceptance: reconstruct what was known on a date t for 2000-2026; a spot check of at least 30 (series, date) pairs must match the primary-source release of that time, within rounding.",
+    "vintage_sources": ["ALFRED", "Philadelphia Fed Real-Time Data Set for Macroeconomists", "FRED-MD/FRED-QD vintage archive"],
+    "licence_notes": {
+      "GDPNow": "Archive terms: personal and educational use only. Do not redistribute the archive; obtain permission before publishing results that embed it.",
+      "NY_Fed_Staff_Nowcast": "Archive not verified (level U)."
+    }
+  },
+  "windows": {
+    "training_start": "1960-01",
+    "W1": {"start": "1990-01", "end": "2006-12", "use": "evaluation"},
+    "W2": {"start": "2007-01", "end": "2019-12", "use": "evaluation"},
+    "W3": {"start": "2020-01", "end": "2026-11", "use": "stress report only; contaminated by researcher and LLM knowledge of the episode"},
+    "forward_registry": {"start": null, "use": "the only uncontaminated window; the start is the date of the first registry commit, no backdating"}
+  },
+  "baselines": [
+    {"id": "RW", "applies_to": ["T1_CPI_YOY"], "note": "last observed y/y value"},
+    {"id": "AO", "applies_to": ["T1_CPI_YOY", "T2_GDP_GROWTH"], "note": "Atkeson-Ohanian average of the last four quarters / historical mean"},
+    {"id": "AR_BIC", "applies_to": ["T1_CPI_YOY", "T2_GDP_GROWTH"], "note": "autoregression, order by BIC, rolling window"},
+    {"id": "BVAR_MINNESOTA", "applies_to": ["T1_CPI_YOY", "T2_GDP_GROWTH"]},
+    {"id": "DFM_FREDMD", "applies_to": ["T1_CPI_YOY", "T2_GDP_GROWTH"], "note": "factors from FRED-MD/QD, number by information criterion"},
+    {"id": "PROBIT_SPREAD", "applies_to": ["T3_RECESSION"], "note": "Estrella-Mishkin yield-curve probit"},
+    {"id": "SAHM_RULE", "applies_to": ["T3_RECESSION"], "note": "Sahm recession indicator converted to a probability by logistic calibration on the rolling window"},
+    {"id": "SPF_MEDIAN", "applies_to": ["T1_CPI_YOY", "T2_GDP_GROWTH"], "note": "Philadelphia Fed SPF median, at SPF survey deadlines only"},
+    {"id": "SPF_NEG_GDP_PROB", "applies_to": ["T3_RECESSION"], "scored": false, "event_mismatch": true, "note": "SPF reports the probability of negative quarterly real GDP growth, not an NBER recession; descriptive only"},
+    {"id": "NOWCAST_EXTERNAL", "applies_to": ["T2_GDP_GROWTH"], "note": "Atlanta Fed GDPNow and NY Fed Staff Nowcast, horizon 0 only; subject to the licence notes"},
+    {"id": "EQUAL_WEIGHT", "applies_to": ["T1_CPI_YOY", "T2_GDP_GROWTH", "T3_RECESSION"], "note": "equal-weight combination of the scored baselines that apply and are REAL_TIME at the origin"}
+  ],
+  "primary_comparator_rule": "EQUAL_WEIGHT, fixed before any candidate is evaluated, without a selection window. A candidate is also reported against every other scored baseline.",
+  "losses": {
+    "point": "RMSE",
+    "distribution": "CRPS (quantile approximation, 5% to 95% in 5% steps)",
+    "event": ["Brier", "log score"]
+  },
+  "admission": {
+    "scope": "per (target, horizon) pair; a model can be ACTIVE for one pair and not for another",
+    "initial_values_revisable_only_via_v3": true,
+    "criteria": [
+      {"id": "C1", "gating": true, "text": "relative loss (candidate/primary comparator) <= threshold on W1 and on W2 separately; threshold per admission.threshold_rule"},
+      {"id": "C2", "gating": true, "text": "Giacomini-White conditional predictive ability test, rolling estimation window per estimation, HAC with h-1 lags and Harvey-Leybourne-Newbold small-sample correction, one-sided p < 0.10 on W1 and on W2"},
+      {"id": "C3", "gating": false, "text": "Model Confidence Set 90% against all scored baselines: membership and set size are reported; short samples make the set wide, so it does not gate"},
+      {"id": "C4", "gating": true, "text": "relative loss <= 1.00 in NBER recession months of W1 and W2 and the Giacomini-White test with instruments (constant, recession indicator) does not reject at 10% in favour of the comparator; inconclusive if fewer than 12 recession months"},
+      {"id": "C5", "gating": true, "text": "not significantly worse than the primary comparator on the secondary actuals"},
+      {"id": "C6", "gating": true, "text": "at least 12 resolved forward-registry forecasts for the pair, cumulative relative loss <= 1.00 and empirical interval coverage within 10 percentage points of nominal"}
+    ],
+    "threshold_rule": {
+      "value": "min(0.97, q05_equal_methods)",
+      "q05_equal_methods": "5th percentile of the relative loss between two statistically equivalent forecasting methods, from the NF-SIM study",
+      "noise_floor_study": {
+        "id": "NF-SIM",
+        "design": "Simulate pairs of methods with the same data-generating process and different estimation noise, calibrated on the baselines.",
+        "sample_sizes": {"monthly": [156, 204], "quarterly": [52, 68]},
+        "must_be_complete_and_frozen_before": "any candidate is evaluated"
+      }
+    },
+    "recession_conditioning": {"instrument": "NBER recession indicator", "used_in": ["C4"], "min_recession_months": 12},
+    "long_horizon": {
+      "resolved_definition": "A forecast is resolved when its target period has been published; it is evaluable at origin + horizon.",
+      "independent_outcome": "A resolved forecast whose target window does not overlap another counted forecast.",
+      "min_independent_outcomes_for_ACTIVE": 8,
+      "ceiling_when_fewer": "LIMITED_DEPLOYMENT",
+      "pairs_expected_to_hit_ceiling": ["T1_CPI_YOY h=12", "T2_GDP_GROWTH h=4", "T3_RECESSION all horizons"]
+    },
+    "stages": {
+      "CANDIDATE_to_SHADOW_TEST": "C1, C2, C4, C5 on REAL_TIME historical forecasts",
+      "SHADOW_TEST_to_LIMITED_DEPLOYMENT": "C6",
+      "LIMITED_DEPLOYMENT_to_ACTIVE": "C6 repeated over a second, non-overlapping block, no drift trigger, and long_horizon.min_independent_outcomes_for_ACTIVE met"
+    },
+    "T3_ceiling": "LIMITED_DEPLOYMENT"
+  },
+  "multiplicity": {
+    "registry_of_candidates": "Every candidate that was evaluated is recorded, including rejected ones; the count is part of every report.",
+    "primary": "Romano-Wolf stepdown, family-wise error rate 0.10, over all candidates evaluated per (target, horizon).",
+    "secondary": "Benjamini-Hochberg FDR q = 0.10, reported only because candidate losses are dependent.",
+    "many_candidates": "White Reality Check or Hansen SPA when more than 20 candidates are compared against the same comparator."
+  },
+  "model_class_rules": {
+    "applies_to": ["time-series foundation models", "LLM-based forecasters", "LLM-agent-proposed hypotheses or models"],
+    "data": "Same real-time vintages as every other candidate; a forecast on the latest vintage compared with a baseline trained on older vintages is invalid.",
+    "llm_evidence": "A result counts only if it comes from (a) the forward registry, (b) a period after the model's documented knowledge cutoff, or (c) a chronologically consistent model. Any other result is labelled CONTAMINATED and excluded from C1 to C5.",
+    "agent_selection": "A model or hypothesis proposed by an LLM agent and selected on historical windows is CONTAMINATED for those windows."
+  },
+  "covid_handling": {
+    "window": "2020-03 to 2021-02",
+    "required_variants": ["robust outlier handling (Lenza-Primiceri variance scaling or an outlier component in stochastic volatility)", "variant with the window excluded from estimation"],
+    "reporting": "W3 is reported separately for each variant; W3 never counts toward admission."
+  },
+  "forward_registry": {
+    "cadence": "monthly, after the last data release of the month",
+    "record": ["candidate_id", "code_commit", "data_vintage_hash", "target", "horizon", "origin", "quantiles_5_to_95_step_5", "point", "scoring_rule_commit"],
+    "control_arms": ["RW", "EQUAL_WEIGHT", "SPF_MEDIAN", "NOWCAST_EXTERNAL"],
+    "integrity": "committed to the repository before the actual value is published; rows are append-only; a correction is a new row that references the old one"
+  },
+  "drift_triggers": {
+    "forecast_breakdown": "Giacomini-Rossi forecast breakdown test at 10%",
+    "coverage": "interval coverage outside nominal +-15 percentage points over the trailing 24 months",
+    "action": "SUSPENDED and review per D-101; automatic rollback only to the previous ACTIVE version"
+  },
+  "changes_from_v1": [
+    {"id": "M1", "paths": ["estimation"], "summary": "Rolling finite estimation window; Clark-West for recursive variants."},
+    {"id": "M2", "paths": ["comparison_unit"], "summary": "Forecasting methods are compared, not the truth of models."},
+    {"id": "M3", "paths": ["primary_comparator_rule", "windows"], "summary": "Primary comparator is EQUAL_WEIGHT; the 1985-1989 selection window is removed."},
+    {"id": "M4", "paths": ["data_depth"], "summary": "Real-time depth recorded; REAL_TIME and PSEUDO_REAL_TIME separated; ALFRED panel is an R2 task."},
+    {"id": "M5", "paths": ["baselines"], "summary": "SPF removed from scored T3 baselines; SAHM_RULE added; SPF_NEG_GDP_PROB kept as unscored."},
+    {"id": "M6", "paths": ["origin_policy"], "summary": "SPF comparisons use SPF survey-deadline origins."},
+    {"id": "M7", "paths": ["admission.long_horizon", "admission.criteria"], "summary": "C6 counts resolved forecasts; long horizons capped at LIMITED_DEPLOYMENT without 8 independent outcomes."},
+    {"id": "M8", "paths": ["admission.recession_conditioning", "admission.criteria"], "summary": "C4 uses a Giacomini-White test with a recession instrument."},
+    {"id": "M9", "paths": ["admission.threshold_rule"], "summary": "C1 threshold is min(0.97, simulated noise floor)."},
+    {"id": "M10", "paths": ["multiplicity"], "summary": "Romano-Wolf stepdown is primary; BH secondary."},
+    {"id": "M11", "paths": ["admission.criteria"], "summary": "C3 (MCS) is reported, not gating."},
+    {"id": "M12", "paths": ["forecast_product"], "summary": "Scored forecasts are precise distributions; imprecise probabilities only in scenarios."},
+    {"id": "M13", "paths": ["model_class_rules"], "summary": "Foundation models and LLMs use real-time vintages and uncontaminated evidence only."},
+    {"id": "M14", "paths": ["covid_handling"], "summary": "Robust and excluded variants for 2020-03 to 2021-02."}
+  ]
+}
