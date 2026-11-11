@@ -1,73 +1,76 @@
 #!/usr/bin/env python3
-"""Probe ALFRED/FRED endpoints for genuine vintage-file retrieval (R2 data gate).
+"""Probe the ALFRED download-data form (R2 data gate).
 
-The first vintage run showed that vintage_date on fredgraph.csv returned the latest series, so
-this probe finds the working endpoint: it fetches the ALFRED series page, extracts links that
-mention a vintage, and tries a list of candidate URL patterns, recording status, size and the
-last observation of each response. The output is metadata only (no data is stored).
+The public help page describes the form but not its URL parameters. This probe extracts the
+form action, field names and option values from the raw HTML of the download page and tries a
+few likely request shapes. Only metadata is stored; no series values are recorded.
 """
 from __future__ import annotations
 
 import json
 import re
+import urllib.parse
 import urllib.request
 from pathlib import Path
 
 UA = "AMFE-research/0.1 (+https://github.com/Flumos1/Word-economic-model-)"
 SERIES = "CPIAUCSL"
 VINTAGE = "1999-12-31"
-
-CANDIDATES = [
-    f"https://alfred.stlouisfed.org/graph/fredgraph.csv?id={SERIES}&vintage_date={VINTAGE}",
-    f"https://alfred.stlouisfed.org/graph/fredgraph.xls?id={SERIES}&vintage_date={VINTAGE}",
-    f"https://alfred.stlouisfed.org/series/downloaddata?seid={SERIES}&vintage_date={VINTAGE}",
-    f"https://alfred.stlouisfed.org/series?seid={SERIES}&vintage_date={VINTAGE}",
-    f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={SERIES}&vintage_date={VINTAGE}&revision_date={VINTAGE}",
-    f"https://fred.stlouisfed.org/data/{SERIES}.txt",
-    f"https://alfred.stlouisfed.org/data/{SERIES}.txt",
-]
-
-PAGES = [
-    f"https://alfred.stlouisfed.org/series?seid={SERIES}",
-    f"https://alfred.stlouisfed.org/series/downloaddata?seid={SERIES}",
-]
+PAGE = f"https://alfred.stlouisfed.org/series/downloaddata?seid={SERIES}"
 
 
-def fetch(url: str) -> dict:
-    req = urllib.request.Request(url, headers={"User-Agent": UA})
+def fetch(url: str, data: bytes | None = None) -> dict:
+    req = urllib.request.Request(url, headers={"User-Agent": UA}, data=data)
     try:
         with urllib.request.urlopen(req, timeout=60) as resp:
-            data = resp.read()
-            ctype = resp.headers.get("Content-Type", "")
-            status = resp.status
+            raw = resp.read()
+            return {"url": url, "status": resp.status,
+                    "content_type": resp.headers.get("Content-Type", ""),
+                    "bytes": len(raw), "raw": raw}
     except Exception as exc:
         return {"url": url, "error": repr(exc)}
-    out = {"url": url, "status": status, "content_type": ctype, "bytes": len(data)}
-    text = data.decode("utf-8", "replace")
-    out["head"] = text[:300].replace("\n", " | ")
-    lines = [ln for ln in text.splitlines() if ln.strip()]
-    if lines and "," in lines[0]:
-        dates = [ln.split(",")[0].strip() for ln in lines[1:] if ln.strip()]
-        out.update({"csv": True, "rows": len(dates),
-                    "first_observation": dates[0] if dates else None,
-                    "last_observation": dates[-1] if dates else None})
-    return out
+
+
+def describe(raw: bytes) -> dict:
+    text = raw.decode("utf-8", "replace")
+    forms = re.findall(r"<form[^>]*>", text, flags=re.I)
+    inputs = re.findall(r"<(?:input|select|textarea)[^>]*>", text, flags=re.I)[:120]
+    options = re.findall(r"<option[^>]*>[^<]*</option>", text, flags=re.I)[:40]
+    return {"forms": forms, "inputs": inputs, "options": options}
 
 
 def main() -> int:
-    results = {"series": SERIES, "target_vintage": VINTAGE, "pages": [], "candidates": []}
-    for page in PAGES:
-        item = fetch(page)
-        if "head" in item:
-            html = urllib.request.urlopen(urllib.request.Request(page, headers={"User-Agent": UA}), timeout=60).read().decode("utf-8", "replace")
-            links = sorted(set(re.findall(r'href="([^"]*(?:vintage|download|fredgraph)[^"]*)"', html)))
-            item["links"] = links[:40]
-            item["link_count"] = len(links)
-        results["pages"].append(item)
-    for url in CANDIDATES:
-        results["candidates"].append(fetch(url))
-    Path("probe_results.json").write_text(json.dumps(results, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(json.dumps({"pages": len(results["pages"]), "candidates": len(results["candidates"])}))
+    out = {"series": SERIES, "vintage": VINTAGE, "page": {}, "attempts": []}
+    page = fetch(PAGE)
+    if "raw" in page:
+        raw = page.pop("raw")
+        out["page"] = {k: v for k, v in page.items() if k != "raw"}
+        out["page"].update(describe(raw))
+        # snippet around the first form
+        text = raw.decode("utf-8", "replace")
+        i = text.lower().find("<form")
+        out["page"]["snippet"] = text[max(0, i - 200): i + 4000] if i >= 0 else text[:2000]
+    attempts = [
+        ("GET", f"{PAGE}&vintage_date={VINTAGE}&file_format=csv"),
+        ("GET", f"{PAGE}&vintage_dates={VINTAGE}&file_format=csv"),
+        ("GET", f"{PAGE}&vintage_date={VINTAGE}&file_format=text&output_format=1"),
+        ("GET", f"https://alfred.stlouisfed.org/series/downloaddata?seid={SERIES}&vintage_dates={VINTAGE}&output_format=1&file_format=2"),
+    ]
+    for method, url in attempts:
+        r = fetch(url)
+        item = {"method": method, "url": url}
+        if "raw" in r:
+            raw = r.pop("raw")
+            item.update({k: v for k, v in r.items() if k != "raw"})
+            item["is_zip"] = raw[:2] == b"PK"
+            item["head"] = raw[:120].decode("utf-8", "replace").replace("\n", " | ")
+        else:
+            item.update(r)
+        out["attempts"].append(item)
+    Path("probe_results.json").write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(json.dumps({"forms": len(out["page"].get("forms", [])),
+                      "inputs": len(out["page"].get("inputs", [])),
+                      "attempts": len(out["attempts"])}))
     return 0
 
 
