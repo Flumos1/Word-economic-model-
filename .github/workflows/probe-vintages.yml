@@ -1,0 +1,27 @@
+name: Probe vintage endpoints (diagnostic, no data stored)
+
+# One-off diagnostic for the R2 data gate: find the working ALFRED/FRED vintage endpoint after the
+# first vintage run returned the latest series. Metadata only; the result is a small JSON artifact.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Probe vintage URLs
+        run: python tools/probe_vintages.py
+      - name: Upload probe results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vintage-probe-${{ github.run_id }}
+          path: probe_results.json
+          retention-days: 30
