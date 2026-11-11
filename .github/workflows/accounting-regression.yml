@@ -36,3 +36,5 @@ jobs:
         run: python tests/test_two_country_v01.py
       - name: Integrated four-sector two-country accounting
         run: python tests/test_integrated_world_v01.py
+      - name: Integrated long-run 120 periods and 10,000 cases
+        run: python tests/test_integrated_world_longrun.py
