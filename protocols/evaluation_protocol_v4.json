@@ -61,7 +61,7 @@
       },
       {
         "date": "2026-11-11",
-        "decision": "The owner instructed 'меняй правила' for T3 and 'выполняй все автоматически, любые загрузки человеком исключены' for the data pipeline; both cover the implementation choices above.",
+        "decision": "The owner instructed 'меняй правила' for T3 and 'выполняй все автоматически, любые загрузки человеком исключены' for the data pipeline. Both instructions cover the implementation choices: PROBIT uses GS10-TB3MS only (T10Y3M dropped), vintage files are retrieved automatically, and the NBER chronology is represented by USREC in the plan.",
         "source": "owner message of 2026-11-11"
       }
     ],
@@ -96,7 +96,7 @@
     "substitute": "A model quantity that is available only through a RESTRICTED or UNVERIFIED source is replaced by the project's own model built from OPEN data (for example OWN_NOWCAST_BRIDGE). The substitute is never presented as equal to the source it replaces and is validated only against OPEN actuals, like any baseline. Naming the source it replaces is allowed; using its data is not. The principle covers model quantities only: a survey or an opinion (for example the SPF) is not replaced by a model, and if its source is not OPEN the quantity is simply not used. The quality of a substitute relative to the excluded sources is unknown and cannot be checked; the admission bar for a combination whose comparator contains a substitute can therefore be lower than with the best excluded source, and every report of such a combination says so.",
     "data_channel": {
       "fred_alfred": "Vintage files of the registered series are retrieved by the project retrieval tool, automatically, one series per request: no human download step, no FRED API key or API cache, no crawling of the catalogue. The tool identifies itself, rate-limits the requests and logs every retrieval. Latest and vintage files are requested through the public CSV endpoint by series id and, for a vintage, by vintage_date; the qualified prohibition on robots and scraping covers disruptive or bulk gathering, which a rate-limited single-series retrieval avoids; the general terms allow personal non-commercial use.",
-      "automation": "No step of the data pipeline requires or permits a human download. The retrieval tool runs in the project CI on a schedule and can be triggered through the GitHub API; it writes only metadata into the repository and keeps raw files outside it. Every source currently used is in protocols/data_plan.json; a source that is not automated is not used. If a quantity cannot be retrieved automatically within the published terms, it is replaced by the project model (licence_policy.substitute) or dropped, and the decision is recorded.",
+      "automation": "No step of the data pipeline requires or permits a human download. The retrieval tool runs in the project CI on a schedule and can be triggered through the GitHub API; it writes only metadata (into the repository when the log is committed, otherwise into the private CI artifact) and keeps raw files outside the repository. Every source currently used is in protocols/data_plan.json; a source that is not automated is not used. If a quantity cannot be retrieved automatically within the published terms, it is replaced by the project model (licence_policy.substitute) or dropped, and the decision is recorded.",
       "ml_training": "No training or fine-tuning of any model on FRED or ALFRED content; foundation models and LLM forecasters therefore use only series from sources whose register entry allows it.",
       "alternative": "Primary public-domain sources (BLS, BEA, Treasury, Federal Reserve Board) are the alternative channel and are retrieved by the same automated tool once R2 has read their archive terms. BLS and BEA terms were read on 2026-11-11 (public domain, citation requested; docs/63, docs/65)."
     },
@@ -207,7 +207,7 @@
       "ALFRED_GS10": "1996-12-03",
       "ALFRED_TB3MS": "1996-12-03",
       "ALFRED_T10Y3M": "2014-01-27",
-      "ALFRED_USREC": "first vintage to be recorded by the automated retrieval in R2"
+      "ALFRED_USREC": "to be recorded by the automated retrieval (USREC latest file)"
     },
     "verification_notes": {
       "source": "docs/58 and docs/61, primary sources opened on 2026-11-11",
@@ -229,14 +229,14 @@
     "gate": "R2 acceptance: reconstruct what was known on a date t for 1990-2026; a spot check of at least 30 (series, date) pairs, with at least 10 of them before 2000, must match the primary-source release of that time, within rounding. Origins in 1990-1999 that fail the check are PSEUDO_REAL_TIME. A failed pair turns every origin whose estimation window relies on that pair into PSEUDO_REAL_TIME, as in data_depth.first_release_tape.",
     "vintage_sources": [
       "ALFRED (automated retrieval by the project tool)",
-      "Philadelphia Fed Real-Time Data Set for Macroeconomists (register status OPEN, owner confirmation point 4; the SPF documentation is not yet read)",
+      "Philadelphia Fed Real-Time Data Set for Macroeconomists (register status OPEN; the SPF documentation is not yet read)",
       "FRED-MD/FRED-QD vintage archive (when its register entry is OPEN)"
     ],
     "retrieval": {
       "tool": "tools/fetch_data.py",
       "workflow": ".github/workflows/data-refresh.yml",
       "data_log": "protocols/data_log.json",
-      "rule": "Automated retrieval only; no human download step. Raw files are never committed; the CI run keeps them outside the repository (private artifacts) and records only URL, date and SHA-256 in the data log.",
+      "rule": "Automated retrieval only; no human download step. Raw files are never committed; the CI run keeps them outside the repository (private artifacts). The data log records URL, retrieval date, bytes, SHA-256, row count and last observation - metadata only, never values.",
       "modes": "latest and vintage (vintage_date parameter of the public CSV endpoint)",
       "log_fields": [
         "series",
@@ -250,10 +250,12 @@
         "rows",
         "last_observation"
       ],
-      "trigger": "monthly schedule, manual workflow dispatch and GitHub API workflow_dispatch"
+      "trigger": "monthly schedule, manual workflow dispatch and GitHub API workflow_dispatch",
+      "failure_rule": "A failed retrieval is logged with its reason, retried on the next run, and the affected source is not used until it succeeds; no manual download is substituted."
     },
     "nber_rule": "The T3 target and the C4 split use the NBER chronology as of the evaluation date (a published record, not a vintage series). For model estimation a recession label enters only if the NBER announcement that covers it was published before the origin. The automated pipeline retrieves the machine-readable NBER chronology through the USREC series (register ALFRED:USREC, citation required) and records the retrieval; the NBER cycle-dates page remains the attribution source.",
-    "automation_coverage": "Every source that the current pipeline uses is in protocols/data_plan.json and is retrieved automatically: the FRED/ALFRED series, including vintage files requested by vintage_date, and the NBER chronology through USREC. Sources whose file layout is fixed in R2 (SPF, RTDSM) are added to the plan before they are used; a source that is not automated is not used, and the project never falls back to a human download. FRED-MD/QD is UNVERIFIED and is not used."
+    "automation_coverage": "Every source that the current pipeline uses is in protocols/data_plan.json directly or through its machine-readable representation (NBER_CYCLE_DATES via ALFRED:USREC): the FRED/ALFRED series, including vintage files requested by vintage_date, and the NBER chronology. Sources whose file layout is fixed in R2 (SPF, RTDSM) are added to the plan before they are used; a source that is not automated is not used, and the project never falls back to a human download. FRED-MD/QD is UNVERIFIED and is not used.",
+    "nber_source_id": "NBER_CYCLE_DATES is represented in the automated plan by ALFRED:USREC (the monthly NBER recession indicator, citation required); the NBER cycle-dates page is the attribution source. The protocol keeps the target series id NBER_CYCLE_DATES."
   },
   "windows": {
     "training_start": "1960-01",
@@ -416,7 +418,7 @@
         "T1_CPI_YOY",
         "T2_GDP_GROWTH"
       ],
-      "comparator_member": true,
+      "comparator_member": false,
       "inputs_by_target": {
         "T1_CPI_YOY": [
           "PHILADELPHIA_FED"
@@ -426,7 +428,8 @@
         ]
       },
       "point_only": true,
-      "note": "SPF median at survey deadlines only; a point forecast, so it enters point losses only; scored only after the definitions are mapped (SPF CPI is q/q and 4Q/4Q, the target is a monthly y/y)"
+      "note": "SPF median at survey deadlines only; point-only. Not a comparator member until its files are retrieved automatically and the definition mapping is fixed (R2): T1 is never scored against SPF because SPF has no monthly y/y CPI forecast, and T2 is scored only after automation (SPF quarterly GDP growth matches the T2 definition).",
+      "available_from": "R2 (automatic retrieval of the SPF files and the definition mapping)"
     },
     {
       "id": "SPF_NEG_GDP_PROB",
@@ -513,12 +516,12 @@
       {
         "id": "C1",
         "gating": true,
-        "text": "relative loss (candidate/primary comparator) <= threshold on W1 and on W2 separately, for each applicable loss; threshold per admission.threshold_rule W1 is target-specific: see admission.window_note."
+        "text": "relative loss (candidate/primary comparator) <= threshold on W1 and on W2 separately, for each applicable loss; threshold per admission.threshold_rule; W1 is target-specific (admission.window_note)."
       },
       {
         "id": "C2",
         "gating": true,
-        "text": "Giacomini-White test with the constant as the only instrument (equivalent to a Diebold-Mariano test with a finite estimation window), HAC with h-1 lags and Harvey-Leybourne-Newbold small-sample correction, one-sided t test, Romano-Wolf adjusted p < 0.10 on W1 and on W2, for each applicable loss; multi-instrument conditional variants are reported only W1 is target-specific: see admission.window_note."
+        "text": "Giacomini-White test with the constant as the only instrument (equivalent to a Diebold-Mariano test with a finite estimation window), HAC with h-1 lags and Harvey-Leybourne-Newbold small-sample correction, one-sided t test, Romano-Wolf adjusted p < 0.10 on W1 and on W2, for each applicable loss; multi-instrument conditional variants are reported only; W1 is target-specific (admission.window_note)."
       },
       {
         "id": "C3",
@@ -537,7 +540,7 @@
       {
         "id": "C5",
         "gating": true,
-        "text": "not significantly worse than the primary comparator on the secondary actuals: the C2 test with the opposite one-sided alternative, p >= 0.10, on W1 and W2; for T3 the secondary actuals equal the primary ones, so C5 repeats C2 W1 is target-specific: see admission.window_note."
+        "text": "not significantly worse than the primary comparator on the secondary actuals: the C2 test with the opposite one-sided alternative, p >= 0.10, on W1 and W2; for T3 the secondary actuals equal the primary ones, so C5 repeats C2; W1 is target-specific (admission.window_note)."
       },
       {
         "id": "C6",
@@ -595,7 +598,7 @@
   },
   "multiplicity": {
     "registry_of_candidates": "Every candidate that was evaluated is recorded, including rejected ones; the count is part of every report. Each COVID variant of a candidate counts as a separate candidate.",
-    "primary": "Romano-Wolf stepdown, family-wise error rate 0.10. Family: all candidates evaluated for one (target, horizon, loss) up to the date of the decision; a candidate must pass on both W1 and W2. Earlier decisions are not withdrawn when the family grows, but the adjusted p-values are published. Error accumulates over pairs, which is stated in every report.",
+    "primary": "Romano-Wolf stepdown, family-wise error rate 0.10. Family: all candidates evaluated for one (target, horizon, loss) up to the date of the decision; a candidate must pass on both W1 and W2. Earlier decisions are not withdrawn when the family grows, but the adjusted p-values are published. Error accumulates over pairs, which is stated in every report. W1 is target-specific (admission.window_note).",
     "secondary": "Benjamini-Hochberg FDR q = 0.10, reported only because candidate losses are dependent.",
     "many_candidates": "White Reality Check or Hansen SPA when more than 20 candidates are compared against the same comparator."
   },
@@ -1010,7 +1013,7 @@
         "data_depth.retrieval",
         "data_depth.vintage_sources"
       ],
-      "summary": "Automated retrieval replaces the human download step: tool plus CI, latest and vintage files, NBER chronology through USREC, rate-limited single-series requests, no API cache, no raw data in the repository (D-132)."
+      "summary": "Automated retrieval replaces the human download step: tool plus CI, latest and vintage files, NBER chronology through USREC, rate-limited single-series requests, no API cache, no raw data in the repository. SPF_MEDIAN is not a comparator member until its files are automated and mapped in R2 (D-132)."
     }
   ]
 }

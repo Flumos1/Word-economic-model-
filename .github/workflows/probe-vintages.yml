@@ -1,7 +1,8 @@
 name: Probe vintage endpoints (diagnostic, no data stored)
 
-# One-off diagnostic for the R2 data gate: find the working ALFRED/FRED vintage endpoint after the
-# first vintage run returned the latest series. Metadata only; the result is a small JSON artifact.
+# One-off diagnostic for the R2 data gate: find the working ALFRED vintage download request after
+# vintage_date on fredgraph.csv returned the latest series. Metadata plus the downloaded zip (if a
+# response is a zip) are uploaded as a short-lived artifact; nothing is committed.
 on:
   workflow_dispatch:
 
@@ -16,12 +17,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Probe vintage URLs
+      - name: Probe ALFRED download form POST variants
         run: python tools/probe_vintages.py
-      - name: Upload probe results
+      - name: Upload probe results and any zip
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: vintage-probe-${{ github.run_id }}
-          path: probe_results.json
+          path: |
+            probe_results.json
+            vintages_*.zip
           retention-days: 30
+          if-no-files-found: warn

@@ -26,18 +26,19 @@ WORKFLOW = ROOT / ".github" / "workflows" / "data-refresh.yml"
 
 ALLOWED_CHANGED_KEYS = {
     "version", "status", "supersedes", "decision_ids", "meta_gate", "amendment_rule",
-    "licence_policy", "windows", "admission", "data_depth", "changes_from_v3", "baselines",
+    "licence_policy", "windows", "admission", "data_depth", "changes_from_v3", "baselines", "multiplicity",
 }
 ALLOWED_CHANGED_PATHS = (
     "licence_policy.data_channel", "licence_policy.raw_data",
     "windows.target_overrides", "admission.window_note", "admission.criteria",
     "data_depth.retrieval", "data_depth.vintage_sources", "baselines",
     "data_depth.automation_coverage", "data_depth.nber_rule", "data_depth.first_realtime_vintage",
+    "data_depth.nber_source_id", "multiplicity.primary",
 )
 
 IMMUTABLE = (
     "targets", "actuals", "estimation", "comparator_minimum", "primary_comparator_rule",
-    "losses", "multiplicity", "model_class_rules", "covid_handling", "forward_registry",
+    "losses", "model_class_rules", "covid_handling", "forward_registry",
     "drift_triggers", "comparison_unit", "origin_policy", "forecast_product", "universe",
     "protocol_id",
 )
@@ -122,12 +123,12 @@ class ProtocolV4(unittest.TestCase):
         for key in IMMUTABLE:
             self.assertEqual(v3[key], v4[key], f"{key} must not change in v4")
 
-    def test_v3_baselines_untouched_except_the_probit(self):
+    def test_v3_baselines_untouched_except_the_two_documented_changes(self):
         v3b = {b["id"]: b for b in load(V3)["baselines"]}
         v4b = {b["id"]: b for b in load(V4)["baselines"]}
         self.assertEqual(set(v3b), set(v4b))
         for bid, b in v4b.items():
-            if bid == "PROBIT_SPREAD":
+            if bid in ("PROBIT_SPREAD", "SPF_MEDIAN"):
                 continue
             self.assertEqual(b, v3b[bid], f"{bid} must not change")
         probit = v4b["PROBIT_SPREAD"]
@@ -135,6 +136,36 @@ class ProtocolV4(unittest.TestCase):
                          ["ALFRED:GS10", "ALFRED:TB3MS", "NBER_CYCLE_DATES"])
         self.assertIn("T10Y3M series is not used", probit["point"])
         self.assertIn("2014-01-27", probit["point"])
+        spf = v4b["SPF_MEDIAN"]
+        self.assertFalse(spf["comparator_member"], "SPF is not a comparator member before R2")
+        self.assertIn("R2", spf["available_from"])
+        self.assertIn("never scored", spf["note"])
+
+    def test_t1_t2_comparator_minimum_holds_without_spf(self):
+        v4 = load(V4)
+        statuses = status_by_id()
+        for target in ("T1_CPI_YOY", "T2_GDP_GROWTH"):
+            members = []
+            for b in v4["baselines"]:
+                if not b.get("comparator_member") or not b.get("scored", True):
+                    continue
+                if target not in b["applies_to"]:
+                    continue
+                inputs = b["inputs_by_target"].get(target, [])
+                if inputs and all(statuses.get(i) == "OPEN" for i in inputs):
+                    members.append(b["id"])
+            self.assertGreaterEqual(len(members), v4["comparator_minimum"]["min_members"], target)
+            self.assertNotIn("SPF_MEDIAN", members)
+
+    def test_nber_is_represented_in_the_automated_plan(self):
+        v4 = load(V4)
+        dd = v4["data_depth"]
+        self.assertIn("ALFRED:USREC", dd["nber_source_id"])
+        self.assertIn("ALFRED:USREC", dd["automation_coverage"])
+        plan = load(PLAN)
+        registers = {s["register"] for s in plan["series"]}
+        self.assertIn("ALFRED:USREC", registers)
+        self.assertNotIn("PHILADELPHIA_FED", registers, "SPF is not automated yet, so not used")
 
     def test_t3_window_override(self):
         w = load(V4)["windows"]

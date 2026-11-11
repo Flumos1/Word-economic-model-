@@ -1,27 +1,47 @@
 {
   "register_id": "AMFE-LICENCE-REGISTER",
   "kind": "append-only journal of source terms; a change of status is a new dated entry, never an edit (the initial composition of 2026-11-11 was corrected in place before any candidate was evaluated; git history keeps the earlier wording)",
-  "protocol": "evaluation_protocol_v3.json (licence_policy)",
+  "protocol": "evaluation_protocol_v4.json (licence_policy)",
   "intended_use": "Non-commercial research. Published artifacts contain derived statistics only (error metrics, charts, scores), never raw third-party data. The repository is private; if it becomes public, every entry must be re-verified.",
   "revision_note": "First composition 2026-11-11. Corrected in place on 2026-11-11 after the licence audit in docs/63, then updated the same day after the R2 documentary audit in docs/65 (BEA status, SPF/RTDSM facts, vintage depth, Cleveland archive evidence, FRED-MD format) and after the owner decision D-132 that makes retrieval automatic (the CHANNEL condition), all before any candidate or comparator composition was recorded; the append-only rule applies from the first recorded evaluation, and git history keeps the earlier wording.",
-  "audit": ["docs/63_Лицензионный_аудит_2026-11-11.md", "docs/65_R2_документарный_аудит_2026-11-11.md (primary terms, documentation and metadata pages opened on 2026-11-11; no raw data downloaded)"],
+  "audit": [
+    "docs/63_Лицензионный_аудит_2026-11-11.md",
+    "docs/65_R2_документарный_аудит_2026-11-11.md (primary terms, documentation and metadata pages opened on 2026-11-11; no raw data downloaded)"
+  ],
   "statuses": {
     "OPEN": "The published terms allow the intended use without asking anyone; conditions, if any, are listed and followed.",
     "RESTRICTED": "The published terms do not allow the intended use without permission. Not used anywhere in the project.",
     "UNVERIFIED": "Terms not found or not read. Not used anywhere until verified."
   },
-  "verification_levels": {"full": "terms page read completely", "extraction": "answer to a query about the page; quotes may be incomplete", "none": "not read"},
+  "verification_levels": {
+    "full": "terms page read completely",
+    "extraction": "answer to a query about the page; quotes may be incomplete",
+    "none": "not read"
+  },
   "terms_change_without_notice": "All verified sites reserve the right to change terms without notice. Each entry keeps its verification date; R2 adds a hash of the terms text and re-checks before the comparator composition is recorded.",
   "entries": [
     {
-      "id": "ATLANTA_FED_GDPNOW", "date": "2026-11-11", "status": "RESTRICTED", "level": "full",
-      "url": ["https://www.atlantafed.org/terms-of-use", "https://www.atlantafed.org/research-and-data/data/gdpnow"],
+      "id": "ATLANTA_FED_GDPNOW",
+      "date": "2026-11-11",
+      "status": "RESTRICTED",
+      "level": "full",
+      "url": [
+        "https://www.atlantafed.org/terms-of-use",
+        "https://www.atlantafed.org/research-and-data/data/gdpnow"
+      ],
       "basis": "Data page: 'Permission is granted to reproduce for personal and educational use only.' Site terms: non-commercial reproduction with attribution is allowed, but reproducing, modifying, publishing or creating derivative works without express authorisation is prohibited. The stricter reading applies.",
-      "conditions": [], "decision": "not used; replaced by OWN_NOWCAST_BRIDGE built from OPEN data"
+      "conditions": [],
+      "decision": "not used; replaced by OWN_NOWCAST_BRIDGE built from OPEN data"
     },
     {
-      "id": "FRED_ALFRED_SERVICES", "date": "2026-11-11", "status": "OPEN", "level": "full",
-      "url": ["https://fred.stlouisfed.org/legal/", "https://fred.stlouisfed.org/docs/api/terms_of_use.html"],
+      "id": "FRED_ALFRED_SERVICES",
+      "date": "2026-11-11",
+      "status": "OPEN",
+      "level": "full",
+      "url": [
+        "https://fred.stlouisfed.org/legal/",
+        "https://fred.stlouisfed.org/docs/api/terms_of_use.html"
+      ],
       "basis": "Series labelled 'Public Domain: Citation Requested' may be used without permission and copyrighted series with 'Citation Required' may be used with attribution, provided no prohibited use. General terms allow personal non-commercial use (view, download, print) and prohibit machine learning/AI use in a section that applies to all use, including non-commercial. Storing, caching or archiving content and wholesale downloading are prohibited in the API addendum on /legal/; the separate API terms page does not repeat them. A qualified prohibition covers robots or scraping that are disruptive. The series section and the Property Rights paragraph conflict for publication; the register follows the series labels and records the uncertainty.",
       "conditions": [
         "CHANNEL: vintage files are retrieved automatically by the project tool (tools/fetch_data.py) on the project CI, one series per request, rate-limited, with a project User-Agent; personal non-commercial use; no human download step; no FRED API key or API cache, no bulk or wholesale download, no crawling of the catalogue; the qualified robot prohibition covers only disruptive or bulk gathering",
@@ -33,45 +53,247 @@
       ],
       "decision": "usable under the listed conditions; vintage files are requested through the public CSV endpoint by vintage_date, one series per request, rate-limited, without the API service"
     },
-    {"id": "ALFRED:CPIAUCSL", "date": "2026-11-11", "status": "OPEN", "level": "extraction", "url": ["https://fred.stlouisfed.org/series/CPIAUCSL", "https://alfred.stlouisfed.org/series?seid=CPIAUCSL"], "basis": "Label: 'Public Domain: Citation Requested'. The page also shows a generic banner about copyrighted graph data; the tag is the series label.", "conditions": ["see FRED_ALFRED_SERVICES"]},
-    {"id": "ALFRED:CPILFESL", "date": "2026-11-11", "status": "OPEN", "level": "extraction", "url": ["https://fred.stlouisfed.org/series/CPILFESL"], "basis": "Label: 'Public Domain: Citation Requested'.", "conditions": ["see FRED_ALFRED_SERVICES"]},
-    {"id": "ALFRED:GDPC1", "date": "2026-11-11", "status": "OPEN", "level": "extraction", "url": ["https://fred.stlouisfed.org/series/GDPC1"], "basis": "Label: 'Public Domain: Citation Requested'. The depth of ALFRED vintages for this series was not checked in the 2026-11-11 audits and is part of R2.", "conditions": ["see FRED_ALFRED_SERVICES"]},
-    {"id": "ALFRED:UNRATE", "date": "2026-11-11", "status": "OPEN", "level": "extraction", "url": ["https://fred.stlouisfed.org/series/UNRATE", "https://alfred.stlouisfed.org/series?seid=UNRATE"], "basis": "Label: 'Public Domain: Citation Requested'. ALFRED release dates for the series start 1960-03-15 (docs/65), so vintages cover the whole evaluation period.", "conditions": ["see FRED_ALFRED_SERVICES"]},
-    {"id": "ALFRED:GS10", "date": "2026-11-11", "status": "OPEN", "level": "extraction", "url": ["https://fred.stlouisfed.org/series/GS10", "https://alfred.stlouisfed.org/series?seid=GS10"], "basis": "Label: 'Public Domain: Citation Requested'; source is the Federal Reserve Board H.15. ALFRED release dates start 1996-12-03 (docs/65): origins before that date have no vintage records, which is a data-gate fact, not a licence restriction.", "conditions": ["see FRED_ALFRED_SERVICES"]},
-    {"id": "ALFRED:TB3MS", "date": "2026-11-11", "status": "OPEN", "level": "extraction", "url": ["https://fred.stlouisfed.org/series/TB3MS", "https://alfred.stlouisfed.org/series?seid=TB3MS"], "basis": "Label: 'Public Domain: Citation Requested'; source is the Federal Reserve Board H.15. ALFRED release dates start 1996-12-03 (docs/65).", "conditions": ["see FRED_ALFRED_SERVICES"]},
-    {"id": "ALFRED:T10Y3M", "date": "2026-11-11", "status": "OPEN", "level": "extraction", "url": ["https://fred.stlouisfed.org/series/T10Y3M", "https://alfred.stlouisfed.org/series?seid=T10Y3M"], "basis": "Label: 'Copyrighted: Citation Required'. The series starts 1982-01-04 (confirmed), but ALFRED release dates start only 2014-01-27 (docs/65); a note records the data-source change from 2019-06-21. Data-gate fact, not a licence restriction.", "conditions": ["see FRED_ALFRED_SERVICES", "citation required"]},
-    {"id": "ALFRED:USREC", "date": "2026-11-11", "status": "OPEN", "level": "extraction", "url": ["https://fred.stlouisfed.org/series/USREC"], "basis": "Label: 'Copyrighted: Citation Required'. Used by the automated pipeline as the machine-readable NBER chronology: T3 takes the target from this monthly recession indicator, with attribution to NBER; the NBER cycle-dates page remains the attribution source.", "conditions": ["see FRED_ALFRED_SERVICES", "citation required", "not used"]},
-    {"id": "NBER_CYCLE_DATES", "date": "2026-11-11", "status": "OPEN", "level": "extraction", "url": ["https://www.nber.org/research/data/us-business-cycle-expansions-and-contractions"], "basis": "'Permission to copy is granted, provided attribution of source is given.'", "conditions": ["attribution"]},
     {
-      "id": "PHILADELPHIA_FED", "date": "2026-11-11", "status": "OPEN", "level": "extraction",
-      "url": ["https://www.philadelphiafed.org/about-us/privacy-notice", "https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/survey-of-professional-forecasters", "https://www.philadelphiafed.org/-/media/FRBP/Assets/Surveys-And-Data/survey-of-professional-forecasters/spf-documentation.pdf", "https://www.philadelphiafed.org/-/media/FRBP/Assets/Surveys-And-Data/survey-of-professional-forecasters/spf-data-sources.pdf"],
+      "id": "ALFRED:CPIAUCSL",
+      "date": "2026-11-11",
+      "status": "OPEN",
+      "level": "extraction",
+      "url": [
+        "https://fred.stlouisfed.org/series/CPIAUCSL",
+        "https://alfred.stlouisfed.org/series?seid=CPIAUCSL"
+      ],
+      "basis": "Label: 'Public Domain: Citation Requested'. The page also shows a generic banner about copyrighted graph data; the tag is the series label.",
+      "conditions": [
+        "see FRED_ALFRED_SERVICES"
+      ]
+    },
+    {
+      "id": "ALFRED:CPILFESL",
+      "date": "2026-11-11",
+      "status": "OPEN",
+      "level": "extraction",
+      "url": [
+        "https://fred.stlouisfed.org/series/CPILFESL"
+      ],
+      "basis": "Label: 'Public Domain: Citation Requested'.",
+      "conditions": [
+        "see FRED_ALFRED_SERVICES"
+      ]
+    },
+    {
+      "id": "ALFRED:GDPC1",
+      "date": "2026-11-11",
+      "status": "OPEN",
+      "level": "extraction",
+      "url": [
+        "https://fred.stlouisfed.org/series/GDPC1"
+      ],
+      "basis": "Label: 'Public Domain: Citation Requested'. The depth of ALFRED vintages for this series was not checked in the 2026-11-11 audits and is part of R2.",
+      "conditions": [
+        "see FRED_ALFRED_SERVICES"
+      ]
+    },
+    {
+      "id": "ALFRED:UNRATE",
+      "date": "2026-11-11",
+      "status": "OPEN",
+      "level": "extraction",
+      "url": [
+        "https://fred.stlouisfed.org/series/UNRATE",
+        "https://alfred.stlouisfed.org/series?seid=UNRATE"
+      ],
+      "basis": "Label: 'Public Domain: Citation Requested'. ALFRED release dates for the series start 1960-03-15 (docs/65), so vintages cover the whole evaluation period.",
+      "conditions": [
+        "see FRED_ALFRED_SERVICES"
+      ]
+    },
+    {
+      "id": "ALFRED:GS10",
+      "date": "2026-11-11",
+      "status": "OPEN",
+      "level": "extraction",
+      "url": [
+        "https://fred.stlouisfed.org/series/GS10",
+        "https://alfred.stlouisfed.org/series?seid=GS10"
+      ],
+      "basis": "Label: 'Public Domain: Citation Requested'; source is the Federal Reserve Board H.15. ALFRED release dates start 1996-12-03 (docs/65): origins before that date have no vintage records, which is a data-gate fact, not a licence restriction.",
+      "conditions": [
+        "see FRED_ALFRED_SERVICES"
+      ]
+    },
+    {
+      "id": "ALFRED:TB3MS",
+      "date": "2026-11-11",
+      "status": "OPEN",
+      "level": "extraction",
+      "url": [
+        "https://fred.stlouisfed.org/series/TB3MS",
+        "https://alfred.stlouisfed.org/series?seid=TB3MS"
+      ],
+      "basis": "Label: 'Public Domain: Citation Requested'; source is the Federal Reserve Board H.15. ALFRED release dates start 1996-12-03 (docs/65).",
+      "conditions": [
+        "see FRED_ALFRED_SERVICES"
+      ]
+    },
+    {
+      "id": "ALFRED:T10Y3M",
+      "date": "2026-11-11",
+      "status": "OPEN",
+      "level": "extraction",
+      "url": [
+        "https://fred.stlouisfed.org/series/T10Y3M",
+        "https://alfred.stlouisfed.org/series?seid=T10Y3M"
+      ],
+      "basis": "Label: 'Copyrighted: Citation Required'. The series starts 1982-01-04 (confirmed), but ALFRED release dates start only 2014-01-27 (docs/65); a note records the data-source change from 2019-06-21. Data-gate fact, not a licence restriction.",
+      "conditions": [
+        "see FRED_ALFRED_SERVICES",
+        "citation required"
+      ]
+    },
+    {
+      "id": "ALFRED:USREC",
+      "date": "2026-11-11",
+      "status": "OPEN",
+      "level": "extraction",
+      "url": [
+        "https://fred.stlouisfed.org/series/USREC"
+      ],
+      "basis": "Label: 'Copyrighted: Citation Required'. Used by the automated pipeline as the machine-readable NBER chronology: T3 takes the target from this monthly recession indicator, with attribution to NBER; the NBER cycle-dates page remains the attribution source.",
+      "conditions": [
+        "see FRED_ALFRED_SERVICES",
+        "citation required"
+      ]
+    },
+    {
+      "id": "NBER_CYCLE_DATES",
+      "date": "2026-11-11",
+      "status": "OPEN",
+      "level": "extraction",
+      "url": [
+        "https://www.nber.org/research/data/us-business-cycle-expansions-and-contractions"
+      ],
+      "basis": "'Permission to copy is granted, provided attribution of source is given.'",
+      "conditions": [
+        "attribution"
+      ]
+    },
+    {
+      "id": "PHILADELPHIA_FED",
+      "date": "2026-11-11",
+      "status": "OPEN",
+      "level": "extraction",
+      "url": [
+        "https://www.philadelphiafed.org/about-us/privacy-notice",
+        "https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/survey-of-professional-forecasters",
+        "https://www.philadelphiafed.org/-/media/FRBP/Assets/Surveys-And-Data/survey-of-professional-forecasters/spf-documentation.pdf",
+        "https://www.philadelphiafed.org/-/media/FRBP/Assets/Surveys-And-Data/survey-of-professional-forecasters/spf-data-sources.pdf"
+      ],
       "basis": "'The content provided on this website may be used for informational, educational, and research purposes only.' Copyrighted third-party material needs the owner's permission; names and logos may not be used as an endorsement. Research is named literally; the publication of derived statistics is not mentioned. The SPF documentation and data-sources PDF carry no separate terms section. SPF publishes CPI inflation only as quarter-over-quarter annualised and Q4/Q4 annual values (no monthly y/y), five quarterly and one or two annual horizons, with survey deadlines in the middle month of the quarter; RTDSM vintages are real GDP from 1965:Q4, CPI 1994:Q3 (quarterly) and 1998:M11 (monthly). The historical Moody's Aaa/Baa rows are provided to panelists only and are never used.",
-      "conditions": ["research use only", "no use of the Bank's names or logos as endorsement", "only publicly released files; the non-public Moody's rows are never used", "the definition mapping is fixed from the documentation before scoring"],
+      "conditions": [
+        "research use only",
+        "no use of the Bank's names or logos as endorsement",
+        "only publicly released files; the non-public Moody's rows are never used",
+        "the definition mapping is fixed from the documentation before scoring"
+      ],
       "decision": "usable for SPF and the Real-Time Data Set on the reading that research purposes are allowed; this reading is the owner's decision (confirmation point 4), not a legal opinion"
     },
     {
-      "id": "PHILADELPHIA_FED_RTDSM", "date": "2026-11-11", "status": "OPEN", "level": "extraction",
-      "url": ["https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/real-time-data-set-for-macroeconomists", "https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/routput", "https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/cpi"],
+      "id": "PHILADELPHIA_FED_RTDSM",
+      "date": "2026-11-11",
+      "status": "OPEN",
+      "level": "extraction",
+      "url": [
+        "https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/real-time-data-set-for-macroeconomists",
+        "https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/routput",
+        "https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/cpi"
+      ],
       "basis": "No separate terms were found on the Real-Time Data Set pages; the site's Privacy Notice / Terms of Use govern. 'The real-time data set consists of vintages, or snapshots, of time series of major macroeconomic variables ... All data are updated at the end of each month.' Depth: real GDP quarterly vintages from 1965:Q4, monthly from 1965:M11; CPI quarterly vintages from 1994:Q3, monthly from 1998:M11. Files are .xlsx, one column per vintage. H.15 interest-rate series are not part of RTDSM.",
-      "conditions": ["research use only", "no use of the Bank's names or logos", "re-check the RTDSM documentation PDF before the first download"],
+      "conditions": [
+        "research use only",
+        "no use of the Bank's names or logos",
+        "re-check the RTDSM documentation PDF before the first download"
+      ],
       "decision": "candidate vintage channel for GDP and CPI in R2; the owner's OPEN reading of Philadelphia terms applies, not a legal opinion"
     },
     {
-      "id": "CLEVELAND_FED", "date": "2026-11-11", "status": "OPEN", "level": "extraction",
-      "url": ["https://www.clevelandfed.org/privacy", "https://www.clevelandfed.org/indicators-and-data/inflation-nowcasting", "https://www.clevelandfed.org/publications/economic-commentary/2023/ec-202306-real-time-assessment-inflation-nowcasting-cleveland-fed"],
+      "id": "CLEVELAND_FED",
+      "date": "2026-11-11",
+      "status": "OPEN",
+      "level": "extraction",
+      "url": [
+        "https://www.clevelandfed.org/privacy",
+        "https://www.clevelandfed.org/indicators-and-data/inflation-nowcasting",
+        "https://www.clevelandfed.org/publications/economic-commentary/2023/ec-202306-real-time-assessment-inflation-nowcasting-cleveland-fed"
+      ],
       "basis": "Reproduction of publications from the website without limit is authorised 'so long as ... The information is used for noncommercial, personal, or educational purposes only (i.e., not for private gain); The information is appropriately credited'. Research is not named and there is no direct prohibition; the suggested citation is DOI 10.26509/frbc-inflationnowcast. The data page gives no direct statement about an archive, but the Bank's Economic Commentary 2023-06 states that for 2013:Q3 onward the evaluation uses 'the inflation nowcasts that were generated and published to the Cleveland Fed website in real time', and that daily nowcasts have been published since early 2014. The Commentary is CC BY-NC 4.0; that licence covers the publication, not the data series.",
-      "conditions": ["non-commercial use", "credit to the Federal Reserve Bank of Cleveland", "archive usability is a separate R2 check"],
+      "conditions": [
+        "non-commercial use",
+        "credit to the Federal Reserve Bank of Cleveland",
+        "archive usability is a separate R2 check"
+      ],
       "decision": "licence readable as OPEN for non-commercial research on the owner's reading (confirmation point 4); the archive evidence is indirect but recorded"
     },
     {
-      "id": "NY_FED", "date": "2026-11-11", "status": "OPEN", "level": "extraction",
-      "url": ["https://www.newyorkfed.org/privacy/termsofuse", "https://www.newyorkfed.org/research/policy/nowcast"],
+      "id": "NY_FED",
+      "date": "2026-11-11",
+      "status": "OPEN",
+      "level": "extraction",
+      "url": [
+        "https://www.newyorkfed.org/privacy/termsofuse",
+        "https://www.newyorkfed.org/research/policy/nowcast"
+      ],
       "basis": "Non-exclusive licence 'to use, copy, and distribute Content for your personal or business purposes', including 'Download, store, and use Content in any format or media', 'Modify and create derivative works' and access 'manually or through an automated process or device' that does not disrupt the site. Conditions: keep notices, mark modifications, do not attribute derived works to the Fed, redistribute under the same terms. The Staff Nowcast is not among the content with special restrictions. An archive exists: an xlsx for 2002-2021, where 2002Q1-2015Q4 are 'historical reconstructions' of what the model would have produced in real time, 2016-2021 are as published, only nowcast and GDP values without the underlying series, and updates were suspended from September 2021 to September 2023.",
-      "conditions": ["attribution", "mark modifications", "redistribute on the same terms", "archive is partial and values-only; whether it is usable as a control arm is an R2 decision"],
+      "conditions": [
+        "attribution",
+        "mark modifications",
+        "redistribute on the same terms",
+        "archive is partial and values-only; whether it is usable as a control arm is an R2 decision"
+      ],
       "decision": "licence OPEN; usable only as a control arm and only if R2 accepts the values-only archive"
     },
-    {"id": "FRED-MD_FRED-QD", "date": "2026-11-11", "status": "UNVERIFIED", "level": "extraction", "url": ["https://www.stlouisfed.org/research/economists/mccracken/fred-databases"], "basis": "The download page states no terms; it carries only a disclaimer about third-party software and links. The sets are compiled from FRED series with different owners. Format: one .csv per vintage plus zip archives of historical vintages - FRED-MD 1999-08 to 2014-12 and 2015-01 to 2025-12, FRED-QD 2018-05 to 2025-12.", "conditions": [], "decision": "not used until R2 reads the terms"},
-    {"id": "BLS_PRIMARY", "date": "2026-11-11", "status": "OPEN", "level": "extraction", "url": ["https://www.bls.gov/bls/linksite.htm"], "basis": "'...everything that we publish ... is in the public domain, except for previously copyrighted photographs and illustrations. You are free to use our public domain material without specific permission, although we do ask that you cite the Bureau of Labor Statistics as the source.' This is a terms statement, not yet a verified vintage channel.", "conditions": ["attribution requested", "vintage availability is a separate R2 check"], "decision": "alternative channel for the BLS series, subject to the R2 archive check"},
-    {"id": "BEA_PRIMARY", "date": "2026-11-11", "status": "OPEN", "level": "full", "url": ["https://www.bea.gov/help/faq/145", "https://www.bea.gov/help/faq/147"], "basis": "'Unless stated otherwise, the information posted on the BEA web site is in the public domain and may be used or reproduced without specific permission. A citation such as \"Source: U.S. Bureau of Economic Analysis\" would be appreciated. Organizations may use the BEA logo on a web page as an aid to establishing link identity, but use of the logo for any other purpose is prohibited.' A machine-readable vintage archive 'as published' was not confirmed: there is a news-release archive marked 'Data may be superseded' and pages on previous/revised statistics.", "conditions": ["attribution requested", "BEA logo only for link identity", "vintage channel not confirmed; R2 must check the Data Archive pages"], "decision": "alternative channel for the BEA series; usable under the listed conditions, subject to the R2 archive check"}
+    {
+      "id": "FRED-MD_FRED-QD",
+      "date": "2026-11-11",
+      "status": "UNVERIFIED",
+      "level": "extraction",
+      "url": [
+        "https://www.stlouisfed.org/research/economists/mccracken/fred-databases"
+      ],
+      "basis": "The download page states no terms; it carries only a disclaimer about third-party software and links. The sets are compiled from FRED series with different owners. Format: one .csv per vintage plus zip archives of historical vintages - FRED-MD 1999-08 to 2014-12 and 2015-01 to 2025-12, FRED-QD 2018-05 to 2025-12.",
+      "conditions": [],
+      "decision": "not used until R2 reads the terms"
+    },
+    {
+      "id": "BLS_PRIMARY",
+      "date": "2026-11-11",
+      "status": "OPEN",
+      "level": "extraction",
+      "url": [
+        "https://www.bls.gov/bls/linksite.htm"
+      ],
+      "basis": "'...everything that we publish ... is in the public domain, except for previously copyrighted photographs and illustrations. You are free to use our public domain material without specific permission, although we do ask that you cite the Bureau of Labor Statistics as the source.' This is a terms statement, not yet a verified vintage channel.",
+      "conditions": [
+        "attribution requested",
+        "vintage availability is a separate R2 check"
+      ],
+      "decision": "alternative channel for the BLS series, subject to the R2 archive check"
+    },
+    {
+      "id": "BEA_PRIMARY",
+      "date": "2026-11-11",
+      "status": "OPEN",
+      "level": "full",
+      "url": [
+        "https://www.bea.gov/help/faq/145",
+        "https://www.bea.gov/help/faq/147"
+      ],
+      "basis": "'Unless stated otherwise, the information posted on the BEA web site is in the public domain and may be used or reproduced without specific permission. A citation such as \"Source: U.S. Bureau of Economic Analysis\" would be appreciated. Organizations may use the BEA logo on a web page as an aid to establishing link identity, but use of the logo for any other purpose is prohibited.' A machine-readable vintage archive 'as published' was not confirmed: there is a news-release archive marked 'Data may be superseded' and pages on previous/revised statistics.",
+      "conditions": [
+        "attribution requested",
+        "BEA logo only for link identity",
+        "vintage channel not confirmed; R2 must check the Data Archive pages"
+      ],
+      "decision": "alternative channel for the BEA series; usable under the listed conditions, subject to the R2 archive check"
+    }
   ]
 }
