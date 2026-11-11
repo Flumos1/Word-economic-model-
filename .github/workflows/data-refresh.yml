@@ -25,11 +25,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Automated retrieval of registered series (latest and vintages)
+      - name: Automated retrieval of registered series (latest and dense quarterly vintages)
         run: python tools/fetch_data.py --out data/raw --log protocols/data_log.json --include-vintages
-      - name: R2 data gate check (initial releases against the vintage sets)
+      # A download-form request carries a limited number of vintage dates; the tool therefore also
+      # writes a compact spot-check view of the dense archive (data/raw/gate/, at most 36 dated
+      # columns spanning 1990-2026, at least 18 before 2000). The gate's frozen code posts all dated
+      # columns of the archive it is pointed at, so it runs on that view.
+      - name: R2 data gate check (initial releases against the dense-archive spot-check view)
         if: always()
-        run: python tools/verify_data_gate.py --data data/raw --report protocols/r2_gate_report.json
+        run: python tools/verify_data_gate.py --data data/raw/gate --report protocols/r2_gate_report.json
       - name: Upload raw data, the metadata log and the gate report
         if: always()
         uses: actions/upload-artifact@v4
