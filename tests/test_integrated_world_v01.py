@@ -56,4 +56,14 @@ class IntegrationTests(unittest.TestCase):
                     ("A",sector,inst,"AAA"):1
                 },current={("A","bank"):-1,("A",sector):1})
             self.assertEqual((dict(w.financial),len(w.journal)),before)
+    def test_reject_invalid_currency_and_key_atomically(self):
+        w=InternationalAccounts()
+        w.endow("A","AAA",100)
+        before=(dict(w.financial),dict(w.goods),len(w.journal))
+        with self.assertRaises(AccountingError):
+            w.transfer("A","firm","household",1,"USD")
+        self.assertEqual((dict(w.financial),dict(w.goods),len(w.journal)),before)
+        with self.assertRaises(AccountingError):
+            w.post("bad_key",financial={("A","firm","deposit"):1})
+        self.assertEqual((dict(w.financial),dict(w.goods),len(w.journal)),before)
 if __name__=="__main__":unittest.main(verbosity=2)
