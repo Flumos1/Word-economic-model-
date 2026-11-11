@@ -1,0 +1,1 @@
+"""Candidate models for the first real evaluation (outside the frozen R3 comparator)."""
