@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Probe the ALFRED download form POST variants (R2 data gate).
+"""Probe which ALFRED download-form fields break the zip response (R2 data gate).
 
-The form posts to /series/downloaddata?seid=... with form[...] fields and a submit button
-named form[download_data]. This probe tries several request shapes and reports which one
-returns a zip file. Metadata goes into probe_results.json; the zip itself is uploaded as an
-artifact (it is the data-gate evidence).
+Two differences between the working probe request and the failing tool request are tested:
+the observation start date (1947-01-01 vs 1900-01-01) and the vintage dates (actual release
+dates vs arbitrary year-end dates). Only metadata is stored.
 """
 from __future__ import annotations
 
@@ -12,72 +11,61 @@ import json
 import re
 import urllib.parse
 import urllib.request
+from datetime import datetime, timezone
 from pathlib import Path
 
 UA = "AMFE-research/0.1 (+https://github.com/Flumos1/Word-economic-model-)"
 SERIES = "CPIAUCSL"
-# real ALFRED vintage (release) dates of the series, taken from the download page
-VINTAGES = ["1996-12-12", "1999-12-14", "2004-12-17", "2007-12-14", "2013-12-17", "2020-04-10"]
+ACTUAL = ["1996-12-12", "1999-12-14", "2004-12-17", "2007-12-14", "2013-12-17", "2020-04-10"]
+ARBITRARY = ["1996-12-31", "1997-12-31", "1998-12-31", "1999-12-31", "2001-12-31", "2004-12-31",
+             "2007-12-31", "2010-12-31", "2013-12-31", "2020-04-30"]
+TODAY = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 PAGE = f"https://alfred.stlouisfed.org/series/downloaddata?seid={SERIES}"
 
 
-def fetch(url: str, data: bytes | None = None) -> dict:
-    req = urllib.request.Request(url, headers={"User-Agent": UA}, data=data)
+def post(start: str, end: str, dates: list, label: str) -> dict:
+    fields = [
+        ("form[units]", "lin"),
+        ("form[obs_start_date]", start),
+        ("form[obs_end_date]", end),
+        ("form[entered_vintage_dates]", " ".join(dates)),
+        ("form[file_type]", "2"),
+        ("form[file_format]", "csv"),
+        ("form[download_data]", ""),
+    ]
+    body = urllib.parse.urlencode(fields).encode()
+    req = urllib.request.Request(PAGE, headers={"User-Agent": UA}, data=body)
     try:
         with urllib.request.urlopen(req, timeout=240) as resp:
-            return {"status": resp.status, "content_type": resp.headers.get("Content-Type", ""),
-                    "raw": resp.read()}
+            raw = resp.read()
+            ctype = resp.headers.get("Content-Type", "")
     except Exception as exc:
-        return {"error": repr(exc)}
-
-
-def post(fields: list, label: str) -> dict:
-    body = urllib.parse.urlencode(fields).encode()
-    r = fetch(PAGE, data=body)
-    item = {"label": label, "fields": dict(fields)}
-    if "raw" not in r:
-        item.update(r)
-        return item
-    raw = r["raw"]
-    item.update({"status": r["status"], "content_type": r["content_type"], "bytes": len(raw)})
-    item["is_zip"] = raw[:2] == b"PK"
+        return {"label": label, "error": repr(exc)}
+    item = {"label": label, "status": 200, "content_type": ctype, "bytes": len(raw),
+            "is_zip": raw[:2] == b"PK"}
     if item["is_zip"]:
-        Path(f"vintages_{label.replace('+', '_')}.zip").write_bytes(raw)
+        Path(f"probe_{label}.zip").write_bytes(raw)
     else:
         text = raw.decode("utf-8", "replace")
-        item["head"] = text[:200].replace("\n", " | ")
         item["errors"] = re.findall(
-            r"(?i)(error[^<\n]{0,120}|invalid[^<\n]{0,120}|required[^<\n]{0,80})", text)[:10]
+            r"(?i)(error[^<\n]{0,160}|invalid[^<\n]{0,160}|too [^<\n]{0,100}|required[^<\n]{0,100})", text)[:12]
+        item["head"] = text[:160].replace("\n", " | ")
     return item
 
 
-def base_fields(file_open: str, file_format: str, entered: str) -> list:
-    return [
-        ("form[units]", "lin"),
-        ("form[obs_start_date]", "1947-01-01"),
-        ("form[obs_end_date]", "2026-10-01"),
-        ("form[entered_vintage_dates]", entered),
-        ("form[file_type]", file_open),
-        ("form[file_format]", file_format),
-    ]
-
-
 def main() -> int:
-    entered = " ".join(VINTAGES)
     variants = [
-        ("entered+csv+button", base_fields("2", "csv", entered) + [("form[download_data]", "")]),
-        ("entered+selected+csv+button",
-         base_fields("2", "csv", entered)
-         + [("form[selected_vintage_dates][]", v) for v in VINTAGES]
-         + [("form[download_data]", "Download data")]),
-        ("entered+xlsx+button", base_fields("2", "xlsx", entered) + [("form[download_data]", "")]),
+        ("A_actual_1947_1001", "1947-01-01", "2026-10-01", ACTUAL),
+        ("B_arbitrary_1947_today", "1947-01-01", TODAY, ARBITRARY),
+        ("C_actual_1900_today", "1900-01-01", TODAY, ACTUAL),
+        ("D_arbitrary_1900_1001", "1900-01-01", "2026-10-01", ARBITRARY),
+        ("E_arbitrary_1900_today", "1900-01-01", TODAY, ARBITRARY),
     ]
-    out = {"series": SERIES, "vintages": VINTAGES, "attempts": []}
-    for label, fields in variants:
-        out["attempts"].append(post(fields, label))
+    out = {"today": TODAY, "attempts": []}
+    for label, start, end, dates in variants:
+        out["attempts"].append(post(start, end, dates, label))
     Path("probe_results.json").write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(json.dumps([{k: a.get(k) for k in ("label", "status", "content_type", "is_zip", "bytes")}
-                      for a in out["attempts"]]))
+    print(json.dumps([{k: a.get(k) for k in ("label", "is_zip", "bytes", "errors")} for a in out["attempts"]]))
     return 0
 
 
