@@ -1,0 +1,394 @@
+{
+  "protocol": "protocols/evaluation_protocol_v4.json",
+  "generated": "2026-11-11",
+  "note": "Windows are defined by origin and target dates; T3 W1 starts 1996-12 (D-131); origins whose target falls in the COVID window are excluded from W2 and reported separately; W3 is stress only.",
+  "targets": {
+    "T1_CPI_YOY": {
+      "W1": {
+        "1": {
+          "count": 204,
+          "first": {
+            "origin": "1990-01-31",
+            "target": "1990-01-31"
+          },
+          "last": {
+            "origin": "2006-12-31",
+            "target": "2006-12-31"
+          }
+        },
+        "3": {
+          "count": 202,
+          "first": {
+            "origin": "1990-01-31",
+            "target": "1990-03-31"
+          },
+          "last": {
+            "origin": "2006-10-31",
+            "target": "2006-12-31"
+          }
+        },
+        "6": {
+          "count": 199,
+          "first": {
+            "origin": "1990-01-31",
+            "target": "1990-06-30"
+          },
+          "last": {
+            "origin": "2006-07-31",
+            "target": "2006-12-31"
+          }
+        },
+        "12": {
+          "count": 193,
+          "first": {
+            "origin": "1990-01-31",
+            "target": "1990-12-31"
+          },
+          "last": {
+            "origin": "2006-01-31",
+            "target": "2006-12-31"
+          }
+        }
+      },
+      "W2": {
+        "1": {
+          "count": 156,
+          "first": {
+            "origin": "2007-01-31",
+            "target": "2007-01-31"
+          },
+          "last": {
+            "origin": "2019-12-31",
+            "target": "2019-12-31"
+          }
+        },
+        "3": {
+          "count": 154,
+          "first": {
+            "origin": "2007-01-31",
+            "target": "2007-03-31"
+          },
+          "last": {
+            "origin": "2019-10-31",
+            "target": "2019-12-31"
+          }
+        },
+        "6": {
+          "count": 151,
+          "first": {
+            "origin": "2007-01-31",
+            "target": "2007-06-30"
+          },
+          "last": {
+            "origin": "2019-07-31",
+            "target": "2019-12-31"
+          }
+        },
+        "12": {
+          "count": 145,
+          "first": {
+            "origin": "2007-01-31",
+            "target": "2007-12-31"
+          },
+          "last": {
+            "origin": "2019-01-31",
+            "target": "2019-12-31"
+          }
+        }
+      },
+      "W3": {
+        "1": {
+          "count": 82,
+          "first": {
+            "origin": "2020-01-31",
+            "target": "2020-01-31"
+          },
+          "last": {
+            "origin": "2026-10-31",
+            "target": "2026-10-31"
+          }
+        },
+        "3": {
+          "count": 80,
+          "first": {
+            "origin": "2020-01-31",
+            "target": "2020-03-31"
+          },
+          "last": {
+            "origin": "2026-08-31",
+            "target": "2026-10-31"
+          }
+        },
+        "6": {
+          "count": 77,
+          "first": {
+            "origin": "2020-01-31",
+            "target": "2020-06-30"
+          },
+          "last": {
+            "origin": "2026-05-31",
+            "target": "2026-10-31"
+          }
+        },
+        "12": {
+          "count": 71,
+          "first": {
+            "origin": "2020-01-31",
+            "target": "2020-12-31"
+          },
+          "last": {
+            "origin": "2025-11-30",
+            "target": "2026-10-31"
+          }
+        }
+      }
+    },
+    "T2_GDP_GROWTH": {
+      "W1": {
+        "0": {
+          "count": 204,
+          "first": {
+            "origin": "1990-01-31",
+            "target": "1990-03-31"
+          },
+          "last": {
+            "origin": "2006-12-31",
+            "target": "2006-12-31"
+          }
+        },
+        "1": {
+          "count": 67,
+          "first": {
+            "origin": "1990-03-31",
+            "target": "1990-06-30"
+          },
+          "last": {
+            "origin": "2006-09-30",
+            "target": "2006-12-31"
+          }
+        },
+        "2": {
+          "count": 66,
+          "first": {
+            "origin": "1990-03-31",
+            "target": "1990-09-30"
+          },
+          "last": {
+            "origin": "2006-06-30",
+            "target": "2006-12-31"
+          }
+        },
+        "4": {
+          "count": 64,
+          "first": {
+            "origin": "1990-03-31",
+            "target": "1991-03-31"
+          },
+          "last": {
+            "origin": "2005-12-31",
+            "target": "2006-12-31"
+          }
+        }
+      },
+      "W2": {
+        "0": {
+          "count": 156,
+          "first": {
+            "origin": "2007-01-31",
+            "target": "2007-03-31"
+          },
+          "last": {
+            "origin": "2019-12-31",
+            "target": "2019-12-31"
+          }
+        },
+        "1": {
+          "count": 51,
+          "first": {
+            "origin": "2007-03-31",
+            "target": "2007-06-30"
+          },
+          "last": {
+            "origin": "2019-09-30",
+            "target": "2019-12-31"
+          }
+        },
+        "2": {
+          "count": 50,
+          "first": {
+            "origin": "2007-03-31",
+            "target": "2007-09-30"
+          },
+          "last": {
+            "origin": "2019-06-30",
+            "target": "2019-12-31"
+          }
+        },
+        "4": {
+          "count": 48,
+          "first": {
+            "origin": "2007-03-31",
+            "target": "2008-03-31"
+          },
+          "last": {
+            "origin": "2018-12-31",
+            "target": "2019-12-31"
+          }
+        }
+      },
+      "W3": {
+        "0": {
+          "count": 81,
+          "first": {
+            "origin": "2020-01-31",
+            "target": "2020-03-31"
+          },
+          "last": {
+            "origin": "2026-09-30",
+            "target": "2026-09-30"
+          }
+        },
+        "1": {
+          "count": 26,
+          "first": {
+            "origin": "2020-03-31",
+            "target": "2020-06-30"
+          },
+          "last": {
+            "origin": "2026-06-30",
+            "target": "2026-09-30"
+          }
+        },
+        "2": {
+          "count": 25,
+          "first": {
+            "origin": "2020-03-31",
+            "target": "2020-09-30"
+          },
+          "last": {
+            "origin": "2026-03-31",
+            "target": "2026-09-30"
+          }
+        },
+        "4": {
+          "count": 23,
+          "first": {
+            "origin": "2020-03-31",
+            "target": "2021-03-31"
+          },
+          "last": {
+            "origin": "2025-09-30",
+            "target": "2026-09-30"
+          }
+        }
+      }
+    },
+    "T3_RECESSION": {
+      "W1": {
+        "3": {
+          "count": 118,
+          "first": {
+            "origin": "1996-12-31",
+            "target": "1997-03-31"
+          },
+          "last": {
+            "origin": "2006-09-30",
+            "target": "2006-12-31"
+          }
+        },
+        "6": {
+          "count": 115,
+          "first": {
+            "origin": "1996-12-31",
+            "target": "1997-06-30"
+          },
+          "last": {
+            "origin": "2006-06-30",
+            "target": "2006-12-31"
+          }
+        },
+        "12": {
+          "count": 109,
+          "first": {
+            "origin": "1996-12-31",
+            "target": "1997-12-31"
+          },
+          "last": {
+            "origin": "2005-12-31",
+            "target": "2006-12-31"
+          }
+        }
+      },
+      "W2": {
+        "3": {
+          "count": 153,
+          "first": {
+            "origin": "2007-01-31",
+            "target": "2007-04-30"
+          },
+          "last": {
+            "origin": "2019-09-30",
+            "target": "2019-12-31"
+          }
+        },
+        "6": {
+          "count": 150,
+          "first": {
+            "origin": "2007-01-31",
+            "target": "2007-07-31"
+          },
+          "last": {
+            "origin": "2019-06-30",
+            "target": "2019-12-31"
+          }
+        },
+        "12": {
+          "count": 144,
+          "first": {
+            "origin": "2007-01-31",
+            "target": "2008-01-31"
+          },
+          "last": {
+            "origin": "2018-12-31",
+            "target": "2019-12-31"
+          }
+        }
+      },
+      "W3": {
+        "3": {
+          "count": 79,
+          "first": {
+            "origin": "2020-01-31",
+            "target": "2020-04-30"
+          },
+          "last": {
+            "origin": "2026-07-31",
+            "target": "2026-10-31"
+          }
+        },
+        "6": {
+          "count": 76,
+          "first": {
+            "origin": "2020-01-31",
+            "target": "2020-07-31"
+          },
+          "last": {
+            "origin": "2026-04-30",
+            "target": "2026-10-31"
+          }
+        },
+        "12": {
+          "count": 70,
+          "first": {
+            "origin": "2020-01-31",
+            "target": "2021-01-31"
+          },
+          "last": {
+            "origin": "2025-10-31",
+            "target": "2026-10-31"
+          }
+        }
+      }
+    }
+  }
+}
