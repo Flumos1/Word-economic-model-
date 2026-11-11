@@ -27,8 +27,8 @@
   },
   "r3_specification": {
     "file": "protocols/r3_specification.json",
-    "sha256": "095a7979d960db2933933393762052f4c69380400259647403a4e8b3fbec94a3",
-    "version": "0.7.0-proposed"
+    "sha256": "707a71064125706c68fc010792252bcd01b5d33f49c5fd22a72a2fa2aace769d",
+    "version": "1.0.0"
   },
   "rule": "EQUAL_WEIGHT_POINT for point losses and EQUAL_WEIGHT_DENSITY for distribution and event losses. Members: baselines with comparator_member true, scored, REAL_TIME (or REAL_TIME_TAPE) at the origin, and whose inputs for the target are all OPEN in the register on the evaluation date (comparator_minimum applies). The composition by date is recorded and hashed before any candidate is evaluated. No selection window. A candidate is also reported against every other scored baseline and control arm, and against a comparator of fixed composition (the members available over the whole window) as a sensitivity result.",
   "targets": {

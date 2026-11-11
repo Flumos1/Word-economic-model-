@@ -1,8 +1,8 @@
 {
   "spec_id": "AMFE-R3",
-  "version": "0.7.0-proposed",
-  "revision_note": "0.3 - linked to the frozen protocol v4 (SHA-256 bd965f4d9f23...), PROBIT inputs reduced to GS10-TB3MS, SPF kept outside the comparator and control arms until R2 automation/mapping, automated retrieval described. 0.4 - the R2 gate was passed on 2026-11-11 (docs/68, protocols/r2_gate_report.json). 0.5 - the NF-SIM table was generated and frozen on 2026-11-11 (protocols/nf_sim_thresholds.json, SHA-256 f057e2a5b748...). 0.6 - the seven implemented baselines record their code hashes (src/amfe/forecast, tests/test_forecast_models.py); the R2 gate, the NF-SIM table and the comparator composition are recorded in the checklist. 0.7 - answers the independent implementation review docs/73: T3 labels use the recorded NBER announcement dates (not a fixed lag), the four code hashes are refreshed, the gate facts and open items are corrected, and the harness blocks admission on PSEUDO_REAL_TIME data.",
-  "status": "PROPOSED",
+  "version": "1.0.0",
+  "revision_note": "0.3 - linked to the frozen protocol v4 (SHA-256 bd965f4d9f23...), PROBIT inputs reduced to GS10-TB3MS, SPF kept outside the comparator and control arms until R2 automation/mapping, automated retrieval described. 0.4 - the R2 gate was passed on 2026-11-11 (docs/68, protocols/r2_gate_report.json). 0.5 - the NF-SIM table was generated and frozen on 2026-11-11 (protocols/nf_sim_thresholds.json, SHA-256 f057e2a5b748...). 0.6 - the seven implemented baselines record their code hashes (src/amfe/forecast, tests/test_forecast_models.py); the R2 gate, the NF-SIM table and the comparator composition are recorded in the checklist. 0.7 - answers the independent implementation review docs/73: T3 labels use the recorded NBER announcement dates (not a fixed lag), the four code hashes are refreshed, the gate facts and open items are corrected, and the harness blocks admission on PSEUDO_REAL_TIME data. 1.0.0 - FROZEN on 2026-11-11 (D-136): code hashes, NF-SIM table, R2 gate and the composition are pinned; the fixed-lag fallback for T3 labels was removed (refusal instead of a possible look-ahead).",
+  "status": "FROZEN",
   "purpose": "Fix the content of the R3 layer - the baselines of the frozen evaluation protocol v3, the project's own nowcast, the predictive distributions and the pooling, the comparator composition, the scoring and the NF-SIM threshold study - before any candidate is evaluated.",
   "frozen_protocol": {
     "file": "protocols/evaluation_protocol_v4.json",
@@ -121,7 +121,7 @@
         12
       ],
       "comparator_member": true,
-      "code_hash": "14ea37b6d7806fe0fd3eeea07f91b7082cf1678a231839a42d8f34a16d16b306",
+      "code_hash": "a7cb97d93b6f640ca1c15aaa23fad7b66dece4a3c5027010528006b1a24850aa",
       "spec_hash": null,
       "status": "IMPLEMENTED",
       "implementation": "src/amfe/forecast/models.py"
@@ -158,7 +158,7 @@
         4
       ],
       "comparator_member": true,
-      "code_hash": "14ea37b6d7806fe0fd3eeea07f91b7082cf1678a231839a42d8f34a16d16b306",
+      "code_hash": "a7cb97d93b6f640ca1c15aaa23fad7b66dece4a3c5027010528006b1a24850aa",
       "spec_hash": null,
       "status": "IMPLEMENTED",
       "implementation": "src/amfe/forecast/models.py"
@@ -195,7 +195,7 @@
         4
       ],
       "comparator_member": true,
-      "code_hash": "14ea37b6d7806fe0fd3eeea07f91b7082cf1678a231839a42d8f34a16d16b306",
+      "code_hash": "a7cb97d93b6f640ca1c15aaa23fad7b66dece4a3c5027010528006b1a24850aa",
       "spec_hash": null,
       "status": "IMPLEMENTED",
       "implementation": "src/amfe/forecast/models.py"
@@ -238,7 +238,7 @@
         4
       ],
       "comparator_member": true,
-      "code_hash": "14ea37b6d7806fe0fd3eeea07f91b7082cf1678a231839a42d8f34a16d16b306",
+      "code_hash": "a7cb97d93b6f640ca1c15aaa23fad7b66dece4a3c5027010528006b1a24850aa",
       "spec_hash": null,
       "status": "IMPLEMENTED",
       "implementation": "src/amfe/forecast/models.py"
@@ -302,7 +302,7 @@
         12
       ],
       "comparator_member": true,
-      "code_hash": "14ea37b6d7806fe0fd3eeea07f91b7082cf1678a231839a42d8f34a16d16b306",
+      "code_hash": "a7cb97d93b6f640ca1c15aaa23fad7b66dece4a3c5027010528006b1a24850aa",
       "spec_hash": null,
       "status": "IMPLEMENTED",
       "note": "uses the GS10-TB3MS spread only; T10Y3M dropped (vintages start 2014-01-27)",
@@ -329,7 +329,7 @@
         12
       ],
       "comparator_member": true,
-      "code_hash": "14ea37b6d7806fe0fd3eeea07f91b7082cf1678a231839a42d8f34a16d16b306",
+      "code_hash": "a7cb97d93b6f640ca1c15aaa23fad7b66dece4a3c5027010528006b1a24850aa",
       "spec_hash": null,
       "status": "IMPLEMENTED",
       "implementation": "src/amfe/forecast/models.py"
@@ -420,7 +420,7 @@
       ],
       "comparator_member": true,
       "report": "Every T2 h=0 report states that the quality of this substitute relative to excluded external nowcasts is unknown and cannot be checked, so the admission bar may be lower than with the best public nowcast.",
-      "code_hash": "14ea37b6d7806fe0fd3eeea07f91b7082cf1678a231839a42d8f34a16d16b306",
+      "code_hash": "a7cb97d93b6f640ca1c15aaa23fad7b66dece4a3c5027010528006b1a24850aa",
       "spec_hash": null,
       "status": "IMPLEMENTED",
       "implementation": "src/amfe/forecast/models.py"
@@ -666,15 +666,15 @@
     }
   },
   "acceptance_checklist": [
-    "R2 gate passed on 2026-11-11: protocols/r2_gate_report.json - 47 pairs matched (17 before 2000), 0 mismatches (docs/68)",
+    "R2 gate passed on 2026-11-11: protocols/r2_gate_report.json - 87 pairs matched (17 before 2000), 0 mismatches (docs/68)",
     "data log complete; no raw third-party file committed",
     "NF-SIM table complete and frozen before any candidate evaluation: protocols/nf_sim_thresholds.json (44 entries, 10000 replications, SHA-256 f057e2a5b748d12a18fd0c7c4ca3059bf8bba5e910e721420e8fdadb42f0c614)",
     "code hashes of the seven implemented models recorded and verified against the files (0.7); DFM/SPF are not implemented",
-    "hash of this specification file pinned",
+    "hash of this specification file pinned in protocols/r3_specification.sha256",
     "comparator composition for the first evaluation date recorded and hashed: protocols/comparator_composition_2026-11-11.json",
     "every comparator member OPEN in the register on the evaluation date; at least 2 members per loss",
     "test suite green, including the protocol, R3, NF-SIM, forecast models and harness tests",
-    "forward registry opened and the first registry commit made; candidates registered before any evaluation"
+    "forward registry opened and the first registry commit made; candidates registered before any evaluation (pending: needs a dense vintage archive / REAL_TIME data)"
   ],
   "open_items": [
     "SPF definition mapping (quarterly and annual SPF forecasts to the monthly y/y target) is fixed after the SPF documentation is read in R2; the hash of the mapping document joins this specification before freezing.",
@@ -713,7 +713,7 @@
   "code_files": {
     "src/amfe/forecast/__init__.py": "458b90f188aabf1715ee6aa666218df60ba98c12fca1474e550f26385fda60c2",
     "src/amfe/forecast/data.py": "22c921473a45db9376b31f0c5bb08737867e15190351dd5b2c912ad747bfbf54",
-    "src/amfe/forecast/models.py": "14ea37b6d7806fe0fd3eeea07f91b7082cf1678a231839a42d8f34a16d16b306",
+    "src/amfe/forecast/models.py": "a7cb97d93b6f640ca1c15aaa23fad7b66dece4a3c5027010528006b1a24850aa",
     "tests/test_forecast_models.py": "299164016cba40a74b3f7ec2ff43c90f0f0dfc81d727db732328463729a0d6eb"
   },
   "implementation": {
@@ -727,5 +727,14 @@
     "windows": "tools/windows.py",
     "limits": "local vintage archive: 10 annual vintages 1996-2020, so W1/W2 evaluation runs in mode='latest' with PSEUDO_REAL_TIME labels until a dense ALFRED vintage archive exists; T3 labels enter estimation only through the recorded NBER announcements (protocols/nber_dates.json; cutoff = latest announced trough minus horizon, fixed 12-month lag only as fallback); BVAR/OWN densities are simplified."
   },
-  "data_class_guard": "tools/evaluate.py evaluate_admission() takes the protocol data class (default UNSTATED) and sets admission_allowed=False for anything except REAL_TIME/REAL_TIME_TAPE; a PSEUDO_REAL_TIME report can only be CANDIDATE."
+  "data_class_guard": "tools/evaluate.py evaluate_admission() takes the protocol data class (default UNSTATED) and sets admission_allowed=False for anything except REAL_TIME/REAL_TIME_TAPE; a PSEUDO_REAL_TIME report can only be CANDIDATE.",
+  "frozen_on": "2026-11-11",
+  "frozen_by": "D-136 (meta-gate D-100); independent implementation review docs/73",
+  "spec_hash_file": "protocols/r3_specification.sha256",
+  "freeze_hashes": {
+    "protocol_v4": "bd965f4d9f23151b4ccfd27202f0669d0a7807e642639ed18c0b864bf68dedc9",
+    "nf_sim_thresholds": "f057e2a5b748d12a18fd0c7c4ca3059bf8bba5e910e721420e8fdadb42f0c614",
+    "r2_gate_report": "59d42c17cb407cea31c8b79e53e3c1a68e257383e0b563578dd07f34818abb12"
+  },
+  "freeze_note": "The R3 hash chain: this file is pinned first, then the comparator composition is regenerated against it and pinned separately (protocols/comparator_composition_2026-11-11.sha256); the composition documents the members, this file documents the specification and code hashes."
 }

@@ -44,10 +44,14 @@ class R3Specification(unittest.TestCase):
 
     def test_status_and_freeze_discipline(self):
         s = load_spec()
-        self.assertEqual(s["status"], "PROPOSED")
+        self.assertEqual(s["status"], "FROZEN")
+        self.assertEqual(s["frozen_on"], "2026-11-11")
         for phrase in ("hash of this file", "code hashes", "NF-SIM threshold table"):
             self.assertIn(phrase, s["freeze_rule"])
-        self.assertIn("does not permit evaluating candidates", s["freeze_rule"])
+        pin = ROOT / "protocols" / "r3_specification.sha256"
+        self.assertTrue(pin.exists(), "a frozen specification needs a pinned hash")
+        self.assertEqual(lf_sha256(SPEC), pin.read_text().split()[0])
+        self.assertEqual(s["spec_hash_file"], "protocols/r3_specification.sha256")
 
     def test_models_cover_every_protocol_baseline(self):
         p = load_protocol()

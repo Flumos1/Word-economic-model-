@@ -48,7 +48,6 @@ import numpy as np
 
 from .data import (
     MODE_AUTO,
-    NBER_ANNOUNCEMENT_LAG_MONTHS,
     nber_label_cutoff,
     DataContext,
     ForecastDataError,
@@ -613,9 +612,11 @@ def _t3_label_limit(ctx: DataContext, horizon: int) -> int:
     label at month m needs the outcome through m + horizon.  The fixed lag is only a fallback.
     """
     cutoff = nber_label_cutoff(ctx.origin)
-    if cutoff is not None:
-        return int(cutoff) - int(horizon)
-    return ctx.origin_month - int(horizon) - NBER_ANNOUNCEMENT_LAG_MONTHS
+    if cutoff is None:
+        raise InsufficientData(
+            "T3 labels: protocols/nber_dates.json is unavailable, so the NBER announcement dates are "
+            "unknown; refusing to fall back to a fixed lag (that would be look-ahead)")
+    return int(cutoff) - int(horizon)
 
 
 def _last_available_month(ctx: DataContext, name: str) -> int:
