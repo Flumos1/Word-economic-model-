@@ -34,3 +34,5 @@ jobs:
         run: python tests/test_extended_accounts_v07.py
       - name: Two-country FX and trade prototype
         run: python tests/test_two_country_v01.py
+      - name: Integrated four-sector two-country accounting
+        run: python tests/test_integrated_world_v01.py
