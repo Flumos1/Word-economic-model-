@@ -41,3 +41,5 @@ jobs:
 
       - name: Two-country GDP triple reconciliation (10,000 scenarios)
         run: python tests/test_national_accounts_v01.py
+      - name: Posted international trade to GDP bridge (10,000 scenarios)
+        run: python tests/test_national_accounts_bridge_v01.py
