@@ -78,6 +78,15 @@ class ProtocolV3(unittest.TestCase):
         self.assertTrue(p["licence_policy"]["gdpnow"]["use"].startswith("none"))
         self.assertIn("NOT PURSUED", p["licence_policy"]["gdpnow"]["permission_request"])
 
+    def test_no_baseline_of_any_kind_uses_a_restricted_source(self):
+        # the owner decision: RESTRICTED sources are not used anywhere, control arms included
+        p = load()
+        status = {k: v["status"] for k, v in p["licence_policy"]["register"].items() if isinstance(v, dict)}
+        for b in p["baselines"]:
+            for src in b.get("licence_sources", []):
+                self.assertIn(src, status, f"{b['id']}: {src}")
+                self.assertNotEqual(status[src], "RESTRICTED", f"{b['id']} draws on a RESTRICTED source")
+
     def test_nyfed_nowcast_is_a_control_arm_only(self):
         p = load()
         arm = next(b for b in p["baselines"] if b["id"] == "NOWCAST_NYFED")
@@ -88,7 +97,7 @@ class ProtocolV3(unittest.TestCase):
         p = load()
         own = next(b for b in p["baselines"] if b["id"] == "OWN_NOWCAST_BRIDGE")
         self.assertEqual(own["applies_to"], ["T2_GDP_GROWTH"])
-        self.assertEqual(own["horizons"], "0")
+        self.assertEqual(own["horizons_quarters"], [0])
         self.assertTrue(own["comparator_member"])
         self.assertTrue(own["approximation_of"])
         self.assertIn("approximation", p["licence_policy"])
