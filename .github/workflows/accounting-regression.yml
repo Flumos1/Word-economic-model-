@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - 'tests/**'
+      - 'src/**'
       - '.github/workflows/accounting-regression.yml'
   pull_request:
     paths:
@@ -27,3 +28,5 @@ jobs:
         run: python tests/test_sector_accounts_v04.py
       - name: Periodic SFC sector accounts v05
         run: python tests/test_sfc_accounts_v05.py
+      - name: Formal sector accounts v06 (7 tests, 432 scenarios)
+        run: python tests/test_accounting_core_v06.py
