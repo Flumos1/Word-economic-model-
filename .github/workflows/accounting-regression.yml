@@ -25,3 +25,5 @@ jobs:
         run: python tests/test_government_parameter_grid_v03.py
       - name: Four-sector net-worth accounts v04
         run: python tests/test_sector_accounts_v04.py
+      - name: Periodic SFC sector accounts v05
+        run: python tests/test_sfc_accounts_v05.py
