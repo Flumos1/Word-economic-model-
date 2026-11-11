@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.pyc
+
+# Third-party raw data archives are never committed (licence_policy in protocols/evaluation_protocol_v3.json):
+# fetch them by script and record URL, retrieval date and SHA-256 instead.
+/data/raw/
+/data/external/
+GDPTrackingModelDataAndForecasts*.xlsx
+GDPNowcastDataReleaseDates*.xlsx
+
+# Secrets
+.env

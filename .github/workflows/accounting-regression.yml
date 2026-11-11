@@ -50,3 +50,5 @@ jobs:
         run: python tests/test_protocol_v1.py
       - name: Draft evaluation protocol v2 (link to v1, M1-M14 coverage)
         run: python tests/test_protocol_v2.py
+      - name: Draft evaluation protocol v3 (link to v2, licence policy, R-01..R-17 coverage)
+        run: python tests/test_protocol_v3.py
