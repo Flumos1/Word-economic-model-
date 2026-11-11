@@ -93,7 +93,7 @@ def fetch_vintages(seid: str, dates: list, ua: str) -> bytes:
     fields = [
         ("form[units]", "lin"),
         ("form[obs_start_date]", "1900-01-01"),
-        ("form[obs_end_date]", "2026-12-31"),
+        ("form[obs_end_date]", datetime.now(timezone.utc).strftime("%Y-%m-%d")),
         ("form[entered_vintage_dates]", " ".join(dates)),
         ("form[file_type]", "2"),        # Observations by Vintage Date, All Observations
         ("form[file_format]", "csv"),    # Zipped CSV
