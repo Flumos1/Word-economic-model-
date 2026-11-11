@@ -1,7 +1,7 @@
 {
   "spec_id": "AMFE-R3",
-  "version": "0.5.0-proposed",
-  "revision_note": "0.3 - linked to the frozen protocol v4 (SHA-256 bd965f4d9f23...), PROBIT inputs reduced to GS10-TB3MS, SPF kept outside the comparator and control arms until R2 automation/mapping, automated retrieval described. 0.4 - the R2 gate was passed on 2026-11-11 (docs/68, protocols/r2_gate_report.json). 0.5 - the NF-SIM table was generated and frozen on 2026-11-11 (protocols/nf_sim_thresholds.json, SHA-256 f057e2a5b748...).",
+  "version": "0.6.0-proposed",
+  "revision_note": "0.3 - linked to the frozen protocol v4 (SHA-256 bd965f4d9f23...), PROBIT inputs reduced to GS10-TB3MS, SPF kept outside the comparator and control arms until R2 automation/mapping, automated retrieval described. 0.4 - the R2 gate was passed on 2026-11-11 (docs/68, protocols/r2_gate_report.json). 0.5 - the NF-SIM table was generated and frozen on 2026-11-11 (protocols/nf_sim_thresholds.json, SHA-256 f057e2a5b748...). 0.6 - the seven implemented baselines record their code hashes (src/amfe/forecast, tests/test_forecast_models.py); the R2 gate, the NF-SIM table and the comparator composition are recorded in the checklist.",
   "status": "PROPOSED",
   "purpose": "Fix the content of the R3 layer - the baselines of the frozen evaluation protocol v3, the project's own nowcast, the predictive distributions and the pooling, the comparator composition, the scoring and the NF-SIM threshold study - before any candidate is evaluated.",
   "frozen_protocol": {
@@ -121,9 +121,10 @@
         12
       ],
       "comparator_member": true,
-      "code_hash": null,
+      "code_hash": "201835a103b8216f7e19f9e733746440230b8df7e067e9ad03951cf32ca74089",
       "spec_hash": null,
-      "status": "PROPOSED"
+      "status": "IMPLEMENTED",
+      "implementation": "src/amfe/forecast/models.py"
     },
     {
       "id": "AO",
@@ -157,9 +158,10 @@
         4
       ],
       "comparator_member": true,
-      "code_hash": null,
+      "code_hash": "201835a103b8216f7e19f9e733746440230b8df7e067e9ad03951cf32ca74089",
       "spec_hash": null,
-      "status": "PROPOSED"
+      "status": "IMPLEMENTED",
+      "implementation": "src/amfe/forecast/models.py"
     },
     {
       "id": "AR_BIC",
@@ -193,9 +195,10 @@
         4
       ],
       "comparator_member": true,
-      "code_hash": null,
+      "code_hash": "201835a103b8216f7e19f9e733746440230b8df7e067e9ad03951cf32ca74089",
       "spec_hash": null,
-      "status": "PROPOSED"
+      "status": "IMPLEMENTED",
+      "implementation": "src/amfe/forecast/models.py"
     },
     {
       "id": "BVAR_MINNESOTA",
@@ -235,9 +238,10 @@
         4
       ],
       "comparator_member": true,
-      "code_hash": null,
+      "code_hash": "201835a103b8216f7e19f9e733746440230b8df7e067e9ad03951cf32ca74089",
       "spec_hash": null,
-      "status": "PROPOSED"
+      "status": "IMPLEMENTED",
+      "implementation": "src/amfe/forecast/models.py"
     },
     {
       "id": "DFM_FREDMD",
@@ -273,7 +277,8 @@
       "availability": "Only from the register entry OPEN; today FRED-MD_FRED-QD is UNVERIFIED, so the model is outside the comparator and this section is a specification, not an available member.",
       "code_hash": null,
       "spec_hash": null,
-      "status": "PROPOSED_BLOCKED_ON_REGISTER"
+      "status": "PROPOSED_BLOCKED_ON_REGISTER",
+      "implementation": null
     },
     {
       "id": "PROBIT_SPREAD",
@@ -297,10 +302,11 @@
         12
       ],
       "comparator_member": true,
-      "code_hash": null,
+      "code_hash": "201835a103b8216f7e19f9e733746440230b8df7e067e9ad03951cf32ca74089",
       "spec_hash": null,
-      "status": "PROPOSED",
-      "note": "uses the GS10-TB3MS spread only; T10Y3M dropped (vintages start 2014-01-27)"
+      "status": "IMPLEMENTED",
+      "note": "uses the GS10-TB3MS spread only; T10Y3M dropped (vintages start 2014-01-27)",
+      "implementation": "src/amfe/forecast/models.py"
     },
     {
       "id": "SAHM_RULE",
@@ -323,9 +329,10 @@
         12
       ],
       "comparator_member": true,
-      "code_hash": null,
+      "code_hash": "201835a103b8216f7e19f9e733746440230b8df7e067e9ad03951cf32ca74089",
       "spec_hash": null,
-      "status": "PROPOSED"
+      "status": "IMPLEMENTED",
+      "implementation": "src/amfe/forecast/models.py"
     },
     {
       "id": "SPF_MEDIAN",
@@ -367,7 +374,8 @@
       "spec_hash": null,
       "status": "PROPOSED_T2_ONLY",
       "available_from": "R2 (file automation and definition mapping)",
-      "note": "SPF median at survey deadlines only, point-only; not a comparator or control-arm member until its files are retrieved automatically and the definition mapping is fixed in R2. T1 is never scored against SPF; T2 is scored after automation."
+      "note": "SPF median at survey deadlines only, point-only; not a comparator or control-arm member until its files are retrieved automatically and the definition mapping is fixed in R2. T1 is never scored against SPF; T2 is scored after automation.",
+      "implementation": null
     },
     {
       "id": "SPF_NEG_GDP_PROB",
@@ -387,7 +395,8 @@
       "scored": false,
       "code_hash": null,
       "spec_hash": null,
-      "status": "DESIGN_ONLY"
+      "status": "DESIGN_ONLY",
+      "implementation": null
     },
     {
       "id": "OWN_NOWCAST_BRIDGE",
@@ -411,9 +420,10 @@
       ],
       "comparator_member": true,
       "report": "Every T2 h=0 report states that the quality of this substitute relative to excluded external nowcasts is unknown and cannot be checked, so the admission bar may be lower than with the best public nowcast.",
-      "code_hash": null,
+      "code_hash": "201835a103b8216f7e19f9e733746440230b8df7e067e9ad03951cf32ca74089",
       "spec_hash": null,
-      "status": "PROPOSED"
+      "status": "IMPLEMENTED",
+      "implementation": "src/amfe/forecast/models.py"
     },
     {
       "id": "NOWCAST_NYFED",
@@ -435,7 +445,8 @@
       "comparator_member": false,
       "code_hash": null,
       "spec_hash": null,
-      "status": "DESIGN_ONLY"
+      "status": "DESIGN_ONLY",
+      "implementation": null
     }
   ],
   "derived_comparators": [
@@ -657,12 +668,12 @@
   "acceptance_checklist": [
     "R2 gate passed on 2026-11-11: protocols/r2_gate_report.json - 47 pairs matched (17 before 2000), 0 mismatches (docs/68)",
     "data log complete; no raw third-party file committed",
-    "NF-SIM table complete and frozen before any candidate evaluation: protocols/nf_sim_thresholds.json (44 entries, 10000 replications, SHA-256 f057e2a5b748...), docs/69",
-    "code hashes of every model recorded in this file",
+    "NF-SIM table complete and frozen before any candidate evaluation: protocols/nf_sim_thresholds.json (44 entries, 10000 replications, SHA-256 f057e2a5b748d12a18fd0c7c4ca3059bf8bba5e910e721420e8fdadb42f0c614)",
+    "code hashes of the seven implemented models recorded in this file (0.6); DFM/SPF are not implemented",
     "hash of this specification file pinned",
-    "comparator composition for the first evaluation date recorded and hashed",
+    "comparator composition for the first evaluation date recorded and hashed: protocols/comparator_composition_2026-11-11.json",
     "every comparator member OPEN in the register on the evaluation date; at least 2 members per loss",
-    "test suite green, including test_protocol_v3 and test_r3_specification",
+    "test suite green, including the protocol, R3, NF-SIM, forecast models and harness tests",
     "forward registry opened and the first registry commit made; candidates registered before any evaluation"
   ],
   "open_items": [
@@ -698,5 +709,22 @@
     "matched_pairs_pre_2000": 17,
     "mismatches": 0,
     "note": "CPIAUCSL, CPILFESL, UNRATE, GS10, TB3MS checked against ALFRED initial releases; GDPC1 and the NBER announcement dates are next"
+  },
+  "code_files": {
+    "src/amfe/forecast/__init__.py": "458b90f188aabf1715ee6aa666218df60ba98c12fca1474e550f26385fda60c2",
+    "src/amfe/forecast/data.py": "30abedee1719bcaa48d7e80e5558a8717c6a581b1df5ff6b1ae476943a10102a",
+    "src/amfe/forecast/models.py": "201835a103b8216f7e19f9e733746440230b8df7e067e9ad03951cf32ca74089",
+    "tests/test_forecast_models.py": "97ec71a33387ec1b7850a6a78006b7e2586d56d6200baf722bfa19d22b176717"
+  },
+  "implementation": {
+    "package": "src/amfe/forecast",
+    "data_layer": "src/amfe/forecast/data.py",
+    "models": "src/amfe/forecast/models.py",
+    "tests": "tests/test_forecast_models.py",
+    "docs": "docs/70_Реализация_базовых_моделей.md",
+    "harness": "tools/evaluate.py",
+    "composition": "protocols/comparator_composition_2026-11-11.json",
+    "windows": "tools/windows.py",
+    "limits": "local vintage archive: 10 annual vintages 1996-2020, so W1/W2 evaluation runs in mode='latest' with PSEUDO_REAL_TIME labels until a dense ALFRED vintage archive exists; T3 labels use USREC with a conservative 12-month lag instead of the NBER announcement dates; BVAR/OWN densities are simplified."
   }
 }

@@ -103,13 +103,22 @@ class R3Specification(unittest.TestCase):
         blocked = next(m for m in s["models"] if m["id"] == "DFM_FREDMD")
         self.assertEqual(blocked["status"], "PROPOSED_BLOCKED_ON_REGISTER")
 
-    def test_hashes_are_declared_and_still_open(self):
+    def test_hashes_are_declared_and_match_the_code(self):
         s = load_spec()
+        model_sha = hashlib.sha256((ROOT / "src" / "amfe" / "forecast" / "models.py").read_bytes()
+                                   .replace(b"\r\n", b"\n")).hexdigest()
+        implemented = [m for m in s["models"] if m.get("status") == "IMPLEMENTED"]
+        self.assertEqual(len(implemented), 7)
         for model in s["models"]:
             self.assertIn("code_hash", model, model["id"])
-            self.assertIn("spec_hash", model, model["id"])
-            self.assertIsNone(model["code_hash"], f"{model['id']}: no code before freezing")
-        self.assertIn("code hashes of every model", " ".join(s["acceptance_checklist"]))
+            if model["id"] in {"DFM_FREDMD", "SPF_MEDIAN", "SPF_NEG_GDP_PROB", "NOWCAST_NYFED"}:
+                self.assertIsNone(model["code_hash"], f"{model['id']}: not implemented, no code hash")
+            else:
+                self.assertEqual(model["code_hash"], model_sha, model["id"])
+        for rel, expected in s["code_files"].items():
+            actual = hashlib.sha256((ROOT / rel).read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+            self.assertEqual(actual, expected, rel)
+        self.assertIn("code hashes", " ".join(s["acceptance_checklist"]))
 
     def test_own_nowcast_is_specified_as_a_substitute(self):
         s = load_spec()
