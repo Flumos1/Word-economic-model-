@@ -1,7 +1,7 @@
 {
   "spec_id": "AMFE-R3",
-  "version": "0.4.0-proposed",
-  "revision_note": "0.3 - linked to the frozen protocol v4 (SHA-256 bd965f4d9f23...), PROBIT inputs reduced to GS10-TB3MS, SPF kept outside the comparator and control arms until R2 automation/mapping, automated retrieval described. 0.4 - the R2 gate was passed on 2026-11-11 (docs/68, protocols/r2_gate_report.json).",
+  "version": "0.5.0-proposed",
+  "revision_note": "0.3 - linked to the frozen protocol v4 (SHA-256 bd965f4d9f23...), PROBIT inputs reduced to GS10-TB3MS, SPF kept outside the comparator and control arms until R2 automation/mapping, automated retrieval described. 0.4 - the R2 gate was passed on 2026-11-11 (docs/68, protocols/r2_gate_report.json). 0.5 - the NF-SIM table was generated and frozen on 2026-11-11 (protocols/nf_sim_thresholds.json, SHA-256 f057e2a5b748...).",
   "status": "PROPOSED",
   "purpose": "Fix the content of the R3 layer - the baselines of the frozen evaluation protocol v3, the project's own nowcast, the predictive distributions and the pooling, the comparator composition, the scoring and the NF-SIM threshold study - before any candidate is evaluated.",
   "frozen_protocol": {
@@ -507,7 +507,23 @@
       "hash_file": "protocols/nf_sim_thresholds.sha256",
       "freeze_before": "any candidate evaluation"
     },
-    "threshold_rule": "min(0.97, q05_equal_methods)"
+    "threshold_rule": "min(0.97, q05_equal_methods)",
+    "frozen_table": {
+      "file": "protocols/nf_sim_thresholds.json",
+      "hash_file": "protocols/nf_sim_thresholds.sha256",
+      "sha256": "f057e2a5b748d12a18fd0c7c4ca3059bf8bba5e910e721420e8fdadb42f0c614",
+      "generated_at": "2026-11-11T19:04:26Z",
+      "replications": 10000,
+      "entries": 44,
+      "min_threshold": 0.7055,
+      "max_threshold": 0.97,
+      "rule": "min(0.97, q05_single, q05_combination)"
+    },
+    "calibration": {
+      "config": "protocols/nf_sim_config.json",
+      "estimators": "156 vs 180 months (T1), 52 vs 60 quarters (T2), 180 vs 240 months (T3); combination variant repeated",
+      "note": "AR(1) for inflation and GDP growth, two-state Markov chain for recessions, calibrated on 1960-2019"
+    }
   },
   "data_manifest": {
     "rule": "Every series used by any model is listed in the licence register first and obtained through its channel; retrieval is automated (protocol v4): latest files from the public FRED CSV endpoint and vintage sets from the ALFRED download-data form; NBER_CYCLE_DATES is represented by ALFRED:USREC. The data log records URL, retrieval date, bytes, SHA-256, rows, last observation and the vintage check; raw files stay in the ignored data directory and are never committed.",
@@ -641,7 +657,7 @@
   "acceptance_checklist": [
     "R2 gate passed on 2026-11-11: protocols/r2_gate_report.json - 47 pairs matched (17 before 2000), 0 mismatches (docs/68)",
     "data log complete; no raw third-party file committed",
-    "NF-SIM table complete for every (target, horizon, loss, window) and hashed",
+    "NF-SIM table complete and frozen before any candidate evaluation: protocols/nf_sim_thresholds.json (44 entries, 10000 replications, SHA-256 f057e2a5b748...), docs/69",
     "code hashes of every model recorded in this file",
     "hash of this specification file pinned",
     "comparator composition for the first evaluation date recorded and hashed",

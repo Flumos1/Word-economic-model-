@@ -1,0 +1,23 @@
+{
+  "config_id": "NF-SIM-CONFIG",
+  "calibration": "data/raw latest files (CPIAUCSL, GDPC1, USREC); windows 1960-01..2019-12",
+  "T1_CPI_YOY": {
+    "phi": 0.95,
+    "const": 0.187734,
+    "sigma": 0.390263,
+    "n": 719
+  },
+  "T2_GDP_GROWTH": {
+    "phi": 0.321418,
+    "const": 2.015414,
+    "sigma": 3.098925,
+    "n": 239
+  },
+  "T3_RECESSION": {
+    "p_ER": 0.012759,
+    "p_RE": 0.086022,
+    "n_expansion": 627,
+    "n_recession": 93
+  },
+  "note": "AR(1) approximations calibrated on the actual series; the simulation is a noise-floor study, not a model of the economy. The raw series are not committed; see protocols/data_log.json."
+}

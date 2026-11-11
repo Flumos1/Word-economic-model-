@@ -60,3 +60,5 @@ jobs:
         run: python tests/test_protocol_v4.py
       - name: R2 data gate report (structure, when the report exists)
         run: python tests/test_data_gate_report.py
+      - name: NF-SIM threshold table (completeness, hash, threshold rule)
+        run: python tests/test_nf_sim.py
