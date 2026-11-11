@@ -46,3 +46,5 @@ jobs:
         run: python tests/test_national_accounts_bridge_v01.py
       - name: Domestic economic journal GDP triple reconciliation (10,000 scenarios)
         run: python tests/test_domestic_journal_v01.py
+      - name: Frozen evaluation protocol v1 (hash and structure)
+        run: python tests/test_protocol_v1.py
