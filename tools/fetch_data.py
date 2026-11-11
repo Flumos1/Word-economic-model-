@@ -243,7 +243,7 @@ def merge_vintage_parts(parts: list, series_id: str) -> tuple:
     vintages = sorted(values)
     raw = build_vintage_zip(series_id, vintages, list(periods), values,
                             note="merged from chunked ALFRED download-data requests")
-    return raw, {"vintages": vintages, "rows": len(periods)}
+    return raw, {"vintages": vintages, "vintage_count": len(vintages), "rows": len(periods)}
 
 
 def vintage_meta(zip_bytes: bytes) -> dict:

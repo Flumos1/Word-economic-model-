@@ -150,6 +150,8 @@ class Merge(unittest.TestCase):
              ("1990-03-01", {"1990-06-13": "3.0", "1990-06-29": "3.5"})]))
         merged_raw, merged = fetch_data.merge_vintage_parts([first, second], "CPIAUCSL")
         self.assertEqual(merged["vintages"], ["1990-03-14", "1990-06-13", "1990-06-29"])
+        self.assertEqual(merged["vintage_count"], 3)
+        self.assertEqual(merged["rows"], 3)
         parsed = fetch_data.read_vintage_zip(merged_raw)
         self.assertEqual(sorted(parsed["values"]),
                          ["1990-03-14", "1990-06-13", "1990-06-29"])
@@ -288,6 +290,66 @@ class ChunkedFetch(unittest.TestCase):
         self.assertEqual(posted[0], 6, "the first POST uses the full batch")
         self.assertTrue(any(n <= 2 for n in posted), "the rejected batch is split")
         self.assertTrue(all(n <= 6 for n in posted))
+
+
+class MainVintageLog(unittest.TestCase):
+    """Full ``main --include-vintages`` path (fake FRED latest + fake ALFRED form) writes the log."""
+
+    AVAILABLE = ["1990-03-14", "1990-06-13", "1990-09-19", "1995-03-15", "1999-12-10",
+                 "2000-06-14", "2010-06-15", "2020-06-15", "2026-06-30"]
+
+    def test_main_writes_vintage_and_gate_view_metadata(self):
+        def fake_request(url, user_agent, data=None, timeout=240, retries=3):
+            if "fredgraph.csv" in url:
+                series = url.rsplit("=", 1)[-1]
+                return (f"observation_date,{series}\n1947-01-01,1.0\n2026-10-01,2.0\n"
+                        ).encode("utf-8")
+            if data is None:
+                return form_page(self.AVAILABLE)
+            query = fetch_data.urllib.parse.parse_qs(data.decode())
+            dates = query["form[entered_vintage_dates]"][0].split()
+            rows = [("1947-01-01", {d: "1.0" for d in dates}),
+                    ("1990-01-01", {d: "2.0" for d in dates})]
+            return make_vintage_zip("CPIAUCSL", dates, rows)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "raw"
+            log_path = Path(tmp) / "data_log.json"
+            with mock.patch.object(fetch_data, "request", side_effect=fake_request), \
+                    mock.patch.object(fetch_data.time, "sleep"):
+                code = fetch_data.main(["--out", str(out), "--log", str(log_path),
+                                        "--include-vintages"])
+            self.assertEqual(code, 0, "all series must be retrieved without failures")
+            log = json.loads(log_path.read_text(encoding="utf-8"))
+            for gate_entry in log["gate_view"]["entries"]:
+                self.assertTrue(Path(gate_entry["file"]).exists(), gate_entry["file"])
+            for entry in log["entries"]:
+                if entry["vintage"] == "set":
+                    self.assertTrue(Path(entry["file"]).exists(), entry["file"])
+
+        self.assertEqual(log["failures"], [])
+        self.assertEqual(len(log["entries"]), 13, "7 latest files + 6 vintage sets")
+        sets = [e for e in log["entries"] if e["vintage"] == "set"]
+        self.assertEqual(len(sets), 6)
+        for entry in sets:
+            self.assertEqual(entry["vintage_count"], len(self.AVAILABLE))
+            self.assertTrue(entry["vintage_check"], entry["series"])
+            self.assertEqual(sorted(entry["vintage_dates"]), sorted(self.AVAILABLE))
+            self.assertEqual(entry["planned_vintages"], EXPECTED_GRID)
+            self.assertEqual(entry["unmapped_planned_dates"], [])
+            self.assertTrue(entry["chunks"], entry["series"])
+            for chunk in entry["chunks"]:
+                self.assertLessEqual(chunk["requested_dates"], fetch_data.VINTAGE_CHUNK_DATES)
+                self.assertRegex(chunk["sha256"], r"^[0-9a-f]{64}$")
+            self.assertEqual(entry["merged"]["from_chunks"], len(entry["chunks"]))
+            self.assertEqual(entry["merged"]["vintage_count"], len(self.AVAILABLE))
+            self.assertRegex(entry["merged"]["sha256"], r"^[0-9a-f]{64}$")
+        self.assertEqual(log["gate_view"]["limit_dates"], fetch_data.GATE_VIEW_DATES)
+        self.assertEqual(len(log["gate_view"]["entries"]), 6)
+        for gate_entry in log["gate_view"]["entries"]:
+            self.assertLessEqual(gate_entry["vintage_count"], fetch_data.GATE_VIEW_DATES)
+            self.assertGreaterEqual(sum(1 for d in gate_entry["vintage_dates"] if d < "2000-01-01"),
+                                    min(fetch_data.GATE_VIEW_PRE_2000, 5))
 
 
 if __name__ == "__main__":
