@@ -86,19 +86,16 @@ class InternationalAccounts:
         if exporter==importer or exporter not in COUNTRIES or importer not in COUNTRIES or currency not in CURRENCIES.values() or q<=0 or p<=0:
             raise AccountingError("invalid trade")
         n=q*p
-        # Importer household buys inventory from exporter firm; payment is in
-        # the invoice currency. Bank liability migrates to exporter's bank.
-        f={(importer,"household","deposit",currency):-n,
+        # Importer firm purchases inventory; no final consumption is booked.
+        # Bank liability migrates to exporter's bank in invoice currency.
+        f={(importer,"firm","deposit",currency):-n,
            (importer,"bank","deposit",currency):n,
            (exporter,"firm","deposit",currency):n,
            (exporter,"bank","deposit",currency):-n}
         g={exporter:-q,importer:q}
-        # Goods imported become inventory of the importing firm. Household
-        # purchase is a separate transaction; trade itself is asset exchange.
-        # The exporter has sold inventory q at carrying value q, and gains
-        # invoice proceeds n; importer acquires inventory q for n.
-        # At price != 1, explicit trading gains/losses appear in current flows.
-        current={(exporter,"firm"):n-q,(importer,"firm"):q,(importer,"household"):-n}
+        # Goods move at unit book value 1; differences against invoice price
+        # become simplified transaction gains/losses, NOT full SNA valuation.
+        current={(exporter,"firm"):n-q,(importer,"firm"):q-n}
         self.post("cross_border_trade",f,g,current=current)
 
     def exchange(self,c1,c2,cur1,n1,cur2,n2):
