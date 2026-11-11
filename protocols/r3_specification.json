@@ -714,7 +714,7 @@
     "src/amfe/forecast/__init__.py": "458b90f188aabf1715ee6aa666218df60ba98c12fca1474e550f26385fda60c2",
     "src/amfe/forecast/data.py": "30abedee1719bcaa48d7e80e5558a8717c6a581b1df5ff6b1ae476943a10102a",
     "src/amfe/forecast/models.py": "201835a103b8216f7e19f9e733746440230b8df7e067e9ad03951cf32ca74089",
-    "tests/test_forecast_models.py": "97ec71a33387ec1b7850a6a78006b7e2586d56d6200baf722bfa19d22b176717"
+    "tests/test_forecast_models.py": "e422ea1588a17603115e9aa096b1df68cb69800b4e15bacd11f1145bf551da27"
   },
   "implementation": {
     "package": "src/amfe/forecast",
