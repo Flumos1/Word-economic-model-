@@ -8,8 +8,8 @@ from test_government_economy_v02 import scenario
 
 def run():
     checked = 0
-    for sales in range(50, 100):  # 50 values
-        for tax in range(20):  # 20 values, always <= sales
+    for sales in range(50, 90):  # 40 values
+        for tax in range(25):  # 25 values, always <= sales
             for public_purchase in range(10):  # 10 values
                 transfer = tax // 2
                 borrowing = max(0, transfer + public_purchase - tax)
