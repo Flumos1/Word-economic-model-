@@ -8,6 +8,7 @@ on:
   pull_request:
     paths:
       - 'tests/**'
+      - 'src/**'
       - '.github/workflows/accounting-regression.yml'
   workflow_dispatch:
 jobs:

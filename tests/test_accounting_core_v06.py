@@ -41,7 +41,7 @@ class TestSFC(unittest.TestCase):
         self.assertEqual(p["current"]["firm"],18)
         self.assertEqual(p["capital"]["firm"],18)
     def test_atomicity(self):
-        a=self.basic();a.close();old=(a.financial.copy(),a.real.copy(),len(a.events))
+        a=self.basic();a.close();a.begin("P2");old=(a.financial.copy(),a.real.copy(),len(a.events))
         bad=(purchase("household",1000),credit(1000,True),invest(1000),
              Transaction("wages",{"firm":1},{},{("firm","deposit"):1}),
              Transaction("wages",{},{},{("firm","deposit"):-1,("government","deposit"):1}),
@@ -49,6 +49,10 @@ class TestSFC(unittest.TestCase):
         for t in bad:
             with self.assertRaises(AccountingError):a.apply(t)
             self.assertEqual((a.financial,a.real,len(a.events)),old)
+    def test_no_post_after_close(self):
+        a=self.basic();a.close();old=(a.financial.copy(),a.real.copy(),len(a.events))
+        with self.assertRaises(AccountingError):a.apply(produce(1))
+        self.assertEqual((a.financial,a.real,len(a.events)),old)
     def test_decimal_nonfinite(self):
         a=Accounts()
         for t in (credit("10.25"),produce("10.25"),cash_transfer("wages","firm","household","10.25"),purchase("household","4.10")):a.apply(t)

@@ -11,6 +11,7 @@ from amfe.accounting_core import D, AccountingError
 COUNTRIES=("A","B")
 SECTORS=("household","firm","bank","government")
 CURRENCIES={"A":"AAA","B":"BBB"}
+INSTRUMENTS=("deposit","loan","bond","interbank")
 
 class InternationalAccounts:
     def __init__(self):
@@ -27,13 +28,15 @@ class InternationalAccounts:
 
     def _check(self,f,g,k):
         for (c,s,inst,cur),v in f.items():
-            if c not in COUNTRIES or s not in SECTORS or cur not in CURRENCIES.values() or inst not in ("deposit","loan","bond"):
+            if c not in COUNTRIES or s not in SECTORS or cur not in CURRENCIES.values() or inst not in INSTRUMENTS:
                 raise AccountingError("unknown instrument")
+            # Interbank settlement claims are net positions between banks only.
+            if inst=="interbank" and s!="bank":raise AccountingError("interbank party")
             if inst=="deposit" and ((s=="bank" and v>0) or (s!="bank" and v<0)):
                 raise AccountingError("deposit sign")
             if inst=="loan" and (s not in ("firm","bank") or (s=="bank" and v<0) or (s=="firm" and v>0)):raise AccountingError("loan party/sign")
             if inst=="bond" and (s not in ("government","bank") or (s=="bank" and v<0) or (s=="government" and v>0)):raise AccountingError("bond party/sign")
-        for inst in ("deposit","loan","bond"):
+        for inst in INSTRUMENTS:
             for cur in CURRENCIES.values():
                 if sum((v for (_,_,i,cc),v in f.items() if (i,cc)==(inst,cur)),D(0))!=0:
                     raise AccountingError("unmirrored instrument")
@@ -88,11 +91,14 @@ class InternationalAccounts:
             raise AccountingError("invalid trade")
         n=q*p
         # Importer firm purchases inventory; no final consumption is booked.
-        # Bank liability migrates to exporter's bank in invoice currency.
+        # Bank liability migrates to exporter's bank in invoice currency and is
+        # settled by an interbank claim, so neither bank's net worth changes.
         f={(importer,"firm","deposit",currency):-n,
            (importer,"bank","deposit",currency):n,
+           (importer,"bank","interbank",currency):-n,
            (exporter,"firm","deposit",currency):n,
-           (exporter,"bank","deposit",currency):-n}
+           (exporter,"bank","deposit",currency):-n,
+           (exporter,"bank","interbank",currency):n}
         g={exporter:-q,importer:q}
         # Goods move at unit book value 1; differences against invoice price
         # become simplified transaction gains/losses, NOT full SNA valuation.

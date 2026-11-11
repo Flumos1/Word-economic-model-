@@ -17,7 +17,8 @@ class ExtendedAccounts(Accounts):
         super()._check_positions({k:v for k,v in f.items() if k[1]!="receivable"},r)
         if f.get(("firm","receivable"),D(0)) + f.get(("household","receivable"),D(0)) != 0:
             raise AccountingError("receivable mismatch")
-        if f.get(("firm","receivable"),D(0))<0 or f.get(("household","receivable"),D(0))>0:
+        # Accrued wages: the firm owes (negative), the household holds the claim.
+        if f.get(("firm","receivable"),D(0))>0 or f.get(("household","receivable"),D(0))<0:
             raise AccountingError("receivable sign")
 
     def apply(self,tx):

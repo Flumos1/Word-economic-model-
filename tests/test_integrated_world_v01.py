@@ -19,7 +19,11 @@ class IntegrationTests(unittest.TestCase):
         self.assertEqual(w.goods["B"],D(9))
         self.assertEqual(w.financial[("A","firm","deposit","AAA")],D(98))
         self.assertEqual(w.financial[("B","firm","deposit","AAA")],D(2))
+        self.assertEqual(w.financial[("A","bank","interbank","AAA")],D(8))
+        self.assertEqual(w.financial[("B","bank","interbank","AAA")],D(-8))
         p=w.close()
+        self.assertEqual(p["current"].get(("A","bank"),D(0)),D(0))
+        self.assertEqual(p["current"].get(("B","bank"),D(0)),D(0))
         self.assertEqual(len(p["matrix"]),2)
         self.assertEqual(p["current"][("A","firm")],D(4))
         self.assertEqual(p["current"][("B","firm")],D(-4)) # imported inventory +4, invoice payment -8
@@ -56,6 +60,16 @@ class IntegrationTests(unittest.TestCase):
                     ("A",sector,inst,"AAA"):1
                 },current={("A","bank"):-1,("A",sector):1})
             self.assertEqual((dict(w.financial),len(w.journal)),before)
+    def test_reject_nonbank_interbank(self):
+        w=InternationalAccounts()
+        w.endow("A","AAA",100)
+        before=(dict(w.financial),len(w.journal))
+        with self.assertRaises(AccountingError):
+            w.post("invalid_interbank",financial={
+                ("A","firm","interbank","AAA"):1,
+                ("B","bank","interbank","AAA"):-1
+            },current={("A","firm"):1,("B","bank"):-1})
+        self.assertEqual((dict(w.financial),len(w.journal)),before)
     def test_reject_invalid_currency_and_key_atomically(self):
         w=InternationalAccounts()
         w.endow("A","AAA",100)

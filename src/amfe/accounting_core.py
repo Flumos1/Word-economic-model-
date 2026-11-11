@@ -43,6 +43,7 @@ class Accounts:
         for (s,a),v in r.items():
             if s not in SECTORS or a not in REAL_ASSETS or v<0:raise AccountingError("invalid real asset")
     def apply(self,tx):
+        if self._opening is None:raise AccountingError("period closed")
         if tx.kind not in KINDS:raise AccountingError("unsupported transaction kind")
         c={s:D(v) for s,v in tx.current.items()}
         r={k:D(v) for k,v in tx.real.items()}

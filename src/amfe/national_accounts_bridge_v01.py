@@ -27,14 +27,16 @@ def posted_trade_values(world, period, reporting_currency):
         if D(goods[exporter])!=-D(goods[importer]):
             raise AccountingError("goods mirror mismatch")
         keys=[(c,s,i,cur) for c,s,i,cur in financial if D(financial[(c,s,i,cur)])!=0]
-        if not keys or any(i!="deposit" or cur!=reporting_currency for c,s,i,cur in keys):
+        if not keys or any(i not in ("deposit","interbank") or cur!=reporting_currency for c,s,i,cur in keys):
             raise AccountingError("invoice requires explicit FX conversion")
         amount=D(financial.get((exporter,"firm","deposit",reporting_currency),0))
         if amount<=0 or D(financial.get((importer,"firm","deposit",reporting_currency),0))!=-amount:
             raise AccountingError("invoice counterpart mismatch")
         if D(financial.get((exporter,"bank","deposit",reporting_currency),0))!=-amount or D(financial.get((importer,"bank","deposit",reporting_currency),0))!=amount:
             raise AccountingError("bank settlement mismatch")
-        if len(keys)!=4:
+        if D(financial.get((exporter,"bank","interbank",reporting_currency),0))!=amount or D(financial.get((importer,"bank","interbank",reporting_currency),0))!=-amount:
+            raise AccountingError("interbank settlement mismatch")
+        if len(keys)!=6:
             raise AccountingError("unexpected trade postings")
         exports[exporter]+=amount
         imports[importer]+=amount
