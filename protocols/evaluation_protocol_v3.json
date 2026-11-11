@@ -49,7 +49,7 @@
       "PHILADELPHIA_FED_SPF_and_RTDSM": {"status": "UNVERIFIED", "basis": "terms page not found at the expected address"},
       "CLEVELAND_FED_INFLATION_NOWCAST": {"status": "UNVERIFIED", "basis": "terms page not found; a suggested citation is given on the data page"},
       "NY_FED_STAFF_NOWCAST": {"status": "UNVERIFIED", "basis": "archive and terms not verified"},
-      "ATLANTA_FED_GDPNOW": {"status": "RESTRICTED", "basis": "data file: reproduction for personal and educational use only; site terms: derivative works and publication need written permission from the Bank's Public Affairs department"}
+      "ATLANTA_FED_GDPNOW": {"status": "RESTRICTED", "basis": "data file: reproduction for personal and educational use only; site terms: modifying, publishing and creating derivative works are prohibited unless the Bank expressly authorizes them (the terms name the Public Affairs Department as the contact)"}
     },
     "gdpnow": {
       "use": "none: not downloaded, not stored, not scored, not reported",
