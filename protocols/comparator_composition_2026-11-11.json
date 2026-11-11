@@ -1,0 +1,704 @@
+{
+  "distribution_rule": "Models without their own predictive distribution (RW, AO, AR_BIC) use the empirical quantiles of their own errors over the estimation window, centred on the point forecast.",
+  "document_id": "AMFE-COMPARATOR-COMPOSITION",
+  "evaluation_date": "2026-11-11",
+  "licence_inputs_by_target": "Each member lists its input series per target; a member counts for a target only if every one of those inputs is OPEN in the register on the evaluation date.",
+  "licence_register": {
+    "file": "protocols/licence_register.json",
+    "sha256": "270d2085fc9498a7e44feebb26acd3a29c8f6ca58fc33890ba70c55b53a1b58f"
+  },
+  "minimum_members": 2,
+  "minimum_rule": "A comparator needs at least 2 members for the loss it serves (the point comparator, the density comparator). A combination (target, horizon, loss) with fewer remains CANDIDATE and is not eligible for admission until the register gives it 2 members.",
+  "notes": [
+    "Mechanical function of the frozen protocol and the licence register; never a researcher choice.",
+    "The register status is the status of the latest dated entry on or before the evaluation date.",
+    "The REAL_TIME condition of primary_comparator_rule applies per origin through the data gate and is not recorded here; this document fixes the member list, not the data availability of an origin.",
+    "A register change after this document is recorded applies only to candidates evaluated later; the sensitivity comparator of fixed composition is reported separately and never used for admission."
+  ],
+  "primary_comparator": {
+    "density": "EQUAL_WEIGHT_DENSITY",
+    "event": "EQUAL_WEIGHT_DENSITY",
+    "point": "EQUAL_WEIGHT_POINT"
+  },
+  "protocol": {
+    "file": "protocols/evaluation_protocol_v4.json",
+    "sha256": "bd965f4d9f23151b4ccfd27202f0669d0a7807e642639ed18c0b864bf68dedc9",
+    "version": "4.0.0"
+  },
+  "r3_specification": {
+    "file": "protocols/r3_specification.json",
+    "sha256": "b8dc97017930032cded57cefa2e84af14b028968f7d16441cd7e826131f69bad",
+    "version": "0.5.0-proposed"
+  },
+  "rule": "EQUAL_WEIGHT_POINT for point losses and EQUAL_WEIGHT_DENSITY for distribution and event losses. Members: baselines with comparator_member true, scored, REAL_TIME (or REAL_TIME_TAPE) at the origin, and whose inputs for the target are all OPEN in the register on the evaluation date (comparator_minimum applies). The composition by date is recorded and hashed before any candidate is evaluated. No selection window. A candidate is also reported against every other scored baseline and control arm, and against a comparator of fixed composition (the members available over the whole window) as a sensitivity result.",
+  "targets": {
+    "T1_CPI_YOY": {
+      "all_horizons_have_minimum": true,
+      "eligible_for_admission": true,
+      "excluded": [
+        {
+          "id": "DFM_FREDMD",
+          "inputs": {
+            "FRED-MD_FRED-QD": "UNVERIFIED"
+          },
+          "reason": "input not OPEN on the evaluation date"
+        },
+        {
+          "id": "EQUAL_WEIGHT_DENSITY",
+          "reason": "comparator_member is false"
+        },
+        {
+          "id": "EQUAL_WEIGHT_POINT",
+          "reason": "comparator_member is false"
+        },
+        {
+          "id": "SPF_MEDIAN",
+          "reason": "comparator_member is false"
+        }
+      ],
+      "horizons": [
+        1,
+        3,
+        6,
+        12
+      ],
+      "kind": "point_and_distribution",
+      "losses": {
+        "CRPS": {
+          "by_horizon": {
+            "1": {
+              "count": 4,
+              "members": [
+                "AO",
+                "AR_BIC",
+                "BVAR_MINNESOTA",
+                "RW"
+              ],
+              "minimum_members": 2,
+              "minimum_met": true
+            },
+            "12": {
+              "count": 4,
+              "members": [
+                "AO",
+                "AR_BIC",
+                "BVAR_MINNESOTA",
+                "RW"
+              ],
+              "minimum_members": 2,
+              "minimum_met": true
+            },
+            "3": {
+              "count": 4,
+              "members": [
+                "AO",
+                "AR_BIC",
+                "BVAR_MINNESOTA",
+                "RW"
+              ],
+              "minimum_members": 2,
+              "minimum_met": true
+            },
+            "6": {
+              "count": 4,
+              "members": [
+                "AO",
+                "AR_BIC",
+                "BVAR_MINNESOTA",
+                "RW"
+              ],
+              "minimum_members": 2,
+              "minimum_met": true
+            }
+          },
+          "loss_set": "density",
+          "members": [
+            {
+              "horizons": [
+                1,
+                3,
+                6,
+                12
+              ],
+              "id": "AO",
+              "inputs": {
+                "ALFRED:CPIAUCSL": "OPEN",
+                "ALFRED:CPILFESL": "OPEN"
+              },
+              "note": "Atkeson-Ohanian average of the last four quarters / historical mean",
+              "provides_distribution": true
+            },
+            {
+              "horizons": [
+                1,
+                3,
+                6,
+                12
+              ],
+              "id": "AR_BIC",
+              "inputs": {
+                "ALFRED:CPIAUCSL": "OPEN",
+                "ALFRED:CPILFESL": "OPEN"
+              },
+              "note": "autoregression, order by BIC, rolling window",
+              "provides_distribution": true
+            },
+            {
+              "horizons": [
+                1,
+                3,
+                6,
+                12
+              ],
+              "id": "BVAR_MINNESOTA",
+              "inputs": {
+                "ALFRED:CPIAUCSL": "OPEN",
+                "ALFRED:CPILFESL": "OPEN",
+                "ALFRED:GS10": "OPEN",
+                "ALFRED:TB3MS": "OPEN",
+                "ALFRED:UNRATE": "OPEN"
+              },
+              "note": "the variable set is fixed in the R3 specification from series that are OPEN",
+              "provides_distribution": true
+            },
+            {
+              "horizons": [
+                1,
+                3,
+                6,
+                12
+              ],
+              "id": "RW",
+              "inputs": {
+                "ALFRED:CPIAUCSL": "OPEN",
+                "ALFRED:CPILFESL": "OPEN"
+              },
+              "note": "last published y/y value",
+              "provides_distribution": true
+            }
+          ],
+          "minimum_met": true
+        },
+        "RMSE": {
+          "by_horizon": {
+            "1": {
+              "count": 4,
+              "members": [
+                "AO",
+                "AR_BIC",
+                "BVAR_MINNESOTA",
+                "RW"
+              ],
+              "minimum_members": 2,
+              "minimum_met": true
+            },
+            "12": {
+              "count": 4,
+              "members": [
+                "AO",
+                "AR_BIC",
+                "BVAR_MINNESOTA",
+                "RW"
+              ],
+              "minimum_members": 2,
+              "minimum_met": true
+            },
+            "3": {
+              "count": 4,
+              "members": [
+                "AO",
+                "AR_BIC",
+                "BVAR_MINNESOTA",
+                "RW"
+              ],
+              "minimum_members": 2,
+              "minimum_met": true
+            },
+            "6": {
+              "count": 4,
+              "members": [
+                "AO",
+                "AR_BIC",
+                "BVAR_MINNESOTA",
+                "RW"
+              ],
+              "minimum_members": 2,
+              "minimum_met": true
+            }
+          },
+          "loss_set": "point",
+          "members": [
+            {
+              "horizons": [
+                1,
+                3,
+                6,
+                12
+              ],
+              "id": "AO",
+              "inputs": {
+                "ALFRED:CPIAUCSL": "OPEN",
+                "ALFRED:CPILFESL": "OPEN"
+              },
+              "note": "Atkeson-Ohanian average of the last four quarters / historical mean",
+              "provides_distribution": true
+            },
+            {
+              "horizons": [
+                1,
+                3,
+                6,
+                12
+              ],
+              "id": "AR_BIC",
+              "inputs": {
+                "ALFRED:CPIAUCSL": "OPEN",
+                "ALFRED:CPILFESL": "OPEN"
+              },
+              "note": "autoregression, order by BIC, rolling window",
+              "provides_distribution": true
+            },
+            {
+              "horizons": [
+                1,
+                3,
+                6,
+                12
+              ],
+              "id": "BVAR_MINNESOTA",
+              "inputs": {
+                "ALFRED:CPIAUCSL": "OPEN",
+                "ALFRED:CPILFESL": "OPEN",
+                "ALFRED:GS10": "OPEN",
+                "ALFRED:TB3MS": "OPEN",
+                "ALFRED:UNRATE": "OPEN"
+              },
+              "note": "the variable set is fixed in the R3 specification from series that are OPEN",
+              "provides_distribution": true
+            },
+            {
+              "horizons": [
+                1,
+                3,
+                6,
+                12
+              ],
+              "id": "RW",
+              "inputs": {
+                "ALFRED:CPIAUCSL": "OPEN",
+                "ALFRED:CPILFESL": "OPEN"
+              },
+              "note": "last published y/y value",
+              "provides_distribution": true
+            }
+          ],
+          "minimum_met": true
+        }
+      }
+    },
+    "T2_GDP_GROWTH": {
+      "all_horizons_have_minimum": true,
+      "eligible_for_admission": true,
+      "excluded": [
+        {
+          "id": "DFM_FREDMD",
+          "inputs": {
+            "FRED-MD_FRED-QD": "UNVERIFIED"
+          },
+          "reason": "input not OPEN on the evaluation date"
+        },
+        {
+          "id": "EQUAL_WEIGHT_DENSITY",
+          "reason": "comparator_member is false"
+        },
+        {
+          "id": "EQUAL_WEIGHT_POINT",
+          "reason": "comparator_member is false"
+        },
+        {
+          "id": "NOWCAST_NYFED",
+          "reason": "comparator_member is false"
+        },
+        {
+          "id": "SPF_MEDIAN",
+          "reason": "comparator_member is false"
+        }
+      ],
+      "horizons": [
+        0,
+        1,
+        2,
+        4
+      ],
+      "kind": "point_and_distribution",
+      "losses": {
+        "CRPS": {
+          "by_horizon": {
+            "0": {
+              "count": 4,
+              "members": [
+                "AO",
+                "AR_BIC",
+                "BVAR_MINNESOTA",
+                "OWN_NOWCAST_BRIDGE"
+              ],
+              "minimum_members": 2,
+              "minimum_met": true
+            },
+            "1": {
+              "count": 3,
+              "members": [
+                "AO",
+                "AR_BIC",
+                "BVAR_MINNESOTA"
+              ],
+              "minimum_members": 2,
+              "minimum_met": true
+            },
+            "2": {
+              "count": 3,
+              "members": [
+                "AO",
+                "AR_BIC",
+                "BVAR_MINNESOTA"
+              ],
+              "minimum_members": 2,
+              "minimum_met": true
+            },
+            "4": {
+              "count": 3,
+              "members": [
+                "AO",
+                "AR_BIC",
+                "BVAR_MINNESOTA"
+              ],
+              "minimum_members": 2,
+              "minimum_met": true
+            }
+          },
+          "loss_set": "density",
+          "members": [
+            {
+              "horizons": [
+                0,
+                1,
+                2,
+                4
+              ],
+              "id": "AO",
+              "inputs": {
+                "ALFRED:GDPC1": "OPEN"
+              },
+              "note": "Atkeson-Ohanian average of the last four quarters / historical mean",
+              "provides_distribution": true
+            },
+            {
+              "horizons": [
+                0,
+                1,
+                2,
+                4
+              ],
+              "id": "AR_BIC",
+              "inputs": {
+                "ALFRED:GDPC1": "OPEN"
+              },
+              "note": "autoregression, order by BIC, rolling window",
+              "provides_distribution": true
+            },
+            {
+              "horizons": [
+                0,
+                1,
+                2,
+                4
+              ],
+              "id": "BVAR_MINNESOTA",
+              "inputs": {
+                "ALFRED:GDPC1": "OPEN",
+                "ALFRED:GS10": "OPEN",
+                "ALFRED:TB3MS": "OPEN",
+                "ALFRED:UNRATE": "OPEN"
+              },
+              "note": "the variable set is fixed in the R3 specification from series that are OPEN",
+              "provides_distribution": true
+            },
+            {
+              "horizons": [
+                0
+              ],
+              "id": "OWN_NOWCAST_BRIDGE",
+              "inputs": {
+                "ALFRED:GDPC1": "OPEN",
+                "ALFRED:GS10": "OPEN",
+                "ALFRED:TB3MS": "OPEN",
+                "ALFRED:UNRATE": "OPEN"
+              },
+              "note": "the project's own nowcast of the current quarter from OPEN monthly data (bridge equations and a dynamic factor model); horizon 0 only",
+              "provides_distribution": true
+            }
+          ],
+          "minimum_met": true
+        },
+        "RMSE": {
+          "by_horizon": {
+            "0": {
+              "count": 4,
+              "members": [
+                "AO",
+                "AR_BIC",
+                "BVAR_MINNESOTA",
+                "OWN_NOWCAST_BRIDGE"
+              ],
+              "minimum_members": 2,
+              "minimum_met": true
+            },
+            "1": {
+              "count": 3,
+              "members": [
+                "AO",
+                "AR_BIC",
+                "BVAR_MINNESOTA"
+              ],
+              "minimum_members": 2,
+              "minimum_met": true
+            },
+            "2": {
+              "count": 3,
+              "members": [
+                "AO",
+                "AR_BIC",
+                "BVAR_MINNESOTA"
+              ],
+              "minimum_members": 2,
+              "minimum_met": true
+            },
+            "4": {
+              "count": 3,
+              "members": [
+                "AO",
+                "AR_BIC",
+                "BVAR_MINNESOTA"
+              ],
+              "minimum_members": 2,
+              "minimum_met": true
+            }
+          },
+          "loss_set": "point",
+          "members": [
+            {
+              "horizons": [
+                0,
+                1,
+                2,
+                4
+              ],
+              "id": "AO",
+              "inputs": {
+                "ALFRED:GDPC1": "OPEN"
+              },
+              "note": "Atkeson-Ohanian average of the last four quarters / historical mean",
+              "provides_distribution": true
+            },
+            {
+              "horizons": [
+                0,
+                1,
+                2,
+                4
+              ],
+              "id": "AR_BIC",
+              "inputs": {
+                "ALFRED:GDPC1": "OPEN"
+              },
+              "note": "autoregression, order by BIC, rolling window",
+              "provides_distribution": true
+            },
+            {
+              "horizons": [
+                0,
+                1,
+                2,
+                4
+              ],
+              "id": "BVAR_MINNESOTA",
+              "inputs": {
+                "ALFRED:GDPC1": "OPEN",
+                "ALFRED:GS10": "OPEN",
+                "ALFRED:TB3MS": "OPEN",
+                "ALFRED:UNRATE": "OPEN"
+              },
+              "note": "the variable set is fixed in the R3 specification from series that are OPEN",
+              "provides_distribution": true
+            },
+            {
+              "horizons": [
+                0
+              ],
+              "id": "OWN_NOWCAST_BRIDGE",
+              "inputs": {
+                "ALFRED:GDPC1": "OPEN",
+                "ALFRED:GS10": "OPEN",
+                "ALFRED:TB3MS": "OPEN",
+                "ALFRED:UNRATE": "OPEN"
+              },
+              "note": "the project's own nowcast of the current quarter from OPEN monthly data (bridge equations and a dynamic factor model); horizon 0 only",
+              "provides_distribution": true
+            }
+          ],
+          "minimum_met": true
+        }
+      }
+    },
+    "T3_RECESSION": {
+      "all_horizons_have_minimum": true,
+      "eligible_for_admission": true,
+      "excluded": [
+        {
+          "id": "EQUAL_WEIGHT_DENSITY",
+          "reason": "comparator_member is false"
+        },
+        {
+          "id": "SPF_NEG_GDP_PROB",
+          "reason": "comparator_member is false"
+        }
+      ],
+      "horizons": [
+        3,
+        6,
+        12
+      ],
+      "kind": "event_probability",
+      "losses": {
+        "Brier": {
+          "by_horizon": {
+            "12": {
+              "count": 2,
+              "members": [
+                "PROBIT_SPREAD",
+                "SAHM_RULE"
+              ],
+              "minimum_members": 2,
+              "minimum_met": true
+            },
+            "3": {
+              "count": 2,
+              "members": [
+                "PROBIT_SPREAD",
+                "SAHM_RULE"
+              ],
+              "minimum_members": 2,
+              "minimum_met": true
+            },
+            "6": {
+              "count": 2,
+              "members": [
+                "PROBIT_SPREAD",
+                "SAHM_RULE"
+              ],
+              "minimum_members": 2,
+              "minimum_met": true
+            }
+          },
+          "loss_set": "event",
+          "members": [
+            {
+              "horizons": [
+                3,
+                6,
+                12
+              ],
+              "id": "PROBIT_SPREAD",
+              "inputs": {
+                "ALFRED:GS10": "OPEN",
+                "ALFRED:TB3MS": "OPEN",
+                "NBER_CYCLE_DATES": "OPEN"
+              },
+              "note": "Estrella-Mishkin yield-curve probit with the GS10-TB3MS spread only; T10Y3M is dropped because its ALFRED vintages start 2014-01-27 (docs/65), which would leave the T3 comparator with one REAL_TIME member for the whole W1.",
+              "provides_distribution": true
+            },
+            {
+              "horizons": [
+                3,
+                6,
+                12
+              ],
+              "id": "SAHM_RULE",
+              "inputs": {
+                "ALFRED:UNRATE": "OPEN",
+                "NBER_CYCLE_DATES": "OPEN"
+              },
+              "note": "Sahm recession indicator converted to a probability by logistic calibration on the rolling window",
+              "provides_distribution": true
+            }
+          ],
+          "minimum_met": true
+        },
+        "log_score": {
+          "by_horizon": {
+            "12": {
+              "count": 2,
+              "members": [
+                "PROBIT_SPREAD",
+                "SAHM_RULE"
+              ],
+              "minimum_members": 2,
+              "minimum_met": true
+            },
+            "3": {
+              "count": 2,
+              "members": [
+                "PROBIT_SPREAD",
+                "SAHM_RULE"
+              ],
+              "minimum_members": 2,
+              "minimum_met": true
+            },
+            "6": {
+              "count": 2,
+              "members": [
+                "PROBIT_SPREAD",
+                "SAHM_RULE"
+              ],
+              "minimum_members": 2,
+              "minimum_met": true
+            }
+          },
+          "loss_set": "event",
+          "members": [
+            {
+              "horizons": [
+                3,
+                6,
+                12
+              ],
+              "id": "PROBIT_SPREAD",
+              "inputs": {
+                "ALFRED:GS10": "OPEN",
+                "ALFRED:TB3MS": "OPEN",
+                "NBER_CYCLE_DATES": "OPEN"
+              },
+              "note": "Estrella-Mishkin yield-curve probit with the GS10-TB3MS spread only; T10Y3M is dropped because its ALFRED vintages start 2014-01-27 (docs/65), which would leave the T3 comparator with one REAL_TIME member for the whole W1.",
+              "provides_distribution": true
+            },
+            {
+              "horizons": [
+                3,
+                6,
+                12
+              ],
+              "id": "SAHM_RULE",
+              "inputs": {
+                "ALFRED:UNRATE": "OPEN",
+                "NBER_CYCLE_DATES": "OPEN"
+              },
+              "note": "Sahm recession indicator converted to a probability by logistic calibration on the rolling window",
+              "provides_distribution": true
+            }
+          ],
+          "minimum_met": true
+        }
+      }
+    }
+  }
+}
