@@ -32,3 +32,5 @@ jobs:
         run: python tests/test_accounting_core_v06.py
       - name: Accruals and other changes v07
         run: python tests/test_extended_accounts_v07.py
+      - name: Two-country FX and trade prototype
+        run: python tests/test_two_country_v01.py
