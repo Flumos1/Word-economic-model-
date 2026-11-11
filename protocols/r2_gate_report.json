@@ -1,0 +1,457 @@
+{
+  "gate": "R2",
+  "protocol": "protocols/evaluation_protocol_v4.json",
+  "generated_at": "2026-11-11T18:40:10Z",
+  "tolerance": 0.05,
+  "series": [
+    {
+      "series": "CPIAUCSL",
+      "vintage_dates": [
+        "1996-12-12",
+        "1997-12-16",
+        "1998-12-15",
+        "1999-12-14",
+        "2001-12-14",
+        "2004-12-17",
+        "2007-12-14",
+        "2010-12-15",
+        "2013-12-17",
+        "2020-12-10"
+      ],
+      "initial_release_rows": 10,
+      "checked": 10,
+      "matched": 10,
+      "mismatches": []
+    },
+    {
+      "series": "CPILFESL",
+      "vintage_dates": [
+        "1996-12-12",
+        "1997-12-16",
+        "1998-12-15",
+        "1999-12-14",
+        "2001-12-14",
+        "2004-12-17",
+        "2007-12-14",
+        "2010-12-15",
+        "2013-12-17",
+        "2020-12-10"
+      ],
+      "initial_release_rows": 9,
+      "checked": 9,
+      "matched": 9,
+      "mismatches": []
+    },
+    {
+      "series": "UNRATE",
+      "vintage_dates": [
+        "1996-12-06",
+        "1997-12-05",
+        "1998-12-04",
+        "1999-12-03",
+        "2001-12-07",
+        "2004-12-03",
+        "2007-12-07",
+        "2010-12-03",
+        "2013-12-06",
+        "2020-12-04"
+      ],
+      "initial_release_rows": 10,
+      "checked": 10,
+      "matched": 10,
+      "mismatches": []
+    },
+    {
+      "series": "GS10",
+      "vintage_dates": [
+        "1996-12-03",
+        "1997-12-02",
+        "1998-12-08",
+        "1999-12-07",
+        "2001-12-04",
+        "2004-12-06",
+        "2007-12-03",
+        "2010-12-06",
+        "2013-12-02",
+        "2020-12-01"
+      ],
+      "initial_release_rows": 9,
+      "checked": 9,
+      "matched": 9,
+      "mismatches": []
+    },
+    {
+      "series": "TB3MS",
+      "vintage_dates": [
+        "1996-12-03",
+        "1997-12-02",
+        "1998-12-08",
+        "1999-12-07",
+        "2001-12-04",
+        "2004-12-06",
+        "2007-12-03",
+        "2010-12-06",
+        "2013-12-02",
+        "2020-12-01"
+      ],
+      "initial_release_rows": 9,
+      "checked": 9,
+      "matched": 9,
+      "mismatches": []
+    }
+  ],
+  "pairs": [
+    {
+      "series": "CPIAUCSL",
+      "period": "1996-11-01",
+      "release": "1996-12-12",
+      "initial_release": 158.7,
+      "vintage_value": 158.7
+    },
+    {
+      "series": "CPIAUCSL",
+      "period": "1997-11-01",
+      "release": "1997-12-16",
+      "initial_release": 161.8,
+      "vintage_value": 161.8
+    },
+    {
+      "series": "CPIAUCSL",
+      "period": "1998-11-01",
+      "release": "1998-12-15",
+      "initial_release": 164.3,
+      "vintage_value": 164.3
+    },
+    {
+      "series": "CPIAUCSL",
+      "period": "1999-11-01",
+      "release": "1999-12-14",
+      "initial_release": 168.4,
+      "vintage_value": 168.4
+    },
+    {
+      "series": "CPIAUCSL",
+      "period": "2001-11-01",
+      "release": "2001-12-14",
+      "initial_release": 177.6,
+      "vintage_value": 177.6
+    },
+    {
+      "series": "CPIAUCSL",
+      "period": "2004-11-01",
+      "release": "2004-12-17",
+      "initial_release": 191.2,
+      "vintage_value": 191.2
+    },
+    {
+      "series": "CPIAUCSL",
+      "period": "2007-11-01",
+      "release": "2007-12-14",
+      "initial_release": 210.565,
+      "vintage_value": 210.565
+    },
+    {
+      "series": "CPIAUCSL",
+      "period": "2010-11-01",
+      "release": "2010-12-15",
+      "initial_release": 219.146,
+      "vintage_value": 219.146
+    },
+    {
+      "series": "CPIAUCSL",
+      "period": "2013-11-01",
+      "release": "2013-12-17",
+      "initial_release": 233.887,
+      "vintage_value": 233.887
+    },
+    {
+      "series": "CPIAUCSL",
+      "period": "2020-11-01",
+      "release": "2020-12-10",
+      "initial_release": 260.817,
+      "vintage_value": 260.817
+    },
+    {
+      "series": "CPILFESL",
+      "period": "1997-11-01",
+      "release": "1997-12-16",
+      "initial_release": 171.0,
+      "vintage_value": 171.0
+    },
+    {
+      "series": "CPILFESL",
+      "period": "1998-11-01",
+      "release": "1998-12-15",
+      "initial_release": 175.1,
+      "vintage_value": 175.1
+    },
+    {
+      "series": "CPILFESL",
+      "period": "1999-11-01",
+      "release": "1999-12-14",
+      "initial_release": 178.8,
+      "vintage_value": 178.8
+    },
+    {
+      "series": "CPILFESL",
+      "period": "2001-11-01",
+      "release": "2001-12-14",
+      "initial_release": 188.4,
+      "vintage_value": 188.4
+    },
+    {
+      "series": "CPILFESL",
+      "period": "2004-11-01",
+      "release": "2004-12-17",
+      "initial_release": 198.2,
+      "vintage_value": 198.2
+    },
+    {
+      "series": "CPILFESL",
+      "period": "2007-11-01",
+      "release": "2007-12-14",
+      "initial_release": 212.633,
+      "vintage_value": 212.633
+    },
+    {
+      "series": "CPILFESL",
+      "period": "2010-11-01",
+      "release": "2010-12-15",
+      "initial_release": 221.982,
+      "vintage_value": 221.982
+    },
+    {
+      "series": "CPILFESL",
+      "period": "2013-11-01",
+      "release": "2013-12-17",
+      "initial_release": 235.24,
+      "vintage_value": 235.24
+    },
+    {
+      "series": "CPILFESL",
+      "period": "2020-11-01",
+      "release": "2020-12-10",
+      "initial_release": 269.887,
+      "vintage_value": 269.887
+    },
+    {
+      "series": "UNRATE",
+      "period": "1996-11-01",
+      "release": "1996-12-06",
+      "initial_release": 5.4,
+      "vintage_value": 5.4
+    },
+    {
+      "series": "UNRATE",
+      "period": "1997-11-01",
+      "release": "1997-12-05",
+      "initial_release": 4.6,
+      "vintage_value": 4.6
+    },
+    {
+      "series": "UNRATE",
+      "period": "1998-11-01",
+      "release": "1998-12-04",
+      "initial_release": 4.4,
+      "vintage_value": 4.4
+    },
+    {
+      "series": "UNRATE",
+      "period": "1999-11-01",
+      "release": "1999-12-03",
+      "initial_release": 4.1,
+      "vintage_value": 4.1
+    },
+    {
+      "series": "UNRATE",
+      "period": "2001-11-01",
+      "release": "2001-12-07",
+      "initial_release": 5.7,
+      "vintage_value": 5.7
+    },
+    {
+      "series": "UNRATE",
+      "period": "2004-11-01",
+      "release": "2004-12-03",
+      "initial_release": 5.4,
+      "vintage_value": 5.4
+    },
+    {
+      "series": "UNRATE",
+      "period": "2007-11-01",
+      "release": "2007-12-07",
+      "initial_release": 4.7,
+      "vintage_value": 4.7
+    },
+    {
+      "series": "UNRATE",
+      "period": "2010-11-01",
+      "release": "2010-12-03",
+      "initial_release": 9.8,
+      "vintage_value": 9.8
+    },
+    {
+      "series": "UNRATE",
+      "period": "2013-11-01",
+      "release": "2013-12-06",
+      "initial_release": 7.0,
+      "vintage_value": 7.0
+    },
+    {
+      "series": "UNRATE",
+      "period": "2020-11-01",
+      "release": "2020-12-04",
+      "initial_release": 6.7,
+      "vintage_value": 6.7
+    },
+    {
+      "series": "GS10",
+      "period": "1997-11-01",
+      "release": "1997-12-02",
+      "initial_release": 5.88,
+      "vintage_value": 5.88
+    },
+    {
+      "series": "GS10",
+      "period": "1998-11-01",
+      "release": "1998-12-08",
+      "initial_release": 4.83,
+      "vintage_value": 4.83
+    },
+    {
+      "series": "GS10",
+      "period": "1999-11-01",
+      "release": "1999-12-07",
+      "initial_release": 6.03,
+      "vintage_value": 6.03
+    },
+    {
+      "series": "GS10",
+      "period": "2001-11-01",
+      "release": "2001-12-04",
+      "initial_release": 4.65,
+      "vintage_value": 4.65
+    },
+    {
+      "series": "GS10",
+      "period": "2004-11-01",
+      "release": "2004-12-06",
+      "initial_release": 4.19,
+      "vintage_value": 4.19
+    },
+    {
+      "series": "GS10",
+      "period": "2007-11-01",
+      "release": "2007-12-03",
+      "initial_release": 4.15,
+      "vintage_value": 4.15
+    },
+    {
+      "series": "GS10",
+      "period": "2010-11-01",
+      "release": "2010-12-06",
+      "initial_release": 2.76,
+      "vintage_value": 2.76
+    },
+    {
+      "series": "GS10",
+      "period": "2013-11-01",
+      "release": "2013-12-02",
+      "initial_release": 2.72,
+      "vintage_value": 2.72
+    },
+    {
+      "series": "GS10",
+      "period": "2020-11-01",
+      "release": "2020-12-01",
+      "initial_release": 0.87,
+      "vintage_value": 0.87
+    },
+    {
+      "series": "TB3MS",
+      "period": "1997-11-01",
+      "release": "1997-12-02",
+      "initial_release": 5.14,
+      "vintage_value": 5.14
+    },
+    {
+      "series": "TB3MS",
+      "period": "1998-11-01",
+      "release": "1998-12-08",
+      "initial_release": 4.41,
+      "vintage_value": 4.41
+    },
+    {
+      "series": "TB3MS",
+      "period": "1999-11-01",
+      "release": "1999-12-07",
+      "initial_release": 5.07,
+      "vintage_value": 5.07
+    },
+    {
+      "series": "TB3MS",
+      "period": "2001-11-01",
+      "release": "2001-12-04",
+      "initial_release": 1.87,
+      "vintage_value": 1.87
+    },
+    {
+      "series": "TB3MS",
+      "period": "2004-11-01",
+      "release": "2004-12-06",
+      "initial_release": 2.07,
+      "vintage_value": 2.07
+    },
+    {
+      "series": "TB3MS",
+      "period": "2007-11-01",
+      "release": "2007-12-03",
+      "initial_release": 3.27,
+      "vintage_value": 3.27
+    },
+    {
+      "series": "TB3MS",
+      "period": "2010-11-01",
+      "release": "2010-12-06",
+      "initial_release": 0.14,
+      "vintage_value": 0.14
+    },
+    {
+      "series": "TB3MS",
+      "period": "2013-11-01",
+      "release": "2013-12-02",
+      "initial_release": 0.07,
+      "vintage_value": 0.07
+    },
+    {
+      "series": "TB3MS",
+      "period": "2020-11-01",
+      "release": "2020-12-01",
+      "initial_release": 0.09,
+      "vintage_value": 0.09
+    }
+  ],
+  "excluded": [
+    {
+      "series": "GDPC1",
+      "reason": "check failed: initial-release output unavailable for GDPC1: not a zip (attempt 3): '<!DOCTYPE html> | <html lang=\"en\"> | <head> |     <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> |     <meta charset=\"utf-8\"> |     <title> |         Download Data f'"
+    },
+    {
+      "series": "USREC",
+      "reason": "no vintage set retrieved"
+    }
+  ],
+  "failures": [],
+  "totals": {
+    "matched_pairs": 47,
+    "matched_pairs_pre_2000": 17,
+    "failures": 0,
+    "excluded": 2
+  },
+  "passed": true,
+  "criteria": {
+    "min_pairs": 30,
+    "min_pairs_pre_2000": 10,
+    "mismatches_allowed": 0
+  }
+}

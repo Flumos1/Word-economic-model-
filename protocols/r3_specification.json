@@ -1,7 +1,7 @@
 {
   "spec_id": "AMFE-R3",
-  "version": "0.3.0-proposed",
-  "revision_note": "0.3 - linked to the frozen protocol v4 (SHA-256 bd965f4d9f23...), PROBIT inputs reduced to GS10-TB3MS, SPF kept outside the comparator and control arms until R2 automation/mapping, automated retrieval described.",
+  "version": "0.4.0-proposed",
+  "revision_note": "0.3 - linked to the frozen protocol v4 (SHA-256 bd965f4d9f23...), PROBIT inputs reduced to GS10-TB3MS, SPF kept outside the comparator and control arms until R2 automation/mapping, automated retrieval described. 0.4 - the R2 gate was passed on 2026-11-11 (docs/68, protocols/r2_gate_report.json).",
   "status": "PROPOSED",
   "purpose": "Fix the content of the R3 layer - the baselines of the frozen evaluation protocol v3, the project's own nowcast, the predictive distributions and the pooling, the comparator composition, the scoring and the NF-SIM threshold study - before any candidate is evaluated.",
   "frozen_protocol": {
@@ -639,7 +639,7 @@
     }
   },
   "acceptance_checklist": [
-    "R2 gate passed: at least 30 (series, date) pairs, at least 10 before 2000, tape assembled and spot-checked, panel series registered",
+    "R2 gate passed on 2026-11-11: protocols/r2_gate_report.json - 47 pairs matched (17 before 2000), 0 mismatches (docs/68)",
     "data log complete; no raw third-party file committed",
     "NF-SIM table complete for every (target, horizon, loss, window) and hashed",
     "code hashes of every model recorded in this file",
@@ -672,5 +672,15 @@
     "docs/65_R2_документарный_аудит_2026-11-11.md (BEA, SPF/RTDSM, Cleveland archive, ALFRED vintage depth, FRED-MD format)",
     "docs/66_Протокол_оценки_v4_изменения.md",
     "docs/67_Независимая_проверка_протокола_v4.md"
-  ]
+  ],
+  "r2_gate": {
+    "report": "protocols/r2_gate_report.json",
+    "sha256": "e1776de37229e3383097d4d36367c7f08c06b5610ea190b493c24f8881dd6801",
+    "date": "2026-11-11",
+    "passed": true,
+    "matched_pairs": 47,
+    "matched_pairs_pre_2000": 17,
+    "mismatches": 0,
+    "note": "CPIAUCSL, CPILFESL, UNRATE, GS10, TB3MS checked against ALFRED initial releases; GDPC1 and the NBER announcement dates are next"
+  }
 }
