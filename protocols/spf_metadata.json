@@ -2,7 +2,7 @@
   "dataset": "Survey of Professional Forecasters - median forecasts (metadata only)",
   "tool": "tools/fetch_spf.py",
   "source_url": "https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/median-forecasts",
-  "retrieved_at": "2026-11-11T19:19:45Z",
+  "retrieved_at": "2026-11-11T19:25:05Z",
   "licence_register_entry": "PHILADELPHIA_FED",
   "licence_reading": "research use only, no use of the Bank's names or logos as endorsement (see protocols/licence_register.json; not a legal opinion)",
   "attribution": "Source: Federal Reserve Bank of Philadelphia, Survey of Professional Forecasters, https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/survey-of-professional-forecasters",

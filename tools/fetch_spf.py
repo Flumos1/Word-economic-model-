@@ -243,6 +243,11 @@ def main(argv=None) -> int:
     # values -> git-ignored data directory only
     values_path = Path(args.values_out)
     values_path.parent.mkdir(parents=True, exist_ok=True)
+    values_abs = values_path.resolve() if values_path.is_absolute() else (Path.cwd() / values_path).resolve()
+    if values_abs.is_relative_to(ROOT):
+        values_location = str(values_abs.relative_to(ROOT)).replace("\\", "/")
+    else:
+        values_location = "outside the repository (git-ignored by policy)"
     values_path.write_text(json.dumps({"dataset": "SPF median forecasts (third-party values; not "
                                                   "committed, not published)",
                                        "source_url": SOURCE_PAGE,
@@ -275,9 +280,7 @@ def main(argv=None) -> int:
                             "git-ignored data directory and are never committed or published; only "
                             "this metadata file (URLs, hashes, shapes, date ranges) is committed",
         "raw_files_committed": False,
-        "values_location": (str(Path(args.values_out).relative_to(ROOT)).replace("\\", "/")
-                            if Path(args.values_out).resolve().is_relative_to(ROOT)
-                            else "outside the repository (git-ignored by policy)"),
+        "values_location": values_location,
         "files": file_meta,
         "variables": variables,
         "coverage": {"first_survey_quarter": quarters[0] if quarters else None,
