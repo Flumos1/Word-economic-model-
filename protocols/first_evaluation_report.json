@@ -2,7 +2,7 @@
   "report_id": "AMFE-FIRST-EVALUATION-PILOT",
   "pilot": true,
   "admission": false,
-  "generated_at": "2026-11-11T19:24:34Z",
+  "generated_at": "2026-11-11T19:35:10Z",
   "mode": "latest",
   "window": "W2",
   "range": [
@@ -10,6 +10,12 @@
     "2019-12-31"
   ],
   "actuals": "latest vintage (first-publication actuals are a separate R2 layer)",
+  "data_class": "PSEUDO_REAL_TIME",
+  "pilot_only": true,
+  "ranking": "none (pipeline validation, not an evaluation)",
+  "t3_labels": "NBER announcement dates from protocols/nber_dates.json (trough announcements predate the origin); T3 figures are pipeline output, not a result",
+  "threshold_caveat": "C1 thresholds come from the full W2 lengths of the NF-SIM table; the 2018-2019 sub-range is shorter, so the threshold is not statistically valid for the sub-range",
+  "warning": "not for admission: candidates are comparator members, data are PSEUDO_REAL_TIME and actuals are latest-vintage",
   "deferred": [
     "density losses (CRPS of the mixture pool)",
     "window W1",
@@ -23,12 +29,12 @@
   },
   "r3_specification": {
     "file": "protocols/r3_specification.json",
-    "version": "0.6.0-proposed",
-    "sha256": "4d7423eb0b792136ae6d99d9a21f43e95631026599cc6540435764d9ec91cb75"
+    "version": "0.7.0-proposed",
+    "sha256": "095a7979d960db2933933393762052f4c69380400259647403a4e8b3fbec94a3"
   },
   "composition": {
     "file": "comparator_composition_2026-11-11.json",
-    "sha256": "a7605531eba3ab7fcab8f8d7eead1493df3119cb091554a5b29722b10ef36090"
+    "sha256": "62269b69f233988fb59c802bdc9d2cced98c375689e66d4ebf5411460f51710d"
   },
   "pairs": [
     {
@@ -294,9 +300,9 @@
         "PROBIT_SPREAD",
         "SAHM_RULE"
       ],
-      "candidate_loss": 0.000442,
-      "comparator_loss": 0.001112,
-      "relative_loss": 0.3979,
+      "candidate_loss": 0.002048,
+      "comparator_loss": 0.003381,
+      "relative_loss": 0.6058,
       "threshold": 0.7669,
       "c1_pass": true,
       "dm_p_value_one_sided": 0.0,
@@ -313,9 +319,9 @@
         "PROBIT_SPREAD",
         "SAHM_RULE"
       ],
-      "candidate_loss": 0.002087,
-      "comparator_loss": 0.001112,
-      "relative_loss": 1.8777,
+      "candidate_loss": 0.005046,
+      "comparator_loss": 0.003381,
+      "relative_loss": 1.4928,
       "threshold": 0.7669,
       "c1_pass": false,
       "dm_p_value_one_sided": 1.0,
@@ -332,9 +338,9 @@
         "PROBIT_SPREAD",
         "SAHM_RULE"
       ],
-      "candidate_loss": 0.021202,
-      "comparator_loss": 0.0339,
-      "relative_loss": 0.6254,
+      "candidate_loss": 0.0463,
+      "comparator_loss": 0.0599,
+      "relative_loss": 0.773,
       "threshold": 0.8286,
       "c1_pass": true,
       "dm_p_value_one_sided": 0.0,
@@ -351,9 +357,9 @@
         "PROBIT_SPREAD",
         "SAHM_RULE"
       ],
-      "candidate_loss": 0.046762,
-      "comparator_loss": 0.0339,
-      "relative_loss": 1.3794,
+      "candidate_loss": 0.073688,
+      "comparator_loss": 0.0599,
+      "relative_loss": 1.2302,
       "threshold": 0.8286,
       "c1_pass": false,
       "dm_p_value_one_sided": 1.0,
@@ -370,9 +376,9 @@
         "PROBIT_SPREAD",
         "SAHM_RULE"
       ],
-      "candidate_loss": 0.025046,
-      "comparator_loss": 0.021692,
-      "relative_loss": 1.1546,
+      "candidate_loss": 0.034359,
+      "comparator_loss": 0.03836,
+      "relative_loss": 0.8957,
       "threshold": 0.7938,
       "c1_pass": false,
       "dm_p_value_one_sided": 0.5,
@@ -389,9 +395,9 @@
         "PROBIT_SPREAD",
         "SAHM_RULE"
       ],
-      "candidate_loss": 0.018784,
-      "comparator_loss": 0.021692,
-      "relative_loss": 0.8659,
+      "candidate_loss": 0.043403,
+      "comparator_loss": 0.03836,
+      "relative_loss": 1.1315,
       "threshold": 0.7938,
       "c1_pass": false,
       "dm_p_value_one_sided": 0.5,
@@ -408,9 +414,9 @@
         "PROBIT_SPREAD",
         "SAHM_RULE"
       ],
-      "candidate_loss": 0.170731,
-      "comparator_loss": 0.158911,
-      "relative_loss": 1.0744,
+      "candidate_loss": 0.201463,
+      "comparator_loss": 0.217152,
+      "relative_loss": 0.9278,
       "threshold": 0.8501,
       "c1_pass": false,
       "dm_p_value_one_sided": 0.5,
@@ -427,9 +433,9 @@
         "PROBIT_SPREAD",
         "SAHM_RULE"
       ],
-      "candidate_loss": 0.147405,
-      "comparator_loss": 0.158911,
-      "relative_loss": 0.9276,
+      "candidate_loss": 0.233615,
+      "comparator_loss": 0.217152,
+      "relative_loss": 1.0758,
       "threshold": 0.8501,
       "c1_pass": false,
       "dm_p_value_one_sided": 0.5,
@@ -529,8 +535,8 @@
     "pairs": 20,
     "c1_pass_pairs": 4,
     "relative_loss_range": [
-      0.3979,
-      1.8777
+      0.6058,
+      1.4928
     ],
     "conclusion": "Pipeline validated end to end: PIT data -> models -> comparator composition -> losses, thresholds and C1/C2. This is not an admission result."
   }

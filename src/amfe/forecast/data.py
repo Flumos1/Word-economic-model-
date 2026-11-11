@@ -24,9 +24,11 @@ Design rules
   protocol calendar and the effective number of steps from the last published
   observation is reported by every forecast.
 * T3 labels come from the latest USREC file (the automated representation of the NBER
-  chronology).  A recession month is treated as known to the model only 12 months after
-  the month itself (``NBER_ANNOUNCEMENT_LAG_MONTHS``), a conservative stand-in for the
-  NBER announcement dates that are still an R2 refinement.
+  chronology), but a label enters model estimation only when the NBER announcement that
+  covers it was published before the origin (protocol v4 ``data_depth.nber_rule``).  The
+  announcement dates come from ``protocols/nber_dates.json``; the label cutoff is the
+  latest trough whose announcement predates the origin, minus the horizon.  A fixed lag is
+  used only as a fallback when the announcement file is unavailable.
 """
 
 from __future__ import annotations
@@ -65,8 +67,12 @@ RELEASE_LAG_MONTHS = {
     "USREC": 12,
 }
 
-#: NBER announcement lag: the chronology is treated as known only 12 months after the month.
+#: Fallback only: if protocols/nber_dates.json is unavailable, the chronology is treated as
+#: known 12 months after the month.  With the file present the announcement dates are used.
 NBER_ANNOUNCEMENT_LAG_MONTHS = 12
+#: Recorded NBER announcements (peak/trough and the announcement dates), committed metadata.
+NBER_DATES_FILE = ROOT / "protocols" / "nber_dates.json"
+_NBER_REFERENCE_CACHE: dict[str, list] = {}
 
 DATA_CLASS_REAL_TIME = "REAL_TIME"
 DATA_CLASS_PSEUDO = "PSEUDO_REAL_TIME"
@@ -142,6 +148,44 @@ def month_start_date(index: int) -> date:
 
 def month_label(index: int) -> str:
     return f"{index // 12:04d}-{index % 12 + 1:02d}"
+
+
+def load_nber_reference_dates(path=None) -> list:
+    """The recorded NBER reference dates with announcement dates (committed metadata)."""
+    path = Path(path) if path is not None else NBER_DATES_FILE
+    key = str(path.resolve())
+    if key not in _NBER_REFERENCE_CACHE:
+        import json
+
+        data = json.loads(path.read_text(encoding="utf-8"))
+        _NBER_REFERENCE_CACHE[key] = list(data.get("reference_dates", []))
+    return _NBER_REFERENCE_CACHE[key]
+
+
+def nber_label_cutoff(origin, path=None) -> int | None:
+    """Last month whose complete recession label is published before the origin.
+
+    Conservative reading of protocol v4 ``data_depth.nber_rule``: a label enters model
+    estimation only when the announcement that covers it predates the origin.  The cutoff
+    is the latest NBER trough whose announcement date is before the origin; labels for
+    events ending after that trough are not used.  ``None`` when the file is unavailable,
+    so callers can fall back to a fixed lag.
+    """
+    try:
+        refs = load_nber_reference_dates(path)
+    except (OSError, ValueError):
+        return None
+    origin_d = month_end_of(as_date(origin))
+    cutoff = None
+    for ref in refs:
+        trough = ref.get("trough")
+        announced = ref.get("trough_announcement")
+        if not trough or not announced:
+            continue
+        if date.fromisoformat(announced) < origin_d:
+            month = month_index(trough)
+            cutoff = month if cutoff is None else max(cutoff, month)
+    return cutoff
 
 
 def quarter_index(value) -> int:

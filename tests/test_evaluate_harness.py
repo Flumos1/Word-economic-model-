@@ -163,7 +163,7 @@ class Tests(unittest.TestCase):
             "W2": window_data(d["actual"], d["bad_point"], d["comp_point"], d["bad_q"],
                               d["comp_q"], secondary=d["secondary"], recession=d["recession"]),
         }
-        report = ev.evaluate_admission("T1_CPI_YOY", H, windows)
+        report = ev.evaluate_admission("T1_CPI_YOY", H, windows, data_class="REAL_TIME")
         self.assertEqual(report["status"], "CANDIDATE")
         self.assertFalse(report["criteria"]["C1"]["pass"])
         self.assertFalse(report["criteria"]["C2"]["pass"])
@@ -178,7 +178,7 @@ class Tests(unittest.TestCase):
             "W2": window_data(d["actual"], d["good_point"], d["comp_point"], d["good_q"],
                               d["comp_q"], secondary=d["secondary"], recession=d["recession"]),
         }
-        report = ev.evaluate_admission("T1_CPI_YOY", H, windows)
+        report = ev.evaluate_admission("T1_CPI_YOY", H, windows, data_class="REAL_TIME")
         self.assertTrue(report["criteria"]["C1"]["pass"])
         self.assertTrue(report["criteria"]["C2"]["pass"])
         self.assertTrue(report["criteria"]["C4"]["pass"], report["criteria"]["C4"])
@@ -198,7 +198,7 @@ class Tests(unittest.TestCase):
             "W2": window_data(d["actual"], d["good_point"], d["comp_point"], d["good_q"],
                               d["comp_q"], secondary=d["secondary"], recession=sparse),
         }
-        report = ev.evaluate_admission("T1_CPI_YOY", H, windows)
+        report = ev.evaluate_admission("T1_CPI_YOY", H, windows, data_class="REAL_TIME")
         self.assertFalse(report["criteria"]["C4"]["pass"])
         self.assertEqual(report["criteria"]["C4"]["per_window"]["W1"]["RMSE"]["status"],
                          "INCONCLUSIVE")
@@ -250,7 +250,7 @@ class Tests(unittest.TestCase):
                           "comparator": {"probability": np.full(40, 0.3)}},
                    "W2": {"actual_primary": y, "candidate": {"probability": p},
                           "comparator": {"probability": np.full(40, 0.3)}}}
-        report = ev.evaluate_admission("T3_RECESSION", 6, windows, forward=forward)
+        report = ev.evaluate_admission("T3_RECESSION", 6, windows, forward=forward, data_class="REAL_TIME")
         self.assertFalse(report["criteria"]["C4"]["applies"])
         self.assertTrue(report["criteria"]["C4"]["pass"])
 
@@ -323,12 +323,39 @@ class Independence(unittest.TestCase):
                       "c2": {"actual_primary": y, "candidate": {"point": y + 0.5, "quantiles": q},
                              "comparator": {"point": y + 0.2, "quantiles": q}}}
         windows = {name: {"W1": data, "W2": data} for name, data in candidates.items()}
-        reports = {name: ev.evaluate_admission("T1_CPI_YOY", 1, windows[name])
+        reports = {name: ev.evaluate_admission("T1_CPI_YOY", 1, windows[name], data_class="REAL_TIME")
                    for name in candidates}
         adjusted = ev.apply_romano_wolf(reports)
         self.assertEqual(len(adjusted["adjusted_p_values"]), 2)
         for report in reports.values():
             self.assertIn("romano_wolf_adjusted_p", report["criteria"]["C2"])
+
+
+class DataClassGuard(unittest.TestCase):
+    """admission is only allowed for REAL_TIME / REAL_TIME_TAPE (protocol v4)."""
+
+    def _windows(self):
+        rng = np.random.default_rng(11)
+        actual = rng.normal(2.0, 1.0, size=N)
+        shock = rng.normal(0.0, 1.0, size=N)
+        comp = actual + shock
+        cand = actual + 0.5 * shock
+        q = cand[:, None] + QUANTILE_SHAPE[None, :]
+        cq = comp[:, None] + QUANTILE_SHAPE[None, :]
+        data = window_data(actual, cand, comp, q, cq, recession=np.zeros(N, dtype=bool))
+        return {"W1": data, "W2": data}
+
+    def test_real_time_allows_admission(self):
+        report = ev.evaluate_admission("T1_CPI_YOY", H, self._windows(), data_class="REAL_TIME")
+        self.assertTrue(report["admission_allowed"])
+        self.assertIn(report["status"], {"SHADOW_TEST", "LIMITED_DEPLOYMENT", "CANDIDATE"})
+
+    def test_pseudo_and_unstated_are_blocked(self):
+        for data_class in ("PSEUDO_REAL_TIME", "UNSTATED"):
+            report = ev.evaluate_admission("T1_CPI_YOY", H, self._windows(), data_class=data_class)
+            self.assertFalse(report["admission_allowed"], data_class)
+            self.assertEqual(report["status"], "CANDIDATE", data_class)
+            self.assertIn("admission NOT allowed", report["data_class_note"])
 
 
 if __name__ == "__main__":

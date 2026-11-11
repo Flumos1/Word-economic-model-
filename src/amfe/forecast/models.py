@@ -27,9 +27,11 @@ Documented simplifications (also in ``docs/70_Реализация_базовы�
   the T2 VAR is estimated on annualised growth rather than the GDPC1 level.  The density
   is Gaussian with the rolling h-step error RMSE; with fewer than 20 errors the RW error
   quantiles are used and the forecast is flagged (protocol rule).
-* T3 labels from USREC are treated as known only 12 months after the month (NBER
-  announcement lag stand-in); T3 regressors use the last observation published at the
-  origin, so in vintage mode they can be older than the origin month.
+* T3 labels from USREC enter estimation only when the NBER announcement covering them was
+  published before the origin (protocol v4 data_depth.nber_rule; dates from
+  protocols/nber_dates.json).  A fixed 12-month lag is used only if that file is missing.
+  T3 regressors use the last observation published at the origin, so in vintage mode they
+  can be older than the origin month.
 * OWN_NOWCAST_BRIDGE chooses 1-2 factors by explained variance (Bai-Ng stand-in), fills
   unpublished factor months with a factor AR(1), and its density uses in-sample bridge
   residuals.
@@ -47,6 +49,7 @@ import numpy as np
 from .data import (
     MODE_AUTO,
     NBER_ANNOUNCEMENT_LAG_MONTHS,
+    nber_label_cutoff,
     DataContext,
     ForecastDataError,
     Series,
@@ -603,7 +606,15 @@ def bvar_minnesota(ctx: DataContext, target: str, horizon: int, series_id: str |
 # T3 common: label availability and regressor month
 # --------------------------------------------------------------------------------------
 def _t3_label_limit(ctx: DataContext, horizon: int) -> int:
-    """Last training origin month whose recession event label is observable at the origin."""
+    """Last training origin month whose recession event label is observable at the origin.
+
+    Uses the recorded NBER announcement dates (protocol v4 data_depth.nber_rule): labels are
+    available only after the announcement of the trough that ends the episode, and an event
+    label at month m needs the outcome through m + horizon.  The fixed lag is only a fallback.
+    """
+    cutoff = nber_label_cutoff(ctx.origin)
+    if cutoff is not None:
+        return int(cutoff) - int(horizon)
     return ctx.origin_month - int(horizon) - NBER_ANNOUNCEMENT_LAG_MONTHS
 
 

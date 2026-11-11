@@ -18,7 +18,7 @@ class FirstEvaluationPilot(unittest.TestCase):
         self.assertFalse(r["admission"], "the pilot must not assign admission")
         self.assertTrue(r["deferred"])
         self.assertEqual(r["protocol"]["version"], "4.0.0")
-        self.assertTrue(r["r3_specification"]["version"].startswith("0.6"))
+        self.assertTrue(r["r3_specification"]["version"].startswith("0.7"))
         self.assertIn("sha256", r["composition"])
         pairs = [p for p in r["pairs"] if "relative_loss" in p]
         self.assertGreaterEqual(len(pairs), 15)

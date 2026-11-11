@@ -449,5 +449,34 @@ class LocalRealTimeVintageMode(unittest.TestCase):
         self.assertEqual(forecast.effective_steps, 1)
 
 
+
+
+class NberLabelAvailability(unittest.TestCase):
+    """T3 labels follow the recorded NBER announcement dates (protocol v4 data_depth.nber_rule)."""
+
+    def test_cutoff_uses_announcement_dates(self):
+        cases = {
+            date(1991, 6, 30): date(1982, 11, 1),   # 1991 trough announced only in 1992-12
+            date(1993, 6, 30): date(1991, 3, 1),
+            date(2009, 6, 30): date(2001, 11, 1),   # 2009 trough announced only in 2010-09
+            date(2021, 6, 30): date(2009, 6, 1),    # 2020 trough announced only in 2021-07
+            date(2022, 6, 30): date(2020, 4, 1),
+        }
+        for origin, expected in cases.items():
+            self.assertEqual(fd.nber_label_cutoff(origin), fd.month_index(expected), origin)
+
+    @unittest.skipUnless(LOCAL_DATA, "data/raw is not downloaded locally")
+    def test_t3_label_limit_is_the_cutoff_minus_the_horizon(self):
+        ctx = fd.DataContext.from_local(date(2009, 1, 31), mode=fd.MODE_LATEST)
+        cutoff = fd.nber_label_cutoff(ctx.origin)
+        self.assertIsNotNone(cutoff)
+        for horizon in (3, 6, 12):
+            self.assertEqual(fm._t3_label_limit(ctx, horizon), cutoff - horizon)
+
+    def test_fixed_lag_is_only_a_fallback(self):
+        # the file exists in the repository, so the fixed lag must not be used
+        self.assertIsNotNone(fd.nber_label_cutoff(date(2001, 1, 31)))
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -577,12 +577,16 @@ def evaluate_window(window: str, target: str, horizon: int, actual_primary, actu
 # --------------------------------------------------------------------------------- admission
 def evaluate_admission(target: str, horizon: int, windows: dict[str, dict], *,
                        forward: dict | None = None, min_members: int | None = None,
-                       table: dict | None = None) -> dict:
+                       table: dict | None = None, data_class: str = "UNSTATED") -> dict:
     """Full C1-C6 admission report for one (target, horizon) pair.
 
     windows: {"W1": data, "W2": data} where data has actual_primary, actual_secondary, candidate,
     comparator and optionally recession.  `forward` is the output of c6_forward_check() for the
     resolved registry rows (None when the journal has no resolved forecast for the pair yet).
+
+    data_class is the protocol v4 data-depth class of the evaluated forecasts: admission is only
+    allowed for REAL_TIME or REAL_TIME_TAPE.  PSEUDO_REAL_TIME (the latest tape truncated to the
+    origin) and UNSTATED can only produce a CANDIDATE report; they never advance a stage.
     """
     table = load_thresholds() if table is None else table
     if target not in TARGET_HORIZONS:
@@ -645,6 +649,12 @@ def evaluate_admission(target: str, horizon: int, windows: dict[str, dict], *,
         status = "CANDIDATE"
     if target == "T3_RECESSION" and status == "LIMITED_DEPLOYMENT":
         status = "LIMITED_DEPLOYMENT"
+    admission_allowed = data_class in ("REAL_TIME", "REAL_TIME_TAPE")
+    data_class_note = ("admission allowed: REAL_TIME data" if admission_allowed else
+                       f"admission NOT allowed: data class is {data_class}; protocol v4 "
+                       "data_depth.classification_rule counts only REAL_TIME and REAL_TIME_TAPE")
+    if status != "CANDIDATE" and not admission_allowed:
+        status = "CANDIDATE"
     report = {
         "protocol": "protocols/evaluation_protocol_v4.json",
         "target": target,
@@ -676,8 +686,12 @@ def evaluate_admission(target: str, horizon: int, windows: dict[str, dict], *,
             "LIMITED_DEPLOYMENT_to_ACTIVE": False,
         },
         "status": status,
+        "data_class": data_class,
+        "admission_allowed": admission_allowed,
+        "data_class_note": data_class_note,
         "notes": ["C3 not implemented (non-gating)", "C4/C5/C6 simplifications in docs/72",
-                  "W1 for T3 starts 1996-12 (windows.target_overrides.T3_RECESSION.W1_start)"],
+                  "W1 for T3 starts 1996-12 (windows.target_overrides.T3_RECESSION.W1_start)",
+                  data_class_note],
     }
     return report
 
