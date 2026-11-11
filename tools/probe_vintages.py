@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Probe ALFRED initial-release/real-time outputs and surface validation messages."""
+"""Probe ALFRED initial-release/real-time outputs with the series' own observation range."""
 from __future__ import annotations
 
 import io
@@ -8,7 +8,6 @@ import re
 import urllib.parse
 import urllib.request
 import zipfile
-from datetime import datetime, timezone
 from pathlib import Path
 
 UA = "AMFE-research/0.1 (+https://github.com/Flumos1/Word-economic-model-)"
@@ -17,26 +16,34 @@ PAGE = f"https://alfred.stlouisfed.org/series/downloaddata?seid={SERIES}"
 ACTUAL = ["1996-12-12", "1999-12-14", "2004-12-17", "2007-12-14", "2013-12-17", "2020-12-10"]
 
 
-def post(file_type: str, file_format: str, label: str, use_selected: bool = False) -> dict:
+def fetch(url: str, data: bytes | None = None) -> bytes:
+    req = urllib.request.Request(url, headers={"User-Agent": UA}, data=data)
+    with urllib.request.urlopen(req, timeout=240) as resp:
+        return resp.read()
+
+
+def series_range() -> tuple:
+    text = fetch(f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={SERIES}").decode("utf-8", "replace")
+    lines = [ln for ln in text.splitlines()[1:] if ln.strip()]
+    return lines[0].split(",")[0].strip(), lines[-1].split(",")[0].strip()
+
+
+def post(file_type: str, file_format: str, label: str, first: str, last: str) -> dict:
     fields = [
         ("form[units]", "lin"),
-        ("form[obs_start_date]", "1947-01-01"),
-        ("form[obs_end_date]", datetime.now(timezone.utc).strftime("%Y-%m-%d")),
+        ("form[obs_start_date]", first),
+        ("form[obs_end_date]", last),
+        ("form[entered_vintage_dates]", " ".join(ACTUAL)),
+        ("form[file_type]", file_type),
+        ("form[file_format]", file_format),
+        ("form[download_data]", ""),
     ]
-    if use_selected:
-        fields += [("form[selected_vintage_dates][]", d) for d in ACTUAL]
-    else:
-        fields.append(("form[entered_vintage_dates]", " ".join(ACTUAL)))
-    fields += [("form[file_type]", file_type), ("form[file_format]", file_format),
-               ("form[download_data]", "")]
     body = urllib.parse.urlencode(fields).encode()
-    req = urllib.request.Request(PAGE, headers={"User-Agent": UA}, data=body)
-    with urllib.request.urlopen(req, timeout=240) as resp:
-        raw = resp.read()
+    raw = fetch(PAGE, body)
     item = {"label": label, "file_type": file_type, "file_format": file_format,
-            "selected": use_selected, "bytes": len(raw), "is_zip": raw[:2] == b"PK"}
+            "bytes": len(raw), "is_zip": raw[:2] == b"PK"}
     if item["is_zip"]:
-        Path(f"probe_initial_{label}.zip").write_bytes(raw)
+        Path(f"probe_output_{label}.zip").write_bytes(raw)
         with zipfile.ZipFile(io.BytesIO(raw)) as zf:
             names = zf.namelist()
             item["files"] = names
@@ -47,33 +54,28 @@ def post(file_type: str, file_format: str, label: str, use_selected: bool = Fals
                 item["sample"] = lines[1:3]
                 item["row_count"] = len(lines) - 1
     else:
-        text = raw.decode("utf-8", "replace")
-        snippet = re.sub(r"\s+", " ", text)
-        errors = re.findall(r"(?i)(please[^.<]{0,160}|invalid[^.<]{0,160}|error[^.<]{0,160}|"
-                            r"must[^.<]{0,160}|cannot[^.<]{0,160}|not a vintage[^.<]{0,120})", snippet)
-        item["messages"] = errors[:12]
-        item["head"] = snippet[:160]
+        snippet = re.sub(r"\s+", " ", raw.decode("utf-8", "replace"))
+        item["messages"] = re.findall(r"(?i)(please[^.<]{0,120}|invalid[^.<]{0,120}|"
+                                      r"error[^.<]{0,120}|must[^.<]{0,120})", snippet)[:8]
     return item
 
 
 def main() -> int:
-    out = {"actual_dates": ACTUAL, "attempts": []}
-    attempts = [
-        ("ft2_entered_csv", "2", "csv", False),
-        ("ft1_entered_csv", "1", "csv", False),
-        ("ft1_entered_xlsx", "1", "xlsx", False),
-        ("ft4_entered_csv", "4", "csv", False),
-        ("ft4_entered_xlsx", "4", "xlsx", False),
-        ("ft4_selected_csv", "4", "csv", True),
-        ("ft1_selected_csv", "1", "csv", True),
-    ]
-    for label, ft, ff, sel in attempts:
+    first, last = series_range()
+    out = {"series": SERIES, "range": [first, last], "attempts": []}
+    for label, ft, ff in [
+        ("ft2_control_csv", "2", "csv"),
+        ("ft4_initial_csv", "4", "csv"),
+        ("ft4_initial_xlsx", "4", "xlsx"),
+        ("ft1_realtime_csv", "1", "csv"),
+        ("ft3_newrevised_csv", "3", "csv"),
+    ]:
         try:
-            out["attempts"].append(post(ft, ff, label, sel))
+            out["attempts"].append(post(ft, ff, label, first, last))
         except Exception as exc:
             out["attempts"].append({"label": label, "error": repr(exc)})
     Path("probe_results.json").write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(json.dumps([{k: a.get(k) for k in ("label", "is_zip", "bytes", "header", "row_count", "messages")}
+    print(json.dumps([{k: a.get(k) for k in ("label", "is_zip", "bytes", "header", "row_count", "files")}
                       for a in out["attempts"]]))
     return 0
 
