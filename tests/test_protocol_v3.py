@@ -113,7 +113,7 @@ class ProtocolV3(unittest.TestCase):
         self.assertEqual(s["ALFRED:CPIAUCSL"], "OPEN")
         self.assertEqual(s["FRED-MD_FRED-QD"], "UNVERIFIED")
         self.assertEqual(s["BLS_PRIMARY"], "OPEN")
-        self.assertEqual(s["BEA_PRIMARY"], "UNVERIFIED")
+        self.assertEqual(s["BEA_PRIMARY"], "OPEN")
         self.assertEqual(s["ALFRED:USREC"], "OPEN")
         fred = next(e for e in register()["entries"] if e["id"] == "FRED_ALFRED_SERVICES")
         text = " ".join(fred["conditions"])

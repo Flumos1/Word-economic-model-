@@ -169,6 +169,27 @@ class R3Specification(unittest.TestCase):
         self.assertTrue(s["open_items"])
         self.assertTrue(any("SPF" in item for item in s["open_items"]))
 
+    def test_r2_documentary_audit_facts_are_recorded(self):
+        s = load_spec()
+        statuses = status_by_id()
+        self.assertEqual(statuses["BEA_PRIMARY"], "OPEN")
+        self.assertEqual(statuses["PHILADELPHIA_FED_RTDSM"], "OPEN")
+        manifest = {e["register"]: e["depth"] for e in s["data_manifest"]["series"]}
+        self.assertIn("1996-12-03", manifest["ALFRED:GS10"])
+        self.assertIn("1996-12-03", manifest["ALFRED:TB3MS"])
+        self.assertIn("2014-01-27", manifest["ALFRED:T10Y3M"])
+        self.assertIn("1960-03-15", manifest["ALFRED:UNRATE"])
+        self.assertIn("PHILADELPHIA_FED_RTDSM", manifest)
+        spf = next(m for m in s["models"] if m["id"] == "SPF_MEDIAN")
+        self.assertEqual(spf["status"], "PROPOSED_T2_ONLY")
+        self.assertFalse(spf["scored_by_target"]["T1_CPI_YOY"])
+        self.assertTrue(spf["scored_by_target"]["T2_GDP_GROWTH"])
+        self.assertIn("100*ln(1+g/100)", spf["point"])
+        self.assertIn("scored for that target", s["comparator_procedure"]["rule"])
+        text = " ".join(s["open_items"])
+        self.assertIn("1996-12-03", text)
+        self.assertIn("single REAL_TIME member", text)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
