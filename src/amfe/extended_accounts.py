@@ -7,13 +7,11 @@ from amfe.accounting_core import Accounts, AccountingError, D, SECTORS, Transact
 
 class ExtendedAccounts(Accounts):
     def __init__(self):
-        super().__init__()
         self.revaluations=[]
         self.other_changes=[]
         self._rv_start=0
         self._oc_start=0
-        self._opening=None
-        self.begin("P1")
+        super().__init__()
 
     def _check_positions(self, f, r):
         super()._check_positions({k:v for k,v in f.items() if k[1]!="receivable"},r)
