@@ -2,16 +2,16 @@
 """Automated data retrieval for AMFE (protocol v4, owner decisions D-131/D-132).
 
 No human download step. Two modes, both rate-limited and logged:
-  * latest files: GET the public FRED CSV endpoint (fredgraph.csv?id=...);
-  * vintage sets: POST the ALFRED download-data form once per series with the vintage dates from
-    protocols/data_plan.json (file_type "Observations by Vintage Date, All Observations", file
-    format Zipped CSV). The response is a zip with one CSV whose columns are the vintages; the
-    tool checks that no vintage column contains an observation later than its vintage date.
+  * latest file: GET the public FRED CSV endpoint (fredgraph.csv?id=...);
+  * vintage set: POST the ALFRED download-data form once per series. The planned year-end dates
+    in protocols/data_plan.json are mapped to the latest ACTUAL ALFRED vintage date in the same
+    year (the form rejects arbitrary dates), and the observation range is taken from the series'
+    own first/last observation (the form rejects dates outside it). The response is a zip with one
+    CSV whose columns are the vintages; the tool checks that no vintage column has an observation
+    later than its vintage date.
 
 Raw files are written outside the repository (data/ is git-ignored); only metadata goes into the
-data log (URL, date, bytes, SHA-256, rows, last observation, vintage check).
-
-The FRED API service is not used. This is the project's reading of the terms in
+data log. The FRED API service is not used. This is the project's reading of the terms in
 protocols/licence_register.json (FRED_ALFRED_SERVICES); it is not legal advice.
 """
 from __future__ import annotations
@@ -21,6 +21,7 @@ import csv
 import hashlib
 import io
 import json
+import re
 import sys
 import time
 import urllib.error
@@ -68,7 +69,7 @@ def request(url: str, user_agent: str, data: bytes | None = None, timeout: int =
 
 
 def csv_meta(data: bytes) -> dict:
-    """Row count and last observation date of a plain FRED CSV file."""
+    """Row count and first/last observation of a plain FRED CSV file."""
     try:
         lines = data.decode("utf-8", "replace").strip().splitlines()
     except Exception:
@@ -76,34 +77,51 @@ def csv_meta(data: bytes) -> dict:
     if not lines or "," not in lines[0]:
         return {"rows": None, "last_observation": None, "csv": False}
     dates = [row.split(",")[0].strip() for row in lines[1:] if row.strip()]
-    return {
-        "rows": len(dates),
-        "first_observation": dates[0] if dates else None,
-        "last_observation": dates[-1] if dates else None,
-        "csv": True,
-    }
+    return {"rows": len(dates), "first_observation": dates[0] if dates else None,
+            "last_observation": dates[-1] if dates else None, "csv": True}
 
 
-def fetch_latest(url: str, ua: str) -> bytes:
-    return request(url, ua)
+def page_vintage_dates(html: str) -> list:
+    """All actual vintage dates offered on the ALFRED download-data page."""
+    m = re.search(r'<select[^>]*id="form_selected_vintage_dates"[^>]*>(.*?)</select>', html, re.S | re.I)
+    if not m:
+        return []
+    return sorted(set(re.findall(r'value="(\d{4}-\d{2}-\d{2})"', m.group(1))))
 
 
-def fetch_vintages(seid: str, dates: list, ua: str) -> bytes:
-    """One POST to the ALFRED download-data form -> zip with a vintage CSV."""
+def map_planned_dates(planned: list, available: list) -> list:
+    """For each planned date take the latest actual vintage date in the same year."""
+    out = set()
+    for planned_date in planned:
+        year = planned_date[:4]
+        same_year = [d for d in available if d.startswith(year)]
+        if same_year:
+            out.add(max(same_year))
+    return sorted(out)
+
+
+def fetch_vintages(seid: str, planned: list, first_obs: str, last_obs: str, ua: str) -> tuple:
+    page_url = ALFRED_FORM.format(seid=seid)
+    html = request(page_url, ua).decode("utf-8", "replace")
+    available = page_vintage_dates(html)
+    actual = map_planned_dates(planned, available)
+    if not actual:
+        actual = planned
     fields = [
         ("form[units]", "lin"),
-        ("form[obs_start_date]", "1900-01-01"),
-        ("form[obs_end_date]", datetime.now(timezone.utc).strftime("%Y-%m-%d")),
-        ("form[entered_vintage_dates]", " ".join(dates)),
+        ("form[obs_start_date]", first_obs),
+        ("form[obs_end_date]", last_obs),
+        ("form[entered_vintage_dates]", " ".join(actual)),
         ("form[file_type]", "2"),        # Observations by Vintage Date, All Observations
         ("form[file_format]", "csv"),    # Zipped CSV
         ("form[download_data]", ""),
     ]
     body = urllib.parse.urlencode(fields).encode()
-    raw = request(ALFRED_FORM.format(seid=seid), ua, data=body)
+    raw = request(page_url, ua, data=body)
     if raw[:2] != b"PK":
-        raise RuntimeError("ALFRED download form did not return a zip; check the form fields")
-    return raw
+        head = raw[:200].decode("utf-8", "replace").replace("\n", " | ")
+        raise RuntimeError(f"ALFRED download form did not return a zip; head={head!r}")
+    return raw, actual, available
 
 
 def vintage_meta(zip_bytes: bytes) -> dict:
@@ -155,50 +173,57 @@ def main(argv=None) -> int:
             failures.append({"id": s["id"], "reason": f"register status {statuses.get(s['register'])}"})
             continue
         folder = out / s["id"]
-        # latest file
+        latest_meta = {}
         print(f"[{s['id']}] latest: {s['url']}", flush=True)
         if args.dry_run:
             entries.append({"series": s["id"], "vintage": "latest", "url": s["url"], "dry_run": True})
         else:
             try:
-                data = fetch_latest(s["url"], ua)
+                data = request(s["url"], ua)
                 folder.mkdir(parents=True, exist_ok=True)
                 path = folder / "latest.csv"
                 path.write_bytes(data)
-                meta = csv_meta(data)
+                latest_meta = csv_meta(data)
                 entries.append({
                     "series": s["id"], "register": s["register"], "vintage": "latest",
                     "url": s["url"], "retrieved_at": utc_now(), "bytes": len(data),
                     "sha256": hashlib.sha256(data).hexdigest(),
                     "file": str(path).replace("\\", "/"),
-                    "rows": meta["rows"], "last_observation": meta["last_observation"],
-                    "first_observation": meta["first_observation"], "is_csv": meta["csv"],
+                    "rows": latest_meta["rows"], "last_observation": latest_meta["last_observation"],
+                    "first_observation": latest_meta["first_observation"], "is_csv": latest_meta["csv"],
                 })
             except RuntimeError as exc:
                 failures.append({"id": s["id"], "vintage": "latest", "reason": str(exc)})
             time.sleep(rate)
-        # vintage set
-        dates = s.get("vintages", [])
-        if args.include_vintages and dates:
-            url = ALFRED_FORM.format(seid=s["id"])
-            print(f"[{s['id']}] vintages {len(dates)}: {dates[0]} .. {dates[-1]}", flush=True)
+        planned = s.get("vintages", [])
+        if args.include_vintages and planned:
             if args.dry_run:
-                entries.append({"series": s["id"], "vintage": "set", "url": url,
-                                "vintage_dates": dates, "dry_run": True})
+                entries.append({"series": s["id"], "vintage": "set",
+                                "url": ALFRED_FORM.format(seid=s["id"]),
+                                "planned_vintages": planned, "dry_run": True})
                 continue
+            if not latest_meta.get("first_observation"):
+                failures.append({"id": s["id"], "vintage": "set",
+                                 "reason": "latest file is needed to set the observation range"})
+                continue
+            print(f"[{s['id']}] vintages: planned {len(planned)} years", flush=True)
             try:
-                raw = fetch_vintages(s["id"], dates, ua)
+                raw, actual, available = fetch_vintages(
+                    s["id"], planned, latest_meta["first_observation"],
+                    latest_meta["last_observation"], ua)
                 folder.mkdir(parents=True, exist_ok=True)
                 path = folder / "vintages.zip"
                 path.write_bytes(raw)
                 meta = vintage_meta(raw)
                 entries.append({
                     "series": s["id"], "register": s["register"], "vintage": "set",
-                    "url": url, "retrieved_at": utc_now(), "bytes": len(raw),
-                    "sha256": hashlib.sha256(raw).hexdigest(),
+                    "url": ALFRED_FORM.format(seid=s["id"]), "retrieved_at": utc_now(),
+                    "bytes": len(raw), "sha256": hashlib.sha256(raw).hexdigest(),
                     "file": str(path).replace("\\", "/"),
-                    "vintage_dates": dates, "vintage_count": meta["vintage_count"],
-                    "rows": meta["rows"], "vintage_last_observation": meta["vintage_last_observation"],
+                    "planned_vintages": planned, "vintage_dates": actual,
+                    "available_vintage_dates": available,
+                    "vintage_count": meta["vintage_count"], "rows": meta["rows"],
+                    "vintage_last_observation": meta["vintage_last_observation"],
                     "vintage_check": meta["vintage_check"], "is_csv": True,
                 })
             except RuntimeError as exc:

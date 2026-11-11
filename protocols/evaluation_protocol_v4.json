@@ -237,7 +237,7 @@
       "workflow": ".github/workflows/data-refresh.yml",
       "data_log": "protocols/data_log.json",
       "rule": "Automated retrieval only; no human download step. Raw files are never committed; the CI run keeps them outside the repository (private artifacts). The data log records URL, retrieval date, bytes, SHA-256, row count and last observation - metadata only, never values.",
-      "modes": "latest via the public FRED CSV endpoint; vintage sets via one POST per series to the ALFRED download-data form (file_type 2 = observations by vintage date, zipped CSV)",
+      "modes": "latest via the public FRED CSV endpoint; vintage sets via one GET of the ALFRED download-data page (to read the actual vintage dates) plus one POST per series, where the planned year-end dates are mapped to the latest actual vintage date in the same year, the observation range is the series' own first/last observation, and the response is a zipped CSV with one column per vintage",
       "log_fields": [
         "series",
         "register",
@@ -249,7 +249,9 @@
         "file",
         "rows",
         "last_observation",
+        "planned_vintages",
         "vintage_dates",
+        "available_vintage_dates",
         "vintage_count",
         "vintage_last_observation",
         "vintage_check"

@@ -233,7 +233,7 @@ class ProtocolV4(unittest.TestCase):
         self.assertEqual(retrieval["data_log"], "protocols/data_log.json")
         self.assertIn("last_observation", retrieval["log_fields"])
         self.assertIn("vintage_check", retrieval["log_fields"])
-        self.assertIn("download-data form", retrieval["modes"])
+        self.assertIn("download-data", retrieval["modes"])
         self.assertTrue(TOOL.exists())
         self.assertTrue(PLAN.exists())
         self.assertTrue(WORKFLOW.exists())
