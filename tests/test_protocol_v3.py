@@ -1,5 +1,5 @@
 """Draft evaluation protocol v3: links to frozen v2, answers every review finding (L1-L4,
-V3-01..V3-15, R-01..R-17), keeps restricted and unverified sources out of the comparator, and
+V3-01..V3-17, R-01..R-17), keeps restricted and unverified sources out of the comparator, and
 keeps the licence register outside the protocol file.
 
 While status is DRAFT the file may change. Once FROZEN it needs a pinned SHA-256
@@ -48,6 +48,20 @@ def members_for(p, target, statuses):
     return out
 
 
+def density_members_for(p, target, statuses):
+    """Members that provide a predictive distribution and whose inputs are all OPEN."""
+    out = []
+    for b in p["baselines"]:
+        if not b.get("comparator_member") or not b.get("scored", True) or b.get("point_only"):
+            continue
+        if target not in b["applies_to"]:
+            continue
+        inputs = b["inputs_by_target"].get(target, [])
+        if inputs and all(statuses.get(i) == "OPEN" for i in inputs):
+            out.append(b["id"])
+    return out
+
+
 class ProtocolV3(unittest.TestCase):
     def test_supersedes_exactly_the_frozen_v2(self):
         self.assertEqual(load()["supersedes"]["sha256"], V2_PINNED.read_text().split()[0])
@@ -67,7 +81,7 @@ class ProtocolV3(unittest.TestCase):
     def test_every_change_is_mapped_to_existing_content(self):
         p = load()
         ids = [c["id"] for c in p["changes_from_v2"]]
-        expected = (["L1", "L2", "L3", "L4"] + [f"V3-{i:02d}" for i in range(1, 16)]
+        expected = (["L1", "L2", "L3", "L4"] + [f"V3-{i:02d}" for i in range(1, 18)]
                     + [f"R-{i:02d}" for i in range(1, 18)])
         self.assertEqual(ids, expected)
         for change in p["changes_from_v2"]:
@@ -88,6 +102,8 @@ class ProtocolV3(unittest.TestCase):
             self.assertIn(e["status"], {"OPEN", "RESTRICTED", "UNVERIFIED"}, e["id"])
             self.assertIn(e["level"], {"full", "extraction", "none"}, e["id"])
             self.assertTrue(e["date"], e["id"])
+            if e["level"] != "none":
+                self.assertTrue(e["url"], f"{e['id']}: an entry read from a page must cite its url")
             self.assertTrue(e["basis"], e["id"])
 
     def test_register_statuses_that_the_protocol_relies_on(self):
@@ -96,7 +112,9 @@ class ProtocolV3(unittest.TestCase):
         self.assertEqual(s["FRED_ALFRED_SERVICES"], "OPEN")
         self.assertEqual(s["ALFRED:CPIAUCSL"], "OPEN")
         self.assertEqual(s["FRED-MD_FRED-QD"], "UNVERIFIED")
-        self.assertEqual(s["BLS_BEA_PRIMARY"], "UNVERIFIED")
+        self.assertEqual(s["BLS_PRIMARY"], "OPEN")
+        self.assertEqual(s["BEA_PRIMARY"], "UNVERIFIED")
+        self.assertEqual(s["ALFRED:USREC"], "OPEN")
         fred = next(e for e in register()["entries"] if e["id"] == "FRED_ALFRED_SERVICES")
         text = " ".join(fred["conditions"])
         self.assertIn("manual download", text)
@@ -147,11 +165,52 @@ class ProtocolV3(unittest.TestCase):
         p = load()
         own = next(b for b in p["baselines"] if b["id"] == "OWN_NOWCAST_BRIDGE")
         self.assertEqual(own["applies_to"], ["T2_GDP_GROWTH"])
-        self.assertEqual(own["horizons"], "0")
+        self.assertEqual(own["horizons_quarters"], [0])
         self.assertTrue(own["comparator_member"])
         self.assertIn("hash", own["specification_required"])
         self.assertIn("OWN_NOWCAST_BRIDGE", p["licence_policy"]["gdpnow"]["replacement"])
-        self.assertIn("approximation", p["licence_policy"])
+        self.assertIn("substitute", p["licence_policy"])
+        self.assertNotIn("approximation", p["licence_policy"])
+
+    def test_no_baseline_of_any_kind_uses_a_restricted_source(self):
+        p = load()
+        s = status_by_id()
+        for b in p["baselines"]:
+            for inputs in b.get("inputs_by_target", {}).values():
+                for src in inputs:
+                    self.assertIn(src, s, f"{b['id']}: {src} not in the register")
+                    self.assertNotEqual(s[src], "RESTRICTED", f"{b['id']} uses a RESTRICTED source")
+                    if s[src] == "UNVERIFIED":
+                        self.assertIn("once its register entry is OPEN", b.get("note", ""),
+                                      f"{b['id']}: {src} is UNVERIFIED")
+
+    def test_horizon_fields_are_lists(self):
+        p = load()
+        for b in p["baselines"]:
+            self.assertNotIn("horizons", b, b["id"])
+            if "horizons_quarters" in b:
+                self.assertIsInstance(b["horizons_quarters"], list, b["id"])
+                self.assertTrue(b["horizons_quarters"], b["id"])
+                for h in b["horizons_quarters"]:
+                    self.assertIsInstance(h, int, b["id"])
+
+    def test_density_comparator_has_the_minimum_number_of_open_members(self):
+        p = load()
+        s = status_by_id()
+        minimum = p["comparator_minimum"]["min_members"]
+        for t in p["targets"]:
+            got = density_members_for(p, t["id"], s)
+            self.assertGreaterEqual(len(got), minimum, f"{t['id']}: {got}")
+
+    def test_review_accounting_is_complete(self):
+        p = load()
+        text = p["meta_gate"]["independent_review"]
+        self.assertIn("13 non-blocking", text)
+        self.assertIn("docs/62", text)
+        self.assertEqual([c["id"] for c in p["changes_from_v2"] if c["id"].startswith("V3-")],
+                         [f"V3-{i:02d}" for i in range(1, 18)])
+        self.assertIn("began before the origin", next(
+            t for t in p["targets"] if t["id"] == "T3_RECESSION")["resolution"])
 
     def test_owner_decision_no_permissions_is_recorded(self):
         p = load()
@@ -207,7 +266,12 @@ class ProtocolV3(unittest.TestCase):
     def test_t3_resolution_and_calibration(self):
         p = load()
         t3 = next(t for t in p["targets"] if t["id"] == "T3_RECESSION")
-        self.assertIn("12 months after", t3["resolution"])
+        self.assertIn("began before the origin", t3["resolution"])
+        self.assertIn("not read as 0", t3["resolution"])
+        self.assertNotIn("missing announcement is read as no recession", t3["resolution"])
+        self.assertIn("peak exactly at t+h", t3["resolution"])
+        self.assertIn("turning point after t+h is dated", t3["resolution"])
+        self.assertIn("completeness deadline", t3["resolution"])
         self.assertIn("C4 does not apply", t3["c4_not_applicable"])
         c6 = next(c for c in p["admission"]["criteria"] if c["id"] == "C6")
         self.assertIn("calibration replaces coverage", c6["text"])

@@ -1,27 +1,31 @@
 {
   "protocol_id": "AMFE-EVAL",
-  "version": "3.0.0-draft",
-  "status": "DRAFT",
+  "version": "3.0.0",
+  "status": "FROZEN",
   "supersedes": {"version": "2.0.0", "file": "evaluation_protocol_v2.json", "sha256": "ff46fcce5232527a84a5cb9e5211177e3c643811a55bb5b0d49563265b7719e7", "note": "v2 stays in the repository unchanged and frozen; v3 replaces it for all new evaluations."},
-  "decision_ids": ["D-121", "D-122", "D-123", "D-124", "D-125", "D-126", "D-127"],
+  "decision_ids": ["D-121", "D-122", "D-123", "D-124", "D-125", "D-126", "D-127", "D-128"],
   "closes_questions": ["Q-001", "Q-002", "Q-003", "Q-004", "Q-005", "Q-006"],
   "meta_gate": {
     "reference": "D-100",
-    "stage": "INDEPENDENT_REVIEW_FIXES",
+    "stage": "APPROVED",
     "diff": "changes_from_v2 below",
     "impact_analysis": "No result was ever produced under v1 or v2, so no verdict changes and the replay is empty.",
-    "independent_review": "docs/61_Независимая_проверка_протокола_v3.md found 4 blocking and 11 non-blocking findings (V3-01..V3-15); this draft answers each in changes_from_v2. The fixes still have to be checked against that list by the reviewer.",
-    "approval": "PENDING",
+    "independent_review": "docs/61_Независимая_проверка_протокола_v3.md found 4 blocking (V3-01..V3-04) and 13 non-blocking (V3-05..V3-17) findings. docs/62_Сверка_правок_протокола_v3.md checked the fixes of revision 0.2: 4 of 4 blocking and 10 of 13 non-blocking findings closed, plus one new blocking contradiction in targets.T3.resolution (B-1) and seven non-blocking remarks (N-1..N-7). Revision 0.3 answered all of them; docs/62 section 9 checked the delta and found no blocking remainder. The non-blocking leftovers (ND-1..ND-4, comment on the C6 and registry timing) were fixed before freezing.",
+    "approval": "APPROVED",
+    "approved_on": "2026-11-11",
     "owner_decisions": [
-      {"date": "2026-11-11", "decision": "No permission is requested from any data provider. The project works with openly available information only and approximates any other needed quantity with its own models."}
+      {"date": "2026-11-11", "decision": "No permission is requested from any data provider. The project works with openly available information only and replaces any other needed model quantity with its own models."}
     ],
-    "owner_confirmation_needed": [
-      "estimation.T3: window 240 months instead of 180, sensitivity windows 180 and 360",
-      "the tightening readings R-05, R-06, R-08, R-09",
-      "licence_policy: intended use, minimum comparator members, data channel (manual download of vintage files from ALFRED), no machine-learning training on FRED content",
-      "licence_register.json: Philadelphia Fed and Cleveland Fed read as OPEN for non-commercial research (the review proposed RESTRICTED)",
-      "windows.origin_exclusion: origins whose target lies in the COVID window are excluded from W2 and reported separately",
-      "the repository stays private (changes to public require re-verifying every register entry)"
+    "owner_confirmation_needed": [],
+    "owner_confirmations": [
+      {"date": "2026-11-11", "decision": "The owner confirmed all six points (answer of 2026-11-11) and asked to freeze the protocol.", "points": [
+        "estimation.T3: window 240 months instead of 180, sensitivity windows 180 and 360",
+        "the tightening readings R-05, R-06, R-08, R-09",
+        "licence_policy: intended use, minimum comparator members, data channel (manual download of vintage files from ALFRED), no machine-learning training on FRED content",
+        "licence_register.json: Philadelphia Fed and Cleveland Fed read as OPEN for non-commercial research",
+        "windows.origin_exclusion: origins whose target lies in the COVID window are excluded from W2 and reported separately",
+        "the repository stays private (changes to public require re-verifying every register entry)"
+      ]}
     ],
     "on_approval": "Add decision D-128, freeze this file with a pinned SHA-256 in evaluation_protocol_v3.sha256, leave v1 and v2 untouched."
   },
@@ -40,23 +44,25 @@
     "baseline_distributions": "Models without their own predictive distribution (RW, AO, AR_BIC) use the empirical quantiles of their own errors over the estimation window, centred on the point forecast.",
     "pool": "The density comparator is an equal-weight mixture of the members' CDFs: piecewise linear between the 5% and 95% quantiles, Gaussian tails matched to those two quantiles outside. Averaging quantiles is not the pool.",
     "crps": "CRPS is computed as twice the mean pinball loss over the 19 quantiles.",
-    "log_score": "Event probabilities are clipped to [0.01, 0.99] before the log score."
+    "log_score": "Event probabilities are clipped to [0.01, 0.99] before the log score.",
+    "event_targets": "For T3 the forecast is the probability of the binary event; the 19-quantile representation does not apply to T3, its distribution is Bernoulli(p), the pool is the equal-weight average of the members' probabilities, and only the event losses (Brier, log score) are computed, never CRPS."
   },
   "licence_policy": {
     "reason": "A benchmark that nobody else can recompute is not a benchmark, and the project may not take what its owner has no right to take.",
     "register_file": "protocols/licence_register.json",
-    "register_rule": "The register is a separate append-only journal outside this frozen file. The status of a source is the one in the register on the date the candidate is evaluated. A new entry applies only to candidates evaluated after it; earlier candidates are recomputed or marked. The composition of the primary comparator is hashed by date, so a member cannot be added or removed after results are seen.",
+    "register_rule": "The register is a separate append-only journal outside this frozen file. The status of a source is the one in the register on the date the candidate is evaluated. A new entry applies only to candidates evaluated after it; earlier candidates are recomputed or marked. The composition of the primary comparator is hashed by date, so a member cannot be added or removed after results are seen. Integrity of the register rests on the dated entries and the repository history; no separate hash of each entry is kept, and the hash of the comparator composition is separate. The hash of the terms text appears on R2.",
     "intended_use": "Non-commercial research. Published artifacts contain derived statistics only (error metrics, charts, scores), never raw third-party data.",
     "no_permissions": "The project requests no permission, licence or approval from any data provider. It uses only data whose published terms allow the intended use without asking.",
     "rule": "OPEN sources may be used in the primary comparator, in control arms and in criteria, under the conditions listed in their register entries. RESTRICTED and UNVERIFIED sources are not used anywhere in the project. An UNVERIFIED source becomes usable only through a new register entry (OPEN) made after its terms are read.",
-    "approximation": "A quantity that is available only through a RESTRICTED or UNVERIFIED source is approximated by the project's own model built from OPEN data (for example OWN_NOWCAST_BRIDGE). An approximation is never presented as equal to the source it replaces and is validated only against OPEN actuals, like any baseline. Naming the source it replaces is allowed; using its data is not.",
+    "substitute": "A model quantity that is available only through a RESTRICTED or UNVERIFIED source is replaced by the project's own model built from OPEN data (for example OWN_NOWCAST_BRIDGE). The substitute is never presented as equal to the source it replaces and is validated only against OPEN actuals, like any baseline. Naming the source it replaces is allowed; using its data is not. The principle covers model quantities only: a survey or an opinion (for example the SPF) is not replaced by a model, and if its source is not OPEN the quantity is simply not used. The quality of a substitute relative to the excluded sources is unknown and cannot be checked; the admission bar for a combination whose comparator contains a substitute can therefore be lower than with the best excluded source, and every report of such a combination says so.",
     "data_channel": {
       "fred_alfred": "Vintage files of the core series are obtained by manual download from the ALFRED site, one file per series; no robot, no bulk scraping, no API cache. Files stay in the ignored data directory and nothing from FRED or ALFRED is committed.",
       "ml_training": "No training or fine-tuning of any model on FRED or ALFRED content; foundation models and LLM forecasters therefore use only series from sources whose register entry allows it.",
-      "alternative": "Primary public-domain sources (BLS, BEA, Treasury, Federal Reserve Board) are the alternative channel once R2 has read their terms."
+      "alternative": "Primary public-domain sources (BLS, BEA, Treasury, Federal Reserve Board) are the alternative channel. The BLS terms were read on 2026-11-11 (public domain, citation requested; docs/63); the BEA, Treasury and Federal Reserve Board terms are read in R2 before the channel is used."
     },
     "raw_data": "Raw third-party archives are never committed to the repository. The URL, the retrieval date and the SHA-256 of each file are recorded in the data log.",
     "privacy": "The repository is private. If it becomes public, every register entry is re-verified before the next evaluation.",
+    "audit": "The register was checked against the primary terms pages on 2026-11-11; the quotes, the corrections and the items still unverified are in docs/63_Лицензионный_аудит_2026-11-11.md.",
     "gdpnow": {
       "use": "none: not downloaded, not stored, not scored",
       "permission_request": "NOT PURSUED by owner decision of 2026-11-11",
@@ -65,7 +71,8 @@
   },
   "comparator_minimum": {
     "min_members": 2,
-    "rule": "A comparator needs at least 2 members for the loss it serves (the point comparator, the density comparator). A pair (target, horizon, loss) with fewer remains CANDIDATE and is not eligible for admission until the register gives it 2 members.",
+    "rule": "A comparator needs at least 2 members for the loss it serves (the point comparator, the density comparator). A combination (target, horizon, loss) with fewer remains CANDIDATE and is not eligible for admission until the register gives it 2 members.",
+    "members_by_loss": "The point comparator uses members that provide a point forecast; the density comparator uses members that provide a predictive distribution (point_only members are excluded); for T3 the event comparator uses members that provide an event probability.",
     "licence_inputs_by_target": "Each member lists its input series per target; a member counts for a target only if every one of those inputs is OPEN in the register on the evaluation date."
   },
   "targets": [
@@ -92,7 +99,7 @@
       "definition": "1 if at least one month in (t, t+h] is an NBER recession month, counted from the month after the peak to the trough, in the chronology available at evaluation time",
       "horizons_months": [3, 6, 12],
       "note": "About eight post-war recessions: low statistical power. Ceiling LIMITED_DEPLOYMENT.",
-      "resolution": "NBER announces dates with a lag of months. A forecast is resolved when NBER has announced a peak inside (t, t+h]; otherwise 12 months after t+h, when a missing announcement is read as no recession. Forecasts that are not yet resolved are not scored.",
+      "resolution": "A forecast is resolved by the NBER chronology available at the evaluation date. The value is 1 if the chronology dates at least one recession month (counted from the month after the peak to the trough) in (t, t+h], including a recession that began before the origin. The value is 0 when the chronology is complete for the interval and dates no recession month in (t, t+h] - in particular, when no peak lies inside (t, t+h) (a peak exactly at t+h starts a recession after the interval) and any recession that began before t has a dated trough at or before t. The chronology is complete for the interval when a turning point after t+h is dated or when 24 months have passed after t+h and no peak at or before t+h has been announced. A forecast whose value is still undetermined is not scored; if it remains undetermined after the completeness deadline, it is reported as unresolved and is not read as 0.",
       "c4_not_applicable": "C4 does not apply to T3: in a recession month the event is almost sure to occur, so the condition is degenerate."
     }
   ],
@@ -112,6 +119,7 @@
       "reason": "A 180-month window contains one or two recessions, so a probit or logit is not identified; the Giacomini-White finite-window requirement still holds. A 240-month window reaches back to the 1970s, so the yield-spread input before 1982 comes from GS10 and TB3MS."
     },
     "sensitivity_windows_months": [120, 240],
+    "sensitivity_applies_to": "T1 and T2 only; T3 has its own list in estimation.T3.sensitivity_windows_months",
     "reason": "Giacomini-White tests require a finite estimation window; a recursive (expanding) window is excluded.",
     "recursive_variant": {"allowed": true, "test": "Clark-West", "applies_to": "nested model pairs only; reported separately, never counted toward admission"}
   },
@@ -130,7 +138,7 @@
       "Cleveland_inflation_nowcast": "Chart range starts 2013-07; whether the series is an archive of values published in real time is not confirmed (level U).",
       "ALFRED_CPIAUCSL": "Vintages dated 1972-07-21 to 1994-02-16 hold only the final 1.5 years of data, so an estimation window of 180 months cannot be built from a single vintage before 1994-02-17."
     },
-    "classification_rule": "A forecast is REAL_TIME only if every input series comes from the vintage available at the origin; a first-release tape is class REAL_TIME_TAPE; otherwise PSEUDO_REAL_TIME. REAL_TIME and REAL_TIME_TAPE forecasts count toward C1, C2, C4 and C5; REAL_TIME_TAPE results are always accompanied by a sensitivity result without the origins that depend on the tape. PSEUDO_REAL_TIME forecasts are reported separately.",
+    "classification_rule": "A forecast is REAL_TIME only if every input series comes from the vintage available at the origin; a first-release tape is class REAL_TIME_TAPE; otherwise PSEUDO_REAL_TIME. The class is named REAL_TIME_TAPE because it approximates the information available at the origin; the splice below is not the literal first-release tape and the difference is reported. REAL_TIME and REAL_TIME_TAPE forecasts count toward C1, C2, C4 and C5 and appear in the reported C3 set; REAL_TIME_TAPE results are always accompanied by a sensitivity result without the origins that depend on the tape. PSEUDO_REAL_TIME forecasts are reported separately.",
     "first_release_tape": "Where one vintage is too short for the estimation window (CPIAUCSL before 1994-02-17), the history is assembled as the latest value of each observation among the vintages available at the origin date. The assembly method is documented and spot-checked; a failed spot check turns every origin of the affected window into PSEUDO_REAL_TIME.",
     "consequence": "DFM_FREDMD is REAL_TIME only from origin 1999-08, so W1 (1990-2006) is mostly pseudo-real-time for it.",
     "alfred_panel": {
@@ -139,8 +147,8 @@
       "status": "R2 task, not built; every series must be listed in the register first",
       "fallback": "DFM counts toward admission from 1999-08 only"
     },
-    "gate": "R2 acceptance: reconstruct what was known on a date t for 1990-2026; a spot check of at least 30 (series, date) pairs, with at least 10 of them before 2000, must match the primary-source release of that time, within rounding. Origins in 1990-1999 that fail the check are PSEUDO_REAL_TIME.",
-    "vintage_sources": ["ALFRED (manual download)", "Philadelphia Fed Real-Time Data Set for Macroeconomists", "FRED-MD/FRED-QD vintage archive (when its register entry is OPEN)"]
+    "gate": "R2 acceptance: reconstruct what was known on a date t for 1990-2026; a spot check of at least 30 (series, date) pairs, with at least 10 of them before 2000, must match the primary-source release of that time, within rounding. Origins in 1990-1999 that fail the check are PSEUDO_REAL_TIME. A failed pair turns every origin whose estimation window relies on that pair into PSEUDO_REAL_TIME, as in data_depth.first_release_tape.",
+    "vintage_sources": ["ALFRED (manual download)", "Philadelphia Fed Real-Time Data Set for Macroeconomists (register status OPEN, owner confirmation point 4; the SPF documentation is not yet read)", "FRED-MD/FRED-QD vintage archive (when its register entry is OPEN)"]
   },
   "windows": {
     "training_start": "1960-01",
@@ -164,10 +172,10 @@
     {"id": "SAHM_RULE", "applies_to": ["T3_RECESSION"], "comparator_member": true, "inputs_by_target": {"T3_RECESSION": ["ALFRED:UNRATE", "NBER_CYCLE_DATES"]}, "note": "Sahm recession indicator converted to a probability by logistic calibration on the rolling window"},
     {"id": "SPF_MEDIAN", "applies_to": ["T1_CPI_YOY", "T2_GDP_GROWTH"], "comparator_member": true, "inputs_by_target": {"T1_CPI_YOY": ["PHILADELPHIA_FED"], "T2_GDP_GROWTH": ["PHILADELPHIA_FED"]}, "point_only": true, "note": "SPF median at survey deadlines only; a point forecast, so it enters point losses only; scored only after the definitions are mapped (SPF CPI is q/q and 4Q/4Q, the target is a monthly y/y)"},
     {"id": "SPF_NEG_GDP_PROB", "applies_to": ["T3_RECESSION"], "scored": false, "comparator_member": false, "event_mismatch": true, "note": "SPF reports the probability of negative quarterly real GDP growth, not an NBER recession; descriptive only"},
-    {"id": "OWN_NOWCAST_BRIDGE", "applies_to": ["T2_GDP_GROWTH"], "horizons": "0", "comparator_member": true, "inputs_by_target": {"T2_GDP_GROWTH": ["ALFRED:GDPC1", "ALFRED:UNRATE", "ALFRED:GS10", "ALFRED:TB3MS"]}, "approximation_of": "external GDP nowcasts that the project does not use", "specification_required": "The structure, the series, the factor selection and the update rules are written into a specification and fixed with the hash of its code before any candidate is evaluated. Available only from the origins for which its inputs are REAL_TIME, so before 1999 the T2 horizon 0 comparator has no such member.", "note": "the project's own nowcast of the current quarter from OPEN monthly data (bridge equations and a dynamic factor model); horizon 0 only"},
-    {"id": "NOWCAST_NYFED", "applies_to": ["T2_GDP_GROWTH"], "horizons": "0", "comparator_member": false, "inputs_by_target": {"T2_GDP_GROWTH": ["NY_FED"]}, "note": "NY Fed Staff Nowcast, horizon 0 only; a control arm, used only if R2 confirms a real-time archive; never part of the primary comparator"},
+    {"id": "OWN_NOWCAST_BRIDGE", "applies_to": ["T2_GDP_GROWTH"], "horizons_quarters": [0], "comparator_member": true, "inputs_by_target": {"T2_GDP_GROWTH": ["ALFRED:GDPC1", "ALFRED:UNRATE", "ALFRED:GS10", "ALFRED:TB3MS"]}, "substitutes": "external GDP nowcasts that the project does not use", "report": "Every T2 horizon 0 report states that the quality of this substitute relative to the excluded external nowcasts is unknown and cannot be checked, so the admission bar may be lower than with the best public nowcast.", "specification_required": "The structure, the series, the factor selection and the update rules are written into a specification and fixed with the hash of its code before any candidate is evaluated. Available only from the origins for which its inputs are REAL_TIME, so before 1999 the T2 horizon 0 comparator has no such member.", "note": "the project's own nowcast of the current quarter from OPEN monthly data (bridge equations and a dynamic factor model); horizon 0 only"},
+    {"id": "NOWCAST_NYFED", "applies_to": ["T2_GDP_GROWTH"], "horizons_quarters": [0], "comparator_member": false, "inputs_by_target": {"T2_GDP_GROWTH": ["NY_FED"]}, "note": "NY Fed Staff Nowcast, horizon 0 only; a control arm, used only if R2 confirms a real-time archive; never part of the primary comparator"},
     {"id": "EQUAL_WEIGHT_POINT", "applies_to": ["T1_CPI_YOY", "T2_GDP_GROWTH"], "comparator_member": false, "note": "mean of the point forecasts of the comparator members; the primary comparator for point losses"},
-    {"id": "EQUAL_WEIGHT_DENSITY", "applies_to": ["T1_CPI_YOY", "T2_GDP_GROWTH", "T3_RECESSION"], "comparator_member": false, "note": "equal-weight mixture of the predictive distributions of the comparator members that provide one (forecast_product.pool); the primary comparator for distribution and event losses"}
+    {"id": "EQUAL_WEIGHT_DENSITY", "applies_to": ["T1_CPI_YOY", "T2_GDP_GROWTH", "T3_RECESSION"], "comparator_member": false, "note": "equal-weight mixture of the predictive distributions of the comparator members that provide one (forecast_product.pool); for T3 the equal-weight average of the member event probabilities; the primary comparator for distribution and event losses"}
   ],
   "primary_comparator_rule": "EQUAL_WEIGHT_POINT for point losses and EQUAL_WEIGHT_DENSITY for distribution and event losses. Members: baselines with comparator_member true, scored, REAL_TIME (or REAL_TIME_TAPE) at the origin, and whose inputs for the target are all OPEN in the register on the evaluation date (comparator_minimum applies). The composition by date is recorded and hashed before any candidate is evaluated. No selection window. A candidate is also reported against every other scored baseline and control arm, and against a comparator of fixed composition (the members available over the whole window) as a sensitivity result.",
   "losses": {
@@ -194,13 +202,15 @@
         "id": "NF-SIM",
         "design": "Simulate pairs of methods with the same data-generating process and different estimation noise, calibrated on the baselines.",
         "sample_sizes": "The effective REAL_TIME evaluation length of each (target, horizon, window), after losing h observations and allowing for the h-1 overlap of forecast errors; reference lengths 156 and 204 months, 52 and 68 quarters when every origin is REAL_TIME.",
+        "timing": "Run after the R2 data gate has fixed the effective lengths and after the comparator composition is recorded.",
+        "combination": "The primary comparator is a combination and has less noise than a single method; the study also reports the threshold for a combination of equivalent members and the stricter of the two is used.",
         "table": "The table of thresholds by (target, horizon, loss) is hashed.",
         "must_be_complete_and_frozen_before": "any candidate is evaluated"
       }
     },
     "recession_conditioning": {"instrument": "indicator that the origin month is an NBER recession month, from the chronology as of the evaluation date", "used_in": ["C4"], "min_recession_months": 12, "report": "the number of distinct recession episodes behind the recession months"},
     "long_horizon": {
-      "resolved_definition": "A forecast is resolved when its target period has been published (T3: see targets.resolution); it is evaluable at origin + horizon.",
+      "resolved_definition": "A forecast is resolved when its target period has been published (T3: see targets.resolution, including the completeness deadline); it is evaluable at origin + horizon.",
       "independent_outcome": "A resolved forecast whose target window does not overlap another counted forecast.",
       "min_independent_outcomes_for_ACTIVE": 8,
       "ceiling_when_fewer": "LIMITED_DEPLOYMENT",
@@ -213,7 +223,7 @@
       "LIMITED_DEPLOYMENT_to_ACTIVE": "C6 repeated over a second, non-overlapping block, no drift trigger, and long_horizon.min_independent_outcomes_for_ACTIVE met"
     },
     "T3_ceiling": "LIMITED_DEPLOYMENT",
-    "reporting_requirements": ["C4: number of recession episodes", "C6: statistical power of the coverage check, which is low with 12 forecasts", "composition of the primary comparator by date", "HAC results with a bandwidth wider than h-1"]
+    "reporting_requirements": ["C4: number of recession episodes", "C6: statistical power of the coverage check, which is low with 12 forecasts", "composition of the primary comparator by date", "HAC results with a bandwidth wider than h-1", "T3: unresolved forecasts do not enter the C6 count, so the registry resolves up to the completeness deadline after origin+h and that delay is stated in every T3 report", "T2 horizon 0: the comparator member is the project's own substitute; its quality against the excluded external nowcasts is unknown, so the admission bar may be lower"]
   },
   "multiplicity": {
     "registry_of_candidates": "Every candidate that was evaluated is recorded, including rejected ones; the count is part of every report. Each COVID variant of a candidate counts as a separate candidate.",
@@ -236,9 +246,9 @@
   },
   "forward_registry": {
     "cadence": "monthly, after the last data release of the month",
-    "record": ["candidate_id", "code_commit", "data_vintage_hash", "target", "horizon", "origin", "quantiles_5_to_95_step_5", "point", "scoring_rule_commit"],
+    "record": ["candidate_id", "code_commit", "data_vintage_hash", "target", "horizon", "origin", "quantiles_5_to_95_step_5 (T1 and T2) or event_probability (T3)", "point", "scoring_rule_commit"],
     "control_arms": ["RW", "EQUAL_WEIGHT_POINT", "EQUAL_WEIGHT_DENSITY", "SPF_MEDIAN", "OWN_NOWCAST_BRIDGE"],
-    "control_arm_rule": "A control arm enters the registry only while its inputs are OPEN in the register; rows of control arms contain our own forecasts and derived statistics, never raw third-party data. NOWCAST_NYFED joins only after R2 confirms its archive.",
+    "control_arm_rule": "A control arm enters the registry only while its inputs are OPEN in the register. Rows of control arms contain our own forecasts and derived statistics; a single third-party forecast (for example the SPF median) is recorded only where its register entry is OPEN and the terms allow it, always with attribution, and raw third-party datasets are never recorded. NOWCAST_NYFED joins only after R2 confirms that its archive is usable as a control arm, with the NY Fed attribution.",
     "integrity": "committed to the repository before the actual value is published; rows are append-only; a correction is a new row that references the old one"
   },
   "drift_triggers": {
@@ -250,13 +260,13 @@
     {"id": "L1", "disposition": "adopted", "paths": ["licence_policy.rule", "primary_comparator_rule"], "summary": "The primary comparator uses only sources that are OPEN in the register; RESTRICTED and UNVERIFIED sources are used nowhere."},
     {"id": "L2", "disposition": "adopted", "paths": ["baselines", "forward_registry"], "summary": "GDPNow is dropped; the NY Fed nowcast is a control arm only after R2 confirms a real-time archive; OWN_NOWCAST_BRIDGE replaces external nowcasts in the comparator."},
     {"id": "L3", "disposition": "adopted", "paths": ["licence_policy.raw_data", "licence_policy.gdpnow"], "summary": "Raw archives are never committed; no permission is requested from anyone (owner decision 2026-11-11)."},
-    {"id": "L4", "disposition": "adopted", "paths": ["licence_policy.no_permissions", "licence_policy.approximation", "meta_gate.owner_decisions"], "summary": "Open information only; quantities available only through restricted sources are approximated by the project's own models and validated against OPEN actuals."},
+    {"id": "L4", "disposition": "adopted", "paths": ["licence_policy.no_permissions", "licence_policy.substitute", "meta_gate.owner_decisions"], "summary": "Open information only; model quantities available only through restricted sources are replaced by the project's own models and validated against OPEN actuals."},
     {"id": "V3-01", "disposition": "adopted", "paths": ["comparator_minimum", "baselines"], "summary": "Comparator needs at least 2 members per loss, otherwise the pair stays CANDIDATE; inputs are listed per target."},
     {"id": "V3-02", "disposition": "adopted", "paths": ["licence_policy.register_file", "licence_policy.register_rule"], "summary": "The register moves to protocols/licence_register.json, an append-only journal; a new entry applies to candidates evaluated after it."},
     {"id": "V3-03", "disposition": "adopted", "paths": ["licence_policy.intended_use", "baselines"], "summary": "Register by series and source with the intended use defined; the group ALFRED_OTHER_SERIES is gone."},
     {"id": "V3-04", "disposition": "adopted_needs_owner_confirmation", "paths": ["licence_policy.data_channel", "model_class_rules.data"], "summary": "FRED and ALFRED vintage files are downloaded by hand, one per series, and are not committed; no ML training on FRED content; primary public-domain sources are the alternative channel."},
     {"id": "V3-05", "disposition": "adopted", "paths": ["licence_policy.rule", "admission.criteria"], "summary": "UNVERIFIED is used nowhere; C3 includes only baselines admitted by the licence rule."},
-    {"id": "V3-06", "disposition": "adopted", "paths": ["baselines", "licence_policy.approximation"], "summary": "OWN_NOWCAST_BRIDGE needs a specification fixed with a code hash; naming the replaced source is allowed."},
+    {"id": "V3-06", "disposition": "adopted", "paths": ["baselines", "licence_policy.substitute"], "summary": "OWN_NOWCAST_BRIDGE needs a specification fixed with a code hash; naming the replaced source is allowed."},
     {"id": "V3-07", "disposition": "adopted", "paths": ["admission.criteria", "admission.recession_conditioning", "targets"], "summary": "C4 defined by the origin month, direction and the inconclusive outcome stated; recession dating convention; C4 does not apply to T3."},
     {"id": "V3-08", "disposition": "adopted", "paths": ["admission.stages", "model_class_rules.registry_access"], "summary": "A CONTAMINATED candidate moves to SHADOW_TEST by registration, then C6."},
     {"id": "V3-09", "disposition": "adopted", "paths": ["forward_registry.control_arm_rule", "licence_policy.privacy", "data_depth.vintage_sources"], "summary": "Control arms and vintage sources follow the register; privacy of the repository recorded."},
@@ -265,7 +275,9 @@
     {"id": "V3-12", "disposition": "adopted", "paths": ["origin_policy", "targets"], "summary": "T1 horizon counted from the last published CPI month; T2 origins and lag unit stated; y/y first publication defined."},
     {"id": "V3-13", "disposition": "adopted", "paths": ["forecast_product"], "summary": "Distributions of RW, AO, AR_BIC from empirical errors; mixture pool; CRPS formula; clipped log score."},
     {"id": "V3-14", "disposition": "adopted", "paths": ["primary_comparator_rule", "multiplicity.primary", "admission.criteria", "admission.reporting_requirements"], "summary": "Fixed-composition sensitivity; sequential family for Romano-Wolf; C5 defined as the opposite-alternative test; wide-bandwidth HAC reported."},
-    {"id": "V3-15", "disposition": "adopted", "paths": ["targets", "estimation.T3", "admission.criteria"], "summary": "T3 resolution rule; sensitivity windows 180 and 360; calibration replaces coverage for T3."},
+    {"id": "V3-15", "disposition": "adopted", "paths": ["targets", "estimation.T3", "admission.criteria"], "summary": "T3 resolution rule (rewritten in 0.3 to cover recessions that began before the origin); sensitivity windows 180 and 360; calibration replaces coverage for T3."},
+    {"id": "V3-16", "disposition": "adopted", "paths": ["licence_policy.substitute", "baselines", "admission.reporting_requirements"], "summary": "The own nowcast is called a substitute, not an approximation; its quality against excluded sources is unknown and stated in every T2 horizon 0 report; the principle covers model quantities only; clean implementation from published descriptions and a hashed specification."},
+    {"id": "V3-17", "disposition": "adopted", "paths": ["baselines"], "summary": "Horizon fields are lists (horizons_quarters); the test checks every baseline and control arm for restricted or unverified inputs, not only comparator members."},
     {"id": "R-01", "disposition": "adopted", "paths": ["data_depth.first_release_tape"], "summary": "First-release tape for CPIAUCSL before 1994-02-17, documented and spot-checked."},
     {"id": "R-02", "disposition": "adopted", "paths": ["data_depth.gate"], "summary": "The R2 gate covers 1990-2026, with at least 10 spot-check pairs before 2000."},
     {"id": "R-03", "disposition": "adopted", "paths": ["admission.threshold_rule.noise_floor_study"], "summary": "NF-SIM uses the effective REAL_TIME length and the h-1 overlap."},

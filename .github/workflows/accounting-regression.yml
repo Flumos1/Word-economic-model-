@@ -4,11 +4,13 @@ on:
     paths:
       - 'tests/**'
       - 'src/**'
+      - 'protocols/**'
       - '.github/workflows/accounting-regression.yml'
   pull_request:
     paths:
       - 'tests/**'
       - 'src/**'
+      - 'protocols/**'
       - '.github/workflows/accounting-regression.yml'
   workflow_dispatch:
 jobs:
