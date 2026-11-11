@@ -1,5 +1,5 @@
 """Real posted trade must reconcile with country-level GDP inputs."""
-import sys,unittest
+import random,sys,unittest
 from pathlib import Path
 from dataclasses import replace
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"src"))
@@ -7,6 +7,7 @@ from amfe.accounting_core import AccountingError,D
 from amfe.integrated_world_v01 import InternationalAccounts
 from amfe.national_accounts_v01 import Flow
 from amfe.national_accounts_bridge_v01 import posted_trade_values,reconcile_posted_trade
+from scenario_gen import trade_world,world_flows,flow_key
 
 def fixture():
     w=InternationalAccounts()
@@ -31,12 +32,20 @@ class PostedTradeTests(unittest.TestCase):
         self.assertEqual(result["trade_events"],1)
         self.assertEqual(result["accounts"]["A"]["production"],D(100))
         self.assertEqual(result["accounts"]["B"]["expenditure"],D(80))
-    def test_10000_posted_reconciliations(self):
-        w,a,b=fixture()
+    def test_10000_distinct_posted_reconciliations(self):
+        rng=random.Random(20261112)
+        seen=set()
         for i in range(10000):
-            shift=D(i%101)/D(100)
-            aa=replace(a,compensation=D(60)+shift,operating_surplus=D(30)-shift)
-            self.assertEqual(reconcile_posted_trade(w,"P1","AAA",[aa,b])["trade_events"],1)
+            w,exporter,cur,value=trade_world(rng)
+            a,b=world_flows(rng,i,value if exporter=="A" else 0,value if exporter=="B" else 0)
+            seen.add(flow_key(a,b)+(exporter,cur))
+            self.assertEqual(reconcile_posted_trade(w,"P1",cur,[a,b])["trade_events"],1)
+            # Fabricated exports and a wrong reporting currency must both be rejected.
+            fake=replace(a,exports=a.exports+D(rng.randint(1,100))/100)
+            with self.assertRaises(AccountingError):reconcile_posted_trade(w,"P1",cur,[fake,b])
+            other="BBB" if cur=="AAA" else "AAA"
+            with self.assertRaises(AccountingError):reconcile_posted_trade(w,"P1",other,[a,b])
+        self.assertEqual(len(seen),10000)
     def test_reject_fabricated_exports(self):
         w,a,b=fixture()
         with self.assertRaises(AccountingError):

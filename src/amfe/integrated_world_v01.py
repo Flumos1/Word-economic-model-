@@ -80,8 +80,9 @@ class InternationalAccounts:
         self._opening={(cc,ss):self.nw(cc,ss) for cc in COUNTRIES for ss in SECTORS}
 
     def transfer(self,c,payer,receiver,n,currency=None):
+        if c not in COUNTRIES:raise AccountingError("invalid transfer")
         n=D(n);cur=currency or CURRENCIES[c]
-        if c not in COUNTRIES or cur not in CURRENCIES.values() or payer==receiver or payer not in ("firm","household","government") or receiver not in ("firm","household","government") or n<0:
+        if cur not in CURRENCIES.values() or payer==receiver or payer not in ("firm","household","government") or receiver not in ("firm","household","government") or n<0:
             raise AccountingError("invalid transfer")
         self.post("transfer",{(c,payer,"deposit",cur):-n,(c,receiver,"deposit",cur):n},current={(c,payer):-n,(c,receiver):n})
 

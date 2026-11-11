@@ -1,10 +1,13 @@
 """Domestic event journal + posted cross-border trade reconciliation."""
-import sys,unittest
+import random,sys,unittest
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"src"))
 from amfe.accounting_core import AccountingError,D
 from amfe.integrated_world_v01 import InternationalAccounts
-from amfe.domestic_journal_v01 import DomesticJournal,reconcile_journals
+from amfe.domestic_journal_v01 import DomesticJournal,reconcile_journals,TYPES
+from scenario_gen import trade_world,world_flows,flow_key
+
+KIND={field:kind for kind,field in TYPES.items()}
 
 def fixture():
     world=InternationalAccounts()
@@ -34,17 +37,24 @@ class JournalTests(unittest.TestCase):
         self.assertEqual(result["trade_events"],1)
         self.assertEqual(result["accounts"]["A"]["production"],D(100))
         self.assertEqual(result["accounts"]["B"]["income"],D(80))
-    def test_10000_parameter_variations(self):
-        w,j=fixture()
+    def test_10000_distinct_scenarios_from_events(self):
+        rng=random.Random(20261113)
+        seen=set()
         for i in range(10000):
-            shift=D(i%101)/100
-            x=DomesticJournal()
-            for e in j.events:
-                amount=e.amount
-                if e.country=="A" and e.kind=="wage":amount+=shift
-                if e.country=="A" and e.kind=="operating_surplus":amount-=shift
-                x.post(e.period,e.country,e.kind,amount)
-            self.assertEqual(reconcile_journals(x,w,"P1","AAA")["accounts"]["A"]["expenditure"],D(100))
+            w,exporter,cur,value=trade_world(rng)
+            flows=world_flows(rng,i,value if exporter=="A" else 0,value if exporter=="B" else 0)
+            seen.add(flow_key(*flows)+(exporter,cur))
+            j=DomesticJournal()
+            for f in flows:
+                for field,kind in KIND.items():j.post("P1",f.country,kind,getattr(f,field))
+            accounts=reconcile_journals(j,w,"P1",cur)["accounts"]
+            for f in flows:
+                self.assertEqual(accounts[f.country]["production"],f.output-f.intermediate)
+                self.assertEqual(accounts[f.country]["expenditure"],accounts[f.country]["income"])
+            # One extra income event unbalances the account and must be rejected.
+            j.post("P1",rng.choice("AB"),"wage",D(rng.randint(1,5000))/100)
+            with self.assertRaises(AccountingError):reconcile_journals(j,w,"P1",cur)
+        self.assertEqual(len(seen),10000)
     def test_inconsistent_wage_rejected(self):
         w,j=fixture()
         j.post("P1","A","wage",1)

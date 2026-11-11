@@ -33,6 +33,7 @@ def reconcile(flows):
     if not flows:
         raise AccountingError("missing flow observations")
     result = {}
+    trade = {}
     for row in flows:
         if row.country not in ("A", "B") or row.country in result:
             raise AccountingError("invalid or duplicate country")
@@ -50,8 +51,11 @@ def reconcile(flows):
             raise AccountingError("GDP production/income/expenditure mismatch: " + row.country)
         result[row.country] = {"production":production,"income":income,
                                "expenditure":expenditure,"net_exports":x["exports"]-x["imports"]}
+        trade[row.country] = (x["exports"], x["imports"])
     if set(result) != {"A","B"}:
         raise AccountingError("both countries required")
-    if result["A"]["net_exports"] + result["B"]["net_exports"] != 0:
+    # Two-country world: each country's exports are the other's imports.
+    # Zero net exports in sum alone would accept offsetting errors.
+    if trade["A"][0] != trade["B"][1] or trade["B"][0] != trade["A"][1]:
         raise AccountingError("world goods trade does not mirror")
     return result

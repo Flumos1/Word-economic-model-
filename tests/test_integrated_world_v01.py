@@ -60,6 +60,14 @@ class IntegrationTests(unittest.TestCase):
                     ("A",sector,inst,"AAA"):1
                 },current={("A","bank"):-1,("A",sector):1})
             self.assertEqual((dict(w.financial),len(w.journal)),before)
+    def test_unknown_country_rejected_atomically(self):
+        w=InternationalAccounts()
+        w.endow("A","AAA",100)
+        before=(dict(w.financial),dict(w.goods),len(w.journal))
+        for fn in (lambda:w.transfer("C","firm","household",1),
+                   lambda:w.transfer(None,"firm","household",1)):
+            with self.assertRaises(AccountingError):fn()
+            self.assertEqual((dict(w.financial),dict(w.goods),len(w.journal)),before)
     def test_reject_nonbank_interbank(self):
         w=InternationalAccounts()
         w.endow("A","AAA",100)
