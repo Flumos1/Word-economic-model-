@@ -34,7 +34,7 @@ class LongRun(unittest.TestCase):
             w.endow("B","BBB",100,goods=10)
             q=D((i%9)+1)/D(10)
             w.exchange("A","B","AAA",1,"BBB",1)
-            w.trade("A","B",q,1,"AAA")
+            w.trade("A","B",q,1,"BBB")
             p=w.close()
             self.assertEqual(sum(p["current"].values(),D(0)),D(0))
             for key in p["opening"]:
