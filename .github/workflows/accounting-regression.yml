@@ -21,3 +21,5 @@ jobs:
         run: python tests/test_closed_economy_v01.py
       - name: Four-sector accounting regression
         run: python tests/test_government_economy_v02.py
+      - name: Four-sector parameter-grid regression (10,000 cases)
+        run: python tests/test_government_parameter_grid_v03.py
