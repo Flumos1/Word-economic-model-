@@ -1,0 +1,23 @@
+name: Accounting regression
+on:
+  push:
+    paths:
+      - 'tests/**'
+      - '.github/workflows/accounting-regression.yml'
+  pull_request:
+    paths:
+      - 'tests/**'
+      - '.github/workflows/accounting-regression.yml'
+  workflow_dispatch:
+jobs:
+  accounting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Three-sector accounting regression
+        run: python tests/test_closed_economy_v01.py
+      - name: Four-sector accounting regression
+        run: python tests/test_government_economy_v02.py
