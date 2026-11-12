@@ -9,14 +9,13 @@
       "code_file": "src/amfe/candidates/models.py",
       "code_sha256": "ee3538d73cee75c01043a9a3a7dc4d8bfd1d6769ad09abd1c33efd8ac789080f",
       "targets": [
-        "T1_CPI_YOY",
-        "T2_GDP_GROWTH"
+        "T1_CPI_YOY"
       ],
       "members": [
         "RW",
         "AR_BIC"
       ],
-      "note": "candidate registered before the first real evaluation; forward-registry start follows"
+      "note": "registered before the first real evaluation; T1 only because the RW member has no T2 model in R3 (T2 evaluation of this candidate is not defined)"
     },
     {
       "id": "ENSEMBLE_EQUAL",

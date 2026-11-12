@@ -416,14 +416,36 @@ class SpfMapping(unittest.TestCase):
         not_a_deadline = spf_forecast("T2_GDP_GROWTH", date(2008, 6, 30), 2, data_root=self.raw_root)
         self.assertFalse(not_a_deadline.available)
         self.assertEqual(not_a_deadline.reason, "ORIGIN_IS_NOT_AN_SPF_DEADLINE_MONTH")
-        # a survey published late in the middle month is not yet known at the month end
+        # availability follows the official news-release date, not the response deadline:
+        # 2008Q2 has no embedded release anchor, so the conservative fallback (middle-month end) applies
         late_root = Path(self.temp.name) / "late" / "raw"
         late_series = [dict(row, survey_date="2008-05-25") for row in sample_spf_series()
                        if row["survey_quarter"] == "2008Q2"]
         write_spf_values(late_root, late_series)
-        before_publication = spf_forecast("T2_GDP_GROWTH", date(2008, 5, 31), 2, data_root=late_root)
+        fallback = spf_forecast("T2_GDP_GROWTH", date(2008, 5, 31), 2, data_root=late_root)
+        self.assertTrue(fallback.available, fallback.reason)
+        # 2019Q1 is anchored: release 2019-03-22, but the middle-month origin is 2019-02-28,
+        # so the value is not yet public there (the Q1 release falls after the Q1 alignment origin)
+        anchored_root = Path(self.temp.name) / "anchored" / "raw"
+        anchored = [{"variable": "Real GDP growth", "code": code, "horizon": code,
+                     "survey_quarter": "2019Q1", "survey_date": "2019-03-12", "value": value}
+                    for code, value in (("drgdp2", 0.5), ("drgdp3", 1.7), ("drgdp4", 2.1), ("drgdp6", 2.8))]
+        write_spf_values(anchored_root, anchored)
+        before_publication = spf_forecast("T2_GDP_GROWTH", date(2019, 2, 28), 1,
+                                          data_root=anchored_root)
         self.assertFalse(before_publication.available)
-        self.assertEqual(before_publication.reason, "SPF_DEADLINE_NOT_REACHED_AT_ORIGIN")
+        self.assertIn(before_publication.reason,
+                      {"SPF_NEWS_RELEASE_NOT_PUBLISHED_AT_ORIGIN",
+                       "ORIGIN_IS_NOT_AN_SPF_DEADLINE_MONTH"})
+        # 2005Q2 is anchored (release 2005-05-16) and the alignment origin 2005-05-31 is after it
+        usable_root = Path(self.temp.name) / "usable" / "raw"
+        usable = [{"variable": "Real GDP growth", "code": code, "horizon": code,
+                   "survey_quarter": "2005Q2", "survey_date": "2005-05-12", "value": value}
+                  for code, value in (("drgdp2", 0.5), ("drgdp3", 1.7), ("drgdp4", 2.1), ("drgdp6", 2.8))]
+        write_spf_values(usable_root, usable)
+        after_release = spf_forecast("T2_GDP_GROWTH", date(2005, 5, 31), 1, data_root=usable_root)
+        self.assertTrue(after_release.available, after_release.reason)
+        self.assertTrue(after_release.available, after_release.reason)
 
     def test_spf_has_no_horizon_code_for_h3_and_no_t1_t3_counterpart(self):
         h3 = spf_forecast("T2_GDP_GROWTH", date(2008, 5, 31), 3, data_root=self.raw_root)

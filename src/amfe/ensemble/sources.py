@@ -30,7 +30,8 @@ one-to-four-quarters-ahead forecasts).  A protocol T2 horizon ``h`` therefore ma
 The survey deadline is the middle month of the survey quarter (fetch_spf anchors ``survey_date`` at
 the first day of the middle month; the exact deadline day is not machine-parsed).  This module
 treats an SPF forecast as published at an origin only when the origin is a month end of the middle
-month and at least ``SPF_MIN_LAG_DAYS`` days after the anchor, which is conservative.
+month and only after the official SPF news release date (spf_calendar; the values become
+public at the release, which is later than the response deadline).
 
 T1 (monthly CPI y/y) has **no** SPF counterpart: the SPF publishes CPI only as quarterly q/q
 annualised and Q4/Q4 values, and inventing an intra-quarter path is not allowed (protocol
@@ -45,6 +46,8 @@ from __future__ import annotations
 import json
 import os
 from dataclasses import dataclass
+
+from .spf_calendar import SPF_MIDDLE_MONTHS, is_real_time_quarter, release_date as spf_release_date
 from datetime import date
 from functools import lru_cache
 from pathlib import Path
@@ -62,8 +65,6 @@ KIND_EXTERNAL_DATA = "EXTERNAL_DATA_VINTAGE_SOURCE"
 SPF_GDP_HORIZON_CODES = {"drgdp2": 0, "drgdp3": 1, "drgdp4": 2, "drgdp5": 3, "drgdp6": 4}
 #: Protocol T2 horizon -> published SPF code (drgdp5/h=3 is not on the protocol grid and is omitted).
 SPF_GDP_CODE_FOR_HORIZON = {"T2_GDP_GROWTH": {0: "drgdp2", 1: "drgdp3", 2: "drgdp4", 4: "drgdp6"}}
-SPF_MIDDLE_MONTHS = {2, 5, 8, 11}
-SPF_MIN_LAG_DAYS = 14
 SPF_ATTRIBUTION = (
     "Source: Federal Reserve Bank of Philadelphia, Survey of Professional Forecasters, median "
     "forecasts (https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/"
@@ -396,16 +397,23 @@ def spf_forecast(
         survey_date = date.fromisoformat(entry["survey_date"][:10])
     except (KeyError, TypeError, ValueError):
         survey_date = None
-    if survey_date is not None:
-        lag_days = (origin_d - survey_date).days
-        if lag_days < SPF_MIN_LAG_DAYS:
-            return ExternalForecast(
-                member_id=member_id, provider="PHILADELPHIA_FED", target=target,
-                origin=origin_d, horizon=horizon_i, available=False,
-                reason="SPF_DEADLINE_NOT_REACHED_AT_ORIGIN", code=code,
-                survey_quarter=quarter_label, survey_date=survey_date,
-                mapping="drgdp(h+2)",
-            )
+    if not is_real_time_quarter(quarter_label):
+        return ExternalForecast(
+            member_id=member_id, provider="PHILADELPHIA_FED", target=target,
+            origin=origin_d, horizon=horizon_i, available=False,
+            reason="SPF_NOT_REAL_TIME_BEFORE_1990Q3", code=code,
+            survey_quarter=quarter_label, survey_date=survey_date,
+            mapping="drgdp(h+2)",
+        )
+    release = spf_release_date(quarter_label)
+    if origin_d < release:
+        return ExternalForecast(
+            member_id=member_id, provider="PHILADELPHIA_FED", target=target,
+            origin=origin_d, horizon=horizon_i, available=False,
+            reason="SPF_NEWS_RELEASE_NOT_PUBLISHED_AT_ORIGIN", code=code,
+            survey_quarter=quarter_label, survey_date=survey_date,
+            mapping="drgdp(h+2)",
+        )
     return ExternalForecast(
         member_id=member_id,
         provider="PHILADELPHIA_FED",

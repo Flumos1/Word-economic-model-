@@ -67,11 +67,17 @@ def members_for(composition: dict, target: str, loss: str, horizon: int) -> list
 
 
 def recession_mask(target: str, origins: list, horizon: int) -> list:
+    """Recession mask for C4: the origin month (h=0) or the event window (t, t+h]."""
     usrec = load_latest("USREC")
+    values = usrec.values_dict()
     mask = []
     for origin in origins:
         ym = month_index(origin)
-        event = usrec_event(usrec, ym, int(horizon)) if target != "T3_RECESSION" else usrec_event(usrec, ym, int(horizon))
+        horizon_i = int(horizon)
+        if horizon_i == 0:
+            event = 1 if values.get(ym, 0.0) >= 0.5 else 0
+        else:
+            event = usrec_event(usrec, ym, horizon_i)
         mask.append(1 if event else 0)
     return mask
 
@@ -202,6 +208,17 @@ def main(argv=None) -> int:
             "note": "candidate registered before the first real evaluation; forward-registry start follows",
         } for cid in CANDIDATE_IDS],
     }
+    if CANDIDATES.exists():
+        existing = json.loads(CANDIDATES.read_text(encoding="utf-8"))
+        known = {c["id"] for c in existing.get("candidates", [])}
+        merged = list(existing.get("candidates", []))
+        for cand in candidate_doc["candidates"]:
+            if cand["id"] not in known:
+                merged.append(cand)
+        existing["candidates"] = merged
+        existing["registered_on"] = existing.get("registered_on", candidate_doc["registered_on"])
+        existing["updated_on"] = "2026-11-12"
+        candidate_doc = existing
     CANDIDATES.write_text(json.dumps(candidate_doc, ensure_ascii=False, indent=2) + "\n",
                           encoding="utf-8", newline="\n")
     w1 = build_window(args.target, args.horizon, "W1", args.candidate, args.series_id, args.mode,

@@ -153,3 +153,7 @@ available  ⇔  survey_quarter is real-time (≥ 1990Q3)
 `python tests/test_spf_mapping.py` — **28 тестов**, все зелёные. Проверяются: официальный T2-маппинг 0/1/2/4; `drgdp5`/h=3; недоступность T1/T3; определения `INFCPI1YR`/`INFCPI10YR`; точные anchors 2020Q1/1990Q3/2019Q1/2026Q1; дедлайн ≠ публикация; fallback; origin не средний месяц; pre-1990Q3; partial/empty/duplicate values; отсутствие файла; metadata-only; локальные значения (если файл есть); CLI `--check`/`--origin`. Если `data/raw/spf/spf_median.json` отсутствует, тесты значений помечаются skip, metadata/mapping-тесты остаются.
 
 **Не проверено:** полный список всех 147 дат release (встроены только anchors), фактические значения SPF в CI без артефакта, ревизии/errata SPF, точное окно `INFCPI10YR`, юридическое чтение лицензии (не юридическая консультация), поведение `sources.py` после правки (её не делали).
+
+## Исправление look-ahead в ансамбле (2026-11-12)
+
+Проверка выявила, что `src/amfe/ensemble/sources.py` считал медианы доступными через 14 дней после якоря среднего месяца — для 1990Q3 это 8/15 против официального релиза 8/31 (16 дней look-ahead), для 2019Q1 — 3/15 против 3/22. Исправлено: добавлен `src/amfe/ensemble/spf_calendar.py` с официальными датами релиза (anchors из spf-release-dates.txt + консервативный fallback), `sources.py` теперь требует `origin >= release_date(quarter)` и явно отказывает pre-1990Q3. Тесты: `tests/test_spf_calendar.py`.
