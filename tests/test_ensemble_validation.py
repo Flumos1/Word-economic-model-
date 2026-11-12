@@ -307,6 +307,31 @@ class ProtocolWindows(unittest.TestCase):
         self.assertTrue(all(row["origin"] <= row["target"] for row in w1[:12]))
 
 
+LOCAL_VINTAGES = ((ROOT / "data" / "raw" / "CPIAUCSL" / "vintages.zip").exists()
+                  and (ROOT / "data" / "raw" / "GDPC1" / "vintages.zip").exists())
+
+
+@unittest.skipUnless(LOCAL_VINTAGES, "local ALFRED vintage archive is not available")
+class FirstPublicationUnits(unittest.TestCase):
+    """The scored target is the protocol transformation, not the raw series level."""
+
+    def test_t1_is_percent_year_on_year(self):
+        value = validation.first_publication_target("T1_CPI_YOY", date(2000, 1, 31), 1)
+        self.assertIsNotNone(value)
+        self.assertGreater(value, -5.0)
+        self.assertLess(value, 20.0)  # a percent figure, not the ~169 CPI index level
+
+    def test_t2_is_annualised_quarterly_growth(self):
+        value = validation.first_publication_target("T2_GDP_GROWTH", date(2000, 1, 31), 0)
+        self.assertIsNotNone(value)
+        self.assertGreater(value, -30.0)
+        self.assertLess(value, 30.0)
+
+    def test_unpublished_period_returns_none(self):
+        # a target period that no archived vintage contains is unresolved, not a first publication
+        self.assertIsNone(validation.first_publication_target("T1_CPI_YOY", date(2035, 1, 31), 1))
+
+
 @unittest.skipUnless(REPORT_PATH.exists(), f"report not generated yet: {REPORT_PATH.name}")
 class CommittedReport(unittest.TestCase):
     def test_committed_report_structure_and_hygiene(self):

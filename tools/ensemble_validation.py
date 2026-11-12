@@ -94,6 +94,7 @@ LIMITATIONS = [
     "the NBER regime split is a retrospective diagnostic by the final chronology; it is not PIT and it is not used as a gate",
     "C4/W1 on the historical windows remains limited by data availability (docs/76); this tool reports statistics and does not re-open that question",
     "aggregates only: per-origin actuals, forecasts, losses and weights are not stored, only counts, aggregates and SHA-256 digests",
+    "target actuals are transformed locally from the first-publication vintage because amfe.evaluation.actuals.actual_pair returns the raw series level for T1/T2 (unit mismatch flagged to the Lead); the transformation is documented in first_publication_target()",
 ]
 
 
@@ -176,11 +177,45 @@ def _evenly_spaced(items: list, limit: int | None) -> list:
     return [items[int(index)] for index in indices]
 
 
-def _default_actual(target, origin, horizon):
-    from amfe.evaluation.actuals import actual_pair
+def first_publication_target(target: str, origin, horizon: int) -> float | None:
+    """Protocol target value from the first-publication vintage, in the target's own unit.
 
-    record = actual_pair(target, origin, horizon)
-    return None if record.get("primary") is None else float(record["primary"])
+    ``amfe.evaluation.actuals.actual_pair`` returns the raw series level that the first vintage
+    contains, but the scored target is a *transformation* of that level (protocol targets:
+    T1 = 100*(CPI_t/CPI_{t-12}-1), T2 = 400*ln(GDP_q/GDP_{q-1})).  Scoring the percent forecasts
+    against a raw CPI index would make both losses ~10^4 and the relative losses meaningless, so
+    this tool applies the protocol transformation to the first-publication vintage locally.  (The
+    unit mismatch in the evaluation layer is reported to the Lead; this tool does not modify it.)
+    """
+    from amfe.evaluation.actuals import actual_pair
+    from amfe.forecast.data import load_vintages
+
+    pair = actual_pair(target, origin, horizon)
+    if pair.get("primary") is None or pair.get("primary_vintage") is None:
+        return None
+    if target not in ("T1_CPI_YOY", "T2_GDP_GROWTH"):
+        raise ValidationError(f"unsupported target for first-publication scoring: {target}")
+    vintage = date.fromisoformat(str(pair["primary_vintage"])[:10])
+    series = load_vintages(pair["series"]).get(vintage)
+    if series is None:
+        return None
+    period = int(pair["period"])
+    current = series.value_at(period)
+    if current is None:
+        return None
+    if target == "T1_CPI_YOY":
+        previous = series.value_at(period - 12)
+        if previous is None or previous == 0.0:
+            return None
+        return float(100.0 * (current / previous - 1.0))
+    previous = series.value_at(period - 1)
+    if previous is None or previous <= 0.0 or current <= 0.0:
+        return None
+    return float(400.0 * np.log(current / previous))
+
+
+def _default_actual(target, origin, horizon):
+    return first_publication_target(target, origin, horizon)
 
 
 def _default_forecast_factory(mode: str):
@@ -500,7 +535,10 @@ def build_report(pairs=DEFAULT_PAIRS, *, mode: str = "auto", max_origins: int | 
             "walk_forward": "every origin of the protocol windows W1 and W2, same origins as the harness",
             "candidates": list(ensemble_ids),
             "control": CONTROL,
-            "actual_values_source": "first publication from the local dense ALFRED vintage archive",
+            "actual_values_source": (
+                "first publication from the local dense ALFRED vintage archive, transformed locally "
+                "to the protocol target definition (T1: 100*(CPI_t/CPI_t-12-1); "
+                "T2: 400*ln(GDP_q/GDP_q-1))"),
             "scores": ["RMSE (squared-error differential for DM)", "CRPS (protocol 19-quantile)"],
             "significance": ("DM/GW HAC h-1 + HLN, one-sided candidate better; Romano-Wolf stepdown "
                              "with the stationary bootstrap over the weighted schemes, FWER 0.10"),

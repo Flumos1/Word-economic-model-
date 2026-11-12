@@ -1,0 +1,2478 @@
+{
+  "report_id": "AMFE-ENSEMBLE-VALIDATION-V2",
+  "schema_version": "1.0",
+  "kind": "walk-forward validation of the ensemble weighting schemes (aggregated statistics)",
+  "protocol": {
+    "file": "protocols/evaluation_protocol_v4.json",
+    "version": "4.0.0",
+    "sha256": "bd965f4d9f23151b4ccfd27202f0669d0a7807e642639ed18c0b864bf68dedc9"
+  },
+  "nber_dates": {
+    "file": "protocols/nber_dates.json",
+    "sha256": "47d0d9ef2675ea1f0f75036edd01924eb2d99af3d415ee46e7e8659c44e8c89c",
+    "coverage": {
+      "first_announcement": "1979-12-31",
+      "last_announcement": "2021-07-19",
+      "announcements": 17,
+      "peaks": 6,
+      "troughs": 6
+    },
+    "regime_rule": "origin labelled RECESSION when any month of its target period is an NBER recession month; final peak/trough chronology, retrospective, not USREC latest"
+  },
+  "method": {
+    "walk_forward": "every origin of the protocol windows W1 and W2, same origins as the harness",
+    "candidates": [
+      "ENSEMBLE_EQUAL",
+      "ENSEMBLE_INVERSE_MSE",
+      "ENSEMBLE_BAYES",
+      "ENSEMBLE_ADAPTIVE"
+    ],
+    "control": "ENSEMBLE_EQUAL",
+    "actual_values_source": "first publication from the local dense ALFRED vintage archive, transformed locally to the protocol target definition (T1: 100*(CPI_t/CPI_t-12-1); T2: 400*ln(GDP_q/GDP_q-1))",
+    "scores": [
+      "RMSE (squared-error differential for DM)",
+      "CRPS (protocol 19-quantile)"
+    ],
+    "significance": "DM/GW HAC h-1 + HLN, one-sided candidate better; Romano-Wolf stepdown with the stationary bootstrap over the weighted schemes, FWER 0.10",
+    "relative_loss": "candidate aggregate loss / ENSEMBLE_EQUAL aggregate loss in the same subset",
+    "regime_split": "NBER peak/trough months of the target period (retrospective diagnostic)",
+    "aggregation": "no per-origin values are stored: counts, aggregates and SHA-256 digests only"
+  },
+  "mode": "auto",
+  "max_origins_per_window": null,
+  "ensemble_validation": "not an admission decision; no C1-C6 gate is applied",
+  "pairs": {
+    "T1_CPI_YOY/h1": {
+      "status": "OK",
+      "target": "T1_CPI_YOY",
+      "horizon": 1,
+      "pair_key": "T1_CPI_YOY/h1",
+      "ensemble_ids": [
+        "ENSEMBLE_EQUAL",
+        "ENSEMBLE_INVERSE_MSE",
+        "ENSEMBLE_BAYES",
+        "ENSEMBLE_ADAPTIVE"
+      ],
+      "control": "ENSEMBLE_EQUAL",
+      "replications": 10000,
+      "windows": {
+        "W1": {
+          "window": "W1",
+          "origins_in_window": 204,
+          "origins_used": 156,
+          "skipped_no_first_publication_actual": 0,
+          "skipped_incomplete_candidates": 48,
+          "candidate_failures": {
+            "ENSEMBLE_EQUAL": 48,
+            "ENSEMBLE_INVERSE_MSE": 48,
+            "ENSEMBLE_BAYES": 48,
+            "ENSEMBLE_ADAPTIVE": 48
+          },
+          "data_class_counts": {
+            "PSEUDO_REAL_TIME": 35,
+            "REAL_TIME": 121
+          },
+          "weight_source_counts": {
+            "ENSEMBLE_EQUAL": {
+              "EQUAL_DECLARED_CONTROL": 156
+            },
+            "ENSEMBLE_INVERSE_MSE": {
+              "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 8,
+              "HISTORY": 148
+            },
+            "ENSEMBLE_BAYES": {
+              "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 8,
+              "HISTORY": 148
+            },
+            "ENSEMBLE_ADAPTIVE": {
+              "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 8,
+              "HISTORY": 148
+            }
+          },
+          "first_origin": "1990-01-31",
+          "last_origin": "2006-12-31",
+          "sampled": false
+        },
+        "W2": {
+          "window": "W2",
+          "origins_in_window": 156,
+          "origins_used": 156,
+          "skipped_no_first_publication_actual": 0,
+          "skipped_incomplete_candidates": 0,
+          "candidate_failures": {
+            "ENSEMBLE_EQUAL": 0,
+            "ENSEMBLE_INVERSE_MSE": 0,
+            "ENSEMBLE_BAYES": 0,
+            "ENSEMBLE_ADAPTIVE": 0
+          },
+          "data_class_counts": {
+            "REAL_TIME": 156
+          },
+          "weight_source_counts": {
+            "ENSEMBLE_EQUAL": {
+              "EQUAL_DECLARED_CONTROL": 156
+            },
+            "ENSEMBLE_INVERSE_MSE": {
+              "HISTORY": 156
+            },
+            "ENSEMBLE_BAYES": {
+              "HISTORY": 156
+            },
+            "ENSEMBLE_ADAPTIVE": {
+              "HISTORY": 156
+            }
+          },
+          "first_origin": "2007-01-31",
+          "last_origin": "2019-12-31",
+          "sampled": false
+        }
+      },
+      "origins": {
+        "total": 312,
+        "first_origin": "1990-01-31",
+        "last_origin": "2019-12-31",
+        "real_time": 277,
+        "pseudo_real_time": 35,
+        "weight_source_counts": {
+          "ENSEMBLE_EQUAL": {
+            "EQUAL_DECLARED_CONTROL": 312
+          },
+          "ENSEMBLE_INVERSE_MSE": {
+            "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 8,
+            "HISTORY": 304
+          },
+          "ENSEMBLE_BAYES": {
+            "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 8,
+            "HISTORY": 304
+          },
+          "ENSEMBLE_ADAPTIVE": {
+            "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 8,
+            "HISTORY": 304
+          }
+        }
+      },
+      "overall": {
+        "status": "OK",
+        "n_origins": 312,
+        "control": "ENSEMBLE_EQUAL",
+        "loss_conventions": {
+          "RMSE": "sqrt(mean squared error) per origin; DM uses the squared-error differential",
+          "CRPS": "protocol CRPS = twice the mean pinball loss over the 19-quantile grid"
+        },
+        "per_ensemble": {
+          "ENSEMBLE_EQUAL": {
+            "n_origins": 312,
+            "rmse": 0.6595399522397792,
+            "mean_crps": 0.3337597122066657,
+            "relative_rmse_vs_equal": 1.0,
+            "relative_crps_vs_equal": 1.0,
+            "is_control": true
+          },
+          "ENSEMBLE_INVERSE_MSE": {
+            "n_origins": 312,
+            "rmse": 0.6605127613762896,
+            "mean_crps": 0.333981827410413,
+            "relative_rmse_vs_equal": 1.0014749813611847,
+            "relative_crps_vs_equal": 1.0006654943530444,
+            "is_control": false,
+            "dm_rmse": {
+              "mean_differential": 0.0012841593404808239,
+              "statistic": 4.669459427767007,
+              "p_value": 0.9999984900333412,
+              "hac_lags": 0,
+              "hln_factor": 1.0,
+              "n": 312,
+              "alternative": "less",
+              "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+            },
+            "dm_crps": {
+              "mean_differential": 0.00022211520374725789,
+              "statistic": 4.005702648330153,
+              "p_value": 0.9999690833022514,
+              "hac_lags": 0,
+              "hln_factor": 1.0,
+              "n": 312,
+              "alternative": "less",
+              "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+            }
+          },
+          "ENSEMBLE_BAYES": {
+            "n_origins": 312,
+            "rmse": 1.0671995352365886,
+            "mean_crps": 0.4918363801276902,
+            "relative_rmse_vs_equal": 1.6180968743628172,
+            "relative_crps_vs_equal": 1.4736241737383289,
+            "is_control": false,
+            "dm_rmse": {
+              "mean_differential": 0.7039218994087403,
+              "statistic": 10.191539277404244,
+              "p_value": 1.0,
+              "hac_lags": 0,
+              "hln_factor": 1.0,
+              "n": 312,
+              "alternative": "less",
+              "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+            },
+            "dm_crps": {
+              "mean_differential": 0.15807666792102443,
+              "statistic": 10.745168889597242,
+              "p_value": 1.0,
+              "hac_lags": 0,
+              "hln_factor": 1.0,
+              "n": 312,
+              "alternative": "less",
+              "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+            }
+          },
+          "ENSEMBLE_ADAPTIVE": {
+            "n_origins": 312,
+            "rmse": 0.7347955182819296,
+            "mean_crps": 0.35887957898659156,
+            "relative_rmse_vs_equal": 1.114103119585985,
+            "relative_crps_vs_equal": 1.0752633282604567,
+            "is_control": false,
+            "dm_rmse": {
+              "mean_differential": 0.10493150508675927,
+              "statistic": 6.590697608307268,
+              "p_value": 0.9999999999781117,
+              "hac_lags": 0,
+              "hln_factor": 1.0,
+              "n": 312,
+              "alternative": "less",
+              "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+            },
+            "dm_crps": {
+              "mean_differential": 0.025119866779925875,
+              "statistic": 6.4290447536429856,
+              "p_value": 0.9999999999357958,
+              "hac_lags": 0,
+              "hln_factor": 1.0,
+              "n": 312,
+              "alternative": "less",
+              "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+            }
+          }
+        },
+        "multiplicity": {
+          "RMSE": {
+            "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+            "fwer": 0.1,
+            "replications": 10000,
+            "family": [
+              "ENSEMBLE_ADAPTIVE",
+              "ENSEMBLE_BAYES",
+              "ENSEMBLE_INVERSE_MSE"
+            ],
+            "family_size": 3,
+            "block_length": 7,
+            "adjusted_p_values": {
+              "ENSEMBLE_INVERSE_MSE": 1.0,
+              "ENSEMBLE_ADAPTIVE": 1.0,
+              "ENSEMBLE_BAYES": 1.0
+            },
+            "raw_p_values": {
+              "ENSEMBLE_ADAPTIVE": 0.9999999999781117,
+              "ENSEMBLE_BAYES": 1.0,
+              "ENSEMBLE_INVERSE_MSE": 0.9999984900333412
+            },
+            "rejected": []
+          },
+          "CRPS": {
+            "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+            "fwer": 0.1,
+            "replications": 10000,
+            "family": [
+              "ENSEMBLE_ADAPTIVE",
+              "ENSEMBLE_BAYES",
+              "ENSEMBLE_INVERSE_MSE"
+            ],
+            "family_size": 3,
+            "block_length": 7,
+            "adjusted_p_values": {
+              "ENSEMBLE_INVERSE_MSE": 1.0,
+              "ENSEMBLE_ADAPTIVE": 1.0,
+              "ENSEMBLE_BAYES": 1.0
+            },
+            "raw_p_values": {
+              "ENSEMBLE_ADAPTIVE": 0.9999999999357958,
+              "ENSEMBLE_BAYES": 1.0,
+              "ENSEMBLE_INVERSE_MSE": 0.9999690833022514
+            },
+            "rejected": []
+          }
+        },
+        "subset": "ALL_ORIGINS"
+      },
+      "by_window": {
+        "W1": {
+          "status": "OK",
+          "n_origins": 156,
+          "control": "ENSEMBLE_EQUAL",
+          "loss_conventions": {
+            "RMSE": "sqrt(mean squared error) per origin; DM uses the squared-error differential",
+            "CRPS": "protocol CRPS = twice the mean pinball loss over the 19-quantile grid"
+          },
+          "per_ensemble": {
+            "ENSEMBLE_EQUAL": {
+              "n_origins": 156,
+              "rmse": 0.5638175348796697,
+              "mean_crps": 0.2775610866566539,
+              "relative_rmse_vs_equal": 1.0,
+              "relative_crps_vs_equal": 1.0,
+              "is_control": true
+            },
+            "ENSEMBLE_INVERSE_MSE": {
+              "n_origins": 156,
+              "rmse": 0.565991827142552,
+              "mean_crps": 0.2779424309466476,
+              "relative_rmse_vs_equal": 1.0038563757392653,
+              "relative_crps_vs_equal": 1.0013739112156792,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": 0.002456535754376929,
+                "statistic": 6.4172915355384115,
+                "p_value": 0.9999999999306399,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 156,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": 0.00038134428999378705,
+                "statistic": 6.225033899460737,
+                "p_value": 0.9999999997592741,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 156,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            },
+            "ENSEMBLE_BAYES": {
+              "n_origins": 156,
+              "rmse": 1.08507204813833,
+              "mean_crps": 0.43697566372094115,
+              "relative_rmse_vs_equal": 1.9245092268545831,
+              "relative_crps_vs_equal": 1.5743405135947057,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": 0.8594911370133232,
+                "statistic": 9.525194702865724,
+                "p_value": 1.0,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 156,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": 0.15941457706428735,
+                "statistic": 9.180964468358189,
+                "p_value": 1.0,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 156,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            },
+            "ENSEMBLE_ADAPTIVE": {
+              "n_origins": 156,
+              "rmse": 0.6847599152226945,
+              "mean_crps": 0.30640954712409935,
+              "relative_rmse_vs_equal": 1.2145062415783796,
+              "relative_crps_vs_equal": 1.1039355365513874,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": 0.15100592885800423,
+                "statistic": 7.575309248170368,
+                "p_value": 0.999999999999982,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 156,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": 0.028848460467445453,
+                "statistic": 5.833205159365917,
+                "p_value": 0.9999999972813678,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 156,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            }
+          },
+          "multiplicity": {
+            "RMSE": {
+              "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+              "fwer": 0.1,
+              "replications": 10000,
+              "family": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_BAYES",
+                "ENSEMBLE_INVERSE_MSE"
+              ],
+              "family_size": 3,
+              "block_length": 6,
+              "adjusted_p_values": {
+                "ENSEMBLE_INVERSE_MSE": 1.0,
+                "ENSEMBLE_ADAPTIVE": 1.0,
+                "ENSEMBLE_BAYES": 1.0
+              },
+              "raw_p_values": {
+                "ENSEMBLE_ADAPTIVE": 0.999999999999982,
+                "ENSEMBLE_BAYES": 1.0,
+                "ENSEMBLE_INVERSE_MSE": 0.9999999999306399
+              },
+              "rejected": []
+            },
+            "CRPS": {
+              "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+              "fwer": 0.1,
+              "replications": 10000,
+              "family": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_BAYES",
+                "ENSEMBLE_INVERSE_MSE"
+              ],
+              "family_size": 3,
+              "block_length": 6,
+              "adjusted_p_values": {
+                "ENSEMBLE_ADAPTIVE": 1.0,
+                "ENSEMBLE_INVERSE_MSE": 1.0,
+                "ENSEMBLE_BAYES": 1.0
+              },
+              "raw_p_values": {
+                "ENSEMBLE_ADAPTIVE": 0.9999999972813678,
+                "ENSEMBLE_BAYES": 1.0,
+                "ENSEMBLE_INVERSE_MSE": 0.9999999997592741
+              },
+              "rejected": []
+            }
+          },
+          "subset": "W1"
+        },
+        "W2": {
+          "status": "OK",
+          "n_origins": 156,
+          "control": "ENSEMBLE_EQUAL",
+          "loss_conventions": {
+            "RMSE": "sqrt(mean squared error) per origin; DM uses the squared-error differential",
+            "CRPS": "protocol CRPS = twice the mean pinball loss over the 19-quantile grid"
+          },
+          "per_ensemble": {
+            "ENSEMBLE_EQUAL": {
+              "n_origins": 156,
+              "rmse": 0.7430314155963482,
+              "mean_crps": 0.3899583377566776,
+              "relative_rmse_vs_equal": 1.0,
+              "relative_crps_vs_equal": 1.0,
+              "is_control": true
+            },
+            "ENSEMBLE_INVERSE_MSE": {
+              "n_origins": 156,
+              "rmse": 0.7431066326508584,
+              "mean_crps": 0.39002122387417837,
+              "relative_rmse_vs_equal": 1.000101229978883,
+              "relative_crps_vs_equal": 1.000161263682327,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": 0.00011178292658471863,
+                "statistic": 0.3005063612719188,
+                "p_value": 0.6181045275324997,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 156,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": 6.288611750072868e-05,
+                "statistic": 0.6935782543483522,
+                "p_value": 0.7560266325618576,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 156,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            },
+            "ENSEMBLE_BAYES": {
+              "n_origins": 156,
+              "rmse": 1.0490225671391777,
+              "mean_crps": 0.5466970965344391,
+              "relative_rmse_vs_equal": 1.411814554701223,
+              "relative_crps_vs_equal": 1.4019371907251328,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": 0.5483526618041573,
+                "statistic": 5.318579187657548,
+                "p_value": 0.9999999477096488,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 156,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": 0.15673875877776153,
+                "statistic": 6.598805749457965,
+                "p_value": 0.9999999999792759,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 156,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            },
+            "ENSEMBLE_ADAPTIVE": {
+              "n_origins": 156,
+              "rmse": 0.7816346754581883,
+              "mean_crps": 0.411349610849084,
+              "relative_rmse_vs_equal": 1.0519537384982,
+              "relative_crps_vs_equal": 1.054855278170136,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": 0.05885708131551432,
+                "statistic": 2.424436270988174,
+                "p_value": 0.9923339129544364,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 156,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": 0.021391273092406297,
+                "statistic": 3.544131623955573,
+                "p_value": 0.9998030457304161,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 156,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            }
+          },
+          "multiplicity": {
+            "RMSE": {
+              "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+              "fwer": 0.1,
+              "replications": 10000,
+              "family": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_BAYES",
+                "ENSEMBLE_INVERSE_MSE"
+              ],
+              "family_size": 3,
+              "block_length": 6,
+              "adjusted_p_values": {
+                "ENSEMBLE_INVERSE_MSE": 0.7914,
+                "ENSEMBLE_ADAPTIVE": 0.9905,
+                "ENSEMBLE_BAYES": 1.0
+              },
+              "raw_p_values": {
+                "ENSEMBLE_ADAPTIVE": 0.9923339129544364,
+                "ENSEMBLE_BAYES": 0.9999999477096488,
+                "ENSEMBLE_INVERSE_MSE": 0.6181045275324997
+              },
+              "rejected": []
+            },
+            "CRPS": {
+              "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+              "fwer": 0.1,
+              "replications": 10000,
+              "family": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_BAYES",
+                "ENSEMBLE_INVERSE_MSE"
+              ],
+              "family_size": 3,
+              "block_length": 6,
+              "adjusted_p_values": {
+                "ENSEMBLE_INVERSE_MSE": 0.8753,
+                "ENSEMBLE_ADAPTIVE": 0.9996,
+                "ENSEMBLE_BAYES": 1.0
+              },
+              "raw_p_values": {
+                "ENSEMBLE_ADAPTIVE": 0.9998030457304161,
+                "ENSEMBLE_BAYES": 0.9999999999792759,
+                "ENSEMBLE_INVERSE_MSE": 0.7560266325618576
+              },
+              "rejected": []
+            }
+          },
+          "subset": "W2"
+        }
+      },
+      "by_data_class": {
+        "REAL_TIME": {
+          "status": "OK",
+          "n_origins": 277,
+          "control": "ENSEMBLE_EQUAL",
+          "loss_conventions": {
+            "RMSE": "sqrt(mean squared error) per origin; DM uses the squared-error differential",
+            "CRPS": "protocol CRPS = twice the mean pinball loss over the 19-quantile grid"
+          },
+          "per_ensemble": {
+            "ENSEMBLE_EQUAL": {
+              "n_origins": 277,
+              "rmse": 0.6753758627537504,
+              "mean_crps": 0.35267251017013396,
+              "relative_rmse_vs_equal": 1.0,
+              "relative_crps_vs_equal": 1.0,
+              "is_control": true
+            },
+            "ENSEMBLE_INVERSE_MSE": {
+              "n_origins": 277,
+              "rmse": 0.6757921943358949,
+              "mean_crps": 0.35284086701563283,
+              "relative_rmse_vs_equal": 1.0006164442721523,
+              "relative_crps_vs_equal": 1.000477374449791,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": 0.0005625339349512548,
+                "statistic": 2.417827638422241,
+                "p_value": 0.9921932646638727,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 277,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": 0.00016835684549884914,
+                "statistic": 2.8113822138790896,
+                "p_value": 0.9975335425854799,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 277,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            },
+            "ENSEMBLE_BAYES": {
+              "n_origins": 277,
+              "rmse": 1.0174073326384854,
+              "mean_crps": 0.5147728780356858,
+              "relative_rmse_vs_equal": 1.506431290704038,
+              "relative_crps_vs_equal": 1.4596342589541569,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": 0.5789851245161852,
+                "statistic": 8.44270920189136,
+                "p_value": 1.0,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 277,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": 0.1621003678655519,
+                "statistic": 9.870156063968974,
+                "p_value": 1.0,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 277,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            },
+            "ENSEMBLE_ADAPTIVE": {
+              "n_origins": 277,
+              "rmse": 0.7439717201339857,
+              "mean_crps": 0.3791640957340744,
+              "relative_rmse_vs_equal": 1.1015669365211622,
+              "relative_crps_vs_equal": 1.075116672833844,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": 0.09736136436874891,
+                "statistic": 5.530420892315125,
+                "p_value": 0.9999999840268329,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 277,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": 0.026491585563940354,
+                "statistic": 6.038236363714438,
+                "p_value": 0.9999999992209614,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 277,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            }
+          },
+          "multiplicity": {
+            "RMSE": {
+              "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+              "fwer": 0.1,
+              "replications": 10000,
+              "family": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_BAYES",
+                "ENSEMBLE_INVERSE_MSE"
+              ],
+              "family_size": 3,
+              "block_length": 7,
+              "adjusted_p_values": {
+                "ENSEMBLE_INVERSE_MSE": 0.9964,
+                "ENSEMBLE_ADAPTIVE": 1.0,
+                "ENSEMBLE_BAYES": 1.0
+              },
+              "raw_p_values": {
+                "ENSEMBLE_ADAPTIVE": 0.9999999840268329,
+                "ENSEMBLE_BAYES": 1.0,
+                "ENSEMBLE_INVERSE_MSE": 0.9921932646638727
+              },
+              "rejected": []
+            },
+            "CRPS": {
+              "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+              "fwer": 0.1,
+              "replications": 10000,
+              "family": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_BAYES",
+                "ENSEMBLE_INVERSE_MSE"
+              ],
+              "family_size": 3,
+              "block_length": 7,
+              "adjusted_p_values": {
+                "ENSEMBLE_INVERSE_MSE": 0.9979,
+                "ENSEMBLE_ADAPTIVE": 1.0,
+                "ENSEMBLE_BAYES": 1.0
+              },
+              "raw_p_values": {
+                "ENSEMBLE_ADAPTIVE": 0.9999999992209614,
+                "ENSEMBLE_BAYES": 1.0,
+                "ENSEMBLE_INVERSE_MSE": 0.9975335425854799
+              },
+              "rejected": []
+            }
+          },
+          "subset": "REAL_TIME"
+        },
+        "PSEUDO_REAL_TIME": {
+          "status": "OK",
+          "n_origins": 35,
+          "control": "ENSEMBLE_EQUAL",
+          "loss_conventions": {
+            "RMSE": "sqrt(mean squared error) per origin; DM uses the squared-error differential",
+            "CRPS": "protocol CRPS = twice the mean pinball loss over the 19-quantile grid"
+          },
+          "per_ensemble": {
+            "ENSEMBLE_EQUAL": {
+              "n_origins": 35,
+              "rmse": 0.517385790130324,
+              "mean_crps": 0.18407842546721698,
+              "relative_rmse_vs_equal": 1.0,
+              "relative_crps_vs_equal": 1.0,
+              "is_control": true
+            },
+            "ENSEMBLE_INVERSE_MSE": {
+              "n_origins": 35,
+              "rmse": 0.5241024373224273,
+              "mean_crps": 0.1847259996776731,
+              "relative_rmse_vs_equal": 1.0129818934347066,
+              "relative_crps_vs_equal": 1.003517925627691,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": 0.006995308978529129,
+                "statistic": 5.583181329885123,
+                "p_value": 0.9999999881920854,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 35,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": 0.0006475742104560926,
+                "statistic": 5.495866239563532,
+                "p_value": 0.9999999805601433,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 35,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            },
+            "ENSEMBLE_BAYES": {
+              "n_origins": 35,
+              "rmse": 1.4001411671537265,
+              "mean_crps": 0.31031038239869546,
+              "relative_rmse_vs_equal": 2.7061840388021587,
+              "relative_crps_vs_equal": 1.6857509597394915,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": 1.6927072321298198,
+                "statistic": 7.349029585646123,
+                "p_value": 0.9999999999999002,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 35,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": 0.12623195693147848,
+                "statistic": 7.666532101301722,
+                "p_value": 0.9999999999999911,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 35,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            },
+            "ENSEMBLE_ADAPTIVE": {
+              "n_origins": 35,
+              "rmse": 0.6576715118166675,
+              "mean_crps": 0.1983421178707997,
+              "relative_rmse_vs_equal": 1.2711433602592892,
+              "relative_crps_vs_equal": 1.0774870404686452,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": 0.1648437616264413,
+                "statistic": 6.647466996467925,
+                "p_value": 0.999999999985091,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 35,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": 0.01426369240358272,
+                "statistic": 7.4012714434369675,
+                "p_value": 0.9999999999999325,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 35,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            }
+          },
+          "multiplicity": {
+            "RMSE": {
+              "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+              "fwer": 0.1,
+              "replications": 10000,
+              "family": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_BAYES",
+                "ENSEMBLE_INVERSE_MSE"
+              ],
+              "family_size": 3,
+              "block_length": 4,
+              "adjusted_p_values": {
+                "ENSEMBLE_INVERSE_MSE": 1.0,
+                "ENSEMBLE_ADAPTIVE": 1.0,
+                "ENSEMBLE_BAYES": 1.0
+              },
+              "raw_p_values": {
+                "ENSEMBLE_ADAPTIVE": 0.999999999985091,
+                "ENSEMBLE_BAYES": 0.9999999999999002,
+                "ENSEMBLE_INVERSE_MSE": 0.9999999881920854
+              },
+              "rejected": []
+            },
+            "CRPS": {
+              "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+              "fwer": 0.1,
+              "replications": 10000,
+              "family": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_BAYES",
+                "ENSEMBLE_INVERSE_MSE"
+              ],
+              "family_size": 3,
+              "block_length": 4,
+              "adjusted_p_values": {
+                "ENSEMBLE_INVERSE_MSE": 1.0,
+                "ENSEMBLE_ADAPTIVE": 1.0,
+                "ENSEMBLE_BAYES": 1.0
+              },
+              "raw_p_values": {
+                "ENSEMBLE_ADAPTIVE": 0.9999999999999325,
+                "ENSEMBLE_BAYES": 0.9999999999999911,
+                "ENSEMBLE_INVERSE_MSE": 0.9999999805601433
+              },
+              "rejected": []
+            }
+          },
+          "subset": "PSEUDO_REAL_TIME"
+        }
+      },
+      "by_regime": {
+        "RECESSION": {
+          "status": "OK",
+          "n_origins": 28,
+          "control": "ENSEMBLE_EQUAL",
+          "loss_conventions": {
+            "RMSE": "sqrt(mean squared error) per origin; DM uses the squared-error differential",
+            "CRPS": "protocol CRPS = twice the mean pinball loss over the 19-quantile grid"
+          },
+          "per_ensemble": {
+            "ENSEMBLE_EQUAL": {
+              "n_origins": 28,
+              "rmse": 1.2004043300636,
+              "mean_crps": 0.6468513230767243,
+              "relative_rmse_vs_equal": 1.0,
+              "relative_crps_vs_equal": 1.0,
+              "is_control": true
+            },
+            "ENSEMBLE_INVERSE_MSE": {
+              "n_origins": 28,
+              "rmse": 1.1996051208904983,
+              "mean_crps": 0.6463669764073261,
+              "relative_rmse_vs_equal": 0.9993342166859234,
+              "relative_crps_vs_equal": 0.9992512241188679,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": -0.0019181095687337325,
+                "statistic": -1.3982672189739769,
+                "p_value": 0.08101641896270984,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 28,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": -0.00048434666939821056,
+                "statistic": -1.4965390301371913,
+                "p_value": 0.06725662243356889,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 28,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            },
+            "ENSEMBLE_BAYES": {
+              "n_origins": 28,
+              "rmse": 1.286111844847781,
+              "mean_crps": 0.7373349292627488,
+              "relative_rmse_vs_equal": 1.0713988717281953,
+              "relative_crps_vs_equal": 1.1398831585527915,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": 0.21311312182232264,
+                "statistic": 1.2676634540762082,
+                "p_value": 0.8975409194530337,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 28,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": 0.09048360618602451,
+                "statistic": 2.214729210394323,
+                "p_value": 0.9866106716756528,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 28,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            },
+            "ENSEMBLE_ADAPTIVE": {
+              "n_origins": 28,
+              "rmse": 1.1954788514567354,
+              "mean_crps": 0.6533849966681151,
+              "relative_rmse_vs_equal": 0.9958968170278062,
+              "relative_crps_vs_equal": 1.0101007346793598,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": -0.011800871355124868,
+                "statistic": -0.20212675896908017,
+                "p_value": 0.41990881447852463,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 28,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": 0.0065336735913909105,
+                "statistic": 0.49161688192505393,
+                "p_value": 0.6885048966013674,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 28,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            }
+          },
+          "multiplicity": {
+            "RMSE": {
+              "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+              "fwer": 0.1,
+              "replications": 10000,
+              "family": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_BAYES",
+                "ENSEMBLE_INVERSE_MSE"
+              ],
+              "family_size": 3,
+              "block_length": 4,
+              "adjusted_p_values": {
+                "ENSEMBLE_INVERSE_MSE": 0.1718,
+                "ENSEMBLE_ADAPTIVE": 0.5712,
+                "ENSEMBLE_BAYES": 0.8856
+              },
+              "raw_p_values": {
+                "ENSEMBLE_ADAPTIVE": 0.41990881447852463,
+                "ENSEMBLE_BAYES": 0.8975409194530337,
+                "ENSEMBLE_INVERSE_MSE": 0.08101641896270984
+              },
+              "rejected": []
+            },
+            "CRPS": {
+              "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+              "fwer": 0.1,
+              "replications": 10000,
+              "family": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_BAYES",
+                "ENSEMBLE_INVERSE_MSE"
+              ],
+              "family_size": 3,
+              "block_length": 4,
+              "adjusted_p_values": {
+                "ENSEMBLE_INVERSE_MSE": 0.1482,
+                "ENSEMBLE_ADAPTIVE": 0.7776,
+                "ENSEMBLE_BAYES": 0.9768
+              },
+              "raw_p_values": {
+                "ENSEMBLE_ADAPTIVE": 0.6885048966013674,
+                "ENSEMBLE_BAYES": 0.9866106716756528,
+                "ENSEMBLE_INVERSE_MSE": 0.06725662243356889
+              },
+              "rejected": []
+            }
+          },
+          "subset": "RECESSION"
+        },
+        "EXPANSION": {
+          "status": "OK",
+          "n_origins": 284,
+          "control": "ENSEMBLE_EQUAL",
+          "loss_conventions": {
+            "RMSE": "sqrt(mean squared error) per origin; DM uses the squared-error differential",
+            "CRPS": "protocol CRPS = twice the mean pinball loss over the 19-quantile grid"
+          },
+          "per_ensemble": {
+            "ENSEMBLE_EQUAL": {
+              "n_origins": 284,
+              "rmse": 0.5794929315927975,
+              "mean_crps": 0.3028915252194769,
+              "relative_rmse_vs_equal": 1.0,
+              "relative_crps_vs_equal": 1.0,
+              "is_control": true
+            },
+            "ENSEMBLE_INVERSE_MSE": {
+              "n_origins": 284,
+              "rmse": 0.5808717016342909,
+              "mean_crps": 0.3031832915938159,
+              "relative_rmse_vs_equal": 1.0023792698173277,
+              "relative_crps_vs_equal": 1.0009632701810578,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": 0.0015998759935019775,
+                "statistic": 6.087180167295752,
+                "p_value": 0.9999999994254168,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 284,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": 0.0002917663743390646,
+                "statistic": 5.832606326670998,
+                "p_value": 0.9999999972715895,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 284,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            },
+            "ENSEMBLE_BAYES": {
+              "n_origins": 284,
+              "rmse": 1.0431316096087613,
+              "mean_crps": 0.4676322978185999,
+              "relative_rmse_vs_equal": 1.8000765026444827,
+              "relative_crps_vs_equal": 1.5438936347913694,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": 0.7523114971989505,
+                "statistic": 10.246192842023017,
+                "p_value": 1.0,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 284,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": 0.164740772599123,
+                "statistic": 10.562957358045905,
+                "p_value": 1.0,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 284,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            },
+            "ENSEMBLE_ADAPTIVE": {
+              "n_origins": 284,
+              "rmse": 0.6724971291382268,
+              "mean_crps": 0.329843833581371,
+              "relative_rmse_vs_equal": 1.1604923761361463,
+              "relative_crps_vs_equal": 1.0889833690208544,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": 0.11644033093314221,
+                "statistic": 7.118041303525908,
+                "p_value": 0.9999999999994527,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 284,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": 0.02695230836189411,
+                "statistic": 6.619839715188546,
+                "p_value": 0.9999999999820206,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 284,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            }
+          },
+          "multiplicity": {
+            "RMSE": {
+              "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+              "fwer": 0.1,
+              "replications": 10000,
+              "family": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_BAYES",
+                "ENSEMBLE_INVERSE_MSE"
+              ],
+              "family_size": 3,
+              "block_length": 7,
+              "adjusted_p_values": {
+                "ENSEMBLE_INVERSE_MSE": 1.0,
+                "ENSEMBLE_ADAPTIVE": 1.0,
+                "ENSEMBLE_BAYES": 1.0
+              },
+              "raw_p_values": {
+                "ENSEMBLE_ADAPTIVE": 0.9999999999994527,
+                "ENSEMBLE_BAYES": 1.0,
+                "ENSEMBLE_INVERSE_MSE": 0.9999999994254168
+              },
+              "rejected": []
+            },
+            "CRPS": {
+              "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+              "fwer": 0.1,
+              "replications": 10000,
+              "family": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_BAYES",
+                "ENSEMBLE_INVERSE_MSE"
+              ],
+              "family_size": 3,
+              "block_length": 7,
+              "adjusted_p_values": {
+                "ENSEMBLE_INVERSE_MSE": 1.0,
+                "ENSEMBLE_ADAPTIVE": 1.0,
+                "ENSEMBLE_BAYES": 1.0
+              },
+              "raw_p_values": {
+                "ENSEMBLE_ADAPTIVE": 0.9999999999820206,
+                "ENSEMBLE_BAYES": 1.0,
+                "ENSEMBLE_INVERSE_MSE": 0.9999999972715895
+              },
+              "rejected": []
+            }
+          },
+          "subset": "EXPANSION"
+        }
+      },
+      "digests": {
+        "origins_sha256": "1740cbdcad22ea734f5016be8ca8ed83e654ef87a5f53b36ced07993cada0814",
+        "target_periods_sha256": "1740cbdcad22ea734f5016be8ca8ed83e654ef87a5f53b36ced07993cada0814",
+        "squared_errors_sha256": "59b9314a88dda275b80c091c18cdf2ca91ad81fadaa8eb5033ca93a5b3c09e15",
+        "crps_sha256": "7d539585f4d489e0b487544125eceadb71775f7e4cc3d5009514904d5bf43d8f"
+      }
+    },
+    "T2_GDP_GROWTH/h0": {
+      "status": "OK",
+      "target": "T2_GDP_GROWTH",
+      "horizon": 0,
+      "pair_key": "T2_GDP_GROWTH/h0",
+      "ensemble_ids": [
+        "ENSEMBLE_EQUAL",
+        "ENSEMBLE_INVERSE_MSE",
+        "ENSEMBLE_BAYES",
+        "ENSEMBLE_ADAPTIVE"
+      ],
+      "control": "ENSEMBLE_EQUAL",
+      "replications": 10000,
+      "windows": {
+        "W1": {
+          "window": "W1",
+          "origins_in_window": 204,
+          "origins_used": 204,
+          "skipped_no_first_publication_actual": 0,
+          "skipped_incomplete_candidates": 0,
+          "candidate_failures": {
+            "ENSEMBLE_EQUAL": 0,
+            "ENSEMBLE_INVERSE_MSE": 0,
+            "ENSEMBLE_BAYES": 0,
+            "ENSEMBLE_ADAPTIVE": 0
+          },
+          "data_class_counts": {
+            "PSEUDO_REAL_TIME": 83,
+            "REAL_TIME": 121
+          },
+          "weight_source_counts": {
+            "ENSEMBLE_EQUAL": {
+              "EQUAL_DECLARED_CONTROL": 204
+            },
+            "ENSEMBLE_INVERSE_MSE": {
+              "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 23,
+              "HISTORY": 181
+            },
+            "ENSEMBLE_BAYES": {
+              "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 23,
+              "HISTORY": 181
+            },
+            "ENSEMBLE_ADAPTIVE": {
+              "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 23,
+              "HISTORY": 181
+            }
+          },
+          "first_origin": "1990-01-31",
+          "last_origin": "2006-12-31",
+          "sampled": false
+        },
+        "W2": {
+          "window": "W2",
+          "origins_in_window": 156,
+          "origins_used": 156,
+          "skipped_no_first_publication_actual": 0,
+          "skipped_incomplete_candidates": 0,
+          "candidate_failures": {
+            "ENSEMBLE_EQUAL": 0,
+            "ENSEMBLE_INVERSE_MSE": 0,
+            "ENSEMBLE_BAYES": 0,
+            "ENSEMBLE_ADAPTIVE": 0
+          },
+          "data_class_counts": {
+            "REAL_TIME": 156
+          },
+          "weight_source_counts": {
+            "ENSEMBLE_EQUAL": {
+              "EQUAL_DECLARED_CONTROL": 156
+            },
+            "ENSEMBLE_INVERSE_MSE": {
+              "HISTORY": 156
+            },
+            "ENSEMBLE_BAYES": {
+              "HISTORY": 156
+            },
+            "ENSEMBLE_ADAPTIVE": {
+              "HISTORY": 156
+            }
+          },
+          "first_origin": "2007-01-31",
+          "last_origin": "2019-12-31",
+          "sampled": false
+        }
+      },
+      "origins": {
+        "total": 360,
+        "first_origin": "1990-01-31",
+        "last_origin": "2019-12-31",
+        "real_time": 277,
+        "pseudo_real_time": 83,
+        "weight_source_counts": {
+          "ENSEMBLE_EQUAL": {
+            "EQUAL_DECLARED_CONTROL": 360
+          },
+          "ENSEMBLE_INVERSE_MSE": {
+            "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 23,
+            "HISTORY": 337
+          },
+          "ENSEMBLE_BAYES": {
+            "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 23,
+            "HISTORY": 337
+          },
+          "ENSEMBLE_ADAPTIVE": {
+            "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 23,
+            "HISTORY": 337
+          }
+        }
+      },
+      "overall": {
+        "status": "OK",
+        "n_origins": 360,
+        "control": "ENSEMBLE_EQUAL",
+        "loss_conventions": {
+          "RMSE": "sqrt(mean squared error) per origin; DM uses the squared-error differential",
+          "CRPS": "protocol CRPS = twice the mean pinball loss over the 19-quantile grid"
+        },
+        "per_ensemble": {
+          "ENSEMBLE_EQUAL": {
+            "n_origins": 360,
+            "rmse": 2.1762305600894227,
+            "mean_crps": 158.48778320119501,
+            "relative_rmse_vs_equal": 1.0,
+            "relative_crps_vs_equal": 1.0,
+            "is_control": true
+          },
+          "ENSEMBLE_INVERSE_MSE": {
+            "n_origins": 360,
+            "rmse": 2.1761637671808916,
+            "mean_crps": 158.32546426207847,
+            "relative_rmse_vs_equal": 0.9999693079815365,
+            "relative_crps_vs_equal": 0.9989758268060921,
+            "is_control": false,
+            "dm_rmse": {
+              "mean_differential": -0.00029070907619398217,
+              "statistic": -1.6670353509381872,
+              "p_value": 0.047753687883003604,
+              "hac_lags": 0,
+              "hln_factor": 1.0,
+              "n": 360,
+              "alternative": "less",
+              "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+            },
+            "dm_crps": {
+              "mean_differential": -0.1623189391165751,
+              "statistic": -0.08988304731974625,
+              "p_value": 0.46419007644802995,
+              "hac_lags": 0,
+              "hln_factor": 1.0,
+              "n": 360,
+              "alternative": "less",
+              "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+            }
+          },
+          "ENSEMBLE_BAYES": {
+            "n_origins": 360,
+            "rmse": 2.2981050232617384,
+            "mean_crps": 82.92054432233381,
+            "relative_rmse_vs_equal": 1.0560025511117295,
+            "relative_crps_vs_equal": 0.523198335212178,
+            "is_control": false,
+            "dm_rmse": {
+              "mean_differential": 0.5453072472737129,
+              "statistic": 3.2164038587360553,
+              "p_value": 0.9993509599069714,
+              "hac_lags": 0,
+              "hln_factor": 1.0,
+              "n": 360,
+              "alternative": "less",
+              "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+            },
+            "dm_crps": {
+              "mean_differential": -75.56723887886119,
+              "statistic": -5.917114017718006,
+              "p_value": 1.6381979106583344e-09,
+              "hac_lags": 0,
+              "hln_factor": 1.0,
+              "n": 360,
+              "alternative": "less",
+              "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+            }
+          },
+          "ENSEMBLE_ADAPTIVE": {
+            "n_origins": 360,
+            "rmse": 2.1912426597160994,
+            "mean_crps": 120.40787201195457,
+            "relative_rmse_vs_equal": 1.006898211936726,
+            "relative_crps_vs_equal": 0.7597296749308478,
+            "is_control": false,
+            "dm_rmse": {
+              "mean_differential": 0.06556494309256297,
+              "statistic": 1.6304226093459737,
+              "p_value": 0.948493895301457,
+              "hac_lags": 0,
+              "hln_factor": 1.0,
+              "n": 360,
+              "alternative": "less",
+              "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+            },
+            "dm_crps": {
+              "mean_differential": -38.07991118924045,
+              "statistic": -8.74977930611063,
+              "p_value": 0.0,
+              "hac_lags": 0,
+              "hln_factor": 1.0,
+              "n": 360,
+              "alternative": "less",
+              "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+            }
+          }
+        },
+        "multiplicity": {
+          "RMSE": {
+            "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+            "fwer": 0.1,
+            "replications": 10000,
+            "family": [
+              "ENSEMBLE_ADAPTIVE",
+              "ENSEMBLE_BAYES",
+              "ENSEMBLE_INVERSE_MSE"
+            ],
+            "family_size": 3,
+            "block_length": 8,
+            "adjusted_p_values": {
+              "ENSEMBLE_INVERSE_MSE": 0.1027,
+              "ENSEMBLE_ADAPTIVE": 0.9499,
+              "ENSEMBLE_BAYES": 0.9971
+            },
+            "raw_p_values": {
+              "ENSEMBLE_ADAPTIVE": 0.948493895301457,
+              "ENSEMBLE_BAYES": 0.9993509599069714,
+              "ENSEMBLE_INVERSE_MSE": 0.047753687883003604
+            },
+            "rejected": []
+          },
+          "CRPS": {
+            "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+            "fwer": 0.1,
+            "replications": 10000,
+            "family": [
+              "ENSEMBLE_ADAPTIVE",
+              "ENSEMBLE_BAYES",
+              "ENSEMBLE_INVERSE_MSE"
+            ],
+            "family_size": 3,
+            "block_length": 8,
+            "adjusted_p_values": {
+              "ENSEMBLE_ADAPTIVE": 0.0,
+              "ENSEMBLE_BAYES": 0.0,
+              "ENSEMBLE_INVERSE_MSE": 0.443
+            },
+            "raw_p_values": {
+              "ENSEMBLE_ADAPTIVE": 0.0,
+              "ENSEMBLE_BAYES": 1.6381979106583344e-09,
+              "ENSEMBLE_INVERSE_MSE": 0.46419007644802995
+            },
+            "rejected": [
+              "ENSEMBLE_ADAPTIVE",
+              "ENSEMBLE_BAYES"
+            ]
+          }
+        },
+        "subset": "ALL_ORIGINS"
+      },
+      "by_window": {
+        "W1": {
+          "status": "OK",
+          "n_origins": 204,
+          "control": "ENSEMBLE_EQUAL",
+          "loss_conventions": {
+            "RMSE": "sqrt(mean squared error) per origin; DM uses the squared-error differential",
+            "CRPS": "protocol CRPS = twice the mean pinball loss over the 19-quantile grid"
+          },
+          "per_ensemble": {
+            "ENSEMBLE_EQUAL": {
+              "n_origins": 204,
+              "rmse": 2.034218607568548,
+              "mean_crps": 106.9352571594458,
+              "relative_rmse_vs_equal": 1.0,
+              "relative_crps_vs_equal": 1.0,
+              "is_control": true
+            },
+            "ENSEMBLE_INVERSE_MSE": {
+              "n_origins": 204,
+              "rmse": 2.0341871997228225,
+              "mean_crps": 108.05506357134676,
+              "relative_rmse_vs_equal": 0.99998456024067,
+              "relative_crps_vs_equal": 1.0104718167014952,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": -0.00012777986194532055,
+                "statistic": -1.5348965290906114,
+                "p_value": 0.06240462312690326,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 204,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": 1.1198064119009428,
+                "statistic": 0.714657234667246,
+                "p_value": 0.7625895654090966,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 204,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            },
+            "ENSEMBLE_BAYES": {
+              "n_origins": 204,
+              "rmse": 2.169469706997363,
+              "mean_crps": 11.341581885673234,
+              "relative_rmse_vs_equal": 1.066487986554443,
+              "relative_crps_vs_equal": 0.10606026662247017,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": 0.5685534662011017,
+                "statistic": 2.6885730034546955,
+                "p_value": 0.996412092843424,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 204,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": -95.59367527377258,
+                "statistic": -8.234621269156714,
+                "p_value": 1.1102230246251565e-16,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 204,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            },
+            "ENSEMBLE_ADAPTIVE": {
+              "n_origins": 204,
+              "rmse": 2.044930153656914,
+              "mean_crps": 70.4298843822195,
+              "relative_rmse_vs_equal": 1.0052656809098652,
+              "relative_crps_vs_equal": 0.6586217329351444,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": 0.04369398995716919,
+                "statistic": 0.8725717831852969,
+                "p_value": 0.8085517369847608,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 204,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": -36.5053727772263,
+                "statistic": -8.255887637426154,
+                "p_value": 5.551115123125783e-17,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 204,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            }
+          },
+          "multiplicity": {
+            "RMSE": {
+              "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+              "fwer": 0.1,
+              "replications": 10000,
+              "family": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_BAYES",
+                "ENSEMBLE_INVERSE_MSE"
+              ],
+              "family_size": 3,
+              "block_length": 6,
+              "adjusted_p_values": {
+                "ENSEMBLE_INVERSE_MSE": 0.138,
+                "ENSEMBLE_ADAPTIVE": 0.8493,
+                "ENSEMBLE_BAYES": 0.9929
+              },
+              "raw_p_values": {
+                "ENSEMBLE_ADAPTIVE": 0.8085517369847608,
+                "ENSEMBLE_BAYES": 0.996412092843424,
+                "ENSEMBLE_INVERSE_MSE": 0.06240462312690326
+              },
+              "rejected": []
+            },
+            "CRPS": {
+              "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+              "fwer": 0.1,
+              "replications": 10000,
+              "family": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_BAYES",
+                "ENSEMBLE_INVERSE_MSE"
+              ],
+              "family_size": 3,
+              "block_length": 6,
+              "adjusted_p_values": {
+                "ENSEMBLE_ADAPTIVE": 0.0,
+                "ENSEMBLE_BAYES": 0.0,
+                "ENSEMBLE_INVERSE_MSE": 0.7578
+              },
+              "raw_p_values": {
+                "ENSEMBLE_ADAPTIVE": 5.551115123125783e-17,
+                "ENSEMBLE_BAYES": 1.1102230246251565e-16,
+                "ENSEMBLE_INVERSE_MSE": 0.7625895654090966
+              },
+              "rejected": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_BAYES"
+              ]
+            }
+          },
+          "subset": "W1"
+        },
+        "W2": {
+          "status": "OK",
+          "n_origins": 156,
+          "control": "ENSEMBLE_EQUAL",
+          "loss_conventions": {
+            "RMSE": "sqrt(mean squared error) per origin; DM uses the squared-error differential",
+            "CRPS": "protocol CRPS = twice the mean pinball loss over the 19-quantile grid"
+          },
+          "per_ensemble": {
+            "ENSEMBLE_EQUAL": {
+              "n_origins": 156,
+              "rmse": 2.3490196430161703,
+              "mean_crps": 225.9026249480978,
+              "relative_rmse_vs_equal": 1.0,
+              "relative_crps_vs_equal": 1.0,
+              "is_control": true
+            },
+            "ENSEMBLE_INVERSE_MSE": {
+              "n_origins": 156,
+              "rmse": 2.3489124106529493,
+              "mean_crps": 224.0636805499583,
+              "relative_rmse_vs_equal": 0.9999543501632523,
+              "relative_crps_vs_equal": 0.9918595704739508,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": -0.0005037703563653087,
+                "statistic": -1.3025292414914815,
+                "p_value": 0.09636776427904775,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 156,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": -1.8389443981394833,
+                "statistic": -0.5073614678386256,
+                "p_value": 0.3059506083540252,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 156,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            },
+            "ENSEMBLE_BAYES": {
+              "n_origins": 156,
+              "rmse": 2.4561762210548435,
+              "mean_crps": 176.5238028933515,
+              "relative_rmse_vs_equal": 1.0456175742749783,
+              "relative_crps_vs_equal": 0.7814154569204704,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": 0.5149083455994353,
+                "statistic": 1.86057662971415,
+                "p_value": 0.9685980061628465,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 156,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": -49.378822054746294,
+                "statistic": -1.9667449722734054,
+                "p_value": 0.02460630968960431,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 156,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            },
+            "ENSEMBLE_ADAPTIVE": {
+              "n_origins": 156,
+              "rmse": 2.368978409261138,
+              "mean_crps": 185.76370198930042,
+              "relative_rmse_vs_equal": 1.0084966365880792,
+              "relative_crps_vs_equal": 0.8223175894126087,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": 0.09416542026961641,
+                "statistic": 1.4335661215013888,
+                "p_value": 0.9241519414009862,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 156,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": -40.13892295879741,
+                "statistic": -4.889707656576209,
+                "p_value": 5.049292083336709e-07,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 156,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            }
+          },
+          "multiplicity": {
+            "RMSE": {
+              "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+              "fwer": 0.1,
+              "replications": 10000,
+              "family": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_BAYES",
+                "ENSEMBLE_INVERSE_MSE"
+              ],
+              "family_size": 3,
+              "block_length": 6,
+              "adjusted_p_values": {
+                "ENSEMBLE_INVERSE_MSE": 0.1503,
+                "ENSEMBLE_ADAPTIVE": 0.9165,
+                "ENSEMBLE_BAYES": 0.9502
+              },
+              "raw_p_values": {
+                "ENSEMBLE_ADAPTIVE": 0.9241519414009862,
+                "ENSEMBLE_BAYES": 0.9685980061628465,
+                "ENSEMBLE_INVERSE_MSE": 0.09636776427904775
+              },
+              "rejected": []
+            },
+            "CRPS": {
+              "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+              "fwer": 0.1,
+              "replications": 10000,
+              "family": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_BAYES",
+                "ENSEMBLE_INVERSE_MSE"
+              ],
+              "family_size": 3,
+              "block_length": 6,
+              "adjusted_p_values": {
+                "ENSEMBLE_ADAPTIVE": 0.0,
+                "ENSEMBLE_BAYES": 0.0519,
+                "ENSEMBLE_INVERSE_MSE": 0.291
+              },
+              "raw_p_values": {
+                "ENSEMBLE_ADAPTIVE": 5.049292083336709e-07,
+                "ENSEMBLE_BAYES": 0.02460630968960431,
+                "ENSEMBLE_INVERSE_MSE": 0.3059506083540252
+              },
+              "rejected": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_BAYES"
+              ]
+            }
+          },
+          "subset": "W2"
+        }
+      },
+      "by_data_class": {
+        "REAL_TIME": {
+          "status": "OK",
+          "n_origins": 277,
+          "control": "ENSEMBLE_EQUAL",
+          "loss_conventions": {
+            "RMSE": "sqrt(mean squared error) per origin; DM uses the squared-error differential",
+            "CRPS": "protocol CRPS = twice the mean pinball loss over the 19-quantile grid"
+          },
+          "per_ensemble": {
+            "ENSEMBLE_EQUAL": {
+              "n_origins": 277,
+              "rmse": 2.2034843003397167,
+              "mean_crps": 187.0771735548984,
+              "relative_rmse_vs_equal": 1.0,
+              "relative_crps_vs_equal": 1.0,
+              "is_control": true
+            },
+            "ENSEMBLE_INVERSE_MSE": {
+              "n_origins": 277,
+              "rmse": 2.203407523135742,
+              "mean_crps": 186.49126543578834,
+              "relative_rmse_vs_equal": 0.999965156455182,
+              "relative_crps_vs_equal": 0.9968680940171564,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": -0.0003383488324244367,
+                "statistic": -1.5338070111668265,
+                "p_value": 0.06253856882264613,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 277,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": -0.5859081191100592,
+                "statistic": -0.250007077699987,
+                "p_value": 0.40129093759857226,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 277,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            },
+            "ENSEMBLE_BAYES": {
+              "n_origins": 277,
+              "rmse": 2.30558486589032,
+              "mean_crps": 107.3442118392199,
+              "relative_rmse_vs_equal": 1.0463359623369508,
+              "relative_crps_vs_equal": 0.5737964167377128,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": 0.4603785119788745,
+                "statistic": 2.3945405627175846,
+                "p_value": 0.9916793986703332,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 277,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": -79.73296171567848,
+                "statistic": -4.924017877725507,
+                "p_value": 4.239254276505733e-07,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 277,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            },
+            "ENSEMBLE_ADAPTIVE": {
+              "n_origins": 277,
+              "rmse": 2.21964617512318,
+              "mean_crps": 144.72726232377929,
+              "relative_rmse_vs_equal": 1.0073346902362643,
+              "relative_crps_vs_equal": 0.7736233104960216,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": 0.07148608089535144,
+                "statistic": 1.5733203527688098,
+                "p_value": 0.9421776705247744,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 277,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": -42.349911231119094,
+                "statistic": -7.762373007729484,
+                "p_value": 4.163336342344337e-15,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 277,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            }
+          },
+          "multiplicity": {
+            "RMSE": {
+              "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+              "fwer": 0.1,
+              "replications": 10000,
+              "family": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_BAYES",
+                "ENSEMBLE_INVERSE_MSE"
+              ],
+              "family_size": 3,
+              "block_length": 7,
+              "adjusted_p_values": {
+                "ENSEMBLE_INVERSE_MSE": 0.1267,
+                "ENSEMBLE_ADAPTIVE": 0.9396,
+                "ENSEMBLE_BAYES": 0.9853
+              },
+              "raw_p_values": {
+                "ENSEMBLE_ADAPTIVE": 0.9421776705247744,
+                "ENSEMBLE_BAYES": 0.9916793986703332,
+                "ENSEMBLE_INVERSE_MSE": 0.06253856882264613
+              },
+              "rejected": []
+            },
+            "CRPS": {
+              "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+              "fwer": 0.1,
+              "replications": 10000,
+              "family": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_BAYES",
+                "ENSEMBLE_INVERSE_MSE"
+              ],
+              "family_size": 3,
+              "block_length": 7,
+              "adjusted_p_values": {
+                "ENSEMBLE_ADAPTIVE": 0.0,
+                "ENSEMBLE_BAYES": 0.0001,
+                "ENSEMBLE_INVERSE_MSE": 0.3756
+              },
+              "raw_p_values": {
+                "ENSEMBLE_ADAPTIVE": 4.163336342344337e-15,
+                "ENSEMBLE_BAYES": 4.239254276505733e-07,
+                "ENSEMBLE_INVERSE_MSE": 0.40129093759857226
+              },
+              "rejected": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_BAYES"
+              ]
+            }
+          },
+          "subset": "REAL_TIME"
+        },
+        "PSEUDO_REAL_TIME": {
+          "status": "OK",
+          "n_origins": 83,
+          "control": "ENSEMBLE_EQUAL",
+          "loss_conventions": {
+            "RMSE": "sqrt(mean squared error) per origin; DM uses the squared-error differential",
+            "CRPS": "protocol CRPS = twice the mean pinball loss over the 19-quantile grid"
+          },
+          "per_ensemble": {
+            "ENSEMBLE_EQUAL": {
+              "n_origins": 83,
+              "rmse": 2.082695699043204,
+              "mean_crps": 63.07499852678734,
+              "relative_rmse_vs_equal": 1.0,
+              "relative_crps_vs_equal": 1.0,
+              "is_control": true
+            },
+            "ENSEMBLE_INVERSE_MSE": {
+              "n_origins": 83,
+              "rmse": 2.082664076669261,
+              "mean_crps": 64.32634468234782,
+              "relative_rmse_vs_equal": 0.9999848166134124,
+              "relative_crps_vs_equal": 1.019839019972851,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": -0.00013171856443692292,
+                "statistic": -0.764051165020829,
+                "p_value": 0.22241837632304395,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 83,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": 1.251346155560475,
+                "statistic": 3.2483300904103354,
+                "p_value": 0.9994195774211514,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 83,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            },
+            "ENSEMBLE_BAYES": {
+              "n_origins": 83,
+              "rmse": 2.2729640308771084,
+              "mean_crps": 1.410232247906782,
+              "relative_rmse_vs_equal": 1.0913567603377268,
+              "relative_crps_vs_equal": 0.022358022684818138,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": 0.8287441108480531,
+                "statistic": 2.318435713741482,
+                "p_value": 0.9897871735088764,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 83,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": -61.664766278880556,
+                "statistic": -5.123145543442048,
+                "p_value": 1.502401144604093e-07,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 83,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            },
+            "ENSEMBLE_ADAPTIVE": {
+              "n_origins": 83,
+              "rmse": 2.093663156342595,
+              "mean_crps": 39.2455694050214,
+              "relative_rmse_vs_equal": 1.005265991236468,
+              "relative_crps_vs_equal": 0.6222048406129441,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": 0.04580403741337739,
+                "statistic": 0.5316605365386692,
+                "p_value": 0.7025194355208727,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 83,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": -23.829429121765934,
+                "statistic": -5.125144098855459,
+                "p_value": 1.486551360896371e-07,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 83,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            }
+          },
+          "multiplicity": {
+            "RMSE": {
+              "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+              "fwer": 0.1,
+              "replications": 10000,
+              "family": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_BAYES",
+                "ENSEMBLE_INVERSE_MSE"
+              ],
+              "family_size": 3,
+              "block_length": 5,
+              "adjusted_p_values": {
+                "ENSEMBLE_INVERSE_MSE": 0.3902,
+                "ENSEMBLE_ADAPTIVE": 0.7792,
+                "ENSEMBLE_BAYES": 0.9801
+              },
+              "raw_p_values": {
+                "ENSEMBLE_ADAPTIVE": 0.7025194355208727,
+                "ENSEMBLE_BAYES": 0.9897871735088764,
+                "ENSEMBLE_INVERSE_MSE": 0.22241837632304395
+              },
+              "rejected": []
+            },
+            "CRPS": {
+              "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+              "fwer": 0.1,
+              "replications": 10000,
+              "family": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_BAYES",
+                "ENSEMBLE_INVERSE_MSE"
+              ],
+              "family_size": 3,
+              "block_length": 5,
+              "adjusted_p_values": {
+                "ENSEMBLE_ADAPTIVE": 0.0,
+                "ENSEMBLE_BAYES": 0.0,
+                "ENSEMBLE_INVERSE_MSE": 0.9972
+              },
+              "raw_p_values": {
+                "ENSEMBLE_ADAPTIVE": 1.486551360896371e-07,
+                "ENSEMBLE_BAYES": 1.502401144604093e-07,
+                "ENSEMBLE_INVERSE_MSE": 0.9994195774211514
+              },
+              "rejected": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_BAYES"
+              ]
+            }
+          },
+          "subset": "PSEUDO_REAL_TIME"
+        }
+      },
+      "by_regime": {
+        "RECESSION": {
+          "status": "OK",
+          "n_origins": 42,
+          "control": "ENSEMBLE_EQUAL",
+          "loss_conventions": {
+            "RMSE": "sqrt(mean squared error) per origin; DM uses the squared-error differential",
+            "CRPS": "protocol CRPS = twice the mean pinball loss over the 19-quantile grid"
+          },
+          "per_ensemble": {
+            "ENSEMBLE_EQUAL": {
+              "n_origins": 42,
+              "rmse": 4.030960490310516,
+              "mean_crps": 138.06750066193558,
+              "relative_rmse_vs_equal": 1.0,
+              "relative_crps_vs_equal": 1.0,
+              "is_control": true
+            },
+            "ENSEMBLE_INVERSE_MSE": {
+              "n_origins": 42,
+              "rmse": 4.030942757273336,
+              "mean_crps": 126.21277926408013,
+              "relative_rmse_vs_equal": 0.9999956007911209,
+              "relative_crps_vs_equal": 0.9141382197764102,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": -0.0001429620300376405,
+                "statistic": -0.8995786159387695,
+                "p_value": 0.1841722706906499,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 42,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": -11.854721397855457,
+                "statistic": -1.4130063504420394,
+                "p_value": 0.07882692844650807,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 42,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            },
+            "ENSEMBLE_BAYES": {
+              "n_origins": 42,
+              "rmse": 4.390238502684881,
+              "mean_crps": 2.768856067442486,
+              "relative_rmse_vs_equal": 1.089129628841063,
+              "relative_crps_vs_equal": 0.020054365105240467,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": 3.0255516360123904,
+                "statistic": 3.458933798072421,
+                "p_value": 0.999728840907985,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 42,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": -135.2986445944931,
+                "statistic": -3.782533837269378,
+                "p_value": 7.761999100308614e-05,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 42,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            },
+            "ENSEMBLE_ADAPTIVE": {
+              "n_origins": 42,
+              "rmse": 4.113413019268058,
+              "mean_crps": 86.66089046474615,
+              "relative_rmse_vs_equal": 1.0204548095065031,
+              "relative_crps_vs_equal": 0.6276704514043402,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": 0.6715241926395636,
+                "statistic": 3.3943724267977737,
+                "p_value": 0.9996560696021675,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 42,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": -51.40661019718945,
+                "statistic": -3.762521620034846,
+                "p_value": 8.410438100725504e-05,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 42,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            }
+          },
+          "multiplicity": {
+            "RMSE": {
+              "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+              "fwer": 0.1,
+              "replications": 10000,
+              "family": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_BAYES",
+                "ENSEMBLE_INVERSE_MSE"
+              ],
+              "family_size": 3,
+              "block_length": 4,
+              "adjusted_p_values": {
+                "ENSEMBLE_INVERSE_MSE": 0.366,
+                "ENSEMBLE_ADAPTIVE": 0.998,
+                "ENSEMBLE_BAYES": 0.9981
+              },
+              "raw_p_values": {
+                "ENSEMBLE_ADAPTIVE": 0.9996560696021675,
+                "ENSEMBLE_BAYES": 0.999728840907985,
+                "ENSEMBLE_INVERSE_MSE": 0.1841722706906499
+              },
+              "rejected": []
+            },
+            "CRPS": {
+              "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+              "fwer": 0.1,
+              "replications": 10000,
+              "family": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_BAYES",
+                "ENSEMBLE_INVERSE_MSE"
+              ],
+              "family_size": 3,
+              "block_length": 4,
+              "adjusted_p_values": {
+                "ENSEMBLE_BAYES": 0.0009,
+                "ENSEMBLE_ADAPTIVE": 0.001,
+                "ENSEMBLE_INVERSE_MSE": 0.0988
+              },
+              "raw_p_values": {
+                "ENSEMBLE_ADAPTIVE": 8.410438100725504e-05,
+                "ENSEMBLE_BAYES": 7.761999100308614e-05,
+                "ENSEMBLE_INVERSE_MSE": 0.07882692844650807
+              },
+              "rejected": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_BAYES",
+                "ENSEMBLE_INVERSE_MSE"
+              ]
+            }
+          },
+          "subset": "RECESSION"
+        },
+        "EXPANSION": {
+          "status": "OK",
+          "n_origins": 318,
+          "control": "ENSEMBLE_EQUAL",
+          "loss_conventions": {
+            "RMSE": "sqrt(mean squared error) per origin; DM uses the squared-error differential",
+            "CRPS": "protocol CRPS = twice the mean pinball loss over the 19-quantile grid"
+          },
+          "per_ensemble": {
+            "ENSEMBLE_EQUAL": {
+              "n_origins": 318,
+              "rmse": 1.7931645354791939,
+              "mean_crps": 161.18480164977643,
+              "relative_rmse_vs_equal": 1.0,
+              "relative_crps_vs_equal": 1.0,
+              "is_control": true
+            },
+            "ENSEMBLE_INVERSE_MSE": {
+              "n_origins": 318,
+              "rmse": 1.7930780318946817,
+              "mean_crps": 162.56676228068196,
+              "relative_rmse_vs_equal": 0.9999517592597887,
+              "relative_crps_vs_equal": 1.0085737651240112,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": -0.00031022283700708384,
+                "statistic": -1.5805602084668522,
+                "p_value": 0.05698931506313443,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 318,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": 1.3819606309055412,
+                "statistic": 0.8132730858265295,
+                "p_value": 0.7919692477805058,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 318,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            },
+            "ENSEMBLE_BAYES": {
+              "n_origins": 318,
+              "rmse": 1.8528806899001258,
+              "mean_crps": 93.50661635599872,
+              "relative_rmse_vs_equal": 1.033302105433941,
+              "relative_crps_vs_equal": 0.5801205535443137,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": 0.21772779970445358,
+                "statistic": 1.5170288065574011,
+                "p_value": 0.9353702943984972,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 318,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": -67.67818529377773,
+                "statistic": -4.975411834456745,
+                "p_value": 3.255453196460145e-07,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 318,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            },
+            "ENSEMBLE_ADAPTIVE": {
+              "n_origins": 318,
+              "rmse": 1.7891259432133673,
+              "mean_crps": 124.86502051818965,
+              "relative_rmse_vs_equal": 0.9977477848875996,
+              "relative_crps_vs_equal": 0.7746699393500965,
+              "is_control": false,
+              "dm_rmse": {
+                "mean_differential": -0.014467410621191834,
+                "statistic": -0.4146904429274375,
+                "p_value": 0.3391842647613882,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 318,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              },
+              "dm_crps": {
+                "mean_differential": -36.319781131586815,
+                "statistic": -7.937998025356905,
+                "p_value": 1.0547118733938987e-15,
+                "hac_lags": 0,
+                "hln_factor": 1.0,
+                "n": 318,
+                "alternative": "less",
+                "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+              }
+            }
+          },
+          "multiplicity": {
+            "RMSE": {
+              "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+              "fwer": 0.1,
+              "replications": 10000,
+              "family": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_BAYES",
+                "ENSEMBLE_INVERSE_MSE"
+              ],
+              "family_size": 3,
+              "block_length": 7,
+              "adjusted_p_values": {
+                "ENSEMBLE_INVERSE_MSE": 0.1156,
+                "ENSEMBLE_ADAPTIVE": 0.3935,
+                "ENSEMBLE_BAYES": 0.9268
+              },
+              "raw_p_values": {
+                "ENSEMBLE_ADAPTIVE": 0.3391842647613882,
+                "ENSEMBLE_BAYES": 0.9353702943984972,
+                "ENSEMBLE_INVERSE_MSE": 0.05698931506313443
+              },
+              "rejected": []
+            },
+            "CRPS": {
+              "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+              "fwer": 0.1,
+              "replications": 10000,
+              "family": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_BAYES",
+                "ENSEMBLE_INVERSE_MSE"
+              ],
+              "family_size": 3,
+              "block_length": 7,
+              "adjusted_p_values": {
+                "ENSEMBLE_ADAPTIVE": 0.0,
+                "ENSEMBLE_BAYES": 0.0,
+                "ENSEMBLE_INVERSE_MSE": 0.7894
+              },
+              "raw_p_values": {
+                "ENSEMBLE_ADAPTIVE": 1.0547118733938987e-15,
+                "ENSEMBLE_BAYES": 3.255453196460145e-07,
+                "ENSEMBLE_INVERSE_MSE": 0.7919692477805058
+              },
+              "rejected": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_BAYES"
+              ]
+            }
+          },
+          "subset": "EXPANSION"
+        }
+      },
+      "digests": {
+        "origins_sha256": "9e989d834be51c7985fd92af703efdcfee34995a0ba914e5773f608f6677e7a8",
+        "target_periods_sha256": "fe5602d6d175d11af289a9b65d87eeadf2bfa1dc8480ca89eb79955a9e3023d6",
+        "squared_errors_sha256": "f5c1c85ca31539b02ed0cc5e41e9b0b91c134b492ba6eb7dc4ce60015ba61735",
+        "crps_sha256": "29a20a386317ccb8e2f8f8b3de2c4f80e13ba861bcf9b3a431a95de9a6ee7400"
+      }
+    }
+  },
+  "limitations": [
+    "walk-forward validation, not an admission decision: no C1-C6 gate is applied and no stage is advanced",
+    "REAL_TIME origins only are admissible for admission; PSEUDO_REAL_TIME origins that appear at the start of W1 are reported separately and must not be read as REAL_TIME evidence",
+    "the first-publication actuals come from the quarterly ALFRED vintage grid, so 'first publication' is the first archived release at or after the publication, a documented approximation",
+    "T2 h=0 is limited by the GDPC1 first-publication coverage: the early quarters of W1 may be skipped (the exact counts are in the report)",
+    "no SPF member enters the T1 ensemble (SPF has no monthly y/y CPI forecast); for T2 the SPF member enters only when its survey mapping is available at the origin",
+    "the NBER regime split is a retrospective diagnostic by the final chronology; it is not PIT and it is not used as a gate",
+    "C4/W1 on the historical windows remains limited by data availability (docs/76); this tool reports statistics and does not re-open that question",
+    "aggregates only: per-origin actuals, forecasts, losses and weights are not stored, only counts, aggregates and SHA-256 digests",
+    "target actuals are transformed locally from the first-publication vintage because amfe.evaluation.actuals.actual_pair returns the raw series level for T1/T2 (unit mismatch flagged to the Lead); the transformation is documented in first_publication_target()",
+    "T2 CRPS aggregates are invalid because of extreme ensemble quantile artifacts (see data_quality); they are excluded from the conclusions and the report must be regenerated after the mixture defect is fixed",
+    "the local ALFRED vintage grid is quarterly, so first-publication actuals are approximate (first archived release at/after publication)",
+    "reported relative losses are validation statistics only; no candidate is promoted to admission by this report"
+  ],
+  "licence_note": "third-party actual values and member forecasts are not stored; only derived statistics, counts and digests are published (docs/84)",
+  "generated_at": "2026-11-12T09:44:44Z",
+  "data_quality": {
+    "checked_after_generation": true,
+    "how": "separate post-run scan over the same origins (not part of the automated aggregate builder)",
+    "T1_CPI_YOY/h1": {
+      "rmse_usable": true,
+      "crps_usable": true,
+      "note": "quantiles bounded; losses in percentage points of CPI y/y"
+    },
+    "T2_GDP_GROWTH/h0": {
+      "rmse_usable": true,
+      "crps_usable": false,
+      "reason": "ensemble mixture produces extreme upper quantiles at many origins: q95 up to ~18625 while the point forecast and actual are ~2-4 percentage points of annualised GDP growth",
+      "evidence": {
+        "origins_scanned": 360,
+        "origins_with_crps_above_20": 111,
+        "max_upper_quantile_at_affected_origins": 18624.9,
+        "max_single_origin_crps": 893.9,
+        "control_mean_crps_raw": 158.4878
+      },
+      "consequence": "T2 CRPS aggregates (relative CRPS values and CRPS-based RW rejections) are invalid and must not be used; T2 RMSE aggregates are unaffected. The defect is in the stage-7 ensemble distribution mixture / member densities, not in this validation tool; the report must be regenerated after the mixture is fixed"
+    }
+  }
+}
