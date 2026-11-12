@@ -10,11 +10,10 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 LOCAL_DATA = (ROOT / "data" / "raw" / "CPIAUCSL" / "latest.csv").exists()
-if LOCAL_DATA:
-    sys.path.insert(0, str(ROOT / "src"))
-    from amfe.evaluation import actuals, distributions
-    from amfe.candidates.models import candidate_forecast
-    from amfe.forecast import forecast
+sys.path.insert(0, str(ROOT / "src"))
+from amfe.evaluation import actuals, distributions  # noqa: E402
+from amfe.candidates.models import candidate_forecast  # noqa: E402
+from amfe.forecast import forecast  # noqa: E402
 
 
 class MixtureDistribution(unittest.TestCase):

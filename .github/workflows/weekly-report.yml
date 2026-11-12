@@ -13,6 +13,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: weekly-report
@@ -30,6 +31,23 @@ jobs:
         # the model/evaluation-load tests import numpy; without it the regression step would fail on
         # import instead of testing the code
         run: python -m pip install --quiet numpy
+      - name: Restore the latest private data artifact (data/raw is git-ignored)
+        # Some tests exercise the local PIT layer and skip without data/raw; the data-dependent
+        # branch of tests/test_evaluation_layer.py even imports its module only when the data exists.
+        # Restoring the newest successful data-refresh artifact makes the regression run the full
+        # suite. Raw data stays private (the artifact is read inside the runner, nothing is committed).
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -eu
+          run_id="$(gh run list --workflow=data-refresh.yml --branch=main --status=success \
+                     --limit=1 --json databaseId --jq '.[0].databaseId // empty' || true)"
+          if [ -z "$run_id" ]; then echo "no successful data-refresh artifact found; data tests will skip"; exit 0; fi
+          echo "restoring data/raw from data-refresh run $run_id"
+          gh run download "$run_id" --name "amfe-data-$run_id" --dir restored
+          mkdir -p data
+          cp -r restored/data/raw data/raw
+          ls data/raw | head -20
       - name: Weekly integration report (deterministic, offline)
         run: |
           mkdir -p build
