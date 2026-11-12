@@ -3,11 +3,13 @@
   "kind": "append-only journal of source terms; a change of status is a new dated entry, never an edit (the initial composition of 2026-11-11 was corrected in place before any candidate was evaluated; git history keeps the earlier wording)",
   "protocol": "evaluation_protocol_v4.json (licence_policy)",
   "intended_use": "Non-commercial research. Published artifacts contain derived statistics only (error metrics, charts, scores), never raw third-party data. The repository is private; if it becomes public, every entry must be re-verified.",
-  "revision_note": "First composition 2026-11-11. Corrected in place on 2026-11-11 after the licence audit in docs/63, then updated the same day after the R2 documentary audit in docs/65 (BEA status, SPF/RTDSM facts, vintage depth, Cleveland archive evidence, FRED-MD format) and after the owner decision D-132 that makes retrieval automatic (the CHANNEL condition), all before any candidate or comparator composition was recorded; the append-only rule applies from the first recorded evaluation, and git history keeps the earlier wording.",
+  "revision_note": "First composition 2026-11-11. Corrected in place on 2026-11-11 after the licence audit in docs/63, then updated the same day after the R2 documentary audit in docs/65 (BEA status, SPF/RTDSM facts, vintage depth, Cleveland archive evidence, FRED-MD format) and after the owner decision D-132 that makes retrieval automatic (the CHANNEL condition), all before any candidate or comparator composition was recorded; the append-only rule applies from the first recorded evaluation, and git history keeps the earlier wording. 2026-11-12: facts and conditions updated in place after the second licence audit in docs/84 (automated ALFRED/FRED retrieval, SPF metadata-only automation, RTDSM probe, NBER announcement retrieval, repository hygiene findings). No status changed, so the append-only status rule is not triggered; duplicate dated entries cannot be appended because the register ids must stay unique (tests/test_protocol_v3.py), and the change of the file hash is recorded as a finding in docs/84.",
   "audit": [
     "docs/63_Лицензионный_аудит_2026-11-11.md",
-    "docs/65_R2_документарный_аудит_2026-11-11.md (primary terms, documentation and metadata pages opened on 2026-11-11; no raw data downloaded)"
+    "docs/65_R2_документарный_аудит_2026-11-11.md (primary terms, documentation and metadata pages opened on 2026-11-11; no raw data downloaded)",
+    "docs/84_Лицензионный_аудит_2_2026-11-12.md (repository hygiene and the new uses; no raw data downloaded)"
   ],
+  "raw_data_rule": "Raw third-party archives are never committed to the repository: downloaded files stay in the git-ignored data directory or in the private CI artifact, and only the URL, retrieval date, bytes and SHA-256, row counts and date ranges go to protocols/data_log.json or to a metadata file. Committed artifacts carry derived statistics and metadata only, never third-party data series or their values (evaluation_protocol_v4 licence_policy.intended_use and raw_data). The known exceptions and their required owner decisions are recorded in docs/84.",
   "statuses": {
     "OPEN": "The published terms allow the intended use without asking anyone; conditions, if any, are listed and followed.",
     "RESTRICTED": "The published terms do not allow the intended use without permission. Not used anywhere in the project.",
@@ -36,19 +38,22 @@
     {
       "id": "FRED_ALFRED_SERVICES",
       "date": "2026-11-11",
+      "last_reviewed": "2026-11-12",
       "status": "OPEN",
       "level": "full",
       "url": [
         "https://fred.stlouisfed.org/legal/",
         "https://fred.stlouisfed.org/docs/api/terms_of_use.html"
       ],
-      "basis": "Series labelled 'Public Domain: Citation Requested' may be used without permission and copyrighted series with 'Citation Required' may be used with attribution, provided no prohibited use. General terms allow personal non-commercial use (view, download, print) and prohibit machine learning/AI use in a section that applies to all use, including non-commercial. Storing, caching or archiving content and wholesale downloading are prohibited in the API addendum on /legal/; the separate API terms page does not repeat them. A qualified prohibition covers robots or scraping that are disruptive. The series section and the Property Rights paragraph conflict for publication; the register follows the series labels and records the uncertainty.",
+      "basis": "Series labelled 'Public Domain: Citation Requested' may be used without permission and copyrighted series with 'Citation Required' may be used with attribution, provided no prohibited use. General terms allow personal non-commercial use (view, download, print) and prohibit machine learning/AI use in a section that applies to all use, including non-commercial. Storing, caching or archiving content and wholesale downloading are prohibited in the API addendum on /legal/; the separate API terms page does not repeat them. A qualified prohibition covers robots or scraping that are disruptive. The series section and the Property Rights paragraph conflict for publication; the register follows the series labels and records the uncertainty. 2026-11-12: the channel is automation (tools/fetch_data.py): latest files from the public FRED CSV endpoint, vintage sets from the ALFRED download-data form, 147 planned quarter-end dates per series, one GET plus up to four POSTs per series per refresh (about 30 requests per run), 2 s rate limit, project User-Agent, private CI artifact retained 90 days; no FRED API key, no API cache, no catalogue crawl. Residual risk: the FAQ says 'Don't do any data mining, scraping or extraction of FRED data' without a qualifier, while the full terms qualify the robot/scraping prohibition by disruption; the owner accepted the automated channel on 2026-11-11 (D-132) and the register records the risk instead of resolving it.",
       "conditions": [
         "CHANNEL: vintage files are retrieved automatically by the project tool (tools/fetch_data.py) on the project CI, one series per request, rate-limited, with a project User-Agent; personal non-commercial use; no human download step; no FRED API key or API cache, no bulk or wholesale download, no crawling of the catalogue; the qualified robot prohibition covers only disruptive or bulk gathering",
+        "RETRIEVAL RISK: the dense vintage retrieval (module-level batches of up to 40 dated columns, about 147 planned dates per series) is accepted on the owner reading that the qualified robot/scraping prohibition and personal non-commercial use cover a rate-limited single-series retrieval; the unqualified FAQ sentence 'Don't do any data mining, scraping or extraction of FRED data' is recorded as an open risk, not as settled permission",
         "STORAGE: downloaded files stay in the ignored data directory; nothing from FRED or ALFRED is committed or published",
         "ML: no training or fine-tuning of any model on FRED or ALFRED content; classical statistical estimation on the downloaded series is the intended use",
         "ATTRIBUTION: cite FRED and the original source of each series",
         "PUBLICATION: only derived statistics are published; the conflict in the terms is an acknowledged uncertainty, not a settled permission",
+        "TERMS HASH: the R2 hash of the terms text required by terms_change_without_notice is not recorded yet; open item in docs/84",
         "SCOPE: only series listed in this register; every other series is UNVERIFIED until its label is read"
       ],
       "decision": "usable under the listed conditions; latest files come from the public CSV endpoint and vintage sets from the ALFRED download-data form (entered vintage dates), one series per request, rate-limited, without the API service"
@@ -167,19 +172,24 @@
     {
       "id": "NBER_CYCLE_DATES",
       "date": "2026-11-11",
+      "last_reviewed": "2026-11-12",
       "status": "OPEN",
       "level": "extraction",
       "url": [
-        "https://www.nber.org/research/data/us-business-cycle-expansions-and-contractions"
+        "https://www.nber.org/research/data/us-business-cycle-expansions-and-contractions",
+        "https://www.nber.org/research/business-cycle-dating/business-cycle-dating-committee-announcements"
       ],
-      "basis": "'Permission to copy is granted, provided attribution of source is given.'",
+      "basis": "'Permission to copy is granted, provided attribution of source is given.' 2026-11-12: tools/nber_dates.py retrieves the committee announcement pages automatically and commits only protocols/nber_dates.json with announcement dates, peak/trough reference dates, page titles and source URLs (17 announcements and 12 reference dates as of the 2026-11-12 run), plus the SHA-256 of the page and of the extracted block; no NBER series values are stored.",
       "conditions": [
-        "attribution"
+        "attribution to the National Bureau of Economic Research",
+        "the committed file is dates and provenance only; announcement dates are used to know when a peak or trough was public",
+        "only the announcements page is parsed; earlier announcements not on that page are out of scope (recorded in the file limitations)"
       ]
     },
     {
       "id": "PHILADELPHIA_FED",
       "date": "2026-11-11",
+      "last_reviewed": "2026-11-12",
       "status": "OPEN",
       "level": "extraction",
       "url": [
@@ -188,18 +198,20 @@
         "https://www.philadelphiafed.org/-/media/FRBP/Assets/Surveys-And-Data/survey-of-professional-forecasters/spf-documentation.pdf",
         "https://www.philadelphiafed.org/-/media/FRBP/Assets/Surveys-And-Data/survey-of-professional-forecasters/spf-data-sources.pdf"
       ],
-      "basis": "'The content provided on this website may be used for informational, educational, and research purposes only.' Copyrighted third-party material needs the owner's permission; names and logos may not be used as an endorsement. Research is named literally; the publication of derived statistics is not mentioned. The SPF documentation and data-sources PDF carry no separate terms section. SPF publishes CPI inflation only as quarter-over-quarter annualised and Q4/Q4 annual values (no monthly y/y), five quarterly and one or two annual horizons, with survey deadlines in the middle month of the quarter; RTDSM vintages are real GDP from 1965:Q4, CPI 1994:Q3 (quarterly) and 1998:M11 (monthly). The historical Moody's Aaa/Baa rows are provided to panelists only and are never used.",
+      "basis": "'The content provided on this website may be used for informational, educational, and research purposes only.' Copyrighted third-party material needs the owner's permission; names and logos may not be used as an endorsement. Research is named literally; the publication of derived statistics is not mentioned. The SPF documentation and data-sources PDF carry no separate terms section. SPF publishes CPI inflation only as quarter-over-quarter annualised and Q4/Q4 annual values (no monthly y/y), five quarterly and one or two annual horizons, with survey deadlines in the middle month of the quarter; RTDSM vintages are real GDP from 1965:Q4, CPI 1994:Q3 (quarterly) and 1998:M11 (monthly). The historical Moody's Aaa/Baa rows are provided to panelists only and are never used. 2026-11-12: tools/fetch_spf.py retrieves the public median workbooks automatically; the values are written only to the git-ignored data directory (data/raw/spf/spf_median.json) and the committed protocols/spf_metadata.json carries URLs, workbook names, sheet headers, columns used, byte sizes, SHA-256, row counts and date ranges only; raw_files_committed is false.",
       "conditions": [
         "research use only",
         "no use of the Bank's names or logos as endorsement",
         "only publicly released files; the non-public Moody's rows are never used",
-        "the definition mapping is fixed from the documentation before scoring"
+        "the definition mapping is fixed from the documentation before scoring",
+        "SPF VALUES OUTSIDE GIT: the median values are third-party data; they stay in the git-ignored data directory and are never committed or published; the committed metadata file is checked by tests/test_licence_hygiene.py"
       ],
       "decision": "usable for SPF and the Real-Time Data Set on the reading that research purposes are allowed; this reading is the owner's decision (confirmation point 4), not a legal opinion"
     },
     {
       "id": "PHILADELPHIA_FED_RTDSM",
       "date": "2026-11-11",
+      "last_reviewed": "2026-11-12",
       "status": "OPEN",
       "level": "extraction",
       "url": [
@@ -207,11 +219,12 @@
         "https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/routput",
         "https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/cpi"
       ],
-      "basis": "No separate terms were found on the Real-Time Data Set pages; the site's Privacy Notice / Terms of Use govern. 'The real-time data set consists of vintages, or snapshots, of time series of major macroeconomic variables ... All data are updated at the end of each month.' Depth: real GDP quarterly vintages from 1965:Q4, monthly from 1965:M11; CPI quarterly vintages from 1994:Q3, monthly from 1998:M11. Files are .xlsx, one column per vintage. H.15 interest-rate series are not part of RTDSM.",
+      "basis": "No separate terms were found on the Real-Time Data Set pages; the site's Privacy Notice / Terms of Use govern. 'The real-time data set consists of vintages, or snapshots, of time series of major macroeconomic variables ... All data are updated at the end of each month.' Depth: real GDP quarterly vintages from 1965:Q4, monthly from 1965:M11; CPI quarterly vintages from 1994:Q3, monthly from 1998:M11. Files are .xlsx, one column per vintage. H.15 interest-rate series are not part of RTDSM. 2026-11-12: the project only probes the workbooks (tools/fetch_spf.py --check-rtdsm): availability, byte size, SHA-256 and sheet dimensions are printed and nothing is stored; no RTDSM values enter the repository or the git-ignored data directory.",
       "conditions": [
         "research use only",
         "no use of the Bank's names or logos",
-        "re-check the RTDSM documentation PDF before the first download"
+        "re-check the RTDSM documentation PDF before the first download",
+        "PROBE ONLY: no RTDSM workbook is stored or committed; the probe is metadata-only"
       ],
       "decision": "candidate vintage channel for GDP and CPI in R2; the owner's OPEN reading of Philadelphia terms applies, not a legal opinion"
     },

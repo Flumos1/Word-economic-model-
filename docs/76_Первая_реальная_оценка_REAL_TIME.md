@@ -1,5 +1,5 @@
 # AMFE — первая вневыборочная оценка кандидата (REAL_TIME, 2026-11-12)
-Версия 1.0.0 · 2026-11-12. Отчёт: [protocols/first_real_evaluation_report.json](../protocols/first_real_evaluation_report.json) (SHA-256 `bbaafe85…2064`). Кандидат: `ENSEMBLE_RW_AR` (равновесный ансамбль RW и AR_BIC, зарегистрирован до оценки — [protocols/candidates_2026-11-11.json](../protocols/candidates_2026-11-11.json)). Раннер: [tools/run_real_evaluation.py](../tools/run_real_evaluation.py). **Статус: CANDIDATE — допуск не присвоен.**
+Версия 1.1.0 · 2026-11-12. После лицензионного аудита (docs/84) отчёт хранит дайджесты фактических значений вместо самих значений; метрики и решение не изменились. Отчёт: [protocols/first_real_evaluation_report.json](../protocols/first_real_evaluation_report.json) (SHA-256 `bbaafe85…2064`). Кандидат: `ENSEMBLE_RW_AR` (равновесный ансамбль RW и AR_BIC, зарегистрирован до оценки — [protocols/candidates_2026-11-11.json](../protocols/candidates_2026-11-11.json)). Раннер: [tools/run_real_evaluation.py](../tools/run_real_evaluation.py). **Статус: CANDIDATE — допуск не присвоен.**
 
 ## Постановка
 - Цель T1 (инфляция CPI г/г, headline), горизонт 1 мес.; окна W1 и W2 по протоколу v4.

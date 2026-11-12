@@ -108,6 +108,12 @@ def parse_vintage_zip(raw: bytes) -> dict:
     return columns
 
 
+
+def value_digest(value) -> str:
+    """SHA-256 of the textual representation of a numeric value (licence policy)."""
+    return hashlib.sha256(repr(float(value)).encode("utf-8")).hexdigest()
+
+
 def parse_initial_release(raw: bytes) -> list:
     """Rows of the ALFRED initial-release output: (period, value, release_date)."""
     reader = csv.reader(io.StringIO(read_zip_csv(raw)))
@@ -318,8 +324,12 @@ def main(argv=None) -> int:
                 continue
             got = column[period]
             entry["checked"] += 1
+            # licence policy: only derived statistics leave the CI job; the values themselves stay in
+            # the private artifact.  The pair carries digests and the equality flag instead.
             pair = {"series": s["id"], "period": period, "release": release,
-                    "initial_release": value, "vintage_value": got}
+                    "initial_release_sha256": value_digest(value),
+                    "vintage_value_sha256": value_digest(got),
+                    "equal_within_tolerance": bool(abs(got - value) <= TOLERANCE)}
             if abs(got - value) <= TOLERANCE:
                 entry["matched"] += 1
                 matched += 1
@@ -327,7 +337,7 @@ def main(argv=None) -> int:
                     matched_pre_2000 += 1
                 report["pairs"].append(pair)
             else:
-                pair["difference"] = round(got - value, 6)
+                pair["difference_abs"] = round(abs(got - value), 6)  # derived statistic only
                 entry["mismatches"].append(pair)
                 report["failures"].append(pair)
         report["series"].append(entry)

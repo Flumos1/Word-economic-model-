@@ -143,6 +143,28 @@ def build_window(target: str, horizon: int, window: str, candidate_id: str, seri
     return out
 
 
+
+def _array_digest(values) -> str:
+    arr = np.asarray(values, dtype=float)
+    return hashlib.sha256(arr.tobytes()).hexdigest()
+
+
+def _sanitized_window(window: dict) -> dict:
+    """Report wrapper: derived metadata and digests only, never the third-party actual values."""
+    out = {k: v for k, v in window.items()
+           if k not in ("actual_primary", "actual_secondary", "recession")}
+    if "actual_primary" in window:
+        out["actual_primary_sha256"] = _array_digest(window["actual_primary"])
+        out["actual_primary_n"] = int(np.asarray(window["actual_primary"]).size)
+    if "actual_secondary" in window:
+        out["actual_secondary_sha256"] = _array_digest(window["actual_secondary"])
+        out["actual_secondary_n"] = int(np.asarray(window["actual_secondary"]).size)
+    if "recession" in window:
+        out["recession_mask_sha256"] = _array_digest(window["recession"])
+    out["licence_note"] = "actual values are not stored; only digests and derived metrics (docs/84)"
+    return out
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="First real evaluation on W1+W2")
     ap.add_argument("--candidate", default="ENSEMBLE_RW_AR")
@@ -193,9 +215,7 @@ def main(argv=None) -> int:
                              "sha256": sha(R3)},
         "composition": {"file": COMPOSITION.name, "sha256": sha(COMPOSITION)},
         "candidates": {"file": CANDIDATES.name, "sha256": sha(CANDIDATES)},
-        "windows": {w["window"]: {k: (v.tolist() if isinstance(v, np.ndarray) else v)
-                                  for k, v in w.items() if k not in ("candidate", "comparator")}
-                    for w in (w1, w2)},
+        "windows": {w["window"]: _sanitized_window(w) for w in (w1, w2)},
         "c6": "not available on the first day: the forward registry has no resolved forecasts yet",
         "admission": evaluate.evaluate_admission(
             args.target, args.horizon,
