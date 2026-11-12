@@ -54,6 +54,17 @@ class CountryPeriodReport:
     external: Mapping[str, object]
     checks: Mapping[str, bool]
     residuals: Mapping[str, float]
+    # -- open SFC extension (docs/93); defaults keep closed-economy reports unchanged
+    open_economy: bool = False
+    imports_local: Decimal = Decimal(0)
+    net_exports_local: Decimal = Decimal(0)
+    nfa_local: Decimal = Decimal(0)
+    external_assets_local: Decimal = Decimal(0)
+    external_liabilities_local: Decimal = Decimal(0)
+    row_net_worth_local: Decimal = Decimal(0)
+    open_gdp_expenditure: Decimal = Decimal(0)
+    bop_current_account_local: Decimal = Decimal(0)
+    bop_financial_account_local: Decimal = Decimal(0)
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "external", MappingProxyType(dict(self.external)))
@@ -108,6 +119,18 @@ class CountryPeriodReport:
             "external": _json_ready(self.external),
             "checks": {key: bool(value) for key, value in self.checks.items()},
             "residuals": {key: _f(value) for key, value in self.residuals.items()},
+            **({"open_sfc": {
+                "exports_local": _d(self.exports_local),
+                "imports_local": _d(self.imports_local),
+                "net_exports_local": _d(self.net_exports_local),
+                "nfa_local": _d(self.nfa_local),
+                "external_assets_local": _d(self.external_assets_local),
+                "external_liabilities_local": _d(self.external_liabilities_local),
+                "row_net_worth_local": _d(self.row_net_worth_local),
+                "open_gdp_expenditure": _d(self.open_gdp_expenditure),
+                "bop_current_account_local": _d(self.bop_current_account_local),
+                "bop_financial_account_local": _d(self.bop_financial_account_local),
+            }} if self.open_economy else {}),
         }
 
 

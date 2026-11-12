@@ -32,6 +32,20 @@ from .invariants import (
     check_snapshot,
     check_stock_signs,
 )
+from .open import (  # noqa: F401
+    EXPORTS,
+    EXPORT_KIND,
+    EXTERNAL_CLAIM,
+    EXTERNAL_LIABILITY,
+    IMPORTS,
+    IMPORT_KIND,
+    OPEN_CHART,
+    RESIDENTS,
+    ROW,
+    OpenAccountSystem,
+    OpenPeriodReport,
+    open_economy_chart,
+)
 from .model import (
     AccountSpec,
     AccountingError,
@@ -72,6 +86,10 @@ __all__ = [
     # errors and helpers
     "AccountingError", "TransactionRejected", "InvariantViolation",
     "PeriodStateError", "to_decimal", "code_string",
+    # open economy (stage 3 integration)
+    "OpenAccountSystem", "OpenPeriodReport", "open_economy_chart", "OPEN_CHART",
+    "ROW", "EXTERNAL_CLAIM", "EXTERNAL_LIABILITY", "EXPORTS", "IMPORTS",
+    "EXPORT_KIND", "IMPORT_KIND", "RESIDENTS",
     # invariants
     "GovernmentBudget", "check_stock_signs", "check_financial_mirror",
     "check_snapshot", "check_period_identity", "check_financial_accounts",
