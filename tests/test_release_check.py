@@ -173,7 +173,7 @@ class FixtureVerdict(unittest.TestCase):
     def test_expected_warnings_are_reported(self):
         warning_ids = [check["id"] for check in self.report["checks"]
                        if check["severity"] == "warning" and check["status"] == "FAIL"]
-        self.assertIn("reports.references_current", warning_ids)
+        self.assertIn("frozen.r2_gate_fact", warning_ids)
         self.assertIn("reports.forward_registry", warning_ids)
         # after the 2026-11-12 data refresh the gate report covers every planned vintage series
         coverage = check_by_id(self.report, "reports.plan_coverage")
