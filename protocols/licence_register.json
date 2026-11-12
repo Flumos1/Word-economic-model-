@@ -3,11 +3,12 @@
   "kind": "append-only journal of source terms; a change of status is a new dated entry, never an edit (the initial composition of 2026-11-11 was corrected in place before any candidate was evaluated; git history keeps the earlier wording)",
   "protocol": "evaluation_protocol_v4.json (licence_policy)",
   "intended_use": "Non-commercial research. Published artifacts contain derived statistics only (error metrics, charts, scores), never raw third-party data. The repository is private; if it becomes public, every entry must be re-verified.",
-  "revision_note": "First composition 2026-11-11. Corrected in place on 2026-11-11 after the licence audit in docs/63, then updated the same day after the R2 documentary audit in docs/65 (BEA status, SPF/RTDSM facts, vintage depth, Cleveland archive evidence, FRED-MD format) and after the owner decision D-132 that makes retrieval automatic (the CHANNEL condition), all before any candidate or comparator composition was recorded; the append-only rule applies from the first recorded evaluation, and git history keeps the earlier wording. 2026-11-12: facts and conditions updated in place after the second licence audit in docs/84 (automated ALFRED/FRED retrieval, SPF metadata-only automation, RTDSM probe, NBER announcement retrieval, repository hygiene findings). No status changed, so the append-only status rule is not triggered; duplicate dated entries cannot be appended because the register ids must stay unique (tests/test_protocol_v3.py), and the change of the file hash is recorded as a finding in docs/84.",
+  "revision_note": "First composition 2026-11-11. Corrected in place on 2026-11-11 after the licence audit in docs/63, then updated the same day after the R2 documentary audit in docs/65 (BEA status, SPF/RTDSM facts, vintage depth, Cleveland archive evidence, FRED-MD format) and after the owner decision D-132 that makes retrieval automatic (the CHANNEL condition), all before any candidate or comparator composition was recorded; the append-only rule applies from the first recorded evaluation, and git history keeps the earlier wording. 2026-11-12: facts and conditions updated in place after the second licence audit in docs/84 (automated ALFRED/FRED retrieval, SPF metadata-only automation, RTDSM probe, NBER announcement retrieval, repository hygiene findings). No status changed, so the append-only status rule is not triggered; duplicate dated entries cannot be appended because the register ids must stay unique (tests/test_protocol_v3.py), and the change of the file hash is recorded as a finding in docs/84. 2026-11-12 (task-27): F-5 closed - terms-passages-v1 hashes of the terms excerpts are recorded for FRED/ALFRED, Philadelphia Fed (SPF and RTDSM) and NBER (terms_sha256, terms_retrieved_at; excerpts and normalisation in docs/90); F-6 closed - the unlogged local T10Y3M probe file was removed and the row is recorded as not used. Statuses unchanged.",
   "audit": [
     "docs/63_Лицензионный_аудит_2026-11-11.md",
     "docs/65_R2_документарный_аудит_2026-11-11.md (primary terms, documentation and metadata pages opened on 2026-11-11; no raw data downloaded)",
-    "docs/84_Лицензионный_аудит_2_2026-11-12.md (repository hygiene and the new uses; no raw data downloaded)"
+    "docs/84_Лицензионный_аудит_2_2026-11-12.md (repository hygiene and the new uses; no raw data downloaded)",
+    "docs/90_Условия_источников_хеши.md (terms excerpts, normalisation and sha256, retrieved 2026-11-12; F-5 and F-6 closed)"
   ],
   "raw_data_rule": "Raw third-party archives are never committed to the repository: downloaded files stay in the git-ignored data directory or in the private CI artifact, and only the URL, retrieval date, bytes and SHA-256, row counts and date ranges go to protocols/data_log.json or to a metadata file. Committed artifacts carry derived statistics and metadata only, never third-party data series or their values (evaluation_protocol_v4 licence_policy.intended_use and raw_data). The known exceptions and their required owner decisions are recorded in docs/84.",
   "statuses": {
@@ -21,6 +22,14 @@
     "none": "not read"
   },
   "terms_change_without_notice": "All verified sites reserve the right to change terms without notice. Each entry keeps its verification date; R2 adds a hash of the terms text and re-checks before the comparator composition is recorded.",
+  "terms_hash_method": {
+    "id": "terms-passages-v1",
+    "retrieved_at": "2026-11-12",
+    "docs": "docs/90_Условия_источников_хеши.md",
+    "definition": "The fingerprint covers the terms excerpts listed in docs/90, not byte-identical HTML (the fetch tool returns extracted text, so a byte hash would not be reproducible). Normalisation: Unicode NFC; every whitespace run -> one ASCII space; strip; join the passages with a single newline in the listed order; sha256 of the UTF-8 bytes.",
+    "applies_to": ["FRED_ALFRED_SERVICES", "PHILADELPHIA_FED", "PHILADELPHIA_FED_RTDSM", "NBER_CYCLE_DATES"],
+    "recheck_rule": "A mismatch means the terms changed: a new dated register entry (or a dated note) and a new audit are required before the next evaluation; history is never rewritten."
+  },
   "entries": [
     {
       "id": "ATLANTA_FED_GDPNOW",
@@ -39,6 +48,14 @@
       "id": "FRED_ALFRED_SERVICES",
       "date": "2026-11-11",
       "last_reviewed": "2026-11-12",
+      "terms_sha256": "949f3f97c2f63710f8320a984c7fad13b7e7e6b784bb69ddc6584610425d816e",
+      "terms_retrieved_at": "2026-11-12",
+      "terms_urls": [
+        "https://fred.stlouisfed.org/legal/"
+      ],
+      "terms_passages": 7,
+      "terms_normalisation": "terms-passages-v1: NFC; whitespace runs collapsed to one ASCII space; strip; sha256 over the passages joined by a single newline in the listed order",
+      "terms_docs": "docs/90_Условия_источников_хеши.md",
       "status": "OPEN",
       "level": "full",
       "url": [
@@ -53,7 +70,7 @@
         "ML: no training or fine-tuning of any model on FRED or ALFRED content; classical statistical estimation on the downloaded series is the intended use",
         "ATTRIBUTION: cite FRED and the original source of each series",
         "PUBLICATION: only derived statistics are published; the conflict in the terms is an acknowledged uncertainty, not a settled permission",
-        "TERMS HASH: the R2 hash of the terms text required by terms_change_without_notice is not recorded yet; open item in docs/84",
+        "TERMS HASH: the terms-passages-v1 hash of the terms excerpts was recorded on 2026-11-12 in terms_sha256 of this entry; the excerpts and the normalisation are in docs/90_Условия_источников_хеши.md; re-check and re-record on any change of the terms pages",
         "SCOPE: only series listed in this register; every other series is UNVERIFIED until its label is read"
       ],
       "decision": "usable under the listed conditions; latest files come from the public CSV endpoint and vintage sets from the ALFRED download-data form (entered vintage dates), one series per request, rate-limited, without the API service"
@@ -149,11 +166,13 @@
         "https://fred.stlouisfed.org/series/T10Y3M",
         "https://alfred.stlouisfed.org/series?seid=T10Y3M"
       ],
-      "basis": "Label: 'Copyrighted: Citation Required'. The series starts 1982-01-04 (confirmed), but ALFRED release dates start only 2014-01-27 (docs/65); a note records the data-source change from 2019-06-21. Data-gate fact, not a licence restriction.",
+      "basis": "Label: 'Copyrighted: Citation Required'. The series starts 1982-01-04 (confirmed), but ALFRED release dates start only 2014-01-27 (docs/65); a note records the data-source change from 2019-06-21. Data-gate fact, not a licence restriction. Not used by the project: protocol v4 states 'T10Y3M series is not used' (PROBIT_SPREAD uses the GS10-TB3MS spread), the series is absent from data_plan.json and data_log.json, and the local probe file data/raw/T10Y3M/latest.csv was removed on 2026-11-12 (docs/90, F-6).",
       "conditions": [
         "see FRED_ALFRED_SERVICES",
-        "citation required"
-      ]
+        "citation required",
+        "not used: absent from data_plan.json and data_log.json; local probe file removed 2026-11-12 (docs/90 F-6); a new data-plan entry and a data-log record are required before any use"
+      ],
+      "decision": "not used: the row is outside data_plan.json and data_log.json, protocol v4 dropped it from PROBIT_SPREAD, and the local probe file was removed on 2026-11-12 (docs/90 F-6); any future use needs a new data-plan entry and a data-log record"
     },
     {
       "id": "ALFRED:USREC",
@@ -173,6 +192,14 @@
       "id": "NBER_CYCLE_DATES",
       "date": "2026-11-11",
       "last_reviewed": "2026-11-12",
+      "terms_sha256": "514a69fac38d2addf3d8146ff0138480482b3086a9b87fc768d90af48dbf0cca",
+      "terms_retrieved_at": "2026-11-12",
+      "terms_urls": [
+        "https://www.nber.org/research/data/us-business-cycle-expansions-and-contractions"
+      ],
+      "terms_passages": 1,
+      "terms_normalisation": "terms-passages-v1: NFC; whitespace runs collapsed to one ASCII space; strip; sha256 over the passages joined by a single newline in the listed order",
+      "terms_docs": "docs/90_Условия_источников_хеши.md",
       "status": "OPEN",
       "level": "extraction",
       "url": [
@@ -190,6 +217,15 @@
       "id": "PHILADELPHIA_FED",
       "date": "2026-11-11",
       "last_reviewed": "2026-11-12",
+      "terms_sha256": "ab17c14ec9ba1c00dd88931b159d7bcd05c0400fab722459471cd2ae39ffa409",
+      "terms_retrieved_at": "2026-11-12",
+      "terms_urls": [
+        "https://www.philadelphiafed.org/about-us/privacy-notice",
+        "https://www.philadelphiafed.org/-/media/FRBP/Assets/Surveys-And-Data/survey-of-professional-forecasters/spf-data-sources.pdf"
+      ],
+      "terms_passages": 8,
+      "terms_normalisation": "terms-passages-v1: NFC; whitespace runs collapsed to one ASCII space; strip; sha256 over the passages joined by a single newline in the listed order",
+      "terms_docs": "docs/90_Условия_источников_хеши.md",
       "status": "OPEN",
       "level": "extraction",
       "url": [
@@ -212,9 +248,19 @@
       "id": "PHILADELPHIA_FED_RTDSM",
       "date": "2026-11-11",
       "last_reviewed": "2026-11-12",
+      "terms_sha256": "7b9fa4b73645989a4029dc5261ad3b1cc143dfacdf190e1e3c2c7b3d547f88bb",
+      "terms_retrieved_at": "2026-11-12",
+      "terms_urls": [
+        "https://www.philadelphiafed.org/about-us/privacy-notice",
+        "https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/real-time-data-set-for-macroeconomists"
+      ],
+      "terms_passages": 8,
+      "terms_normalisation": "terms-passages-v1: NFC; whitespace runs collapsed to one ASCII space; strip; sha256 over the passages joined by a single newline in the listed order",
+      "terms_docs": "docs/90_Условия_источников_хеши.md",
       "status": "OPEN",
       "level": "extraction",
       "url": [
+        "https://www.philadelphiafed.org/about-us/privacy-notice",
         "https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/real-time-data-set-for-macroeconomists",
         "https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/routput",
         "https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/cpi"
