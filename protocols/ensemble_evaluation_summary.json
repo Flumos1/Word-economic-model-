@@ -1,0 +1,1057 @@
+{
+ "summary_id": "AMFE-ENSEMBLE-EVALUATION-SUMMARY",
+ "generated_at": "2026-11-12T09:11:59Z",
+ "report": {
+  "file": "protocols/ensemble_evaluation_report.json",
+  "sha256": "aa72c73dd16c7bb23594cb7fa6af6a002a81a084bb1b1eac6819c9359e574d72"
+ },
+ "reporting_only": {
+  "admission_assignments": "NONE: this summary records the harness statuses; it does not assign admission (CANDIDATE / SHADOW_TEST / LIMITED_DEPLOYMENT)",
+  "C6": "NO_RESOLVED_FORECASTS (the forward registry has no resolved forecasts for these pairs)",
+  "C3": "NOT_IMPLEMENTED (non-gating by protocol)",
+  "C4": "T1 W1 INCONCLUSIVE (<12 recession origins); T2 C4 degenerate in the runner for h=0 (zero recession mask) -> INCONCLUSIVE; INCONCLUSIVE is not a pass"
+ },
+ "protocol": {
+  "file": "protocols/evaluation_protocol_v4.json",
+  "version": "4.0.0",
+  "sha256": "bd965f4d9f23151b4ccfd27202f0669d0a7807e642639ed18c0b864bf68dedc9"
+ },
+ "r3_specification": {
+  "file": "protocols/r3_specification.json",
+  "version": "1.0.1",
+  "sha256": "5191b0626e7567bcbca657cd904fdfe8d2661c55c629c0dfe555fd7f2f305275"
+ },
+ "composition": {
+  "file": "comparator_composition_2026-11-11.json",
+  "sha256": "0dd1ce867a3a84c91333bcdb64b1d7b2773cb40fc2982fca02ffd17e36bf52ca"
+ },
+ "candidates_document": {
+  "file": "protocols/candidates_2026-11-11.json",
+  "sha256": "cea2136fa7b9c27b73160d14f98c9d0498f3afe5dcf6cfc3656aef8740918002",
+  "batch": {
+   "date": "2026-11-12",
+   "ids": [
+    "ENSEMBLE_EQUAL",
+    "ENSEMBLE_INVERSE_MSE",
+    "ENSEMBLE_BAYES",
+    "ENSEMBLE_ADAPTIVE"
+   ],
+   "source": "docs/81"
+  }
+ },
+ "data_class": "REAL_TIME",
+ "evaluations": {
+  "T1_CPI_YOY_h1": {
+   "target": "T1_CPI_YOY",
+   "horizon": 1,
+   "data_class": "REAL_TIME",
+   "origins": {
+    "W1": {
+     "count": 121,
+     "first": "1996-12-31",
+     "last": "2006-12-31"
+    },
+    "W2": {
+     "count": 156,
+     "first": "2007-01-31",
+     "last": "2019-12-31"
+    }
+   },
+   "runtime_seconds": 769.5,
+   "family_size": 5,
+   "family": [
+    "ENSEMBLE_ADAPTIVE",
+    "ENSEMBLE_BAYES",
+    "ENSEMBLE_EQUAL",
+    "ENSEMBLE_INVERSE_MSE",
+    "ENSEMBLE_RW_AR"
+   ],
+   "multiplicity_method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+   "multiplicity": {
+    "fwer": 0.1,
+    "replications": 10000,
+    "seed": 20261111,
+    "block_length": null,
+    "adjusted_p_values": {
+     "ENSEMBLE_ADAPTIVE": {
+      "W1": {
+       "RMSE": 0.0,
+       "CRPS": 0.0
+      },
+      "W2": {
+       "RMSE": 0.0,
+       "CRPS": 0.0
+      }
+     },
+     "ENSEMBLE_BAYES": {
+      "W1": {
+       "RMSE": 0.0,
+       "CRPS": 0.0
+      },
+      "W2": {
+       "RMSE": 0.0,
+       "CRPS": 0.0
+      }
+     },
+     "ENSEMBLE_EQUAL": {
+      "W1": {
+       "RMSE": 1.0,
+       "CRPS": 1.0
+      },
+      "W2": {
+       "RMSE": 1.0,
+       "CRPS": 1.0
+      }
+     },
+     "ENSEMBLE_INVERSE_MSE": {
+      "W1": {
+       "RMSE": 0.0,
+       "CRPS": 0.0
+      },
+      "W2": {
+       "RMSE": 0.0,
+       "CRPS": 0.0
+      }
+     },
+     "ENSEMBLE_RW_AR": {
+      "W1": {
+       "RMSE": 1.0,
+       "CRPS": 1.0
+      },
+      "W2": {
+       "RMSE": 1.0,
+       "CRPS": 1.0
+      }
+     }
+    }
+   },
+   "skipped_candidates": {},
+   "candidates": [
+    {
+     "candidate_id": "ENSEMBLE_ADAPTIVE",
+     "role": "candidate",
+     "status": "CANDIDATE",
+     "data_class": "REAL_TIME",
+     "C1_pass": false,
+     "C2_pass": true,
+     "C2_romano_wolf_adjusted_p": 0.0,
+     "C3": "NOT_IMPLEMENTED",
+     "C4_pass": false,
+     "C5_pass": true,
+     "C6": "NO_RESOLVED_FORECASTS",
+     "relative_losses": {
+      "W1": {
+       "RMSE": 0.9992040770275891,
+       "CRPS": 0.9992812444214416
+      },
+      "W2": {
+       "RMSE": 0.9996063177494616,
+       "CRPS": 0.9995085535257302
+      }
+     },
+     "c2_adjusted_p": {
+      "W1": {
+       "RMSE": 0.0,
+       "CRPS": 0.0
+      },
+      "W2": {
+       "RMSE": 0.0,
+       "CRPS": 0.0
+      }
+     },
+     "c1_loss_pass": {
+      "W1": {
+       "RMSE": false,
+       "CRPS": false
+      },
+      "W2": {
+       "RMSE": false,
+       "CRPS": false
+      }
+     },
+     "c2_raw_p": {
+      "W1": {
+       "RMSE": 0.0,
+       "CRPS": 3.164135620181696e-15
+      },
+      "W2": {
+       "RMSE": 1.1102230246251565e-16,
+       "CRPS": 1.0547118733938987e-15
+      }
+     },
+     "recession_origins": {
+      "W1": {
+       "RMSE": 8,
+       "CRPS": 8
+      },
+      "W2": {
+       "RMSE": 18,
+       "CRPS": 18
+      }
+     },
+     "C4_window_status": {
+      "W1": {
+       "RMSE": "INCONCLUSIVE",
+       "CRPS": "INCONCLUSIVE"
+      },
+      "W2": {
+       "RMSE": "PASS",
+       "CRPS": "FAIL"
+      }
+     },
+     "windows": {
+      "W1": {
+       "origins": 121,
+       "first_origin": "1996-12-31",
+       "last_origin": "2006-12-31",
+       "data_class": "REAL_TIME",
+       "vintage_dates_count": 41
+      },
+      "W2": {
+       "origins": 156,
+       "first_origin": "2007-01-31",
+       "last_origin": "2019-12-31",
+       "data_class": "REAL_TIME",
+       "vintage_dates_count": 53
+      }
+     }
+    },
+    {
+     "candidate_id": "ENSEMBLE_BAYES",
+     "role": "control",
+     "status": "CANDIDATE",
+     "data_class": "REAL_TIME",
+     "C1_pass": false,
+     "C2_pass": true,
+     "C2_romano_wolf_adjusted_p": 0.0,
+     "C3": "NOT_IMPLEMENTED",
+     "C4_pass": false,
+     "C5_pass": true,
+     "C6": "NO_RESOLVED_FORECASTS",
+     "relative_losses": {
+      "W1": {
+       "RMSE": 0.997723932436083,
+       "CRPS": 0.9982689563061928
+      },
+      "W2": {
+       "RMSE": 0.998758861210558,
+       "CRPS": 0.9986385945752537
+      }
+     },
+     "c2_adjusted_p": {
+      "W1": {
+       "RMSE": 0.0,
+       "CRPS": 0.0
+      },
+      "W2": {
+       "RMSE": 0.0,
+       "CRPS": 0.0
+      }
+     },
+     "c1_loss_pass": {
+      "W1": {
+       "RMSE": false,
+       "CRPS": false
+      },
+      "W2": {
+       "RMSE": false,
+       "CRPS": false
+      }
+     },
+     "c2_raw_p": {
+      "W1": {
+       "RMSE": 0.0,
+       "CRPS": 1.9360624214925792e-12
+      },
+      "W2": {
+       "RMSE": 2.0122792321330962e-13,
+       "CRPS": 1.2040368702059823e-13
+      }
+     },
+     "recession_origins": {
+      "W1": {
+       "RMSE": 8,
+       "CRPS": 8
+      },
+      "W2": {
+       "RMSE": 18,
+       "CRPS": 18
+      }
+     },
+     "C4_window_status": {
+      "W1": {
+       "RMSE": "INCONCLUSIVE",
+       "CRPS": "INCONCLUSIVE"
+      },
+      "W2": {
+       "RMSE": "FAIL",
+       "CRPS": "FAIL"
+      }
+     },
+     "windows": {
+      "W1": {
+       "origins": 121,
+       "first_origin": "1996-12-31",
+       "last_origin": "2006-12-31",
+       "data_class": "REAL_TIME",
+       "vintage_dates_count": 41
+      },
+      "W2": {
+       "origins": 156,
+       "first_origin": "2007-01-31",
+       "last_origin": "2019-12-31",
+       "data_class": "REAL_TIME",
+       "vintage_dates_count": 53
+      }
+     }
+    },
+    {
+     "candidate_id": "ENSEMBLE_EQUAL",
+     "role": "control",
+     "status": "CANDIDATE",
+     "data_class": "REAL_TIME",
+     "C1_pass": false,
+     "C2_pass": false,
+     "C2_romano_wolf_adjusted_p": 1.0,
+     "C3": "NOT_IMPLEMENTED",
+     "C4_pass": false,
+     "C5_pass": true,
+     "C6": "NO_RESOLVED_FORECASTS",
+     "relative_losses": {
+      "W1": {
+       "RMSE": 1.0,
+       "CRPS": 1.0
+      },
+      "W2": {
+       "RMSE": 1.0,
+       "CRPS": 1.0
+      }
+     },
+     "c2_adjusted_p": {
+      "W1": {
+       "RMSE": 1.0,
+       "CRPS": 1.0
+      },
+      "W2": {
+       "RMSE": 1.0,
+       "CRPS": 1.0
+      }
+     },
+     "c1_loss_pass": {
+      "W1": {
+       "RMSE": false,
+       "CRPS": false
+      },
+      "W2": {
+       "RMSE": false,
+       "CRPS": false
+      }
+     },
+     "c2_raw_p": {
+      "W1": {
+       "RMSE": 0.5,
+       "CRPS": 0.5
+      },
+      "W2": {
+       "RMSE": 0.5,
+       "CRPS": 0.5
+      }
+     },
+     "recession_origins": {
+      "W1": {
+       "RMSE": 8,
+       "CRPS": 8
+      },
+      "W2": {
+       "RMSE": 18,
+       "CRPS": 18
+      }
+     },
+     "C4_window_status": {
+      "W1": {
+       "RMSE": "INCONCLUSIVE",
+       "CRPS": "INCONCLUSIVE"
+      },
+      "W2": {
+       "RMSE": "PASS",
+       "CRPS": "PASS"
+      }
+     },
+     "windows": {
+      "W1": {
+       "origins": 121,
+       "first_origin": "1996-12-31",
+       "last_origin": "2006-12-31",
+       "data_class": "REAL_TIME",
+       "vintage_dates_count": 41
+      },
+      "W2": {
+       "origins": 156,
+       "first_origin": "2007-01-31",
+       "last_origin": "2019-12-31",
+       "data_class": "REAL_TIME",
+       "vintage_dates_count": 53
+      }
+     }
+    },
+    {
+     "candidate_id": "ENSEMBLE_INVERSE_MSE",
+     "role": "control",
+     "status": "CANDIDATE",
+     "data_class": "REAL_TIME",
+     "C1_pass": false,
+     "C2_pass": true,
+     "C2_romano_wolf_adjusted_p": 0.0,
+     "C3": "NOT_IMPLEMENTED",
+     "C4_pass": false,
+     "C5_pass": true,
+     "C6": "NO_RESOLVED_FORECASTS",
+     "relative_losses": {
+      "W1": {
+       "RMSE": 0.9999905702460741,
+       "CRPS": 0.9999919518590333
+      },
+      "W2": {
+       "RMSE": 0.9999965573620346,
+       "CRPS": 0.9999960380974547
+      }
+     },
+     "c2_adjusted_p": {
+      "W1": {
+       "RMSE": 0.0,
+       "CRPS": 0.0
+      },
+      "W2": {
+       "RMSE": 0.0,
+       "CRPS": 0.0
+      }
+     },
+     "c1_loss_pass": {
+      "W1": {
+       "RMSE": false,
+       "CRPS": false
+      },
+      "W2": {
+       "RMSE": false,
+       "CRPS": false
+      }
+     },
+     "c2_raw_p": {
+      "W1": {
+       "RMSE": 0.0,
+       "CRPS": 2.282229960570703e-12
+      },
+      "W2": {
+       "RMSE": 9.506911158307929e-08,
+       "CRPS": 1.9244369789006566e-05
+      }
+     },
+     "recession_origins": {
+      "W1": {
+       "RMSE": 8,
+       "CRPS": 8
+      },
+      "W2": {
+       "RMSE": 18,
+       "CRPS": 18
+      }
+     },
+     "C4_window_status": {
+      "W1": {
+       "RMSE": "INCONCLUSIVE",
+       "CRPS": "INCONCLUSIVE"
+      },
+      "W2": {
+       "RMSE": "FAIL",
+       "CRPS": "FAIL"
+      }
+     },
+     "windows": {
+      "W1": {
+       "origins": 121,
+       "first_origin": "1996-12-31",
+       "last_origin": "2006-12-31",
+       "data_class": "REAL_TIME",
+       "vintage_dates_count": 41
+      },
+      "W2": {
+       "origins": 156,
+       "first_origin": "2007-01-31",
+       "last_origin": "2019-12-31",
+       "data_class": "REAL_TIME",
+       "vintage_dates_count": 53
+      }
+     }
+    },
+    {
+     "candidate_id": "ENSEMBLE_RW_AR",
+     "role": "candidate",
+     "status": "CANDIDATE",
+     "data_class": "REAL_TIME",
+     "C1_pass": false,
+     "C2_pass": false,
+     "C2_romano_wolf_adjusted_p": 1.0,
+     "C3": "NOT_IMPLEMENTED",
+     "C4_pass": false,
+     "C5_pass": false,
+     "C6": "NO_RESOLVED_FORECASTS",
+     "relative_losses": {
+      "W1": {
+       "RMSE": 1.0007499643112354,
+       "CRPS": 1.0007036655619368
+      },
+      "W2": {
+       "RMSE": 1.000399331170046,
+       "CRPS": 1.0007781210515185
+      }
+     },
+     "c2_adjusted_p": {
+      "W1": {
+       "RMSE": 1.0,
+       "CRPS": 1.0
+      },
+      "W2": {
+       "RMSE": 1.0,
+       "CRPS": 1.0
+      }
+     },
+     "c1_loss_pass": {
+      "W1": {
+       "RMSE": false,
+       "CRPS": false
+      },
+      "W2": {
+       "RMSE": false,
+       "CRPS": false
+      }
+     },
+     "c2_raw_p": {
+      "W1": {
+       "RMSE": 0.9999999997522191,
+       "CRPS": 0.9999999976873217
+      },
+      "W2": {
+       "RMSE": 0.9999912860502265,
+       "CRPS": 0.9999999999985185
+      }
+     },
+     "recession_origins": {
+      "W1": {
+       "RMSE": 8,
+       "CRPS": 8
+      },
+      "W2": {
+       "RMSE": 18,
+       "CRPS": 18
+      }
+     },
+     "C4_window_status": {
+      "W1": {
+       "RMSE": "INCONCLUSIVE",
+       "CRPS": "INCONCLUSIVE"
+      },
+      "W2": {
+       "RMSE": "PASS",
+       "CRPS": "FAIL"
+      }
+     },
+     "windows": {
+      "W1": {
+       "origins": 121,
+       "first_origin": "1996-12-31",
+       "last_origin": "2006-12-31",
+       "data_class": "REAL_TIME",
+       "vintage_dates_count": 41
+      },
+      "W2": {
+       "origins": 156,
+       "first_origin": "2007-01-31",
+       "last_origin": "2019-12-31",
+       "data_class": "REAL_TIME",
+       "vintage_dates_count": 53
+      }
+     }
+    }
+   ]
+  },
+  "T2_GDP_GROWTH_h0": {
+   "target": "T2_GDP_GROWTH",
+   "horizon": 0,
+   "data_class": "REAL_TIME",
+   "origins": {
+    "W1": {
+     "count": 121,
+     "first": "1996-12-31",
+     "last": "2006-12-31"
+    },
+    "W2": {
+     "count": 156,
+     "first": "2007-01-31",
+     "last": "2019-12-31"
+    }
+   },
+   "runtime_seconds": 746.1,
+   "family_size": 4,
+   "family": [
+    "ENSEMBLE_ADAPTIVE",
+    "ENSEMBLE_BAYES",
+    "ENSEMBLE_EQUAL",
+    "ENSEMBLE_INVERSE_MSE"
+   ],
+   "multiplicity_method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+   "multiplicity": {
+    "fwer": 0.1,
+    "replications": 10000,
+    "seed": 20261111,
+    "block_length": null,
+    "adjusted_p_values": {
+     "ENSEMBLE_ADAPTIVE": {
+      "W1": {
+       "RMSE": 0.0,
+       "CRPS": 0.0
+      },
+      "W2": {
+       "RMSE": 0.0,
+       "CRPS": 0.0
+      }
+     },
+     "ENSEMBLE_BAYES": {
+      "W1": {
+       "RMSE": 0.0,
+       "CRPS": 0.0223
+      },
+      "W2": {
+       "RMSE": 0.0,
+       "CRPS": 0.0
+      }
+     },
+     "ENSEMBLE_EQUAL": {
+      "W1": {
+       "RMSE": 0.9953,
+       "CRPS": 0.0
+      },
+      "W2": {
+       "RMSE": 0.3283,
+       "CRPS": 0.0
+      }
+     },
+     "ENSEMBLE_INVERSE_MSE": {
+      "W1": {
+       "RMSE": 0.9953,
+       "CRPS": 0.0
+      },
+      "W2": {
+       "RMSE": 0.3272,
+       "CRPS": 0.0
+      }
+     }
+    }
+   },
+   "skipped_candidates": {
+    "ENSEMBLE_RW_AR": "insufficient evaluated origins: W1=0, W2=0"
+   },
+   "candidates": [
+    {
+     "candidate_id": "ENSEMBLE_ADAPTIVE",
+     "role": "candidate",
+     "status": "CANDIDATE",
+     "data_class": "REAL_TIME",
+     "C1_pass": false,
+     "C2_pass": true,
+     "C2_romano_wolf_adjusted_p": 0.0,
+     "C3": "NOT_IMPLEMENTED",
+     "C4_pass": false,
+     "C5_pass": true,
+     "C6": "NO_RESOLVED_FORECASTS",
+     "relative_losses": {
+      "W1": {
+       "RMSE": 0.9999927714989532,
+       "CRPS": 0.9140865038266823
+      },
+      "W2": {
+       "RMSE": 0.9999964949818526,
+       "CRPS": 0.899821007126095
+      }
+     },
+     "c2_adjusted_p": {
+      "W1": {
+       "RMSE": 0.0,
+       "CRPS": 0.0
+      },
+      "W2": {
+       "RMSE": 0.0,
+       "CRPS": 0.0
+      }
+     },
+     "c1_loss_pass": {
+      "W1": {
+       "RMSE": false,
+       "CRPS": true
+      },
+      "W2": {
+       "RMSE": false,
+       "CRPS": true
+      }
+     },
+     "c2_raw_p": {
+      "W1": {
+       "RMSE": 3.204111864718584e-09,
+       "CRPS": 3.963496197911809e-14
+      },
+      "W2": {
+       "RMSE": 8.499081184498714e-06,
+       "CRPS": 0.0
+      }
+     },
+     "recession_origins": {
+      "W1": {
+       "RMSE": 0,
+       "CRPS": 0
+      },
+      "W2": {
+       "RMSE": 0,
+       "CRPS": 0
+      }
+     },
+     "C4_window_status": {
+      "W1": {
+       "RMSE": "INCONCLUSIVE",
+       "CRPS": "INCONCLUSIVE"
+      },
+      "W2": {
+       "RMSE": "INCONCLUSIVE",
+       "CRPS": "INCONCLUSIVE"
+      }
+     },
+     "windows": {
+      "W1": {
+       "origins": 121,
+       "first_origin": "1996-12-31",
+       "last_origin": "2006-12-31",
+       "data_class": "REAL_TIME",
+       "vintage_dates_count": 41
+      },
+      "W2": {
+       "origins": 156,
+       "first_origin": "2007-01-31",
+       "last_origin": "2019-12-31",
+       "data_class": "REAL_TIME",
+       "vintage_dates_count": 53
+      }
+     }
+    },
+    {
+     "candidate_id": "ENSEMBLE_BAYES",
+     "role": "control",
+     "status": "CANDIDATE",
+     "data_class": "REAL_TIME",
+     "C1_pass": false,
+     "C2_pass": true,
+     "C2_romano_wolf_adjusted_p": 0.0223,
+     "C3": "NOT_IMPLEMENTED",
+     "C4_pass": false,
+     "C5_pass": true,
+     "C6": "NO_RESOLVED_FORECASTS",
+     "relative_losses": {
+      "W1": {
+       "RMSE": 0.9999613274134848,
+       "CRPS": 0.9853417561595027
+      },
+      "W2": {
+       "RMSE": 0.9999873656873577,
+       "CRPS": 0.9207267828927442
+      }
+     },
+     "c2_adjusted_p": {
+      "W1": {
+       "RMSE": 0.0,
+       "CRPS": 0.0223
+      },
+      "W2": {
+       "RMSE": 0.0,
+       "CRPS": 0.0
+      }
+     },
+     "c1_loss_pass": {
+      "W1": {
+       "RMSE": false,
+       "CRPS": false
+      },
+      "W2": {
+       "RMSE": false,
+       "CRPS": true
+      }
+     },
+     "c2_raw_p": {
+      "W1": {
+       "RMSE": 0.0,
+       "CRPS": 0.009516056514806859
+      },
+      "W2": {
+       "RMSE": 0.0,
+       "CRPS": 3.588807029331065e-10
+      }
+     },
+     "recession_origins": {
+      "W1": {
+       "RMSE": 0,
+       "CRPS": 0
+      },
+      "W2": {
+       "RMSE": 0,
+       "CRPS": 0
+      }
+     },
+     "C4_window_status": {
+      "W1": {
+       "RMSE": "INCONCLUSIVE",
+       "CRPS": "INCONCLUSIVE"
+      },
+      "W2": {
+       "RMSE": "INCONCLUSIVE",
+       "CRPS": "INCONCLUSIVE"
+      }
+     },
+     "windows": {
+      "W1": {
+       "origins": 121,
+       "first_origin": "1996-12-31",
+       "last_origin": "2006-12-31",
+       "data_class": "REAL_TIME",
+       "vintage_dates_count": 41
+      },
+      "W2": {
+       "origins": 156,
+       "first_origin": "2007-01-31",
+       "last_origin": "2019-12-31",
+       "data_class": "REAL_TIME",
+       "vintage_dates_count": 53
+      }
+     }
+    },
+    {
+     "candidate_id": "ENSEMBLE_EQUAL",
+     "role": "control",
+     "status": "CANDIDATE",
+     "data_class": "REAL_TIME",
+     "C1_pass": false,
+     "C2_pass": false,
+     "C2_romano_wolf_adjusted_p": 0.9953,
+     "C3": "NOT_IMPLEMENTED",
+     "C4_pass": false,
+     "C5_pass": false,
+     "C6": "NO_RESOLVED_FORECASTS",
+     "relative_losses": {
+      "W1": {
+       "RMSE": 1.0000034106379982,
+       "CRPS": 0.8942508023828221
+      },
+      "W2": {
+       "RMSE": 0.9999995426022261,
+       "CRPS": 0.8891138221363745
+      }
+     },
+     "c2_adjusted_p": {
+      "W1": {
+       "RMSE": 0.9953,
+       "CRPS": 0.0
+      },
+      "W2": {
+       "RMSE": 0.3283,
+       "CRPS": 0.0
+      }
+     },
+     "c1_loss_pass": {
+      "W1": {
+       "RMSE": false,
+       "CRPS": true
+      },
+      "W2": {
+       "RMSE": false,
+       "CRPS": true
+      }
+     },
+     "c2_raw_p": {
+      "W1": {
+       "RMSE": 0.9980322167655257,
+       "CRPS": 2.225997164373439e-14
+      },
+      "W2": {
+       "RMSE": 0.30261739970548096,
+       "CRPS": 0.0
+      }
+     },
+     "recession_origins": {
+      "W1": {
+       "RMSE": 0,
+       "CRPS": 0
+      },
+      "W2": {
+       "RMSE": 0,
+       "CRPS": 0
+      }
+     },
+     "C4_window_status": {
+      "W1": {
+       "RMSE": "INCONCLUSIVE",
+       "CRPS": "INCONCLUSIVE"
+      },
+      "W2": {
+       "RMSE": "INCONCLUSIVE",
+       "CRPS": "INCONCLUSIVE"
+      }
+     },
+     "windows": {
+      "W1": {
+       "origins": 121,
+       "first_origin": "1996-12-31",
+       "last_origin": "2006-12-31",
+       "data_class": "REAL_TIME",
+       "vintage_dates_count": 41
+      },
+      "W2": {
+       "origins": 156,
+       "first_origin": "2007-01-31",
+       "last_origin": "2019-12-31",
+       "data_class": "REAL_TIME",
+       "vintage_dates_count": 53
+      }
+     }
+    },
+    {
+     "candidate_id": "ENSEMBLE_INVERSE_MSE",
+     "role": "control",
+     "status": "CANDIDATE",
+     "data_class": "REAL_TIME",
+     "C1_pass": false,
+     "C2_pass": false,
+     "C2_romano_wolf_adjusted_p": 0.9953,
+     "C3": "NOT_IMPLEMENTED",
+     "C4_pass": false,
+     "C5_pass": false,
+     "C6": "NO_RESOLVED_FORECASTS",
+     "relative_losses": {
+      "W1": {
+       "RMSE": 1.0000034104448252,
+       "CRPS": 0.8938091164568771
+      },
+      "W2": {
+       "RMSE": 0.9999995391286076,
+       "CRPS": 0.8895782231376074
+      }
+     },
+     "c2_adjusted_p": {
+      "W1": {
+       "RMSE": 0.9953,
+       "CRPS": 0.0
+      },
+      "W2": {
+       "RMSE": 0.3272,
+       "CRPS": 0.0
+      }
+     },
+     "c1_loss_pass": {
+      "W1": {
+       "RMSE": false,
+       "CRPS": true
+      },
+      "W2": {
+       "RMSE": false,
+       "CRPS": true
+      }
+     },
+     "c2_raw_p": {
+      "W1": {
+       "RMSE": 0.9980155573526324,
+       "CRPS": 2.3592239273284576e-14
+      },
+      "W2": {
+       "RMSE": 0.3014283257198235,
+       "CRPS": 0.0
+      }
+     },
+     "recession_origins": {
+      "W1": {
+       "RMSE": 0,
+       "CRPS": 0
+      },
+      "W2": {
+       "RMSE": 0,
+       "CRPS": 0
+      }
+     },
+     "C4_window_status": {
+      "W1": {
+       "RMSE": "INCONCLUSIVE",
+       "CRPS": "INCONCLUSIVE"
+      },
+      "W2": {
+       "RMSE": "INCONCLUSIVE",
+       "CRPS": "INCONCLUSIVE"
+      }
+     },
+     "windows": {
+      "W1": {
+       "origins": 121,
+       "first_origin": "1996-12-31",
+       "last_origin": "2006-12-31",
+       "data_class": "REAL_TIME",
+       "vintage_dates_count": 41
+      },
+      "W2": {
+       "origins": 156,
+       "first_origin": "2007-01-31",
+       "last_origin": "2019-12-31",
+       "data_class": "REAL_TIME",
+       "vintage_dates_count": 53
+      }
+     }
+    }
+   ]
+  }
+ },
+ "structural_findings": [
+  "ENSEMBLE_EQUAL is mechanically identical to the frozen primary comparator (same members, equal weights, same mixture), so relative loss = 1.0 exactly; an ensemble of comparator members cannot pass C1 (threshold 0.97)",
+  "INVERSE_MSE/BAYES/ADAPTIVE improve T1 relative losses by 0.02-0.23% only; DM/C2 detects the tiny consistent improvement (raw p = 0.0) but C1 remains the binding gate",
+  "T2 h=0 CRPS relative loss ~0.89 for the control ensembles is driven by the SPF member that enters the candidate at 40/52 survey-deadline origins and is NOT part of the comparator; without SPF the equal ensemble is the comparator (relative loss 1.0)",
+  "T2 h=0 RMSE is ~1.0 (no point-forecast improvement); C1 for T2 fails on RMSE",
+  "ENSEMBLE_RW_AR cannot be evaluated on T2 (its RW member has no T2 model): zero forecasts, skipped; the T2 registration of that candidate is inconsistent"
+ ],
+ "cross_cutting": {
+  "no_admission_assignments": true,
+  "comparison_to_previous": {
+   "previous_candidate": "ENSEMBLE_RW_AR",
+   "previous_report": "protocols/first_real_evaluation_report.json (docs/76)",
+   "T1_CPI_YOY_h1": "reproduced exactly on the same 121/156 REAL_TIME origins: the relative losses RMSE/CRPS (1.000750/1.000704 on W1, 1.000399/1.000778 on W2) and the CANDIDATE status are identical to docs/76, which validates the evaluation pipeline and the origin filter",
+   "T2_GDP_GROWTH_h0": "ENSEMBLE_RW_AR is NOT evaluable on T2: its member RW has no T2 model (RW applies to T1 only), so every origin fails and the candidate produces zero forecasts; it was skipped. The registration of ENSEMBLE_RW_AR for T2 is inconsistent with the R3 model set and should be corrected by the Lead"
+  },
+  "SPF": {
+   "used_by": "T2_GDP_GROWTH h=0 candidate ensembles only",
+   "availability": {
+    "W1": {
+     "origins": 121,
+     "spf_available_origins": 40
+    },
+    "W2": {
+     "origins": 156,
+     "spf_available_origins": 52
+    },
+    "rule": "SPF median at the survey deadline month (middle month of the quarter, month-end origin, +14 days after the survey anchor); no SPF at other origins"
+   },
+   "role": "third-party point forecast; its predictive distribution in the ensemble is the project's own derived statistic (empirical SPF forecast errors centred on the current median)",
+   "comparator": "the frozen primary comparator does NOT contain SPF (SPF_MEDIAN is not a comparator member by protocol), so the T2 h=0 comparison is not apples-to-apples: the candidate may use an OPEN external source that the comparator excludes",
+   "mapping_caveat": "the drgdp2..6 -> T2 horizon mapping is declared by the project and still requires confirmation against the official SPF documentation (docs/71 section 3.3, docs/81 section 4); the T2 results are therefore preliminary and conditional on that mapping",
+   "values_policy": "SPF values stay in git-ignored data/raw/spf; only derived ensemble statistics are recorded, with attribution to the Philadelphia Fed"
+  },
+  "limitations": [
+   "T1 calibration history for the first ~12 origins of W1 can contain member forecasts computed in PSEUDO_REAL_TIME mode for models that need the yield-curve inputs (BVAR), because GS10/TB3MS vintages start 1996-12; current-origin forecasts are REAL_TIME, but the ADAPTIVE/BAYES/INVERSE weights of those first origins rest on a partly pseudo history. This is a property of the registered candidate implementation (mode=auto) and is reported, not changed (src/amfe/ensemble is registered code)",
+   "T2 h=0 C4 is degenerate in the harness runner (zero recession mask), so C4 is INCONCLUSIVE by construction",
+   "SPF values are third-party data; they are not committed and only derived statistics appear here; the T2 SPF-inclusive comparison requires the mapping decision",
+   "C6 absent: no forward-registry forecasts are resolved yet; the maximum possible stage on the first day is CANDIDATE",
+   "runtimes are dominated by the dense-vintage DataContext construction per member/origin: 769.5 s for T1 (5 candidates) and 746.1 s for T2 (4 candidates); this is a speed limitation, not a correctness issue"
+  ],
+  "files": {
+   "protocols/ensemble_evaluation_report.json": "aa72c73dd16c7bb23594cb7fa6af6a002a81a084bb1b1eac6819c9359e574d72"
+  }
+ }
+}
