@@ -123,7 +123,8 @@ class MemberPlan(unittest.TestCase):
         self.assertEqual(non_middle["spf_reason"], "ORIGIN_IS_NOT_AN_SPF_DEADLINE_MONTH")
         self.assertTrue(non_middle["spf_fallback"])
         pre = cand.member_plan(cand.CANDIDATE_ID_SPF, "T2_GDP_GROWTH", "1990-02-28", 0)
-        self.assertIn(pre["spf_reason"], {"SPF_NOT_REAL_TIME_BEFORE_1990Q3",\n                                          "SPF_VALUES_NOT_DOWNLOADED"})
+        self.assertIn(pre["spf_reason"], {"SPF_NOT_REAL_TIME_BEFORE_1990Q3",
+                                          "SPF_VALUES_NOT_DOWNLOADED"})
 
     def test_quarter_end_horizons_fall_back(self):
         for horizon, origin in ((1, "2019-03-29"), (2, "2019-03-29"), (4, "2019-03-29")):
