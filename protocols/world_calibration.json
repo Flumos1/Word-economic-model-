@@ -1,0 +1,1054 @@
+{
+  "calibration_id": "AMFE-WORLD-CALIBRATION",
+  "version": "0.1.0",
+  "tool": "tools/calibrate_world.py",
+  "plan": {
+    "file": "protocols/data_plan.json",
+    "version": "0.4.0",
+    "series": 19
+  },
+  "core_calibration": {
+    "file": "protocols/core_calibration.json",
+    "version": "0.1.0"
+  },
+  "status": "COMPLETE",
+  "purpose": "starting values for the world core (src/amfe/world, docs/85): normalised expenditure shares, openness, growth, inflation anchor, unemployment-gap inflation slope, NAIRU proxy and activity aggregates, plus V2 checks on the real series; derived statistics only",
+  "raw_data_committed": false,
+  "reproduce": "put the local data/raw download in place (data is git-ignored) and run python tools/calibrate_world.py",
+  "windows": {
+    "baseline": [
+      "1990Q1",
+      "2019Q4"
+    ],
+    "recent": [
+      "2020Q1",
+      "2026Q3"
+    ],
+    "latest20": "last 20 quarters of the baseline window",
+    "nairu_proxy": [
+      "2015-01",
+      "2019-12"
+    ]
+  },
+  "sources": [
+    {
+      "series": "CPIAUCSL",
+      "file": "data/raw/CPIAUCSL/latest.csv",
+      "rows": 957,
+      "first_observation": "1947-01-01",
+      "last_observation": "2026-10-01",
+      "file_sha256": "c9be2d4909ffd28d91f07df5d113151b0fe7ba602144ee6fd453d3bc8426efde",
+      "register": "ALFRED:CPIAUCSL",
+      "licence_label": "Public Domain: Citation Requested",
+      "source": "U.S. Bureau of Labor Statistics",
+      "purpose": "T1 target and inputs"
+    },
+    {
+      "series": "CPILFESL",
+      "file": "data/raw/CPILFESL/latest.csv",
+      "rows": 837,
+      "first_observation": "1957-01-01",
+      "last_observation": "2026-10-01",
+      "file_sha256": "b9f2504703e841cc721242ffab7c638f2e26a97baec9783502c8b606e352f58c",
+      "register": "ALFRED:CPILFESL",
+      "licence_label": "Public Domain: Citation Requested",
+      "source": "U.S. Bureau of Labor Statistics",
+      "purpose": "T1 core target and inputs"
+    },
+    {
+      "series": "GDPC1",
+      "file": "data/raw/GDPC1/latest.csv",
+      "rows": 319,
+      "first_observation": "1947-01-01",
+      "last_observation": "2026-07-01",
+      "file_sha256": "1c6c6e9f59e383e20c849dd299175c7a307526c09abdc18f18da9754fc5b3343",
+      "register": "ALFRED:GDPC1",
+      "licence_label": "Public Domain: Citation Requested",
+      "source": "U.S. Bureau of Economic Analysis",
+      "purpose": "T2 target and inputs"
+    },
+    {
+      "series": "UNRATE",
+      "file": "data/raw/UNRATE/latest.csv",
+      "rows": 945,
+      "first_observation": "1948-01-01",
+      "last_observation": "2026-10-01",
+      "file_sha256": "fb669461abc34e00324b940be6bad1c7f89117652f28587196a7b8bf4a9f56a1",
+      "register": "ALFRED:UNRATE",
+      "licence_label": "Public Domain: Citation Requested",
+      "source": "U.S. Bureau of Labor Statistics",
+      "purpose": "BVAR, SAHM and own-nowcast inputs"
+    },
+    {
+      "series": "GS10",
+      "file": "data/raw/GS10/latest.csv",
+      "rows": 883,
+      "first_observation": "1953-04-01",
+      "last_observation": "2026-10-01",
+      "file_sha256": "018e609eb98c52ec8d2cf0ea9f8e1450c24974c31cca455cc19717a77703af78",
+      "register": "ALFRED:GS10",
+      "licence_label": "Public Domain: Citation Requested",
+      "source": "Board of Governors of the Federal Reserve System",
+      "purpose": "BVAR, PROBIT and own-nowcast inputs"
+    },
+    {
+      "series": "TB3MS",
+      "file": "data/raw/TB3MS/latest.csv",
+      "rows": 1114,
+      "first_observation": "1934-01-01",
+      "last_observation": "2026-10-01",
+      "file_sha256": "33fae406051a658c316580f8e8b5e461157e6663bc03b35648cc7cd3e89ee26b",
+      "register": "ALFRED:TB3MS",
+      "licence_label": "Public Domain: Citation Requested",
+      "source": "Board of Governors of the Federal Reserve System",
+      "purpose": "BVAR, PROBIT and own-nowcast inputs"
+    },
+    {
+      "series": "GCE",
+      "file": "data/raw/GCE/latest.csv",
+      "rows": 319,
+      "first_observation": "1947-01-01",
+      "last_observation": "2026-07-01",
+      "file_sha256": "665600d2c5bb3f4862e4260d8c4b92ae7017f4cf56b968328cde026d9711b75a",
+      "register": "BEA_PRIMARY",
+      "licence_label": "Public Domain: Citation Requested",
+      "source": "U.S. Bureau of Economic Analysis",
+      "purpose": "nominal government consumption expenditures and gross investment (BEA NIPA table 3.1); denominator candidate for the government share"
+    },
+    {
+      "series": "GCEC1",
+      "file": "data/raw/GCEC1/latest.csv",
+      "rows": 319,
+      "first_observation": "1947-01-01",
+      "last_observation": "2026-07-01",
+      "file_sha256": "5cfda8c6b010d1e1915cfba6490cb6fc6879b929bf7e964a96ec9b801defbb94",
+      "register": "BEA_PRIMARY",
+      "licence_label": "Public Domain: Citation Requested",
+      "source": "U.S. Bureau of Economic Analysis",
+      "purpose": "real government consumption expenditures and gross investment (BEA); used for the real government share of GDP in the world-core calibration"
+    },
+    {
+      "series": "GPDIC1",
+      "file": "data/raw/GPDIC1/latest.csv",
+      "rows": 319,
+      "first_observation": "1947-01-01",
+      "last_observation": "2026-07-01",
+      "file_sha256": "74739900ecdd754bc2e3d2530953c9c37e92b4af11ed3f07679ab695ce7fb424",
+      "register": "BEA_PRIMARY",
+      "licence_label": "Public Domain: Citation Requested",
+      "source": "U.S. Bureau of Economic Analysis",
+      "purpose": "real gross private domestic investment (BEA); investment share of real GDP"
+    },
+    {
+      "series": "EXPGSC1",
+      "file": "data/raw/EXPGSC1/latest.csv",
+      "rows": 319,
+      "first_observation": "1947-01-01",
+      "last_observation": "2026-07-01",
+      "file_sha256": "eb6cdd1dc01743dbfafd3619a38194142e1d0eb09ce32e5dc99f576c3f47163f",
+      "register": "BEA_PRIMARY",
+      "licence_label": "Public Domain: Citation Requested",
+      "source": "U.S. Bureau of Economic Analysis",
+      "purpose": "real exports of goods and services (BEA); net-export share input"
+    },
+    {
+      "series": "IMPGSC1",
+      "file": "data/raw/IMPGSC1/latest.csv",
+      "rows": 319,
+      "first_observation": "1947-01-01",
+      "last_observation": "2026-07-01",
+      "file_sha256": "f98e053b23756e8b33127aa25d5cc87c4d1261fb50dd4fa435b34d8593f017d1",
+      "register": "BEA_PRIMARY",
+      "licence_label": "Public Domain: Citation Requested",
+      "source": "U.S. Bureau of Economic Analysis",
+      "purpose": "real imports of goods and services (BEA); import share of real GDP"
+    },
+    {
+      "series": "GDPDEF",
+      "file": "data/raw/GDPDEF/latest.csv",
+      "rows": 319,
+      "first_observation": "1947-01-01",
+      "last_observation": "2026-07-01",
+      "file_sha256": "30bb0472781765e94efbbeaf63f0056106c5ff3786f6713485d3daff182b6010",
+      "register": "BEA_PRIMARY",
+      "licence_label": "Public Domain: Citation Requested",
+      "source": "U.S. Bureau of Economic Analysis",
+      "purpose": "GDP implicit price deflator (BEA); nominal/real bridge for the expenditure identity"
+    },
+    {
+      "series": "A191RL1Q225SBEA",
+      "file": "data/raw/A191RL1Q225SBEA/latest.csv",
+      "rows": 318,
+      "first_observation": "1947-04-01",
+      "last_observation": "2026-07-01",
+      "file_sha256": "1af2590d79adb8d3c6fad4328d306c96bb6ed9980120eae58bb9471fffbb0562",
+      "register": "BEA_PRIMARY",
+      "licence_label": "Public Domain: Citation Requested",
+      "source": "U.S. Bureau of Economic Analysis",
+      "purpose": "real GDP growth, percent change from preceding quarter at an annual rate (BEA); V2 growth-approximation check"
+    },
+    {
+      "series": "PCEPILFE",
+      "file": "data/raw/PCEPILFE/latest.csv",
+      "rows": 813,
+      "first_observation": "1959-01-01",
+      "last_observation": "2026-09-01",
+      "file_sha256": "8aa0635d4a3e066a0365551faeabc030547a7a313c58c3b18f87b7f0ff1d5f18",
+      "register": "BEA_PRIMARY",
+      "licence_label": "Public Domain: Citation Requested",
+      "source": "U.S. Bureau of Economic Analysis",
+      "purpose": "core PCE price index (BEA); alternative inflation measure for the fiscal/monetary layer"
+    },
+    {
+      "series": "PAYEMS",
+      "file": "data/raw/PAYEMS/latest.csv",
+      "rows": 1054,
+      "first_observation": "1939-01-01",
+      "last_observation": "2026-10-01",
+      "file_sha256": "968f9252d00246e2b6cf40307e01eef7a413ec936fcc45c7498347a509a2dc32",
+      "register": "BLS_PRIMARY",
+      "licence_label": "Public Domain: Citation Requested",
+      "source": "U.S. Bureau of Labor Statistics",
+      "purpose": "all employees, total nonfarm (BLS CES); labour input denominator for the productivity trend and the NAIRU-adjacent labour indicators"
+    },
+    {
+      "series": "INDPRO",
+      "file": "data/raw/INDPRO/latest.csv",
+      "rows": 1293,
+      "first_observation": "1919-01-01",
+      "last_observation": "2026-09-01",
+      "file_sha256": "0fc53a503386efaf83f17cf0cc6d77b3980830a91c9dfa9ebab97b4cf1aa5feb",
+      "register": "FRED_ALFRED_SERVICES",
+      "licence_label": "Public Domain: Citation Requested",
+      "source": "Board of Governors of the Federal Reserve System",
+      "purpose": "industrial production total index (Federal Reserve G.17); activity measure for the physical layer"
+    },
+    {
+      "series": "RSAFS",
+      "file": "data/raw/RSAFS/latest.csv",
+      "rows": 417,
+      "first_observation": "1992-01-01",
+      "last_observation": "2026-09-01",
+      "file_sha256": "627d8bb386ac80f4aede3a9496b63040df584875fb766d455b08ebd84311468f",
+      "register": "FRED_ALFRED_SERVICES",
+      "licence_label": "Public Domain: Citation Requested",
+      "source": "U.S. Census Bureau",
+      "purpose": "advance retail sales, retail trade and food services (Census MARTS); demand indicator for V2"
+    },
+    {
+      "series": "PCECC96",
+      "file": "data/raw/PCECC96/latest.csv",
+      "rows": 319,
+      "first_observation": "1947-01-01",
+      "last_observation": "2026-07-01",
+      "file_sha256": "361ddbb2d04c18d51f5ab9f5d6dd90625e92ecbe70563ac476cf6552d6e11980",
+      "register": "BEA_PRIMARY",
+      "licence_label": "Public Domain: Citation Requested",
+      "source": "U.S. Bureau of Economic Analysis",
+      "purpose": "real personal consumption expenditures, quarterly, BEA NIPA (chain 2017$); the C component of the real expenditure identity Y=C+I+G+NX for the V2 additivity check"
+    },
+    {
+      "series": "USREC",
+      "file": "data/raw/USREC/latest.csv",
+      "rows": 2063,
+      "first_observation": "1854-12-01",
+      "last_observation": "2026-10-01",
+      "file_sha256": "7d28698513be7460870afa883c2325d3502ddaecd6b1e781ed5f655126341b44",
+      "register": "ALFRED:USREC",
+      "licence_label": "Public Domain: Citation Requested",
+      "source": "National Bureau of Economic Research (via FRED)",
+      "purpose": "machine-readable NBER chronology for T3 and for the C4 split"
+    }
+  ],
+  "parameters": [
+    {
+      "id": "consumption_share",
+      "description": "реальное потребление / ВВП",
+      "value": 0.659832,
+      "unit": "share of GDP",
+      "stdev": 0.016014,
+      "min": 0.63186,
+      "max": 0.682962,
+      "window": "baseline",
+      "sources": [
+        "PCECC96",
+        "GDPC1"
+      ],
+      "uncertainty": "stdev across quarters",
+      "status": "CALIBRATED",
+      "world_core_target": null,
+      "note": "consumption_share (raw share of GDP); not mapped directly (the normalised shares below are)",
+      "world_core_value": null
+    },
+    {
+      "id": "investment_share",
+      "description": "реальные частные инвестиции / ВВП",
+      "value": 0.15635,
+      "unit": "share of GDP",
+      "stdev": 0.019178,
+      "min": 0.116447,
+      "max": 0.183963,
+      "window": "baseline",
+      "sources": [
+        "GPDIC1",
+        "GDPC1"
+      ],
+      "uncertainty": "stdev across quarters",
+      "status": "CALIBRATED",
+      "world_core_target": null,
+      "note": "investment_share (raw share of GDP); not mapped directly (the normalised shares below are)",
+      "world_core_value": null
+    },
+    {
+      "id": "government_share",
+      "description": "гос. потребление+инвестиции / ВВП",
+      "value": 0.206905,
+      "unit": "share of GDP",
+      "stdev": 0.023206,
+      "min": 0.171208,
+      "max": 0.258766,
+      "window": "baseline",
+      "sources": [
+        "GCEC1",
+        "GDPC1"
+      ],
+      "uncertainty": "stdev across quarters",
+      "status": "CALIBRATED",
+      "world_core_target": null,
+      "note": "government_share (raw share of GDP); not mapped directly (the normalised shares below are)",
+      "world_core_value": null
+    },
+    {
+      "id": "export_share",
+      "description": "реальный экспорт / ВВП",
+      "value": 0.098403,
+      "unit": "share of GDP",
+      "stdev": 0.01849,
+      "min": 0.065135,
+      "max": 0.125283,
+      "window": "baseline",
+      "sources": [
+        "EXPGSC1",
+        "GDPC1"
+      ],
+      "uncertainty": "stdev across quarters",
+      "status": "CALIBRATED",
+      "world_core_target": "CountryConfig.export_share",
+      "note": "external trade share of the calibrated country",
+      "world_core_value": 0.098403
+    },
+    {
+      "id": "import_share",
+      "description": "реальный импорт / ВВП",
+      "value": 0.120622,
+      "unit": "share of GDP",
+      "stdev": 0.02644,
+      "min": 0.069024,
+      "max": 0.152485,
+      "window": "baseline",
+      "sources": [
+        "IMPGSC1",
+        "GDPC1"
+      ],
+      "uncertainty": "stdev across quarters",
+      "status": "CALIBRATED",
+      "world_core_target": null,
+      "note": "openness input; not a separate CountryConfig field",
+      "world_core_value": null
+    },
+    {
+      "id": "net_export_share",
+      "description": "чистый экспорт / ВВП",
+      "value": -0.022219,
+      "unit": "share of GDP",
+      "stdev": 0.013302,
+      "min": -0.045557,
+      "max": 0.000817,
+      "window": "baseline",
+      "sources": [
+        "EXPGSC1",
+        "IMPGSC1",
+        "GDPC1"
+      ],
+      "uncertainty": "stdev across quarters",
+      "status": "CALIBRATED",
+      "world_core_target": null,
+      "note": "negative NX is why C+I+G exceeds 1; used to normalise the demand shares",
+      "world_core_value": null
+    },
+    {
+      "id": "household_demand_share",
+      "description": "нормализованная доля (C+I+G=1): household_demand_share",
+      "value": 0.644943,
+      "unit": "share of C+I+G",
+      "stdev": null,
+      "min": null,
+      "max": null,
+      "window": "baseline",
+      "sources": [
+        "PCECC96",
+        "GPDIC1",
+        "GCEC1",
+        "GDPC1"
+      ],
+      "uncertainty": "stdev across quarters",
+      "status": "CALIBRATED",
+      "world_core_target": "PhysicalConfig.household_demand_share",
+      "note": "normalised so that the three physical demand shares sum to one",
+      "world_core_value": 0.644943
+    },
+    {
+      "id": "investment_demand_share",
+      "description": "нормализованная доля (C+I+G=1): investment_demand_share",
+      "value": 0.152822,
+      "unit": "share of C+I+G",
+      "stdev": null,
+      "min": null,
+      "max": null,
+      "window": "baseline",
+      "sources": [
+        "PCECC96",
+        "GPDIC1",
+        "GCEC1",
+        "GDPC1"
+      ],
+      "uncertainty": "stdev across quarters",
+      "status": "CALIBRATED",
+      "world_core_target": "PhysicalConfig.investment_demand_share",
+      "note": "normalised so that the three physical demand shares sum to one",
+      "world_core_value": 0.152822
+    },
+    {
+      "id": "government_demand_share",
+      "description": "нормализованная доля (C+I+G=1): government_demand_share",
+      "value": 0.202236,
+      "unit": "share of C+I+G",
+      "stdev": null,
+      "min": null,
+      "max": null,
+      "window": "baseline",
+      "sources": [
+        "PCECC96",
+        "GPDIC1",
+        "GCEC1",
+        "GDPC1"
+      ],
+      "uncertainty": "stdev across quarters",
+      "status": "CALIBRATED",
+      "world_core_target": "PhysicalConfig.government_demand_share",
+      "note": "normalised so that the three physical demand shares sum to one",
+      "world_core_value": 0.202236
+    },
+    {
+      "id": "real_growth_annualized",
+      "description": "темп роста реального ВВП, кв/кв annualized",
+      "value": 2.546667,
+      "unit": "percent per quarter (annualised)",
+      "stdev": 2.352611,
+      "min": -8.5,
+      "max": 7.5,
+      "window": "baseline",
+      "sources": [
+        "A191RL1Q225SBEA"
+      ],
+      "uncertainty": "stdev across quarters",
+      "status": "CALIBRATED",
+      "world_core_target": "CountryConfig.real_growth (converted to fraction per period)",
+      "note": "mean published quarterly annualised growth",
+      "world_core_value": 0.006367
+    },
+    {
+      "id": "inflation_core_cpi_yoy",
+      "description": "инфляция core_cpi, yoy",
+      "value": 2.410549,
+      "unit": "percent per year",
+      "stdev": 0.894455,
+      "min": 0.645573,
+      "max": 5.498368,
+      "window": "baseline",
+      "sources": [
+        "CPILFESL"
+      ],
+      "uncertainty": "stdev across quarters",
+      "status": "CALIBRATED",
+      "world_core_target": null,
+      "note": null,
+      "world_core_value": null
+    },
+    {
+      "id": "inflation_core_pce_yoy",
+      "description": "инфляция core_pce, yoy",
+      "value": 1.951299,
+      "unit": "percent per year",
+      "stdev": 0.681298,
+      "min": 0.667273,
+      "max": 4.26098,
+      "window": "baseline",
+      "sources": [
+        "PCEPILFE"
+      ],
+      "uncertainty": "stdev across quarters",
+      "status": "CALIBRATED",
+      "world_core_target": null,
+      "note": null,
+      "world_core_value": null
+    },
+    {
+      "id": "inflation_gdp_deflator_yoy",
+      "description": "инфляция gdp_deflator, yoy",
+      "value": 2.017078,
+      "unit": "percent per year",
+      "stdev": 0.745718,
+      "min": 0.115386,
+      "max": 3.854667,
+      "window": "baseline",
+      "sources": [
+        "GDPDEF"
+      ],
+      "uncertainty": "stdev across quarters",
+      "status": "CALIBRATED",
+      "world_core_target": null,
+      "note": null,
+      "world_core_value": null
+    },
+    {
+      "id": "inflation_target",
+      "description": "цель/ориентир инфляции (средняя core PCE 2015–2019)",
+      "value": 0.39866,
+      "unit": "percent per period (quarter)",
+      "stdev": 0.059797,
+      "min": null,
+      "max": null,
+      "window": "2015Q1–2019Q4",
+      "sources": [
+        "PCEPILFE"
+      ],
+      "uncertainty": "stdev across quarters",
+      "status": "CALIBRATED",
+      "world_core_target": "CountryConfig.inflation_target",
+      "note": "annualised core PCE divided by four; descriptive anchor, not a policy target",
+      "world_core_value": 0.39866
+    },
+    {
+      "id": "nairu_proxy",
+      "description": "NAIRU-прокси: среднее UNRATE 2015–2019",
+      "value": 4.415,
+      "unit": "percent",
+      "stdev": 0.621868,
+      "min": 3.5,
+      "max": 5.7,
+      "window": "2015-01..2019-12",
+      "sources": [
+        "UNRATE"
+      ],
+      "uncertainty": "stdev across quarters",
+      "status": "CALIBRATED",
+      "world_core_target": null,
+      "note": "proxy, not an estimate of the natural rate",
+      "world_core_value": null
+    },
+    {
+      "id": "inflation_slope",
+      "description": "наклон Филлипса: п.п. инфляции на 1 п.п. разрыва безработицы",
+      "value": 0.057506,
+      "unit": "percentage points per 1 pp gap",
+      "stdev": 0.051286,
+      "min": null,
+      "max": null,
+      "window": "baseline",
+      "sources": [
+        "UNRATE",
+        "CPILFESL"
+      ],
+      "uncertainty": "OLS standard error",
+      "status": "CALIBRATED",
+      "world_core_target": "CountryConfig.inflation_slope",
+      "note": "mapped as -slope: the config uses a positive output-gap convention while the regression uses an unemployment gap (CONDITIONAL proxy)",
+      "world_core_value": 0.057506
+    },
+    {
+      "id": "employment_growth_yoy",
+      "description": "рост занятости (PAYEMS), yoy",
+      "value": 1.132073,
+      "unit": "percent per year",
+      "stdev": 1.564609,
+      "min": -4.882032,
+      "max": 3.407867,
+      "window": "baseline",
+      "sources": [
+        "PAYEMS"
+      ],
+      "uncertainty": "stdev across quarters",
+      "status": "CALIBRATED",
+      "world_core_target": null,
+      "note": null,
+      "world_core_value": null
+    },
+    {
+      "id": "indpro_growth_yoy",
+      "description": "рост INDPRO, yoy",
+      "value": 1.771061,
+      "unit": "percent per year",
+      "stdev": 3.863645,
+      "min": -15.084896,
+      "max": 8.481521,
+      "window": "baseline",
+      "sources": [
+        "INDPRO"
+      ],
+      "uncertainty": "stdev across quarters",
+      "status": "CALIBRATED",
+      "world_core_target": null,
+      "note": null,
+      "world_core_value": null
+    },
+    {
+      "id": "rsafs_growth_yoy",
+      "description": "рост RSAFS, yoy",
+      "value": 4.355986,
+      "unit": "percent per year",
+      "stdev": 3.408479,
+      "min": -10.747398,
+      "max": 9.584791,
+      "window": "baseline",
+      "sources": [
+        "RSAFS"
+      ],
+      "uncertainty": "stdev across quarters",
+      "status": "CALIBRATED",
+      "world_core_target": null,
+      "note": "nominal retail series for RSAFS",
+      "world_core_value": null
+    },
+    {
+      "id": "productivity_trend",
+      "description": "тренд выпуска на занятого (GDPC1/PAYEMS)",
+      "value": 1.496609,
+      "unit": "percent per year",
+      "stdev": null,
+      "min": null,
+      "max": null,
+      "window": "baseline",
+      "sources": [
+        "GDPC1",
+        "PAYEMS"
+      ],
+      "uncertainty": "OLS slope",
+      "status": "CALIBRATED",
+      "world_core_target": null,
+      "note": "output per employee, not TFP; capital/hours are not in the plan",
+      "world_core_value": null
+    }
+  ],
+  "derived_aggregates": {
+    "openness": 0.219024,
+    "net_export_share": -0.022219,
+    "expenditure_sum_share": 1.023087,
+    "demand_shares_sum_before_normalisation": 1.023087,
+    "normalised_demand_shares": {
+      "household_demand_share": 0.644943,
+      "investment_demand_share": 0.152822,
+      "government_demand_share": 0.202236
+    },
+    "real_growth_per_period_fraction": 0.006367,
+    "real_growth_volatility_pp": 2.352611,
+    "inflation_means_baseline": {
+      "core_cpi": 2.410549,
+      "core_pce": 1.951299,
+      "gdp_deflator": 2.017078
+    },
+    "inflation_target_annual": 1.594639,
+    "unrate_baseline_mean": 5.841667,
+    "nairu_proxy": 4.415,
+    "employment_growth_mean": 1.132073,
+    "indpro_growth_mean": 1.771061,
+    "rsafs_growth_mean": 4.355986,
+    "productivity_trend_pp": 1.496609,
+    "productivity_trend_latest20_pp": 1.416518
+  },
+  "v2_checks": [
+    {
+      "id": "V2_gdp_growth_series",
+      "name": "рост ВВП из GDPC1 (400*ln) vs публикуемый A191RL1Q225SBEA",
+      "status": "PASS",
+      "statistic": {
+        "mean_abs_diff_pp": 0.025264,
+        "max_abs_diff_pp": 0.053427,
+        "quarters": 120
+      },
+      "threshold": 0.1,
+      "note": "same BEA source: the difference is the published rounding (0.1 pp)"
+    },
+    {
+      "id": "V2_inflation_measures",
+      "name": "согласованность мер инфляции (yoy)",
+      "status": "PASS",
+      "statistic": {
+        "correlations": {
+          "core_cpi_core_pce": 0.891541,
+          "core_cpi_gdp_deflator": 0.616198,
+          "core_pce_gdp_deflator": 0.805901
+        },
+        "quarters": 120,
+        "means": {
+          "core_cpi": 2.410549,
+          "core_pce": 1.951299,
+          "gdp_deflator": 2.017078
+        }
+      },
+      "threshold": 0.5,
+      "note": "different baskets are not an identity: the check measures common signal"
+    },
+    {
+      "id": "V2_inflation_persistence",
+      "name": "персистентность инфляции, AR(1) core CPI yoy",
+      "status": "PASS",
+      "statistic": {
+        "ar1": 0.947504,
+        "t": 45.058547,
+        "observations": 119
+      },
+      "threshold": [
+        0.3,
+        0.98
+      ],
+      "note": "descriptive persistence, not a structural expectation term"
+    },
+    {
+      "id": "V2_nairu_sanity",
+      "name": "NAIRU-прокси внутри наблюдённого диапазона UNRATE",
+      "status": "PASS",
+      "statistic": {
+        "proxy": 4.415,
+        "observed_min": 2.5,
+        "observed_max": 14.8,
+        "observations": 945
+      },
+      "threshold": "proxy inside the observed UNRATE range and above its minimum",
+      "note": "sanity check; not identification of the natural rate"
+    },
+    {
+      "id": "V2_nairu_inflation",
+      "name": "NAIRU-разрыв безработицы и инфляция (Филлипс)",
+      "status": "CONDITIONAL",
+      "statistic": {
+        "slope_pp_per_pp": -0.057506,
+        "se": 0.051286,
+        "t": -1.121279,
+        "observations": 120
+      },
+      "threshold": {
+        "min_abs_t": 2.0,
+        "expected_sign": "negative"
+      },
+      "note": "descriptive unemployment-gap regression, not a structural Phillips curve"
+    },
+    {
+      "id": "V2_labour_activity",
+      "name": "занятость и рост ВВП (yoy)",
+      "status": "CONDITIONAL",
+      "statistic": {
+        "correlation": 0.374551,
+        "quarters": 120
+      },
+      "threshold": 0.5,
+      "note": "comovement of activity, not an identity"
+    },
+    {
+      "id": "V2_industry_activity",
+      "name": "промышленное производство и рост ВВП",
+      "status": "PASS",
+      "statistic": {
+        "correlation": 0.498842,
+        "quarters": 120
+      },
+      "threshold": 0.45,
+      "note": "comovement check; RSAFS is nominal while PCECC96 is real"
+    },
+    {
+      "id": "V2_retail_consumption",
+      "name": "розничные продажи и реальное потребление",
+      "status": "PASS",
+      "statistic": {
+        "correlation": 0.733793,
+        "quarters": 108
+      },
+      "threshold": 0.5,
+      "note": "comovement check; RSAFS is nominal while PCECC96 is real"
+    },
+    {
+      "id": "V2_savings_investment",
+      "name": "сбережения−инвестиции = чистый экспорт (уровни)",
+      "status": "CONDITIONAL",
+      "statistic": {
+        "mean_abs_residual_over_gdp": 0.001907,
+        "max_abs_residual_over_gdp": 0.011166,
+        "quarters": 120
+      },
+      "threshold": {
+        "mean": 0.003,
+        "max": 0.01
+      },
+      "note": "identity on chained-dollar series: the residual is the documented chained non-additivity, not a data error"
+    },
+    {
+      "id": "V2_savings_investment_growth",
+      "name": "сбережения−инвестиции, первые разности",
+      "status": "PASS",
+      "statistic": {
+        "median_abs_residual": 0.000221,
+        "max_abs_residual": 0.001503,
+        "quarters": 119
+      },
+      "threshold": {
+        "median": 0.002,
+        "max": 0.02
+      },
+      "note": "growth approximation of the same identity; should hold tightly"
+    },
+    {
+      "id": "V2_income_expenditure",
+      "name": "доходы−расходы (доходный подход к ВВП)",
+      "status": "NOT_APPLICABLE",
+      "statistic": {},
+      "threshold": null,
+      "note": "no income-side series (compensation of employees, gross operating surplus, taxes) in the 19-series plan; the expenditure identity is covered by V2_savings_investment"
+    },
+    {
+      "id": "V2_nominal_identity",
+      "name": "номинальный ВВП = реальный × дефлятор",
+      "status": "NOT_APPLICABLE",
+      "statistic": {},
+      "threshold": null,
+      "note": "the deflator is defined as nominal/real; no independent nominal GDP level is in the plan"
+    },
+    {
+      "id": "V2_structural_parameters",
+      "name": "поведенческие эластичности и факторные доли",
+      "status": "NOT_APPLICABLE",
+      "statistic": {},
+      "threshold": null,
+      "note": "needs income-side series, hours/participation and a structural identification"
+    },
+    {
+      "id": "V2_capital_energy_io",
+      "name": "капитал, энергия и IO-таблица",
+      "status": "NOT_APPLICABLE",
+      "statistic": {},
+      "threshold": null,
+      "note": "the plan has no capital stock, energy or input-output table; the physical layer of the world core keeps scenario parameters (docs/79)"
+    },
+    {
+      "id": "V2_world_aggregation",
+      "name": "агрегирование параметров по странам/миру",
+      "status": "NOT_APPLICABLE",
+      "statistic": {},
+      "threshold": null,
+      "note": "the plan contains only US series; country B of the world core keeps its default placeholder"
+    }
+  ],
+  "criteria": {
+    "statuses": {
+      "PASS": "criterion met",
+      "CONDITIONAL": "computed but outside the strict threshold, or not an identity by construction",
+      "NOT_APPLICABLE": "cannot be measured with the plan"
+    },
+    "v2_thresholds": {
+      "savings_investment_mean_abs_residual": 0.003,
+      "savings_investment_max_abs_residual": 0.01,
+      "savings_investment_growth_median_abs_residual": 0.002,
+      "savings_investment_growth_max_abs_residual": 0.02,
+      "growth_series_max_abs_diff_pp": 0.1,
+      "inflation_measures_min_correlation": 0.5,
+      "nairu_inflation_min_observations": 40,
+      "nairu_inflation_min_abs_t": 2.0,
+      "labour_activity_min_correlation": 0.5,
+      "industry_activity_min_correlation": 0.45,
+      "retail_consumption_min_correlation": 0.5,
+      "inflation_persistence_range": [
+        0.3,
+        0.98
+      ],
+      "nairu_sanity": "proxy inside the observed UNRATE range and above its minimum",
+      "parameters": "point estimates descriptive; windows and dispersion are reported"
+    }
+  },
+  "world_core": {
+    "status": "COMPLETE",
+    "calibrated_country": "country_a",
+    "country_b": "default placeholder (no non-US data in the plan)",
+    "config_sha256": "c392834c435ba8fe3a9ef57881765fcfcb0c783696073632da544ee5872d20f1",
+    "config": {
+      "country_a": {
+        "name": "A",
+        "currency": "AAA",
+        "physical": {
+          "sectors": [
+            "goods",
+            "services"
+          ],
+          "technical_matrix": [
+            [
+              0.2,
+              0.3
+            ],
+            [
+              0.1,
+              0.4
+            ]
+          ],
+          "base_final_demand": [
+            10.0,
+            20.0
+          ],
+          "energy_intensities": {
+            "goods": 2.0,
+            "services": 1.0
+          },
+          "energy_available": 100.0,
+          "energy_resource_id": "energy",
+          "energy_unit": "MWh",
+          "labour_variant": "B1",
+          "hours_per_unit": {
+            "goods": 1.0,
+            "services": 2.0
+          },
+          "accessible_hours": 120.0,
+          "task_hours": null,
+          "task_skill": null,
+          "skill_accessible": null,
+          "household_demand_share": 0.6449423550576449,
+          "government_demand_share": 0.2022357977642022,
+          "investment_demand_share": 0.1528218471781528
+        },
+        "initial_fx_rate": 1.0,
+        "initial_price_level": 1.0,
+        "inflation_target": 0.39866,
+        "inflation_slope": 0.057506,
+        "wage_share": 0.6,
+        "transfer_rate": 0.08,
+        "tax_min": 0.05,
+        "tax_max": 0.6,
+        "debt_target": 0.55,
+        "debt_response": 0.1,
+        "initial_debt_ratio": 0.5,
+        "working_loan_ratio": 0.2,
+        "export_share": 0.098403,
+        "real_growth": 0.006366667499999999,
+        "policy_r_star": 0.1,
+        "policy_phi_pi": 1.5,
+        "policy_phi_y": 0.5,
+        "expectations_gain": 0.3
+      },
+      "country_b": {
+        "name": "B",
+        "currency": "BBB",
+        "physical": {
+          "sectors": [
+            "goods",
+            "services"
+          ],
+          "technical_matrix": [
+            [
+              0.2,
+              0.3
+            ],
+            [
+              0.1,
+              0.4
+            ]
+          ],
+          "base_final_demand": [
+            10.0,
+            20.0
+          ],
+          "energy_intensities": {
+            "goods": 2.0,
+            "services": 1.0
+          },
+          "energy_available": 100.0,
+          "energy_resource_id": "energy",
+          "energy_unit": "MWh",
+          "labour_variant": "B1",
+          "hours_per_unit": {
+            "goods": 1.0,
+            "services": 2.0
+          },
+          "accessible_hours": 120.0,
+          "task_hours": null,
+          "task_skill": null,
+          "skill_accessible": null,
+          "household_demand_share": 0.63,
+          "government_demand_share": 0.2,
+          "investment_demand_share": 0.17
+        },
+        "initial_fx_rate": 2.0,
+        "initial_price_level": 1.0,
+        "inflation_target": 0.5,
+        "inflation_slope": 0.25,
+        "wage_share": 0.6,
+        "transfer_rate": 0.08,
+        "tax_min": 0.05,
+        "tax_max": 0.6,
+        "debt_target": 0.55,
+        "debt_response": 0.1,
+        "initial_debt_ratio": 0.5,
+        "working_loan_ratio": 0.2,
+        "export_share": 0.08,
+        "real_growth": 0.004,
+        "policy_r_star": 0.1,
+        "policy_phi_pi": 1.5,
+        "policy_phi_y": 0.5,
+        "expectations_gain": 0.3
+      },
+      "numeraire": "AAA",
+      "regime_seed": 20261112,
+      "regime_contraction_factor": 0.93,
+      "transition_matrix": [
+        [
+          0.92,
+          0.08
+        ],
+        [
+          0.25,
+          0.75
+        ]
+      ],
+      "regime_means": [
+        0.6,
+        -0.4
+      ],
+      "regime_sigmas": [
+        0.6,
+        1.2
+      ],
+      "max_periods": 24
+    },
+    "periods": 8,
+    "digest": "6bffc7d6139fde9e0c112818a39f0a67e804cb5e8032e66b2f179d2c69ed4dc9",
+    "ok": true,
+    "all_periods_ok": true,
+    "periods_reported": 8,
+    "note": "deterministic baseline run with the calibrated country A; a plumb-line digest, not a forecast"
+  },
+  "missing_series": [],
+  "limitations": [
+    "latest-tape calibration, not point-in-time: the ALFRED vintage archives are collected but the starting values here use the latest files (a vintage/PSEUDO_REAL_TIME version is the next step)",
+    "only US series are in the plan; the world core's country B keeps its default placeholder configuration and the cross-country aggregation check is NOT_APPLICABLE",
+    "no income-side series (compensation of employees, gross operating surplus), no hours/participation and no capital stock: the income-expenditure identity, factor shares and TFP cannot be identified",
+    "no input-output table and no energy series: the physical layer of the world core keeps its scenario IO/energy/labour parameters (docs/79, docs/85)",
+    "no nominal GDP: the GDP deflator is a real/ nominal ratio by construction, so the nominal identity check is not independent and is NOT_APPLICABLE",
+    "the NAIRU proxy is a 2015-2019 mean of UNRATE, not an estimate of the natural rate; the Phillips slope is a descriptive unemployment-gap regression, not a structural curve",
+    "RSAFS is nominal retail sales while PCECC96 is real consumption: their correlation checks comovement of activity, not a real identity",
+    "the calibrated parameters are starting values for the world core; they are not structural estimates and the baseline run is a plumb-line, not a forecast"
+  ],
+  "next_steps": [
+    "repeat the calibration on the dense ALFRED vintage archive (PSEUDO_REAL_TIME) and compare with the latest-tape values",
+    "add income-side and hours/participation series for factor shares and TFP; add capital stock",
+    "add an input-output table and energy series for the physical layer of the world core",
+    "replace the unemployment-gap inflation slope with a proper output-gap Phillips curve once the output gap is calibrated",
+    "add non-US country blocks (licence-checked) for the world-aggregation check"
+  ],
+  "content_sha256": "62a8eb1ab71ebc4cce83853958ddad8c7a7eccb75e10e8c63749fdff9b103095",
+  "generated_at": "2026-11-12T10:39:42Z"
+}
