@@ -112,3 +112,17 @@ jobs:
         run: python tests/test_ensemble_validation.py
       - name: World core integration
         run: python tests/test_world_core.py
+      - name: Open SFC core (rest-of-world in the domestic accounts)
+        run: python tests/test_open_sfc.py
+      - name: Robust mixture (T2 tail guards)
+        run: python tests/test_mixture_robustness.py
+      - name: Release notes and release-check workflow contract
+        run: python tests/test_release_notes.py
+      - name: Licence series coverage (19/19) and terms hashes
+        run: python tests/test_licence_series_coverage.py
+      - name: SPF in T2 scoring - sensitivity
+        run: python tests/test_spf_t2_sensitivity.py
+      - name: World-core calibration on 19 series
+        run: python tests/test_world_calibration.py
+      - name: Ensemble evaluation v2 report contract
+        run: python tests/test_ensemble_evaluation_v2.py
