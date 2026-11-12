@@ -1,0 +1,51 @@
+name: Weekly integration report (status bulletin + full regression)
+
+# Stage 9 (integration): a deterministic offline status bulletin of the whole repository
+# (data/vintages, frozen protocol and R3 hash chain, candidates, C1-C6, forward registry, risks,
+# next steps) plus a summary regression of every tests/test_*.py file. This workflow is additive: the
+# existing accounting-regression and data-refresh workflows are unchanged. Nothing is committed: the
+# report and the regression JSON are uploaded as a private artifact (they are a snapshot of the run,
+# not a frozen document).
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: weekly-report
+  cancel-in-progress: false
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Weekly integration report (deterministic, offline)
+        run: |
+          mkdir -p build
+          python tools/weekly_report.py --date "$(date -u +%F)" --out build/weekly_report.md
+      - name: Full regression of every tests/test_*.py (summary JSON)
+        run: |
+          mkdir -p build
+          python tools/regression_report.py \
+            --json-out protocols/regression_report.json \
+            --markdown-out build/regression_report.md
+      - name: Publish the regression summary on the run page
+        if: always()
+        run: |
+          if [ -f build/regression_report.md ]; then cat build/regression_report.md >> "$GITHUB_STEP_SUMMARY"; fi
+      - name: Upload the weekly report, the regression summary and its JSON
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: amfe-weekly-${{ github.run_id }}
+          path: |
+            build/
+            protocols/regression_report.json
+          retention-days: 90
