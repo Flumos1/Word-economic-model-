@@ -167,3 +167,22 @@ python tools/ensemble_validation.py --out protocols/ensemble_validation_report.j
    решить, включать ли его при доступности.
 4. Зафиксировать в release notes, что CRPS-артефакт 09:44-отчёта закрыт D-147/docs/94, чтобы
    старые числа не цитировались.
+
+## Полный прогон V2-валидации (2026-11-12, без сэмплирования)
+
+Отчёт `protocols/ensemble_validation_report.json` перегенерирован **полным** walk-forward прогоном: T1 312 начал (REAL_TIME 277 / PSEUDO 35), T2 360 (277/83); отчёт несёт `data_quality` с `crps_usable=true` (T2 control mean CRPS ≈ 1.2305 вместо артефактных 158.49). Предыдущие числа этого документа (выборка 60/окно) считать предварительными, ниже — полные:
+
+### T1_CPI_YOY h=1 (полный прогон)
+| кандидат | отн. RMSE | отн. CRPS |
+|---|---|---|
+| ENSEMBLE_INVERSE_MSE | 0.93 | 0.9562 |
+| ENSEMBLE_BAYES | 0.9762 | 0.9964 |
+| ENSEMBLE_ADAPTIVE | 0.9485 | 0.9751 |
+
+### T2_GDP_GROWTH h=0 (полный прогон)
+| кандидат | отн. RMSE | отн. CRPS |
+|---|---|---|
+| ENSEMBLE_INVERSE_MSE | 0.9951 | 0.9953 |
+| ENSEMBLE_BAYES | 1.0315 | 1.0328 |
+| ENSEMBLE_ADAPTIVE | 1.0006 | 1.0028 |
+RW-отклонения на T1: `ENSEMBLE_ADAPTIVE` и `ENSEMBLE_INVERSE_MSE` (RMSE и CRPS); правило W1+W2 при этом не выполнено на уровне решения (см. отчёт), допуск не присваивается.

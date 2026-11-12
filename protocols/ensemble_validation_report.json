@@ -39,7 +39,7 @@
     "aggregation": "no per-origin values are stored: counts, aggregates and SHA-256 digests only"
   },
   "mode": "auto",
-  "max_origins_per_window": 60,
+  "max_origins_per_window": null,
   "ensemble_validation": "not an admission decision; no C1-C6 gate is applied",
   "pairs": {
     "T1_CPI_YOY/h1": {
@@ -58,35 +58,35 @@
       "windows": {
         "W1": {
           "window": "W1",
-          "origins_in_window": 60,
-          "origins_used": 46,
+          "origins_in_window": 204,
+          "origins_used": 156,
           "skipped_no_first_publication_actual": 0,
-          "skipped_incomplete_candidates": 14,
+          "skipped_incomplete_candidates": 48,
           "candidate_failures": {
-            "ENSEMBLE_EQUAL": 14,
-            "ENSEMBLE_INVERSE_MSE": 14,
-            "ENSEMBLE_BAYES": 14,
-            "ENSEMBLE_ADAPTIVE": 14
+            "ENSEMBLE_EQUAL": 48,
+            "ENSEMBLE_INVERSE_MSE": 48,
+            "ENSEMBLE_BAYES": 48,
+            "ENSEMBLE_ADAPTIVE": 48
           },
           "data_class_counts": {
-            "PSEUDO_REAL_TIME": 10,
-            "REAL_TIME": 36
+            "PSEUDO_REAL_TIME": 35,
+            "REAL_TIME": 121
           },
           "weight_source_counts": {
             "ENSEMBLE_EQUAL": {
-              "EQUAL_DECLARED_CONTROL": 46
+              "EQUAL_DECLARED_CONTROL": 156
             },
             "ENSEMBLE_INVERSE_MSE": {
-              "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 3,
-              "HISTORY": 43
+              "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 8,
+              "HISTORY": 148
             },
             "ENSEMBLE_BAYES": {
-              "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 3,
-              "HISTORY": 43
+              "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 8,
+              "HISTORY": 148
             },
             "ENSEMBLE_ADAPTIVE": {
-              "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 3,
-              "HISTORY": 43
+              "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 8,
+              "HISTORY": 148
             }
           },
           "first_origin": "1990-01-31",
@@ -95,8 +95,8 @@
         },
         "W2": {
           "window": "W2",
-          "origins_in_window": 60,
-          "origins_used": 60,
+          "origins_in_window": 156,
+          "origins_used": 156,
           "skipped_no_first_publication_actual": 0,
           "skipped_incomplete_candidates": 0,
           "candidate_failures": {
@@ -106,20 +106,20 @@
             "ENSEMBLE_ADAPTIVE": 0
           },
           "data_class_counts": {
-            "REAL_TIME": 60
+            "REAL_TIME": 156
           },
           "weight_source_counts": {
             "ENSEMBLE_EQUAL": {
-              "EQUAL_DECLARED_CONTROL": 60
+              "EQUAL_DECLARED_CONTROL": 156
             },
             "ENSEMBLE_INVERSE_MSE": {
-              "HISTORY": 60
+              "HISTORY": 156
             },
             "ENSEMBLE_BAYES": {
-              "HISTORY": 60
+              "HISTORY": 156
             },
             "ENSEMBLE_ADAPTIVE": {
-              "HISTORY": 60
+              "HISTORY": 156
             }
           },
           "first_origin": "2007-01-31",
@@ -128,32 +128,32 @@
         }
       },
       "origins": {
-        "total": 106,
+        "total": 312,
         "first_origin": "1990-01-31",
         "last_origin": "2019-12-31",
-        "real_time": 96,
-        "pseudo_real_time": 10,
+        "real_time": 277,
+        "pseudo_real_time": 35,
         "weight_source_counts": {
           "ENSEMBLE_EQUAL": {
-            "EQUAL_DECLARED_CONTROL": 106
+            "EQUAL_DECLARED_CONTROL": 312
           },
           "ENSEMBLE_INVERSE_MSE": {
-            "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 3,
-            "HISTORY": 103
+            "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 8,
+            "HISTORY": 304
           },
           "ENSEMBLE_BAYES": {
-            "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 3,
-            "HISTORY": 103
+            "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 8,
+            "HISTORY": 304
           },
           "ENSEMBLE_ADAPTIVE": {
-            "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 3,
-            "HISTORY": 103
+            "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 8,
+            "HISTORY": 304
           }
         }
       },
       "overall": {
         "status": "OK",
-        "n_origins": 106,
+        "n_origins": 312,
         "control": "ENSEMBLE_EQUAL",
         "loss_conventions": {
           "RMSE": "sqrt(mean squared error) per origin; DM uses the squared-error differential",
@@ -161,93 +161,93 @@
         },
         "per_ensemble": {
           "ENSEMBLE_EQUAL": {
-            "n_origins": 106,
-            "rmse": 0.6157029987122793,
-            "mean_crps": 0.31840357590300095,
+            "n_origins": 312,
+            "rmse": 0.6595399522397792,
+            "mean_crps": 0.3336739937541283,
             "relative_rmse_vs_equal": 1.0,
             "relative_crps_vs_equal": 1.0,
             "is_control": true
           },
           "ENSEMBLE_INVERSE_MSE": {
-            "n_origins": 106,
-            "rmse": 0.5859491979125918,
-            "mean_crps": 0.3079888154775074,
-            "relative_rmse_vs_equal": 0.9516750757070918,
-            "relative_crps_vs_equal": 0.9672906926501783,
+            "n_origins": 312,
+            "rmse": 0.6133466645134762,
+            "mean_crps": 0.3190679878213567,
+            "relative_rmse_vs_equal": 0.9299613502268788,
+            "relative_crps_vs_equal": 0.9562267176760133,
             "is_control": false,
             "dm_rmse": {
-              "mean_differential": -0.03575372008888349,
-              "statistic": -0.9952914462510211,
-              "p_value": 0.15979726838697572,
+              "mean_differential": -0.058798817730643604,
+              "statistic": -3.2267487415932106,
+              "p_value": 0.0006260267628039329,
               "hac_lags": 0,
               "hln_factor": 1.0,
-              "n": 106,
+              "n": 312,
               "alternative": "less",
               "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
             },
             "dm_crps": {
-              "mean_differential": -0.010414760425493576,
-              "statistic": -1.1476506603781025,
-              "p_value": 0.12555640358614045,
+              "mean_differential": -0.014606005932771603,
+              "statistic": -3.121837188967282,
+              "p_value": 0.0008986315088412855,
               "hac_lags": 0,
               "hln_factor": 1.0,
-              "n": 106,
+              "n": 312,
               "alternative": "less",
               "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
             }
           },
           "ENSEMBLE_BAYES": {
-            "n_origins": 106,
-            "rmse": 0.6188058942047293,
-            "mean_crps": 0.3237531942925655,
-            "relative_rmse_vs_equal": 1.0050395978238527,
-            "relative_crps_vs_equal": 1.0168013766000992,
+            "n_origins": 312,
+            "rmse": 0.6438661115355206,
+            "mean_crps": 0.33248268949532733,
+            "relative_rmse_vs_equal": 0.9762351914375609,
+            "relative_crps_vs_equal": 0.996429735966541,
             "is_control": false,
             "dm_rmse": {
-              "mean_differential": 0.0038305520792215053,
-              "statistic": 0.13103209001638727,
-              "p_value": 0.552125038956989,
+              "mean_differential": -0.02042937901657871,
+              "statistic": -1.283224945242902,
+              "p_value": 0.09970663946279057,
               "hac_lags": 0,
               "hln_factor": 1.0,
-              "n": 106,
+              "n": 312,
               "alternative": "less",
               "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
             },
             "dm_crps": {
-              "mean_differential": 0.0053496183895645685,
-              "statistic": 0.559659752375997,
-              "p_value": 0.7121442300781968,
+              "mean_differential": -0.0011913042588009464,
+              "statistic": -0.23376372831888123,
+              "p_value": 0.4075842050187795,
               "hac_lags": 0,
               "hln_factor": 1.0,
-              "n": 106,
+              "n": 312,
               "alternative": "less",
               "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
             }
           },
           "ENSEMBLE_ADAPTIVE": {
-            "n_origins": 106,
-            "rmse": 0.5995570877186882,
-            "mean_crps": 0.3145490698188391,
-            "relative_rmse_vs_equal": 0.9737764619835217,
-            "relative_crps_vs_equal": 0.9878942751405027,
+            "n_origins": 312,
+            "rmse": 0.6255499253788892,
+            "mean_crps": 0.32536901032513826,
+            "relative_rmse_vs_equal": 0.9484640365675182,
+            "relative_crps_vs_equal": 0.9751104863296308,
             "is_control": false,
             "dm_rmse": {
-              "mean_differential": -0.019621481189578245,
-              "statistic": -0.7198645367662931,
-              "p_value": 0.235804202340131,
+              "mean_differential": -0.04368023945891644,
+              "statistic": -3.1812040609327186,
+              "p_value": 0.0007333214130110788,
               "hac_lags": 0,
               "hln_factor": 1.0,
-              "n": 106,
+              "n": 312,
               "alternative": "less",
               "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
             },
             "dm_crps": {
-              "mean_differential": -0.0038545060841618495,
-              "statistic": -0.5017405947858219,
-              "p_value": 0.30792500254629895,
+              "mean_differential": -0.008304983428990038,
+              "statistic": -2.096792333130973,
+              "p_value": 0.018005981292445683,
               "hac_lags": 0,
               "hln_factor": 1.0,
-              "n": 106,
+              "n": 312,
               "alternative": "less",
               "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
             }
@@ -264,18 +264,21 @@
               "ENSEMBLE_INVERSE_MSE"
             ],
             "family_size": 3,
-            "block_length": 5,
+            "block_length": 7,
             "adjusted_p_values": {
-              "ENSEMBLE_INVERSE_MSE": 0.2411,
-              "ENSEMBLE_ADAPTIVE": 0.2968,
-              "ENSEMBLE_BAYES": 0.5584
+              "ENSEMBLE_INVERSE_MSE": 0.0019,
+              "ENSEMBLE_ADAPTIVE": 0.0019,
+              "ENSEMBLE_BAYES": 0.1011
             },
             "raw_p_values": {
-              "ENSEMBLE_ADAPTIVE": 0.235804202340131,
-              "ENSEMBLE_BAYES": 0.552125038956989,
-              "ENSEMBLE_INVERSE_MSE": 0.15979726838697572
+              "ENSEMBLE_ADAPTIVE": 0.0007333214130110788,
+              "ENSEMBLE_BAYES": 0.09970663946279057,
+              "ENSEMBLE_INVERSE_MSE": 0.0006260267628039329
             },
-            "rejected": []
+            "rejected": [
+              "ENSEMBLE_ADAPTIVE",
+              "ENSEMBLE_INVERSE_MSE"
+            ]
           },
           "CRPS": {
             "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
@@ -287,18 +290,21 @@
               "ENSEMBLE_INVERSE_MSE"
             ],
             "family_size": 3,
-            "block_length": 5,
+            "block_length": 7,
             "adjusted_p_values": {
-              "ENSEMBLE_INVERSE_MSE": 0.1946,
-              "ENSEMBLE_ADAPTIVE": 0.3991,
-              "ENSEMBLE_BAYES": 0.7268
+              "ENSEMBLE_INVERSE_MSE": 0.0014,
+              "ENSEMBLE_ADAPTIVE": 0.0222,
+              "ENSEMBLE_BAYES": 0.4174
             },
             "raw_p_values": {
-              "ENSEMBLE_ADAPTIVE": 0.30792500254629895,
-              "ENSEMBLE_BAYES": 0.7121442300781968,
-              "ENSEMBLE_INVERSE_MSE": 0.12555640358614045
+              "ENSEMBLE_ADAPTIVE": 0.018005981292445683,
+              "ENSEMBLE_BAYES": 0.4075842050187795,
+              "ENSEMBLE_INVERSE_MSE": 0.0008986315088412855
             },
-            "rejected": []
+            "rejected": [
+              "ENSEMBLE_ADAPTIVE",
+              "ENSEMBLE_INVERSE_MSE"
+            ]
           }
         },
         "subset": "ALL_ORIGINS"
@@ -306,7 +312,7 @@
       "by_window": {
         "W1": {
           "status": "OK",
-          "n_origins": 46,
+          "n_origins": 156,
           "control": "ENSEMBLE_EQUAL",
           "loss_conventions": {
             "RMSE": "sqrt(mean squared error) per origin; DM uses the squared-error differential",
@@ -314,93 +320,93 @@
           },
           "per_ensemble": {
             "ENSEMBLE_EQUAL": {
-              "n_origins": 46,
-              "rmse": 0.5395778175307806,
-              "mean_crps": 0.2733461006348827,
+              "n_origins": 156,
+              "rmse": 0.5638175348796697,
+              "mean_crps": 0.2775382461936968,
               "relative_rmse_vs_equal": 1.0,
               "relative_crps_vs_equal": 1.0,
               "is_control": true
             },
             "ENSEMBLE_INVERSE_MSE": {
-              "n_origins": 46,
-              "rmse": 0.49212487501154,
-              "mean_crps": 0.26342909426168337,
-              "relative_rmse_vs_equal": 0.9120554237451883,
-              "relative_crps_vs_equal": 0.9637199639937583,
+              "n_origins": 156,
+              "rmse": 0.506216653574188,
+              "mean_crps": 0.2664059679729826,
+              "relative_rmse_vs_equal": 0.8978377263173006,
+              "relative_crps_vs_equal": 0.9598892103218636,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": -0.048957328566156574,
-                "statistic": -1.596001162398278,
-                "p_value": 0.0552442669089902,
+                "mean_differential": -0.061634912281938105,
+                "statistic": -3.680947534764081,
+                "p_value": 0.0001161844097989917,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 46,
+                "n": 156,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": -0.009917006373199238,
-                "statistic": -0.9537514338219906,
-                "p_value": 0.17010473911812984,
+                "mean_differential": -0.011132278220714227,
+                "statistic": -1.908143271422295,
+                "p_value": 0.028186350641791535,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 46,
+                "n": 156,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
             },
             "ENSEMBLE_BAYES": {
-              "n_origins": 46,
-              "rmse": 0.5010706604875536,
-              "mean_crps": 0.26615505415201224,
-              "relative_rmse_vs_equal": 0.9286346551097231,
-              "relative_crps_vs_equal": 0.973692522168166,
+              "n_origins": 156,
+              "rmse": 0.51374339059033,
+              "mean_crps": 0.2677103835249389,
+              "relative_rmse_vs_equal": 0.9111873235726404,
+              "relative_crps_vs_equal": 0.9645891591391734,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": -0.04007241436984725,
-                "statistic": -1.2177007188458548,
-                "p_value": 0.11166886190082348,
+                "mean_differential": -0.053957941262539076,
+                "statistic": -2.9807022060274537,
+                "p_value": 0.0014379415224415881,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 46,
+                "n": 156,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": -0.0071910464828703865,
-                "statistic": -0.5962601008416467,
-                "p_value": 0.2755007405267206,
+                "mean_differential": -0.009827862668757903,
+                "statistic": -1.484364983645001,
+                "p_value": 0.06885605955162488,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 46,
+                "n": 156,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
             },
             "ENSEMBLE_ADAPTIVE": {
-              "n_origins": 46,
-              "rmse": 0.49222464180278636,
-              "mean_crps": 0.26398136285923707,
-              "relative_rmse_vs_equal": 0.9122403216190537,
-              "relative_crps_vs_equal": 0.9657403644906777,
+              "n_origins": 156,
+              "rmse": 0.513751991841906,
+              "mean_crps": 0.26935209444859765,
+              "relative_rmse_vs_equal": 0.9112025789541138,
+              "relative_crps_vs_equal": 0.9705044192742143,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": -0.04885912317339905,
-                "statistic": -2.159633162551693,
-                "p_value": 0.015400539534906221,
+                "mean_differential": -0.05394910351626169,
+                "statistic": -4.383947487454845,
+                "p_value": 5.827393938673264e-06,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 46,
+                "n": 156,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": -0.009364737775645601,
-                "statistic": -1.0797076159694081,
-                "p_value": 0.14013620069483362,
+                "mean_differential": -0.008186151745099155,
+                "statistic": -1.7156402613419497,
+                "p_value": 0.043113952390925026,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 46,
+                "n": 156,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
@@ -417,19 +423,20 @@
                 "ENSEMBLE_INVERSE_MSE"
               ],
               "family_size": 3,
-              "block_length": 4,
+              "block_length": 6,
               "adjusted_p_values": {
-                "ENSEMBLE_ADAPTIVE": 0.0225,
-                "ENSEMBLE_INVERSE_MSE": 0.072,
-                "ENSEMBLE_BAYES": 0.1208
+                "ENSEMBLE_ADAPTIVE": 0.0,
+                "ENSEMBLE_INVERSE_MSE": 0.0006,
+                "ENSEMBLE_BAYES": 0.0019
               },
               "raw_p_values": {
-                "ENSEMBLE_ADAPTIVE": 0.015400539534906221,
-                "ENSEMBLE_BAYES": 0.11166886190082348,
-                "ENSEMBLE_INVERSE_MSE": 0.0552442669089902
+                "ENSEMBLE_ADAPTIVE": 5.827393938673264e-06,
+                "ENSEMBLE_BAYES": 0.0014379415224415881,
+                "ENSEMBLE_INVERSE_MSE": 0.0001161844097989917
               },
               "rejected": [
                 "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_BAYES",
                 "ENSEMBLE_INVERSE_MSE"
               ]
             },
@@ -443,25 +450,29 @@
                 "ENSEMBLE_INVERSE_MSE"
               ],
               "family_size": 3,
-              "block_length": 4,
+              "block_length": 6,
               "adjusted_p_values": {
-                "ENSEMBLE_ADAPTIVE": 0.1937,
-                "ENSEMBLE_INVERSE_MSE": 0.1993,
-                "ENSEMBLE_BAYES": 0.2787
+                "ENSEMBLE_INVERSE_MSE": 0.047,
+                "ENSEMBLE_ADAPTIVE": 0.0634,
+                "ENSEMBLE_BAYES": 0.0774
               },
               "raw_p_values": {
-                "ENSEMBLE_ADAPTIVE": 0.14013620069483362,
-                "ENSEMBLE_BAYES": 0.2755007405267206,
-                "ENSEMBLE_INVERSE_MSE": 0.17010473911812984
+                "ENSEMBLE_ADAPTIVE": 0.043113952390925026,
+                "ENSEMBLE_BAYES": 0.06885605955162488,
+                "ENSEMBLE_INVERSE_MSE": 0.028186350641791535
               },
-              "rejected": []
+              "rejected": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_BAYES",
+                "ENSEMBLE_INVERSE_MSE"
+              ]
             }
           },
           "subset": "W1"
         },
         "W2": {
           "status": "OK",
-          "n_origins": 60,
+          "n_origins": 156,
           "control": "ENSEMBLE_EQUAL",
           "loss_conventions": {
             "RMSE": "sqrt(mean squared error) per origin; DM uses the squared-error differential",
@@ -469,93 +480,93 @@
           },
           "per_ensemble": {
             "ENSEMBLE_EQUAL": {
-              "n_origins": 60,
-              "rmse": 0.668218092943092,
-              "mean_crps": 0.3529476402752249,
+              "n_origins": 156,
+              "rmse": 0.7430314155963482,
+              "mean_crps": 0.38980974131455975,
               "relative_rmse_vs_equal": 1.0,
               "relative_crps_vs_equal": 1.0,
               "is_control": true
             },
             "ENSEMBLE_INVERSE_MSE": {
-              "n_origins": 60,
-              "rmse": 0.6487560914140706,
-              "mean_crps": 0.34215126840963905,
-              "relative_rmse_vs_equal": 0.9708747761628197,
-              "relative_crps_vs_equal": 0.9694108399275118,
+              "n_origins": 156,
+              "rmse": 0.70436706438033,
+              "mean_crps": 0.3717300076697308,
+              "relative_rmse_vs_equal": 0.9479640424288297,
+              "relative_crps_vs_equal": 0.9536190820068825,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": -0.025630953589640803,
-                "statistic": -0.43507105394947426,
-                "p_value": 0.33175542665550456,
+                "mean_differential": -0.05596272317934911,
+                "statistic": -1.7289124792675339,
+                "p_value": 0.04191238012243648,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 60,
+                "n": 156,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": -0.010796371865585904,
-                "statistic": -0.7761776552932055,
-                "p_value": 0.21882204873819333,
+                "mean_differential": -0.01807973364482898,
+                "statistic": -2.4748645616610827,
+                "p_value": 0.006664335539847077,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 60,
+                "n": 156,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
             },
             "ENSEMBLE_BAYES": {
-              "n_origins": 60,
-              "rmse": 0.6957046160260906,
-              "mean_crps": 0.36791176840032297,
-              "relative_rmse_vs_equal": 1.0411340599323453,
-              "relative_crps_vs_equal": 1.0423975865469144,
+              "n_origins": 156,
+              "rmse": 0.7517944318711697,
+              "mean_crps": 0.3972549954657158,
+              "relative_rmse_vs_equal": 1.0117936013079452,
+              "relative_crps_vs_equal": 1.0190997129164816,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": 0.03748949302350757,
-                "statistic": 0.8409686062487296,
-                "p_value": 0.7998172390264731,
+                "mean_differential": 0.013099183229381656,
+                "statistic": 0.5054176960960067,
+                "p_value": 0.6933672538344238,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 60,
+                "n": 156,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": 0.014964128125098035,
-                "statistic": 1.068513062305014,
-                "p_value": 0.8573554293068164,
+                "mean_differential": 0.007445254151156006,
+                "statistic": 0.9685370172156917,
+                "p_value": 0.8336118794674012,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 60,
+                "n": 156,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
             },
             "ENSEMBLE_ADAPTIVE": {
-              "n_origins": 60,
-              "rmse": 0.6703055005501997,
-              "mean_crps": 0.3533176451545339,
-              "relative_rmse_vs_equal": 1.0031238417952946,
-              "relative_crps_vs_equal": 1.0010483279588454,
+              "n_origins": 156,
+              "rmse": 0.7201974098547855,
+              "mean_crps": 0.3813859262016788,
+              "relative_rmse_vs_equal": 0.9692691247472539,
+              "relative_crps_vs_equal": 0.978389931753698,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": 0.0027940443313510576,
-                "statistic": 0.06249705993132493,
-                "p_value": 0.524916498400057,
+                "mean_differential": -0.03341137540157119,
+                "statistic": -1.362492691671372,
+                "p_value": 0.0865212245120014,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 60,
+                "n": 156,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": 0.00037000487930902414,
-                "statistic": 0.03134996223595299,
-                "p_value": 0.5125047770669247,
+                "mean_differential": -0.008423815112880921,
+                "statistic": -1.3321782057912286,
+                "p_value": 0.09140081820763368,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 60,
+                "n": 156,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
@@ -572,18 +583,20 @@
                 "ENSEMBLE_INVERSE_MSE"
               ],
               "family_size": 3,
-              "block_length": 4,
+              "block_length": 6,
               "adjusted_p_values": {
-                "ENSEMBLE_INVERSE_MSE": 0.5171,
-                "ENSEMBLE_ADAPTIVE": 0.6462,
-                "ENSEMBLE_BAYES": 0.8038
+                "ENSEMBLE_INVERSE_MSE": 0.0847,
+                "ENSEMBLE_ADAPTIVE": 0.1309,
+                "ENSEMBLE_BAYES": 0.7121
               },
               "raw_p_values": {
-                "ENSEMBLE_ADAPTIVE": 0.524916498400057,
-                "ENSEMBLE_BAYES": 0.7998172390264731,
-                "ENSEMBLE_INVERSE_MSE": 0.33175542665550456
+                "ENSEMBLE_ADAPTIVE": 0.0865212245120014,
+                "ENSEMBLE_BAYES": 0.6933672538344238,
+                "ENSEMBLE_INVERSE_MSE": 0.04191238012243648
               },
-              "rejected": []
+              "rejected": [
+                "ENSEMBLE_INVERSE_MSE"
+              ]
             },
             "CRPS": {
               "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
@@ -595,18 +608,20 @@
                 "ENSEMBLE_INVERSE_MSE"
               ],
               "family_size": 3,
-              "block_length": 4,
+              "block_length": 6,
               "adjusted_p_values": {
-                "ENSEMBLE_INVERSE_MSE": 0.3565,
-                "ENSEMBLE_ADAPTIVE": 0.6211,
-                "ENSEMBLE_BAYES": 0.8454
+                "ENSEMBLE_INVERSE_MSE": 0.0138,
+                "ENSEMBLE_ADAPTIVE": 0.1302,
+                "ENSEMBLE_BAYES": 0.8346
               },
               "raw_p_values": {
-                "ENSEMBLE_ADAPTIVE": 0.5125047770669247,
-                "ENSEMBLE_BAYES": 0.8573554293068164,
-                "ENSEMBLE_INVERSE_MSE": 0.21882204873819333
+                "ENSEMBLE_ADAPTIVE": 0.09140081820763368,
+                "ENSEMBLE_BAYES": 0.8336118794674012,
+                "ENSEMBLE_INVERSE_MSE": 0.006664335539847077
               },
-              "rejected": []
+              "rejected": [
+                "ENSEMBLE_INVERSE_MSE"
+              ]
             }
           },
           "subset": "W2"
@@ -615,7 +630,7 @@
       "by_data_class": {
         "REAL_TIME": {
           "status": "OK",
-          "n_origins": 96,
+          "n_origins": 277,
           "control": "ENSEMBLE_EQUAL",
           "loss_conventions": {
             "RMSE": "sqrt(mean squared error) per origin; DM uses the squared-error differential",
@@ -623,93 +638,93 @@
           },
           "per_ensemble": {
             "ENSEMBLE_EQUAL": {
-              "n_origins": 96,
-              "rmse": 0.6249310637391973,
-              "mean_crps": 0.32992877265282633,
+              "n_origins": 277,
+              "rmse": 0.6753758627537504,
+              "mean_crps": 0.352575805445346,
               "relative_rmse_vs_equal": 1.0,
               "relative_crps_vs_equal": 1.0,
               "is_control": true
             },
             "ENSEMBLE_INVERSE_MSE": {
-              "n_origins": 96,
-              "rmse": 0.6062420337640877,
-              "mean_crps": 0.31982221734728505,
-              "relative_rmse_vs_equal": 0.9700942534952798,
-              "relative_crps_vs_equal": 0.9693674630912652,
+              "n_origins": 277,
+              "rmse": 0.6400834480603352,
+              "mean_crps": 0.33809147794260663,
+              "relative_rmse_vs_equal": 0.9477440390754931,
+              "relative_crps_vs_equal": 0.9589185438165733,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": -0.02300943092378754,
-                "statistic": -0.5894346637889323,
-                "p_value": 0.2777848645120483,
+                "mean_differential": -0.04642573550956474,
+                "statistic": -2.309556751909852,
+                "p_value": 0.010456353147008213,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 96,
+                "n": 277,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": -0.010106555305541241,
-                "statistic": -1.0098683797270493,
-                "p_value": 0.15627917689785403,
+                "mean_differential": -0.014484327502739348,
+                "statistic": -2.7645636835127143,
+                "p_value": 0.0028499489935582822,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 96,
+                "n": 277,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
             },
             "ENSEMBLE_BAYES": {
-              "n_origins": 96,
-              "rmse": 0.640478653775468,
-              "mean_crps": 0.33675118597972603,
-              "relative_rmse_vs_equal": 1.0248788881500683,
-              "relative_crps_vs_equal": 1.0206784430228482,
+              "n_origins": 277,
+              "rmse": 0.6721805678653135,
+              "mean_crps": 0.3525762524859844,
+              "relative_rmse_vs_equal": 0.9952688642507767,
+              "relative_crps_vs_equal": 1.0000012679277237,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": 0.01967407151583112,
-                "statistic": 0.6254254696482033,
-                "p_value": 0.7341540749164672,
+                "mean_differential": -0.004305840174637168,
+                "statistic": -0.24714639397365046,
+                "p_value": 0.40239746496375023,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 96,
+                "n": 277,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": 0.006822413326899709,
-                "statistic": 0.6476002926282612,
-                "p_value": 0.7413782460152674,
+                "mean_differential": 4.4704063847021636e-07,
+                "statistic": 7.833992784202021e-05,
+                "p_value": 0.5000312531094279,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 96,
+                "n": 277,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
             },
             "ENSEMBLE_ADAPTIVE": {
-              "n_origins": 96,
-              "rmse": 0.6184337500264772,
-              "mean_crps": 0.32646324570266444,
-              "relative_rmse_vs_equal": 0.989603151307851,
-              "relative_crps_vs_equal": 0.9894961360226422,
+              "n_origins": 277,
+              "rmse": 0.650280634545002,
+              "mean_crps": 0.34443739882731705,
+              "relative_rmse_vs_equal": 0.962842574642176,
+              "relative_crps_vs_equal": 0.9769172856096885,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": -0.008078531254393465,
-                "statistic": -0.27427784969945945,
-                "p_value": 0.3919355527096681,
+                "mean_differential": -0.03326765232612221,
+                "statistic": -2.2053532172415493,
+                "p_value": 0.013714659085851344,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 96,
+                "n": 277,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": -0.0034655269501618533,
-                "statistic": -0.4089321033540547,
-                "p_value": 0.34129474436467333,
+                "mean_differential": -0.008138406618028953,
+                "statistic": -1.8335043152025474,
+                "p_value": 0.03336380371445491,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 96,
+                "n": 277,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
@@ -726,18 +741,21 @@
                 "ENSEMBLE_INVERSE_MSE"
               ],
               "family_size": 3,
-              "block_length": 5,
+              "block_length": 7,
               "adjusted_p_values": {
-                "ENSEMBLE_INVERSE_MSE": 0.4224,
-                "ENSEMBLE_ADAPTIVE": 0.4873,
-                "ENSEMBLE_BAYES": 0.7389
+                "ENSEMBLE_INVERSE_MSE": 0.0241,
+                "ENSEMBLE_ADAPTIVE": 0.0259,
+                "ENSEMBLE_BAYES": 0.4039
               },
               "raw_p_values": {
-                "ENSEMBLE_ADAPTIVE": 0.3919355527096681,
-                "ENSEMBLE_BAYES": 0.7341540749164672,
-                "ENSEMBLE_INVERSE_MSE": 0.2777848645120483
+                "ENSEMBLE_ADAPTIVE": 0.013714659085851344,
+                "ENSEMBLE_BAYES": 0.40239746496375023,
+                "ENSEMBLE_INVERSE_MSE": 0.010456353147008213
               },
-              "rejected": []
+              "rejected": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_INVERSE_MSE"
+              ]
             },
             "CRPS": {
               "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
@@ -749,25 +767,28 @@
                 "ENSEMBLE_INVERSE_MSE"
               ],
               "family_size": 3,
-              "block_length": 5,
+              "block_length": 7,
               "adjusted_p_values": {
-                "ENSEMBLE_INVERSE_MSE": 0.2428,
-                "ENSEMBLE_ADAPTIVE": 0.435,
-                "ENSEMBLE_BAYES": 0.7501
+                "ENSEMBLE_INVERSE_MSE": 0.006,
+                "ENSEMBLE_ADAPTIVE": 0.0458,
+                "ENSEMBLE_BAYES": 0.4976
               },
               "raw_p_values": {
-                "ENSEMBLE_ADAPTIVE": 0.34129474436467333,
-                "ENSEMBLE_BAYES": 0.7413782460152674,
-                "ENSEMBLE_INVERSE_MSE": 0.15627917689785403
+                "ENSEMBLE_ADAPTIVE": 0.03336380371445491,
+                "ENSEMBLE_BAYES": 0.5000312531094279,
+                "ENSEMBLE_INVERSE_MSE": 0.0028499489935582822
               },
-              "rejected": []
+              "rejected": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_INVERSE_MSE"
+              ]
             }
           },
           "subset": "REAL_TIME"
         },
         "PSEUDO_REAL_TIME": {
           "status": "OK",
-          "n_origins": 10,
+          "n_origins": 35,
           "control": "ENSEMBLE_EQUAL",
           "loss_conventions": {
             "RMSE": "sqrt(mean squared error) per origin; DM uses the squared-error differential",
@@ -775,93 +796,93 @@
           },
           "per_ensemble": {
             "ENSEMBLE_EQUAL": {
-              "n_origins": 10,
-              "rmse": 0.51882860880578,
-              "mean_crps": 0.20776168710467716,
+              "n_origins": 35,
+              "rmse": 0.517385790130324,
+              "mean_crps": 0.1840796555122055,
               "relative_rmse_vs_equal": 1.0,
               "relative_crps_vs_equal": 1.0,
               "is_control": true
             },
             "ENSEMBLE_INVERSE_MSE": {
-              "n_origins": 10,
-              "rmse": 0.3332930080897834,
-              "mean_crps": 0.19438815752764113,
-              "relative_rmse_vs_equal": 0.6423952003281866,
-              "relative_crps_vs_equal": 0.9356304342566394,
+              "n_origins": 35,
+              "rmse": 0.33311429004797904,
+              "mean_crps": 0.16851065171889296,
+              "relative_rmse_vs_equal": 0.6438412039960956,
+              "relative_crps_vs_equal": 0.9154224634439289,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": -0.15809889607380462,
-                "statistic": -2.933282217502981,
-                "p_value": 0.0016769943276431776,
+                "mean_differential": -0.15672292559461062,
+                "statistic": -5.654197007710003,
+                "p_value": 7.828826920075471e-09,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 10,
+                "n": 35,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": -0.013373529577036003,
-                "statistic": -2.861805482310548,
-                "p_value": 0.00210617672799146,
+                "mean_differential": -0.015569003793312582,
+                "statistic": -3.4749003256184055,
+                "p_value": 0.00025552160043518235,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 10,
+                "n": 35,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
             },
             "ENSEMBLE_BAYES": {
-              "n_origins": 10,
-              "rmse": 0.347729623131407,
-              "mean_crps": 0.19897247409582433,
-              "relative_rmse_vs_equal": 0.6702206031617991,
-              "relative_crps_vs_equal": 0.9576956987049083,
+              "n_origins": 35,
+              "rmse": 0.3459080567024888,
+              "mean_crps": 0.17345649096926977,
+              "relative_rmse_vs_equal": 0.6685689156931778,
+              "relative_crps_vs_equal": 0.9422903931812749,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": -0.14826723451223073,
-                "statistic": -3.1101283763209073,
-                "p_value": 0.0009350302401828214,
+                "mean_differential": -0.14803567213708757,
+                "statistic": -6.019990532593008,
+                "p_value": 8.721363631281065e-10,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 10,
+                "n": 35,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": -0.00878921300885278,
-                "statistic": -2.211796349899598,
-                "p_value": 0.013490369721015638,
+                "mean_differential": -0.010623164542935744,
+                "statistic": -2.3021941358605753,
+                "p_value": 0.010662113267421336,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 10,
+                "n": 35,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
             },
             "ENSEMBLE_ADAPTIVE": {
-              "n_origins": 10,
-              "rmse": 0.3724907042437287,
-              "mean_crps": 0.20017298133411532,
-              "relative_rmse_vs_equal": 0.7179455757097005,
-              "relative_crps_vs_equal": 0.9634739885090633,
+              "n_origins": 35,
+              "rmse": 0.3762972585284601,
+              "mean_crps": 0.17445633560789492,
+              "relative_rmse_vs_equal": 0.7273049737869197,
+              "relative_crps_vs_equal": 0.9477219800442721,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": -0.13043380056735213,
-                "statistic": -2.799285709473725,
-                "p_value": 0.0025607899197647166,
+                "mean_differential": -0.1260884290527451,
+                "statistic": -5.583580814471428,
+                "p_value": 1.1780810771355732e-08,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 10,
+                "n": 35,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": -0.007588705770561817,
-                "statistic": -2.3039840406979906,
-                "p_value": 0.010611769737892296,
+                "mean_differential": -0.009623319904310616,
+                "statistic": -2.7203004341211012,
+                "p_value": 0.0032611313959198807,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 10,
+                "n": 35,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
@@ -878,16 +899,16 @@
                 "ENSEMBLE_INVERSE_MSE"
               ],
               "family_size": 3,
-              "block_length": 3,
+              "block_length": 4,
               "adjusted_p_values": {
-                "ENSEMBLE_BAYES": 0.0051,
-                "ENSEMBLE_INVERSE_MSE": 0.0097,
-                "ENSEMBLE_ADAPTIVE": 0.0105
+                "ENSEMBLE_BAYES": 0.0,
+                "ENSEMBLE_INVERSE_MSE": 0.0,
+                "ENSEMBLE_ADAPTIVE": 0.0
               },
               "raw_p_values": {
-                "ENSEMBLE_ADAPTIVE": 0.0025607899197647166,
-                "ENSEMBLE_BAYES": 0.0009350302401828214,
-                "ENSEMBLE_INVERSE_MSE": 0.0016769943276431776
+                "ENSEMBLE_ADAPTIVE": 1.1780810771355732e-08,
+                "ENSEMBLE_BAYES": 8.721363631281065e-10,
+                "ENSEMBLE_INVERSE_MSE": 7.828826920075471e-09
               },
               "rejected": [
                 "ENSEMBLE_ADAPTIVE",
@@ -905,16 +926,16 @@
                 "ENSEMBLE_INVERSE_MSE"
               ],
               "family_size": 3,
-              "block_length": 3,
+              "block_length": 4,
               "adjusted_p_values": {
-                "ENSEMBLE_INVERSE_MSE": 0.0145,
-                "ENSEMBLE_ADAPTIVE": 0.0419,
-                "ENSEMBLE_BAYES": 0.0419
+                "ENSEMBLE_INVERSE_MSE": 0.0009,
+                "ENSEMBLE_ADAPTIVE": 0.006,
+                "ENSEMBLE_BAYES": 0.0109
               },
               "raw_p_values": {
-                "ENSEMBLE_ADAPTIVE": 0.010611769737892296,
-                "ENSEMBLE_BAYES": 0.013490369721015638,
-                "ENSEMBLE_INVERSE_MSE": 0.00210617672799146
+                "ENSEMBLE_ADAPTIVE": 0.0032611313959198807,
+                "ENSEMBLE_BAYES": 0.010662113267421336,
+                "ENSEMBLE_INVERSE_MSE": 0.00025552160043518235
               },
               "rejected": [
                 "ENSEMBLE_ADAPTIVE",
@@ -929,7 +950,7 @@
       "by_regime": {
         "RECESSION": {
           "status": "OK",
-          "n_origins": 11,
+          "n_origins": 28,
           "control": "ENSEMBLE_EQUAL",
           "loss_conventions": {
             "RMSE": "sqrt(mean squared error) per origin; DM uses the squared-error differential",
@@ -937,93 +958,93 @@
           },
           "per_ensemble": {
             "ENSEMBLE_EQUAL": {
-              "n_origins": 11,
-              "rmse": 1.006603804209641,
-              "mean_crps": 0.5634160720400593,
+              "n_origins": 28,
+              "rmse": 1.2004043300636,
+              "mean_crps": 0.6464377773682803,
               "relative_rmse_vs_equal": 1.0,
               "relative_crps_vs_equal": 1.0,
               "is_control": true
             },
             "ENSEMBLE_INVERSE_MSE": {
-              "n_origins": 11,
-              "rmse": 0.9442354807839867,
-              "mean_crps": 0.5535055751413238,
-              "relative_rmse_vs_equal": 0.9380408427180301,
-              "relative_crps_vs_equal": 0.982409985460921,
+              "n_origins": 28,
+              "rmse": 1.1730075976016603,
+              "mean_crps": 0.638438643614868,
+              "relative_rmse_vs_equal": 0.9771770796090945,
+              "relative_crps_vs_equal": 0.9876258256657312,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": -0.12167057547795485,
-                "statistic": -0.9625553032814048,
-                "p_value": 0.1678853686129247,
+                "mean_differential": -0.06502373160422177,
+                "statistic": -0.6078137442622199,
+                "p_value": 0.2716555062643083,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 11,
+                "n": 28,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": -0.009910496898735506,
-                "statistic": -0.2922857165960349,
-                "p_value": 0.38503408937054157,
+                "mean_differential": -0.007999133753412485,
+                "statistic": -0.33774668653624124,
+                "p_value": 0.3677770445973893,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 11,
+                "n": 28,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
             },
             "ENSEMBLE_BAYES": {
-              "n_origins": 11,
-              "rmse": 1.1178927525115623,
-              "mean_crps": 0.6671107165410674,
-              "relative_rmse_vs_equal": 1.1105588393730565,
-              "relative_crps_vs_equal": 1.1840463019195435,
+              "n_origins": 28,
+              "rmse": 1.3017762251553844,
+              "mean_crps": 0.7384237253462992,
+              "relative_rmse_vs_equal": 1.084448125146644,
+              "relative_crps_vs_equal": 1.1422966775742962,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": 0.23643298746855598,
-                "statistic": 1.732089016112949,
-                "p_value": 0.9583711427295405,
+                "mean_differential": 0.25365078474436153,
+                "statistic": 2.787718310373608,
+                "p_value": 0.9973459661787972,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 11,
+                "n": 28,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": 0.10369464450100815,
-                "statistic": 2.108328394466813,
-                "p_value": 0.9824987032519377,
+                "mean_differential": 0.09198594797801876,
+                "statistic": 3.26328957205811,
+                "p_value": 0.9994493653355598,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 11,
+                "n": 28,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
             },
             "ENSEMBLE_ADAPTIVE": {
-              "n_origins": 11,
-              "rmse": 1.0133133245015915,
-              "mean_crps": 0.5846069548383631,
-              "relative_rmse_vs_equal": 1.0066655026177043,
-              "relative_crps_vs_equal": 1.037611427593065,
+              "n_origins": 28,
+              "rmse": 1.2155837537835195,
+              "mean_crps": 0.6691860062501652,
+              "relative_rmse_vs_equal": 1.0126452590512691,
+              "relative_crps_vs_equal": 1.0351901291637,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": 0.013552674963146584,
-                "statistic": 0.11621088706072955,
-                "p_value": 0.5462572957054537,
+                "mean_differential": 0.03667330682699167,
+                "statistic": 0.5607846160154368,
+                "p_value": 0.7125278123323828,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 11,
+                "n": 28,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": 0.021190882798303782,
-                "statistic": 0.5705255078637677,
-                "p_value": 0.7158393367506846,
+                "mean_differential": 0.02274822888188464,
+                "statistic": 1.1636627078130743,
+                "p_value": 0.8777196360636601,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 11,
+                "n": 28,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
@@ -1040,16 +1061,16 @@
                 "ENSEMBLE_INVERSE_MSE"
               ],
               "family_size": 3,
-              "block_length": 3,
+              "block_length": 4,
               "adjusted_p_values": {
-                "ENSEMBLE_INVERSE_MSE": 0.2822,
-                "ENSEMBLE_ADAPTIVE": 0.6064,
-                "ENSEMBLE_BAYES": 0.9354
+                "ENSEMBLE_INVERSE_MSE": 0.4115,
+                "ENSEMBLE_ADAPTIVE": 0.7619,
+                "ENSEMBLE_BAYES": 0.9979
               },
               "raw_p_values": {
-                "ENSEMBLE_ADAPTIVE": 0.5462572957054537,
-                "ENSEMBLE_BAYES": 0.9583711427295405,
-                "ENSEMBLE_INVERSE_MSE": 0.1678853686129247
+                "ENSEMBLE_ADAPTIVE": 0.7125278123323828,
+                "ENSEMBLE_BAYES": 0.9973459661787972,
+                "ENSEMBLE_INVERSE_MSE": 0.2716555062643083
               },
               "rejected": []
             },
@@ -1063,16 +1084,16 @@
                 "ENSEMBLE_INVERSE_MSE"
               ],
               "family_size": 3,
-              "block_length": 3,
+              "block_length": 4,
               "adjusted_p_values": {
-                "ENSEMBLE_INVERSE_MSE": 0.4914,
-                "ENSEMBLE_ADAPTIVE": 0.7261,
-                "ENSEMBLE_BAYES": 0.9668
+                "ENSEMBLE_INVERSE_MSE": 0.5243,
+                "ENSEMBLE_ADAPTIVE": 0.8838,
+                "ENSEMBLE_BAYES": 0.999
               },
               "raw_p_values": {
-                "ENSEMBLE_ADAPTIVE": 0.7158393367506846,
-                "ENSEMBLE_BAYES": 0.9824987032519377,
-                "ENSEMBLE_INVERSE_MSE": 0.38503408937054157
+                "ENSEMBLE_ADAPTIVE": 0.8777196360636601,
+                "ENSEMBLE_BAYES": 0.9994493653355598,
+                "ENSEMBLE_INVERSE_MSE": 0.3677770445973893
               },
               "rejected": []
             }
@@ -1081,7 +1102,7 @@
         },
         "EXPANSION": {
           "status": "OK",
-          "n_origins": 95,
+          "n_origins": 284,
           "control": "ENSEMBLE_EQUAL",
           "loss_conventions": {
             "RMSE": "sqrt(mean squared error) per origin; DM uses the squared-error differential",
@@ -1089,93 +1110,93 @@
           },
           "per_ensemble": {
             "ENSEMBLE_EQUAL": {
-              "n_origins": 95,
-              "rmse": 0.5528661773257662,
-              "mean_crps": 0.2900337079292362,
+              "n_origins": 284,
+              "rmse": 0.5794929315927975,
+              "mean_crps": 0.3028381277640006,
               "relative_rmse_vs_equal": 1.0,
               "relative_crps_vs_equal": 1.0,
               "is_control": true
             },
             "ENSEMBLE_INVERSE_MSE": {
-              "n_origins": 95,
-              "rmse": 0.5290137591859261,
-              "mean_crps": 0.2795605590953813,
-              "relative_rmse_vs_equal": 0.9568567962409726,
-              "relative_crps_vs_equal": 0.9638898909074037,
+              "n_origins": 284,
+              "rmse": 0.5269031826990608,
+              "mean_crps": 0.2875807400670668,
+              "relative_rmse_vs_equal": 0.9092486792734672,
+              "relative_crps_vs_equal": 0.9496186698498421,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": -0.02580545262278049,
-                "statistic": -0.6940719042140199,
-                "p_value": 0.24381855855670342,
+                "mean_differential": -0.05818509382761478,
+                "statistic": -3.419723889469531,
+                "p_value": 0.0003134236273220625,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 95,
+                "n": 284,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": -0.010473148833855039,
-                "statistic": -1.1221045675681518,
-                "p_value": 0.13090899102913933,
+                "mean_differential": -0.015257387696933768,
+                "statistic": -3.333411719175078,
+                "p_value": 0.0004289394561520776,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 95,
+                "n": 284,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
             },
             "ENSEMBLE_BAYES": {
-              "n_origins": 95,
-              "rmse": 0.5315624596777225,
-              "mean_crps": 0.2839960075058968,
-              "relative_rmse_vs_equal": 0.9614667734765573,
-              "relative_crps_vs_equal": 0.9791827630434856,
+              "n_origins": 284,
+              "rmse": 0.5369922632338433,
+              "mean_crps": 0.2924603338480484,
+              "relative_rmse_vs_equal": 0.926658866671356,
+              "relative_crps_vs_equal": 0.9657315477658761,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": -0.023102361492175108,
-                "statistic": -0.8489245018779396,
-                "p_value": 0.19796165198589066,
+                "mean_differential": -0.04745136699300943,
+                "statistic": -3.382697903514874,
+                "p_value": 0.0003588877050857975,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 95,
+                "n": 284,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": -0.006037700423339426,
-                "statistic": -0.7312786628667634,
-                "p_value": 0.23230448031873152,
+                "mean_differential": -0.010377793915952189,
+                "statistic": -2.3027628660631834,
+                "p_value": 0.010646094450927401,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 95,
+                "n": 284,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
             },
             "ENSEMBLE_ADAPTIVE": {
-              "n_origins": 95,
-              "rmse": 0.5312234094619566,
-              "mean_crps": 0.2832792094481573,
-              "relative_rmse_vs_equal": 0.9608535143739549,
-              "relative_crps_vs_equal": 0.9767113328678096,
+              "n_origins": 284,
+              "rmse": 0.5331131565506152,
+              "mean_crps": 0.2914715600226708,
+              "relative_rmse_vs_equal": 0.919964899460115,
+              "relative_crps_vs_equal": 0.9624665235343559,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": -0.02346269927042005,
-                "statistic": -0.8618507183251504,
-                "p_value": 0.19438483552215668,
+                "mean_differential": -0.05160242007865386,
+                "statistic": -3.809279738060992,
+                "p_value": 6.96861013465e-05,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 95,
+                "n": 284,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": -0.0067544984810789235,
-                "statistic": -0.9180982801164347,
-                "p_value": 0.17928370760038215,
+                "mean_differential": -0.011366567741329795,
+                "statistic": -2.9494787123332475,
+                "p_value": 0.0015915525048497137,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 95,
+                "n": 284,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
@@ -1192,18 +1213,22 @@
                 "ENSEMBLE_INVERSE_MSE"
               ],
               "family_size": 3,
-              "block_length": 5,
+              "block_length": 7,
               "adjusted_p_values": {
-                "ENSEMBLE_ADAPTIVE": 0.2533,
-                "ENSEMBLE_BAYES": 0.2533,
-                "ENSEMBLE_INVERSE_MSE": 0.2533
+                "ENSEMBLE_ADAPTIVE": 0.0004,
+                "ENSEMBLE_INVERSE_MSE": 0.0009,
+                "ENSEMBLE_BAYES": 0.0009
               },
               "raw_p_values": {
-                "ENSEMBLE_ADAPTIVE": 0.19438483552215668,
-                "ENSEMBLE_BAYES": 0.19796165198589066,
-                "ENSEMBLE_INVERSE_MSE": 0.24381855855670342
+                "ENSEMBLE_ADAPTIVE": 6.96861013465e-05,
+                "ENSEMBLE_BAYES": 0.0003588877050857975,
+                "ENSEMBLE_INVERSE_MSE": 0.0003134236273220625
               },
-              "rejected": []
+              "rejected": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_BAYES",
+                "ENSEMBLE_INVERSE_MSE"
+              ]
             },
             "CRPS": {
               "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
@@ -1215,28 +1240,32 @@
                 "ENSEMBLE_INVERSE_MSE"
               ],
               "family_size": 3,
-              "block_length": 5,
+              "block_length": 7,
               "adjusted_p_values": {
-                "ENSEMBLE_INVERSE_MSE": 0.1823,
-                "ENSEMBLE_ADAPTIVE": 0.2358,
-                "ENSEMBLE_BAYES": 0.2393
+                "ENSEMBLE_INVERSE_MSE": 0.0017,
+                "ENSEMBLE_ADAPTIVE": 0.0049,
+                "ENSEMBLE_BAYES": 0.0145
               },
               "raw_p_values": {
-                "ENSEMBLE_ADAPTIVE": 0.17928370760038215,
-                "ENSEMBLE_BAYES": 0.23230448031873152,
-                "ENSEMBLE_INVERSE_MSE": 0.13090899102913933
+                "ENSEMBLE_ADAPTIVE": 0.0015915525048497137,
+                "ENSEMBLE_BAYES": 0.010646094450927401,
+                "ENSEMBLE_INVERSE_MSE": 0.0004289394561520776
               },
-              "rejected": []
+              "rejected": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_BAYES",
+                "ENSEMBLE_INVERSE_MSE"
+              ]
             }
           },
           "subset": "EXPANSION"
         }
       },
       "digests": {
-        "origins_sha256": "6d70b8484992d82a2a01b09a0d09f583667c234f256c807dc79825539aac668e",
-        "target_periods_sha256": "6d70b8484992d82a2a01b09a0d09f583667c234f256c807dc79825539aac668e",
-        "squared_errors_sha256": "a9e3338d484bf9ba23b077de2c62d2bdd80911f4b468957dab350aebc7eb096c",
-        "crps_sha256": "9ecd5fef896dbe1151b67458fa213daf253001fcc9b60659762819b6e100d4b0"
+        "origins_sha256": "1740cbdcad22ea734f5016be8ca8ed83e654ef87a5f53b36ced07993cada0814",
+        "target_periods_sha256": "1740cbdcad22ea734f5016be8ca8ed83e654ef87a5f53b36ced07993cada0814",
+        "squared_errors_sha256": "70220d22d3d9718aea042e76ffb238a869d1235edfa900864f078eaaa6690861",
+        "crps_sha256": "b4aee4d441a611784390375514730d0d5eba754b78b2f6ea1851b3fe3ebf412b"
       }
     },
     "T2_GDP_GROWTH/h0": {
@@ -1255,8 +1284,8 @@
       "windows": {
         "W1": {
           "window": "W1",
-          "origins_in_window": 60,
-          "origins_used": 60,
+          "origins_in_window": 204,
+          "origins_used": 204,
           "skipped_no_first_publication_actual": 0,
           "skipped_incomplete_candidates": 0,
           "candidate_failures": {
@@ -1266,24 +1295,24 @@
             "ENSEMBLE_ADAPTIVE": 0
           },
           "data_class_counts": {
-            "PSEUDO_REAL_TIME": 24,
-            "REAL_TIME": 36
+            "PSEUDO_REAL_TIME": 83,
+            "REAL_TIME": 121
           },
           "weight_source_counts": {
             "ENSEMBLE_EQUAL": {
-              "EQUAL_DECLARED_CONTROL": 60
+              "EQUAL_DECLARED_CONTROL": 204
             },
             "ENSEMBLE_INVERSE_MSE": {
-              "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 7,
-              "HISTORY": 53
+              "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 23,
+              "HISTORY": 181
             },
             "ENSEMBLE_BAYES": {
-              "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 7,
-              "HISTORY": 53
+              "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 23,
+              "HISTORY": 181
             },
             "ENSEMBLE_ADAPTIVE": {
-              "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 7,
-              "HISTORY": 53
+              "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 23,
+              "HISTORY": 181
             }
           },
           "first_origin": "1990-01-31",
@@ -1292,8 +1321,8 @@
         },
         "W2": {
           "window": "W2",
-          "origins_in_window": 60,
-          "origins_used": 60,
+          "origins_in_window": 156,
+          "origins_used": 156,
           "skipped_no_first_publication_actual": 0,
           "skipped_incomplete_candidates": 0,
           "candidate_failures": {
@@ -1303,20 +1332,20 @@
             "ENSEMBLE_ADAPTIVE": 0
           },
           "data_class_counts": {
-            "REAL_TIME": 60
+            "REAL_TIME": 156
           },
           "weight_source_counts": {
             "ENSEMBLE_EQUAL": {
-              "EQUAL_DECLARED_CONTROL": 60
+              "EQUAL_DECLARED_CONTROL": 156
             },
             "ENSEMBLE_INVERSE_MSE": {
-              "HISTORY": 60
+              "HISTORY": 156
             },
             "ENSEMBLE_BAYES": {
-              "HISTORY": 60
+              "HISTORY": 156
             },
             "ENSEMBLE_ADAPTIVE": {
-              "HISTORY": 60
+              "HISTORY": 156
             }
           },
           "first_origin": "2007-01-31",
@@ -1325,32 +1354,32 @@
         }
       },
       "origins": {
-        "total": 120,
+        "total": 360,
         "first_origin": "1990-01-31",
         "last_origin": "2019-12-31",
-        "real_time": 96,
-        "pseudo_real_time": 24,
+        "real_time": 277,
+        "pseudo_real_time": 83,
         "weight_source_counts": {
           "ENSEMBLE_EQUAL": {
-            "EQUAL_DECLARED_CONTROL": 120
+            "EQUAL_DECLARED_CONTROL": 360
           },
           "ENSEMBLE_INVERSE_MSE": {
-            "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 7,
-            "HISTORY": 113
+            "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 23,
+            "HISTORY": 337
           },
           "ENSEMBLE_BAYES": {
-            "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 7,
-            "HISTORY": 113
+            "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 23,
+            "HISTORY": 337
           },
           "ENSEMBLE_ADAPTIVE": {
-            "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 7,
-            "HISTORY": 113
+            "EQUAL_FALLBACK_INSUFFICIENT_HISTORY": 23,
+            "HISTORY": 337
           }
         }
       },
       "overall": {
         "status": "OK",
-        "n_origins": 120,
+        "n_origins": 360,
         "control": "ENSEMBLE_EQUAL",
         "loss_conventions": {
           "RMSE": "sqrt(mean squared error) per origin; DM uses the squared-error differential",
@@ -1358,93 +1387,93 @@
         },
         "per_ensemble": {
           "ENSEMBLE_EQUAL": {
-            "n_origins": 120,
-            "rmse": 2.2682009959442575,
-            "mean_crps": 1.2682780751076355,
+            "n_origins": 360,
+            "rmse": 2.1762305600894227,
+            "mean_crps": 1.2304781384349825,
             "relative_rmse_vs_equal": 1.0,
             "relative_crps_vs_equal": 1.0,
             "is_control": true
           },
           "ENSEMBLE_INVERSE_MSE": {
-            "n_origins": 120,
-            "rmse": 2.2438933441615347,
-            "mean_crps": 1.254003660660837,
-            "relative_rmse_vs_equal": 0.9892832902259602,
-            "relative_crps_vs_equal": 0.9887450435933878,
+            "n_origins": 360,
+            "rmse": 2.1655230547025344,
+            "mean_crps": 1.224713425659192,
+            "relative_rmse_vs_equal": 0.9950797927465699,
+            "relative_crps_vs_equal": 0.9953150628233651,
             "is_control": false,
             "dm_rmse": {
-              "mean_differential": -0.10967841803008677,
-              "statistic": -0.8313640294370522,
-              "p_value": 0.20288400654945682,
+              "mean_differential": -0.04648935021892746,
+              "statistic": -0.7661904429523031,
+              "p_value": 0.22178149705769057,
               "hac_lags": 0,
               "hln_factor": 1.0,
-              "n": 120,
+              "n": 360,
               "alternative": "less",
               "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
             },
             "dm_crps": {
-              "mean_differential": -0.014274414446798684,
-              "statistic": -1.0537275391347145,
-              "p_value": 0.14600383839997572,
+              "mean_differential": -0.005764712775790641,
+              "statistic": -0.8182628015424788,
+              "p_value": 0.20660357090807102,
               "hac_lags": 0,
               "hln_factor": 1.0,
-              "n": 120,
+              "n": 360,
               "alternative": "less",
               "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
             }
           },
           "ENSEMBLE_BAYES": {
-            "n_origins": 120,
-            "rmse": 2.3177817684910913,
-            "mean_crps": 1.2949182021957852,
-            "relative_rmse_vs_equal": 1.0218590736162663,
-            "relative_crps_vs_equal": 1.0210049575176081,
+            "n_origins": 360,
+            "rmse": 2.2448493312854256,
+            "mean_crps": 1.2707847191846269,
+            "relative_rmse_vs_equal": 1.031531020864436,
+            "relative_crps_vs_equal": 1.0327568442629216,
             "is_control": false,
             "dm_rmse": {
-              "mean_differential": 0.22737656834716893,
-              "statistic": 2.1517183142314056,
-              "p_value": 0.9842902265955487,
+              "mean_differential": 0.30336906950550024,
+              "statistic": 3.5302110973051186,
+              "p_value": 0.9997923858887974,
               "hac_lags": 0,
               "hln_factor": 1.0,
-              "n": 120,
+              "n": 360,
               "alternative": "less",
               "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
             },
             "dm_crps": {
-              "mean_differential": 0.02664012708814966,
-              "statistic": 2.163900307785979,
-              "p_value": 0.9847639993400532,
+              "mean_differential": 0.04030658074964423,
+              "statistic": 3.984640046890096,
+              "p_value": 0.99996620875479,
               "hac_lags": 0,
               "hln_factor": 1.0,
-              "n": 120,
+              "n": 360,
               "alternative": "less",
               "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
             }
           },
           "ENSEMBLE_ADAPTIVE": {
-            "n_origins": 120,
-            "rmse": 2.252519738722793,
-            "mean_crps": 1.2605930791146274,
-            "relative_rmse_vs_equal": 0.9930864781165761,
-            "relative_crps_vs_equal": 0.9939406064459831,
+            "n_origins": 360,
+            "rmse": 2.177634299800188,
+            "mean_crps": 1.233949530168899,
+            "relative_rmse_vs_equal": 1.0006450326249934,
+            "relative_crps_vs_equal": 1.0028211730265535,
             "is_control": false,
             "dm_rmse": {
-              "mean_differential": -0.07089058466672234,
-              "statistic": -0.7003135427272486,
-              "p_value": 0.24186575801811377,
+              "mean_differential": 0.006111692999133241,
+              "statistic": 0.11188723265519447,
+              "p_value": 0.5445435900499473,
               "hac_lags": 0,
               "hln_factor": 1.0,
-              "n": 120,
+              "n": 360,
               "alternative": "less",
               "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
             },
             "dm_crps": {
-              "mean_differential": -0.007684995993007994,
-              "statistic": -0.6890156359097129,
-              "p_value": 0.2454067139932377,
+              "mean_differential": 0.00347139173391625,
+              "statistic": 0.5339818769313783,
+              "p_value": 0.7033229636076765,
               "hac_lags": 0,
               "hln_factor": 1.0,
-              "n": 120,
+              "n": 360,
               "alternative": "less",
               "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
             }
@@ -1461,16 +1490,16 @@
               "ENSEMBLE_INVERSE_MSE"
             ],
             "family_size": 3,
-            "block_length": 5,
+            "block_length": 8,
             "adjusted_p_values": {
-              "ENSEMBLE_INVERSE_MSE": 0.4101,
-              "ENSEMBLE_ADAPTIVE": 0.4495,
-              "ENSEMBLE_BAYES": 0.9758
+              "ENSEMBLE_INVERSE_MSE": 0.4006,
+              "ENSEMBLE_ADAPTIVE": 0.7414,
+              "ENSEMBLE_BAYES": 0.9991
             },
             "raw_p_values": {
-              "ENSEMBLE_ADAPTIVE": 0.24186575801811377,
-              "ENSEMBLE_BAYES": 0.9842902265955487,
-              "ENSEMBLE_INVERSE_MSE": 0.20288400654945682
+              "ENSEMBLE_ADAPTIVE": 0.5445435900499473,
+              "ENSEMBLE_BAYES": 0.9997923858887974,
+              "ENSEMBLE_INVERSE_MSE": 0.22178149705769057
             },
             "rejected": []
           },
@@ -1484,16 +1513,16 @@
               "ENSEMBLE_INVERSE_MSE"
             ],
             "family_size": 3,
-            "block_length": 5,
+            "block_length": 8,
             "adjusted_p_values": {
-              "ENSEMBLE_INVERSE_MSE": 0.3071,
-              "ENSEMBLE_ADAPTIVE": 0.4524,
-              "ENSEMBLE_BAYES": 0.9794
+              "ENSEMBLE_INVERSE_MSE": 0.3734,
+              "ENSEMBLE_ADAPTIVE": 0.8595,
+              "ENSEMBLE_BAYES": 0.9994
             },
             "raw_p_values": {
-              "ENSEMBLE_ADAPTIVE": 0.2454067139932377,
-              "ENSEMBLE_BAYES": 0.9847639993400532,
-              "ENSEMBLE_INVERSE_MSE": 0.14600383839997572
+              "ENSEMBLE_ADAPTIVE": 0.7033229636076765,
+              "ENSEMBLE_BAYES": 0.99996620875479,
+              "ENSEMBLE_INVERSE_MSE": 0.20660357090807102
             },
             "rejected": []
           }
@@ -1503,7 +1532,7 @@
       "by_window": {
         "W1": {
           "status": "OK",
-          "n_origins": 60,
+          "n_origins": 204,
           "control": "ENSEMBLE_EQUAL",
           "loss_conventions": {
             "RMSE": "sqrt(mean squared error) per origin; DM uses the squared-error differential",
@@ -1511,93 +1540,93 @@
           },
           "per_ensemble": {
             "ENSEMBLE_EQUAL": {
-              "n_origins": 60,
-              "rmse": 2.0589260877499633,
-              "mean_crps": 1.2331652252001184,
+              "n_origins": 204,
+              "rmse": 2.034218607568548,
+              "mean_crps": 1.2179086391977383,
               "relative_rmse_vs_equal": 1.0,
               "relative_crps_vs_equal": 1.0,
               "is_control": true
             },
             "ENSEMBLE_INVERSE_MSE": {
-              "n_origins": 60,
-              "rmse": 2.075984867451515,
-              "mean_crps": 1.232402871406802,
-              "relative_rmse_vs_equal": 1.0082852802745308,
-              "relative_crps_vs_equal": 0.9993817910384291,
+              "n_origins": 204,
+              "rmse": 2.057741994694341,
+              "mean_crps": 1.2283719077811568,
+              "relative_rmse_vs_equal": 1.0115638442388992,
+              "relative_crps_vs_equal": 1.008591176913164,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": 0.07053653507031608,
-                "statistic": 0.9411407955628804,
-                "p_value": 0.8266836440942426,
+                "mean_differential": 0.09625677335052421,
+                "statistic": 2.264586976340522,
+                "p_value": 0.9882309815651972,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 60,
+                "n": 204,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": -0.0007623537933169204,
-                "statistic": -0.0716837963288247,
-                "p_value": 0.47142677582052045,
+                "mean_differential": 0.010463268583418277,
+                "statistic": 1.7955581654200814,
+                "p_value": 0.9637175928497623,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 60,
+                "n": 204,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
             },
             "ENSEMBLE_BAYES": {
-              "n_origins": 60,
-              "rmse": 2.1151786970864466,
-              "mean_crps": 1.2616941828954416,
-              "relative_rmse_vs_equal": 1.0273213349770887,
-              "relative_crps_vs_equal": 1.023134740675722,
+              "n_origins": 204,
+              "rmse": 2.1196737960041565,
+              "mean_crps": 1.267697356300078,
+              "relative_rmse_vs_equal": 1.0420088520071846,
+              "relative_crps_vs_equal": 1.0408805024448604,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": 0.23480428579094648,
-                "statistic": 2.0261562280548,
-                "p_value": 0.9786256112027956,
+                "mean_differential": 0.3549716580885492,
+                "statistic": 3.3443107270473047,
+                "p_value": 0.999587563534287,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 60,
+                "n": 204,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": 0.02852895769532295,
-                "statistic": 1.9146353163887484,
-                "p_value": 0.9722304860276523,
+                "mean_differential": 0.04978871710233978,
+                "statistic": 3.575614450074967,
+                "p_value": 0.9998252968631368,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 60,
+                "n": 204,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
             },
             "ENSEMBLE_ADAPTIVE": {
-              "n_origins": 60,
-              "rmse": 2.073521569891996,
-              "mean_crps": 1.2343523432031664,
-              "relative_rmse_vs_equal": 1.007088881057398,
-              "relative_crps_vs_equal": 1.000962659324792,
+              "n_origins": 204,
+              "rmse": 2.068332041269374,
+              "mean_crps": 1.2370004078968897,
+              "relative_rmse_vs_equal": 1.0167697972941074,
+              "relative_crps_vs_equal": 1.0156758627738511,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": 0.0603150659899987,
-                "statistic": 0.9113099243223461,
-                "p_value": 0.8189339506006035,
+                "mean_differential": 0.13995208956341454,
+                "statistic": 3.0311116872433996,
+                "p_value": 0.9987817244909696,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 60,
+                "n": 204,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": 0.001187118003048046,
-                "statistic": 0.12777059158427198,
-                "p_value": 0.5508347381059765,
+                "mean_differential": 0.019091768699151235,
+                "statistic": 3.1379274595847435,
+                "p_value": 0.9991492651010913,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 60,
+                "n": 204,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
@@ -1614,16 +1643,16 @@
                 "ENSEMBLE_INVERSE_MSE"
               ],
               "family_size": 3,
-              "block_length": 4,
+              "block_length": 6,
               "adjusted_p_values": {
-                "ENSEMBLE_ADAPTIVE": 0.9016,
-                "ENSEMBLE_INVERSE_MSE": 0.9029,
-                "ENSEMBLE_BAYES": 0.9712
+                "ENSEMBLE_INVERSE_MSE": 0.9973,
+                "ENSEMBLE_ADAPTIVE": 0.9989,
+                "ENSEMBLE_BAYES": 0.9989
               },
               "raw_p_values": {
-                "ENSEMBLE_ADAPTIVE": 0.8189339506006035,
-                "ENSEMBLE_BAYES": 0.9786256112027956,
-                "ENSEMBLE_INVERSE_MSE": 0.8266836440942426
+                "ENSEMBLE_ADAPTIVE": 0.9987817244909696,
+                "ENSEMBLE_BAYES": 0.999587563534287,
+                "ENSEMBLE_INVERSE_MSE": 0.9882309815651972
               },
               "rejected": []
             },
@@ -1637,16 +1666,16 @@
                 "ENSEMBLE_INVERSE_MSE"
               ],
               "family_size": 3,
-              "block_length": 4,
+              "block_length": 6,
               "adjusted_p_values": {
-                "ENSEMBLE_INVERSE_MSE": 0.6379,
-                "ENSEMBLE_ADAPTIVE": 0.6619,
-                "ENSEMBLE_BAYES": 0.9673
+                "ENSEMBLE_INVERSE_MSE": 0.9897,
+                "ENSEMBLE_ADAPTIVE": 0.999,
+                "ENSEMBLE_BAYES": 0.999
               },
               "raw_p_values": {
-                "ENSEMBLE_ADAPTIVE": 0.5508347381059765,
-                "ENSEMBLE_BAYES": 0.9722304860276523,
-                "ENSEMBLE_INVERSE_MSE": 0.47142677582052045
+                "ENSEMBLE_ADAPTIVE": 0.9991492651010913,
+                "ENSEMBLE_BAYES": 0.9998252968631368,
+                "ENSEMBLE_INVERSE_MSE": 0.9637175928497623
               },
               "rejected": []
             }
@@ -1655,7 +1684,7 @@
         },
         "W2": {
           "status": "OK",
-          "n_origins": 60,
+          "n_origins": 156,
           "control": "ENSEMBLE_EQUAL",
           "loss_conventions": {
             "RMSE": "sqrt(mean squared error) per origin; DM uses the squared-error differential",
@@ -1663,93 +1692,93 @@
           },
           "per_ensemble": {
             "ENSEMBLE_EQUAL": {
-              "n_origins": 60,
-              "rmse": 2.4597347176449076,
-              "mean_crps": 1.3033909250151525,
+              "n_origins": 156,
+              "rmse": 2.3490196430161703,
+              "mean_crps": 1.2469151758990715,
               "relative_rmse_vs_equal": 1.0,
               "relative_crps_vs_equal": 1.0,
               "is_control": true
             },
             "ENSEMBLE_INVERSE_MSE": {
-              "n_origins": 60,
-              "rmse": 2.400083646470927,
-              "mean_crps": 1.275604449914872,
-              "relative_rmse_vs_equal": 0.9757489818938304,
-              "relative_crps_vs_equal": 0.9786813959135419,
+              "n_origins": 156,
+              "rmse": 2.2988553511067678,
+              "mean_crps": 1.219929256730469,
+              "relative_rmse_vs_equal": 0.9786445838975655,
+              "relative_crps_vs_equal": 0.978357854896469,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": -0.2898933711304896,
-                "statistic": -1.1557155395656984,
-                "p_value": 0.12389876491644325,
+                "mean_differential": -0.233157357963595,
+                "statistic": -1.8362669211033036,
+                "p_value": 0.03315909475021528,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 60,
+                "n": 156,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": -0.02778647510028044,
-                "statistic": -1.1205934167112828,
-                "p_value": 0.13123048426578493,
+                "mean_differential": -0.026985919168602306,
+                "statistic": -1.902713192375669,
+                "p_value": 0.02853898979156716,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 60,
+                "n": 156,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
             },
             "ENSEMBLE_BAYES": {
-              "n_origins": 60,
-              "rmse": 2.5040454732474537,
-              "mean_crps": 1.3281422214961287,
-              "relative_rmse_vs_equal": 1.018014444925578,
-              "relative_crps_vs_equal": 1.0189899254367514,
+              "n_origins": 156,
+              "rmse": 2.398704242843259,
+              "mean_crps": 1.2748220398798062,
+              "relative_rmse_vs_equal": 1.0211512066213686,
+              "relative_crps_vs_equal": 1.0223807236611848,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": 0.21994885090339136,
-                "statistic": 1.244520774036829,
-                "p_value": 0.8933460207456301,
+                "mean_differential": 0.23588876135843626,
+                "statistic": 1.6675547159045274,
+                "p_value": 0.9522979229694514,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 60,
+                "n": 156,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": 0.024751296480976383,
-                "statistic": 1.262893518374166,
-                "p_value": 0.8966862751891141,
+                "mean_differential": 0.027906863980734668,
+                "statistic": 1.9184193391748645,
+                "p_value": 0.9724710695978427,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 60,
+                "n": 156,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
             },
             "ENSEMBLE_ADAPTIVE": {
-              "n_origins": 60,
-              "rmse": 2.4183049116817816,
-              "mean_crps": 1.2868338150260885,
-              "relative_rmse_vs_equal": 0.9831567991190557,
-              "relative_crps_vs_equal": 0.9872968963713848,
+              "n_origins": 156,
+              "rmse": 2.312786829612567,
+              "mean_crps": 1.2299599208322958,
+              "relative_rmse_vs_equal": 0.9845753467786758,
+              "relative_crps_vs_equal": 0.9864022385848737,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": -0.2020962353234434,
-                "statistic": -1.0646488170046366,
-                "p_value": 0.14351743994765342,
+                "mean_differential": -0.16891036404646537,
+                "statistic": -1.5485498564531088,
+                "p_value": 0.06074498395139927,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 60,
+                "n": 156,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": -0.016557109989064036,
-                "statistic": -0.819033564868841,
-                "p_value": 0.20638363187370334,
+                "mean_differential": -0.01695525506677565,
+                "statistic": -1.352986950891148,
+                "p_value": 0.08802989959918933,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 60,
+                "n": 156,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
@@ -1766,18 +1795,20 @@
                 "ENSEMBLE_INVERSE_MSE"
               ],
               "family_size": 3,
-              "block_length": 4,
+              "block_length": 6,
               "adjusted_p_values": {
-                "ENSEMBLE_INVERSE_MSE": 0.2607,
-                "ENSEMBLE_ADAPTIVE": 0.2922,
-                "ENSEMBLE_BAYES": 0.8832
+                "ENSEMBLE_INVERSE_MSE": 0.0732,
+                "ENSEMBLE_ADAPTIVE": 0.1084,
+                "ENSEMBLE_BAYES": 0.9374
               },
               "raw_p_values": {
-                "ENSEMBLE_ADAPTIVE": 0.14351743994765342,
-                "ENSEMBLE_BAYES": 0.8933460207456301,
-                "ENSEMBLE_INVERSE_MSE": 0.12389876491644325
+                "ENSEMBLE_ADAPTIVE": 0.06074498395139927,
+                "ENSEMBLE_BAYES": 0.9522979229694514,
+                "ENSEMBLE_INVERSE_MSE": 0.03315909475021528
               },
-              "rejected": []
+              "rejected": [
+                "ENSEMBLE_INVERSE_MSE"
+              ]
             },
             "CRPS": {
               "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
@@ -1789,18 +1820,20 @@
                 "ENSEMBLE_INVERSE_MSE"
               ],
               "family_size": 3,
-              "block_length": 4,
+              "block_length": 6,
               "adjusted_p_values": {
-                "ENSEMBLE_INVERSE_MSE": 0.2768,
-                "ENSEMBLE_ADAPTIVE": 0.4108,
-                "ENSEMBLE_BAYES": 0.8843
+                "ENSEMBLE_INVERSE_MSE": 0.0655,
+                "ENSEMBLE_ADAPTIVE": 0.1597,
+                "ENSEMBLE_BAYES": 0.9593
               },
               "raw_p_values": {
-                "ENSEMBLE_ADAPTIVE": 0.20638363187370334,
-                "ENSEMBLE_BAYES": 0.8966862751891141,
-                "ENSEMBLE_INVERSE_MSE": 0.13123048426578493
+                "ENSEMBLE_ADAPTIVE": 0.08802989959918933,
+                "ENSEMBLE_BAYES": 0.9724710695978427,
+                "ENSEMBLE_INVERSE_MSE": 0.02853898979156716
               },
-              "rejected": []
+              "rejected": [
+                "ENSEMBLE_INVERSE_MSE"
+              ]
             }
           },
           "subset": "W2"
@@ -1809,7 +1842,7 @@
       "by_data_class": {
         "REAL_TIME": {
           "status": "OK",
-          "n_origins": 96,
+          "n_origins": 277,
           "control": "ENSEMBLE_EQUAL",
           "loss_conventions": {
             "RMSE": "sqrt(mean squared error) per origin; DM uses the squared-error differential",
@@ -1817,93 +1850,93 @@
           },
           "per_ensemble": {
             "ENSEMBLE_EQUAL": {
-              "n_origins": 96,
-              "rmse": 2.301588079748964,
-              "mean_crps": 1.255830622699894,
+              "n_origins": 277,
+              "rmse": 2.2034843003397167,
+              "mean_crps": 1.2192084588828773,
               "relative_rmse_vs_equal": 1.0,
               "relative_crps_vs_equal": 1.0,
               "is_control": true
             },
             "ENSEMBLE_INVERSE_MSE": {
-              "n_origins": 96,
-              "rmse": 2.2610313322529105,
-              "mean_crps": 1.2349976389617896,
-              "relative_rmse_vs_equal": 0.9823787984249218,
-              "relative_crps_vs_equal": 0.9834109924049185,
+              "n_origins": 277,
+              "rmse": 2.1774816845566196,
+              "mean_crps": 1.2049665214849294,
+              "relative_rmse_vs_equal": 0.9881993187883897,
+              "relative_crps_vs_equal": 0.9883187019461813,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": -0.18504500341315036,
-                "statistic": -1.1532482958058359,
-                "p_value": 0.12440424276767875,
+                "mean_differential": -0.11391657526407623,
+                "statistic": -1.5064649306122206,
+                "p_value": 0.06597393162118798,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 96,
+                "n": 277,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": -0.020832983738104556,
-                "statistic": -1.2828597860176452,
-                "p_value": 0.09977060190728992,
+                "mean_differential": -0.014241937397947935,
+                "statistic": -1.6575446471298712,
+                "p_value": 0.048704705051744124,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 96,
+                "n": 277,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
             },
             "ENSEMBLE_BAYES": {
-              "n_origins": 96,
-              "rmse": 2.344553612310905,
-              "mean_crps": 1.277834106482084,
-              "relative_rmse_vs_equal": 1.0186677768015844,
-              "relative_crps_vs_equal": 1.0175210600732802,
+              "n_origins": 277,
+              "rmse": 2.273224473377091,
+              "mean_crps": 1.2594501798875342,
+              "relative_rmse_vs_equal": 1.0316499523171654,
+              "relative_crps_vs_equal": 1.033006431928408,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": 0.19962395215759207,
-                "statistic": 1.5970752100287025,
-                "p_value": 0.944875528345617,
+                "mean_differential": 0.3122064445169435,
+                "statistic": 2.88952788951412,
+                "p_value": 0.998070896094672,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 96,
+                "n": 277,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": 0.022003483782189897,
-                "statistic": 1.5019851246181595,
-                "p_value": 0.9334495247155487,
+                "mean_differential": 0.04024172100465681,
+                "statistic": 3.1827407370430985,
+                "p_value": 0.9992705590915377,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 96,
+                "n": 277,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
             },
             "ENSEMBLE_ADAPTIVE": {
-              "n_origins": 96,
-              "rmse": 2.273132063244589,
-              "mean_crps": 1.2429206892989895,
-              "relative_rmse_vs_equal": 0.9876363556299446,
-              "relative_crps_vs_equal": 0.9897200043003015,
+              "n_origins": 277,
+              "rmse": 2.192464350390158,
+              "mean_crps": 1.2153763034441674,
+              "relative_rmse_vs_equal": 0.9949988525228614,
+              "relative_crps_vs_equal": 0.996856849695563,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": -0.13017831189191953,
-                "statistic": -1.05965802841607,
-                "p_value": 0.14465010191331285,
+                "mean_differential": -0.04844313411187341,
+                "statistic": -0.7120935188223947,
+                "p_value": 0.2382034337055623,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 96,
+                "n": 277,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": -0.012909933400904634,
-                "statistic": -0.9556309186701732,
-                "p_value": 0.16962936750855845,
+                "mean_differential": -0.003832155438709921,
+                "statistic": -0.47770610166026695,
+                "p_value": 0.31642970043441654,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 96,
+                "n": 277,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
@@ -1920,16 +1953,16 @@
                 "ENSEMBLE_INVERSE_MSE"
               ],
               "family_size": 3,
-              "block_length": 5,
+              "block_length": 7,
               "adjusted_p_values": {
-                "ENSEMBLE_INVERSE_MSE": 0.2516,
-                "ENSEMBLE_ADAPTIVE": 0.2803,
-                "ENSEMBLE_BAYES": 0.9335
+                "ENSEMBLE_INVERSE_MSE": 0.1326,
+                "ENSEMBLE_ADAPTIVE": 0.3922,
+                "ENSEMBLE_BAYES": 0.994
               },
               "raw_p_values": {
-                "ENSEMBLE_ADAPTIVE": 0.14465010191331285,
-                "ENSEMBLE_BAYES": 0.944875528345617,
-                "ENSEMBLE_INVERSE_MSE": 0.12440424276767875
+                "ENSEMBLE_ADAPTIVE": 0.2382034337055623,
+                "ENSEMBLE_BAYES": 0.998070896094672,
+                "ENSEMBLE_INVERSE_MSE": 0.06597393162118798
               },
               "rejected": []
             },
@@ -1943,25 +1976,27 @@
                 "ENSEMBLE_INVERSE_MSE"
               ],
               "family_size": 3,
-              "block_length": 5,
+              "block_length": 7,
               "adjusted_p_values": {
-                "ENSEMBLE_INVERSE_MSE": 0.2178,
-                "ENSEMBLE_ADAPTIVE": 0.3268,
-                "ENSEMBLE_BAYES": 0.9236
+                "ENSEMBLE_INVERSE_MSE": 0.0895,
+                "ENSEMBLE_ADAPTIVE": 0.496,
+                "ENSEMBLE_BAYES": 0.9951
               },
               "raw_p_values": {
-                "ENSEMBLE_ADAPTIVE": 0.16962936750855845,
-                "ENSEMBLE_BAYES": 0.9334495247155487,
-                "ENSEMBLE_INVERSE_MSE": 0.09977060190728992
+                "ENSEMBLE_ADAPTIVE": 0.31642970043441654,
+                "ENSEMBLE_BAYES": 0.9992705590915377,
+                "ENSEMBLE_INVERSE_MSE": 0.048704705051744124
               },
-              "rejected": []
+              "rejected": [
+                "ENSEMBLE_INVERSE_MSE"
+              ]
             }
           },
           "subset": "REAL_TIME"
         },
         "PSEUDO_REAL_TIME": {
           "status": "OK",
-          "n_origins": 24,
+          "n_origins": 83,
           "control": "ENSEMBLE_EQUAL",
           "loss_conventions": {
             "RMSE": "sqrt(mean squared error) per origin; DM uses the squared-error differential",
@@ -1969,93 +2004,93 @@
           },
           "per_ensemble": {
             "ENSEMBLE_EQUAL": {
-              "n_origins": 24,
-              "rmse": 2.129424343488755,
-              "mean_crps": 1.3180678847386016,
+              "n_origins": 83,
+              "rmse": 2.082695699043204,
+              "mean_crps": 1.268088996699238,
               "relative_rmse_vs_equal": 1.0,
               "relative_crps_vs_equal": 1.0,
               "is_control": true
             },
             "ENSEMBLE_INVERSE_MSE": {
-              "n_origins": 24,
-              "rmse": 2.173990790722142,
-              "mean_crps": 1.3300277474570266,
-              "relative_rmse_vs_equal": 1.0209288709268587,
-              "relative_crps_vs_equal": 1.0090737835713195,
+              "n_origins": 83,
+              "rmse": 2.1251259335577624,
+              "mean_crps": 1.290615744409442,
+              "relative_rmse_vs_equal": 1.0203727479410702,
+              "relative_crps_vs_equal": 1.01776432708496,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": 0.19178792350216764,
-                "statistic": 1.412266388322268,
-                "p_value": 0.9210642303763883,
+                "mean_differential": 0.1785388586666895,
+                "statistic": 2.5826835983067964,
+                "p_value": 0.9950982407716269,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 24,
+                "n": 83,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": 0.011959862718424802,
-                "statistic": 0.6560153835223065,
-                "p_value": 0.7440928868893875,
+                "mean_differential": 0.022526747710204187,
+                "statistic": 2.2648526035647554,
+                "p_value": 0.9882391369427219,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 24,
+                "n": 83,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
             },
             "ENSEMBLE_BAYES": {
-              "n_origins": 24,
-              "rmse": 2.2074499015261915,
-              "mean_crps": 1.3632545850505904,
-              "relative_rmse_vs_equal": 1.0366416201993836,
-              "relative_crps_vs_equal": 1.0342825288706206,
+              "n_origins": 83,
+              "rmse": 2.1474396466834267,
+              "mean_crps": 1.3086120370797436,
+              "relative_rmse_vs_equal": 1.031086609373595,
+              "relative_crps_vs_equal": 1.0319559908539422,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": 0.3383870331054764,
-                "statistic": 2.0027078215345218,
-                "p_value": 0.9773956706115291,
+                "mean_differential": 0.2738756613347797,
+                "statistic": 2.905110156952725,
+                "p_value": 0.9981643806610314,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 24,
+                "n": 83,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": 0.04518670031198874,
-                "statistic": 2.459910983663051,
-                "p_value": 0.9930514259978585,
+                "mean_differential": 0.04052304038050586,
+                "statistic": 3.3720761529423666,
+                "p_value": 0.9996269809137847,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 24,
+                "n": 83,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
             },
             "ENSEMBLE_ADAPTIVE": {
-              "n_origins": 24,
-              "rmse": 2.1681117035052835,
-              "mean_crps": 1.3312826383771803,
-              "relative_rmse_vs_equal": 1.018167989924049,
-              "relative_crps_vs_equal": 1.0100258520760481,
+              "n_origins": 83,
+              "rmse": 2.1273931435460534,
+              "mean_crps": 1.2959348771899906,
+              "relative_rmse_vs_equal": 1.0214613419153762,
+              "relative_crps_vs_equal": 1.0219589323487814,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": 0.16626032423406642,
-                "statistic": 1.5323954384298075,
-                "p_value": 0.9372875587812848,
+                "mean_differential": 0.18818021239369762,
+                "statistic": 2.950734331950665,
+                "p_value": 0.9984149026704144,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 24,
+                "n": 83,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": 0.01321475363857856,
-                "statistic": 1.0217297514344517,
-                "p_value": 0.8465455871206367,
+                "mean_differential": 0.027845880490752994,
+                "statistic": 3.351949515826949,
+                "p_value": 0.9995987767490004,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 24,
+                "n": 83,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
@@ -2072,16 +2107,16 @@
                 "ENSEMBLE_INVERSE_MSE"
               ],
               "family_size": 3,
-              "block_length": 3,
+              "block_length": 5,
               "adjusted_p_values": {
-                "ENSEMBLE_INVERSE_MSE": 0.9479,
-                "ENSEMBLE_ADAPTIVE": 0.9479,
-                "ENSEMBLE_BAYES": 0.9614
+                "ENSEMBLE_INVERSE_MSE": 0.9972,
+                "ENSEMBLE_BAYES": 0.9973,
+                "ENSEMBLE_ADAPTIVE": 0.9973
               },
               "raw_p_values": {
-                "ENSEMBLE_ADAPTIVE": 0.9372875587812848,
-                "ENSEMBLE_BAYES": 0.9773956706115291,
-                "ENSEMBLE_INVERSE_MSE": 0.9210642303763883
+                "ENSEMBLE_ADAPTIVE": 0.9984149026704144,
+                "ENSEMBLE_BAYES": 0.9981643806610314,
+                "ENSEMBLE_INVERSE_MSE": 0.9950982407716269
               },
               "rejected": []
             },
@@ -2095,16 +2130,16 @@
                 "ENSEMBLE_INVERSE_MSE"
               ],
               "family_size": 3,
-              "block_length": 3,
+              "block_length": 5,
               "adjusted_p_values": {
-                "ENSEMBLE_INVERSE_MSE": 0.86,
-                "ENSEMBLE_ADAPTIVE": 0.8983,
-                "ENSEMBLE_BAYES": 0.9856
+                "ENSEMBLE_INVERSE_MSE": 0.9963,
+                "ENSEMBLE_ADAPTIVE": 0.9997,
+                "ENSEMBLE_BAYES": 0.9997
               },
               "raw_p_values": {
-                "ENSEMBLE_ADAPTIVE": 0.8465455871206367,
-                "ENSEMBLE_BAYES": 0.9930514259978585,
-                "ENSEMBLE_INVERSE_MSE": 0.7440928868893875
+                "ENSEMBLE_ADAPTIVE": 0.9995987767490004,
+                "ENSEMBLE_BAYES": 0.9996269809137847,
+                "ENSEMBLE_INVERSE_MSE": 0.9882391369427219
               },
               "rejected": []
             }
@@ -2115,7 +2150,7 @@
       "by_regime": {
         "RECESSION": {
           "status": "OK",
-          "n_origins": 14,
+          "n_origins": 42,
           "control": "ENSEMBLE_EQUAL",
           "loss_conventions": {
             "RMSE": "sqrt(mean squared error) per origin; DM uses the squared-error differential",
@@ -2123,93 +2158,93 @@
           },
           "per_ensemble": {
             "ENSEMBLE_EQUAL": {
-              "n_origins": 14,
-              "rmse": 4.414892617754654,
-              "mean_crps": 2.861930038211137,
+              "n_origins": 42,
+              "rmse": 4.030960490310516,
+              "mean_crps": 2.4983034858738455,
               "relative_rmse_vs_equal": 1.0,
               "relative_crps_vs_equal": 1.0,
               "is_control": true
             },
             "ENSEMBLE_INVERSE_MSE": {
-              "n_origins": 14,
-              "rmse": 4.383933534887346,
-              "mean_crps": 2.845901869656869,
-              "relative_rmse_vs_equal": 0.992987579642865,
-              "relative_crps_vs_equal": 0.9943995246773096,
+              "n_origins": 42,
+              "rmse": 3.963076520925075,
+              "mean_crps": 2.446893847785878,
+              "relative_rmse_vs_equal": 0.9831593563001627,
+              "relative_crps_vs_equal": 0.9794221805402534,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": -0.2724035879946795,
-                "statistic": -1.2840593194331131,
-                "p_value": 0.09956060028968194,
+                "mean_differential": -0.5426669637368033,
+                "statistic": -2.5725935005925087,
+                "p_value": 0.005046984329697579,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 14,
+                "n": 42,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": -0.01602816855426715,
-                "statistic": -0.8353504219130137,
-                "p_value": 0.20176021777327513,
+                "mean_differential": -0.051409638087967335,
+                "statistic": -2.408109408178671,
+                "p_value": 0.008017687353877812,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 14,
+                "n": 42,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
             },
             "ENSEMBLE_BAYES": {
-              "n_origins": 14,
-              "rmse": 4.397082005782649,
-              "mean_crps": 2.863780193558224,
-              "relative_rmse_vs_equal": 0.9959657881823947,
-              "relative_crps_vs_equal": 1.0006464712003384,
+              "n_origins": 42,
+              "rmse": 4.025153283473704,
+              "mean_crps": 2.4943643275816405,
+              "relative_rmse_vs_equal": 0.9985593491053133,
+              "relative_crps_vs_equal": 0.9984232667029934,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": -0.15694666072698046,
-                "statistic": -0.469503563089605,
-                "p_value": 0.31935486930258905,
+                "mean_differential": -0.046783518985255956,
+                "statistic": -0.2366549821580048,
+                "p_value": 0.406462230967347,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 14,
+                "n": 42,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": 0.0018501553470873869,
-                "statistic": 0.04260044110767328,
-                "p_value": 0.5169899780710532,
+                "mean_differential": -0.003939158292205538,
+                "statistic": -0.15051251616990646,
+                "p_value": 0.44018013837404973,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 14,
+                "n": 42,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
             },
             "ENSEMBLE_ADAPTIVE": {
-              "n_origins": 14,
-              "rmse": 4.386801904083019,
-              "mean_crps": 2.8542492168251945,
-              "relative_rmse_vs_equal": 0.9936372826920713,
-              "relative_crps_vs_equal": 0.9973162092422275,
+              "n_origins": 42,
+              "rmse": 3.9807510469289102,
+              "mean_crps": 2.464139771651885,
+              "relative_rmse_vs_equal": 0.9875440497364592,
+              "relative_crps_vs_equal": 0.9863252345381046,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": -0.24724588063812744,
-                "statistic": -0.8703939545180959,
-                "p_value": 0.19204257467358327,
+                "mean_differential": -0.4022635768187824,
+                "statistic": -1.9352588269904276,
+                "p_value": 0.026479271049803632,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 14,
+                "n": 42,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": -0.007680821385942306,
-                "statistic": -0.28369619112969513,
-                "p_value": 0.38832160694966067,
+                "mean_differential": -0.03416371422196087,
+                "statistic": -1.5688217876679746,
+                "p_value": 0.05834473508138033,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 14,
+                "n": 42,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
@@ -2226,18 +2261,21 @@
                 "ENSEMBLE_INVERSE_MSE"
               ],
               "family_size": 3,
-              "block_length": 3,
+              "block_length": 4,
               "adjusted_p_values": {
-                "ENSEMBLE_INVERSE_MSE": 0.1627,
-                "ENSEMBLE_ADAPTIVE": 0.2488,
-                "ENSEMBLE_BAYES": 0.336
+                "ENSEMBLE_INVERSE_MSE": 0.0163,
+                "ENSEMBLE_ADAPTIVE": 0.0512,
+                "ENSEMBLE_BAYES": 0.4015
               },
               "raw_p_values": {
-                "ENSEMBLE_ADAPTIVE": 0.19204257467358327,
-                "ENSEMBLE_BAYES": 0.31935486930258905,
-                "ENSEMBLE_INVERSE_MSE": 0.09956060028968194
+                "ENSEMBLE_ADAPTIVE": 0.026479271049803632,
+                "ENSEMBLE_BAYES": 0.406462230967347,
+                "ENSEMBLE_INVERSE_MSE": 0.005046984329697579
               },
-              "rejected": []
+              "rejected": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_INVERSE_MSE"
+              ]
             },
             "CRPS": {
               "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
@@ -2249,25 +2287,28 @@
                 "ENSEMBLE_INVERSE_MSE"
               ],
               "family_size": 3,
-              "block_length": 3,
+              "block_length": 4,
               "adjusted_p_values": {
-                "ENSEMBLE_INVERSE_MSE": 0.2991,
-                "ENSEMBLE_ADAPTIVE": 0.4572,
-                "ENSEMBLE_BAYES": 0.5302
+                "ENSEMBLE_INVERSE_MSE": 0.0207,
+                "ENSEMBLE_ADAPTIVE": 0.0901,
+                "ENSEMBLE_BAYES": 0.4406
               },
               "raw_p_values": {
-                "ENSEMBLE_ADAPTIVE": 0.38832160694966067,
-                "ENSEMBLE_BAYES": 0.5169899780710532,
-                "ENSEMBLE_INVERSE_MSE": 0.20176021777327513
+                "ENSEMBLE_ADAPTIVE": 0.05834473508138033,
+                "ENSEMBLE_BAYES": 0.44018013837404973,
+                "ENSEMBLE_INVERSE_MSE": 0.008017687353877812
               },
-              "rejected": []
+              "rejected": [
+                "ENSEMBLE_ADAPTIVE",
+                "ENSEMBLE_INVERSE_MSE"
+              ]
             }
           },
           "subset": "RECESSION"
         },
         "EXPANSION": {
           "status": "OK",
-          "n_origins": 106,
+          "n_origins": 318,
           "control": "ENSEMBLE_EQUAL",
           "loss_conventions": {
             "RMSE": "sqrt(mean squared error) per origin; DM uses the squared-error differential",
@@ -2275,93 +2316,93 @@
           },
           "per_ensemble": {
             "ENSEMBLE_EQUAL": {
-              "n_origins": 106,
-              "rmse": 1.8027505593315398,
-              "mean_crps": 1.0577957403581164,
+              "n_origins": 318,
+              "rmse": 1.7931645354791939,
+              "mean_crps": 1.0630295076411704,
               "relative_rmse_vs_equal": 1.0,
               "relative_crps_vs_equal": 1.0,
               "is_control": true
             },
             "ENSEMBLE_INVERSE_MSE": {
-              "n_origins": 106,
-              "rmse": 1.7781234953512992,
-              "mean_crps": 1.0437529538123043,
-              "relative_rmse_vs_equal": 0.986339172742028,
-              "relative_crps_vs_equal": 0.9867244818540695,
+              "n_origins": 318,
+              "rmse": 1.7984667340356346,
+              "mean_crps": 1.0632933699066107,
+              "relative_rmse_vs_equal": 1.0029568946137024,
+              "relative_crps_vs_equal": 1.0002482172541247,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": -0.08818641444985749,
-                "statistic": -0.6016638837853876,
-                "p_value": 0.2736989476606123,
+                "mean_differential": 0.019043542132490113,
+                "statistic": 0.30786197480988603,
+                "p_value": 0.6209063194565204,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 106,
+                "n": 318,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": -0.01404278654581228,
-                "statistic": -0.9284617686843021,
-                "p_value": 0.17658404522444604,
+                "mean_differential": 0.00026386226544024673,
+                "statistic": 0.03568332915374025,
+                "p_value": 0.5142325682526877,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 106,
+                "n": 318,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
             },
             "ENSEMBLE_BAYES": {
-              "n_origins": 106,
-              "rmse": 1.8783092980874738,
-              "mean_crps": 1.08771001465735,
-              "relative_rmse_vs_equal": 1.0419130302663455,
-              "relative_crps_vs_equal": 1.0282798211014785,
+              "n_origins": 318,
+              "rmse": 1.8881352412094439,
+              "mean_crps": 1.1091798652453988,
+              "relative_rmse_vs_equal": 1.052962627718304,
+              "relative_crps_vs_equal": 1.0434139948820749,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": 0.2781362401116792,
-                "statistic": 2.5229466236243,
-                "p_value": 0.9941811968055142,
+                "mean_differential": 0.3496156377967322,
+                "statistic": 3.7428949721717917,
+                "p_value": 0.9999090438616567,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 106,
+                "n": 318,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": 0.02991427429923336,
-                "statistic": 2.361428920035016,
-                "p_value": 0.9908976692932621,
+                "mean_differential": 0.046150357604228164,
+                "statistic": 4.243668480054547,
+                "p_value": 0.9999890052430552,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 106,
+                "n": 318,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
             },
             "ENSEMBLE_ADAPTIVE": {
-              "n_origins": 106,
-              "rmse": 1.7895002663887314,
-              "mean_crps": 1.0501101930019114,
-              "relative_rmse_vs_equal": 0.99264995765819,
-              "relative_crps_vs_equal": 0.9927343748296783,
+              "n_origins": 318,
+              "rmse": 1.809830682879062,
+              "mean_crps": 1.071471573746618,
+              "relative_rmse_vs_equal": 1.0092942655680028,
+              "relative_crps_vs_equal": 1.007941516246506,
               "is_control": false,
               "dm_rmse": {
-                "mean_differential": -0.04759837576483866,
-                "statistic": -0.4404064060190675,
-                "p_value": 0.3298213930266428,
+                "mean_differential": 0.060048049390178715,
+                "statistic": 1.0978126574349907,
+                "p_value": 0.8638568483658646,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 106,
+                "n": 318,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               },
               "dm_crps": {
-                "mean_differential": -0.007685547356205349,
-                "statistic": -0.6346555492872289,
-                "p_value": 0.2628265451777704,
+                "mean_differential": 0.008442066105447194,
+                "statistic": 1.2553346238032448,
+                "p_value": 0.895321344435917,
                 "hac_lags": 0,
                 "hln_factor": 1.0,
-                "n": 106,
+                "n": 318,
                 "alternative": "less",
                 "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
               }
@@ -2378,16 +2419,16 @@
                 "ENSEMBLE_INVERSE_MSE"
               ],
               "family_size": 3,
-              "block_length": 5,
+              "block_length": 7,
               "adjusted_p_values": {
-                "ENSEMBLE_INVERSE_MSE": 0.5449,
-                "ENSEMBLE_ADAPTIVE": 0.6105,
-                "ENSEMBLE_BAYES": 0.9868
+                "ENSEMBLE_INVERSE_MSE": 0.8515,
+                "ENSEMBLE_ADAPTIVE": 0.9542,
+                "ENSEMBLE_BAYES": 0.9991
               },
               "raw_p_values": {
-                "ENSEMBLE_ADAPTIVE": 0.3298213930266428,
-                "ENSEMBLE_BAYES": 0.9941811968055142,
-                "ENSEMBLE_INVERSE_MSE": 0.2736989476606123
+                "ENSEMBLE_ADAPTIVE": 0.8638568483658646,
+                "ENSEMBLE_BAYES": 0.9999090438616567,
+                "ENSEMBLE_INVERSE_MSE": 0.6209063194565204
               },
               "rejected": []
             },
@@ -2401,16 +2442,16 @@
                 "ENSEMBLE_INVERSE_MSE"
               ],
               "family_size": 3,
-              "block_length": 5,
+              "block_length": 7,
               "adjusted_p_values": {
-                "ENSEMBLE_INVERSE_MSE": 0.3661,
-                "ENSEMBLE_ADAPTIVE": 0.4915,
-                "ENSEMBLE_BAYES": 0.9844
+                "ENSEMBLE_INVERSE_MSE": 0.7522,
+                "ENSEMBLE_ADAPTIVE": 0.9584,
+                "ENSEMBLE_BAYES": 0.9998
               },
               "raw_p_values": {
-                "ENSEMBLE_ADAPTIVE": 0.2628265451777704,
-                "ENSEMBLE_BAYES": 0.9908976692932621,
-                "ENSEMBLE_INVERSE_MSE": 0.17658404522444604
+                "ENSEMBLE_ADAPTIVE": 0.895321344435917,
+                "ENSEMBLE_BAYES": 0.9999890052430552,
+                "ENSEMBLE_INVERSE_MSE": 0.5142325682526877
               },
               "rejected": []
             }
@@ -2419,10 +2460,10 @@
         }
       },
       "digests": {
-        "origins_sha256": "1d2a60f72071ebe4cfeb644964b885fb74605ccf279c1bd1ac7dc75df11c7f89",
-        "target_periods_sha256": "8b5f9c8a4be77340b65a463c17e1633a8fba98a08fa5d4803c1a0f3318e76d9c",
-        "squared_errors_sha256": "8248ecf6cebdbf29071c06766b23268a56876016c5b8b2c285d365b1e2078e05",
-        "crps_sha256": "f60498544b27f663f83f514c81982218cee45fb283060ebd94906e5255833fc7"
+        "origins_sha256": "9e989d834be51c7985fd92af703efdcfee34995a0ba914e5773f608f6677e7a8",
+        "target_periods_sha256": "fe5602d6d175d11af289a9b65d87eeadf2bfa1dc8480ca89eb79955a9e3023d6",
+        "squared_errors_sha256": "02bb8bc3a56b30e8a155d57090aceca0090c341c664d8c44effd4e26e5694943",
+        "crps_sha256": "0d17bcbdabddde203ebb69452bc491704300e3d804b35053919fb654dfbace12"
       }
     }
   },
@@ -2435,31 +2476,27 @@
     "the NBER regime split is a retrospective diagnostic by the final chronology; it is not PIT and it is not used as a gate",
     "C4/W1 on the historical windows remains limited by data availability (docs/76); this tool reports statistics and does not re-open that question",
     "aggregates only: per-origin actuals, forecasts, losses and weights are not stored, only counts, aggregates and SHA-256 digests",
-    "the T2 CRPS artifact of the previous report (raw GDPC1 level supplied by the SPF member before D-147/docs/94) is gone in this run; both RMSE and CRPS are usable here",
-    "the T2 CRPS artifact of the previous report (raw GDPC1 level supplied by the SPF member before D-147/docs/94) is gone in this run; both RMSE and CRPS are usable here"
+    "target actuals are transformed locally from the first-publication vintage because amfe.evaluation.actuals.actual_pair returns the raw series level for T1/T2 (unit mismatch flagged to the Lead); the transformation is documented in first_publication_target()"
   ],
   "licence_note": "third-party actual values and member forecasts are not stored; only derived statistics, counts and digests are published (docs/84)",
-  "generated_at": "2026-11-12T12:32:10Z",
+  "generated_at": "2026-11-12T12:48:38Z",
   "data_quality": {
     "checked_after_generation": true,
-    "how": "post-run diagnostic computed from the report aggregates of the same run (no second pass over the origins)",
+    "how": "post-run scan over the same origins (full run, no sampling)",
     "T1_CPI_YOY/h1": {
       "rmse_usable": true,
       "crps_usable": true,
-      "reason": "CRPS is of the same order as the RMSE; quantiles are bounded",
-      "evidence": {
-        "max_mean_crps_across_subsets": 0.6671
-      }
+      "note": "losses in percentage points of CPI y/y; full 312 origins"
     },
     "T2_GDP_GROWTH/h0": {
       "rmse_usable": true,
       "crps_usable": true,
-      "reason": "the 2026-11-12 unit bug (SPF member supplied a raw GDPC1 level as the growth forecast before D-147; docs/94 robust mixture) is fixed: CRPS is O(1) and no extreme quantile artifacts are visible in any subset",
       "evidence": {
-        "max_mean_crps_across_subsets": 2.8638,
-        "previous_buggy_control_mean_crps": 158.4878
-      }
-    },
-    "previous_report_artifact": "the 2026-11-12T09:44 report marked T2 CRPS unusable with a control mean of 158.5 and q95 up to ~18625; that was the raw-GDPC1-level artifact of the SPF member fixed in D-147/docs/94, not a defect of this validation tool"
+        "previous_buggy_control_mean_crps": 158.4878,
+        "control_mean_crps_full_run": 1.2304781384349825,
+        "control_mean_rmse_full_run": 2.1762305600894227
+      },
+      "note": "the old extreme CRPS was an artifact of the raw-GDPC1-level SPF member before D-147; with corrected actuals and the robust mixture (docs/94) CRPS is of order one"
+    }
   }
 }
