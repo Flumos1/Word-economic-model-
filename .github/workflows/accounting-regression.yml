@@ -95,4 +95,20 @@ jobs:
       - name: Licence hygiene (18 tests)
         run: python tests/test_licence_hygiene.py
       - name: Weekly report and regression report (18 tests)
+      - name: World-core calibration (aggregates and V2 checks)
+        run: python tests/test_core_calibration.py
+      - name: C4/W1 structural analysis and draft v5 delta
+        run: python tests/test_c4_analysis.py
+      - name: Release readiness checklist
+        run: python tests/test_release_check.py
+      - name: SPF official mapping
+        run: python tests/test_spf_mapping.py
+      - name: SPF news-release calendar (no look-ahead)
+        run: python tests/test_spf_calendar.py
+      - name: Licence terms hashes and T10Y3M hygiene
+        run: python tests/test_terms_hashes.py
+      - name: Ensemble V2 validation (walk-forward, regimes)
+        run: python tests/test_ensemble_validation.py
+      - name: World core integration
+        run: python tests/test_world_core.py
         run: python tests/test_weekly_report.py && python tests/test_regression_report.py

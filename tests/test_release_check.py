@@ -175,7 +175,10 @@ class FixtureVerdict(unittest.TestCase):
                        if check["severity"] == "warning" and check["status"] == "FAIL"]
         self.assertIn("reports.references_current", warning_ids)
         self.assertIn("reports.forward_registry", warning_ids)
-        self.assertIn("reports.plan_coverage", warning_ids)
+        # after the 2026-11-12 data refresh the gate report covers every planned vintage series
+        coverage = check_by_id(self.report, "reports.plan_coverage")
+        self.assertEqual(coverage["severity"], "warning")
+        self.assertEqual(coverage["status"], "PASS", coverage)
 
 
 class Mutations(unittest.TestCase):

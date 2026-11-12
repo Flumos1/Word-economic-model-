@@ -40,7 +40,7 @@ DEFAULT_TIMEOUT = 900.0
 RAW_EXTENSIONS = {".csv", ".tsv", ".zip", ".xlsx", ".xls", ".parquet", ".dta", ".feather", ".gz"}
 ALLOWED_RAW_TRACKED = {"registry/forecasts.jsonl"}
 GROUPS = ("frozen", "repository", "reports", "references", "documentation", "regression")
-STATUSES = ("PASS", "FAIL", "SKIP")
+STATUSES = ("PASS", "CONDITIONAL", "FAIL", "SKIP")
 SEVERITIES = ("blocker", "warning")
 FORBIDDEN_NUMERIC_ARRAY = 8  # a list of more than this many numbers is treated as raw observations
 
