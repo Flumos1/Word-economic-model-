@@ -738,18 +738,26 @@ def build_limitations(facts: dict, checks: list) -> list:
             limitations.append("C3 (Model Confidence Set) не реализован — негейтинговый критерий, "
                                "известное ограничение harness.")
         if (criteria.get("C6") or {}).get("status") == "NO_RESOLVED_FORECASTS":
-            limitations.append("C6 недоступен: forward registry пуст, forward-окно не начато "
-                               "(C6 появится не раньше чем через 12 разрешённых прогнозов).")
+            limitations.append("C6 недоступен: forward registry открыт, но разрешённых прогнозов "
+                               "пока нет; при еженедельном cadence и минимуме 4 различных целевых "
+                               "периодов C6 не ранее чем через ~4 месяца.")
     if records == 0:
         limitations.append("журнал будущих прогнозов registry/forecasts.jsonl пуст (0 записей).")
+    else:
+        limitations.append(f"журнал будущих прогнозов открыт ({records} записей, D-139/D-152); "
+                           "C6 требует 12 разрешённых прогнозов и >=4 различных целевых периодов.")
     registered = [candidate.get("id") for candidate in candidates.get("candidates") or []]
     evaluated = evaluation.get("candidate")
     unevaluated = [candidate for candidate in registered if candidate != evaluated]
     if unevaluated:
-        limitations.append("зарегистрированы, но ещё не оценены кандидаты: "
-                           + ", ".join(unevaluated)
-                           + "; отчёт первой реальной оценки покрывает только "
-                           + (evaluated or "—") + ".")
+        limitations.append("отчёт первой реальной оценки покрывает только "
+                           + (evaluated or "—") + "; остальные кандидаты оценены в docs/87, "
+                           "docs/100 и docs/109 (v2-отчёты) и в этот отчёт не входят.")
+    v5 = Path(__file__).resolve().parents[1] / "protocols" / "evaluation_protocol_v5.json"
+    if v5.exists():
+        limitations.append("v5 заморожен (D-152): C4 для T1 — на расширенном окне W1_EXT; прогон "
+                           "2026-11-12 дал C1/C2/C5 PASS и C4 FAIL по RMSE (отн. потеря 1.0775; "
+                           "1990-91 1.099, 2001 1.067) → кандидат остаётся CANDIDATE.")
     stale = [check for check in checks
              if check["id"] == "reports.references_current" and check["status"] == "FAIL"]
     if stale and stale[0].get("evidence", {}).get("mismatches"):

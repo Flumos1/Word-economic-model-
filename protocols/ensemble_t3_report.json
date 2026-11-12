@@ -1,0 +1,799 @@
+{
+ "report_id": "AMFE-ENSEMBLE-T3-ADMISSION",
+ "generated_at": "2026-11-12T17:51:42Z",
+ "target": "T3_RECESSION",
+ "horizons": [
+  3,
+  6,
+  12
+ ],
+ "candidates": [
+  "ENSEMBLE_ADAPTIVE",
+  "ENSEMBLE_EQUAL"
+ ],
+ "data_class": "REAL_TIME",
+ "protocol": {
+  "file": "protocols/evaluation_protocol_v4.json",
+  "version": "4.0.0",
+  "sha256": "bd965f4d9f23151b4ccfd27202f0669d0a7807e642639ed18c0b864bf68dedc9"
+ },
+ "frozen_artefacts": {
+  "protocols/evaluation_protocol_v4.json": "bd965f4d9f23151b4ccfd27202f0669d0a7807e642639ed18c0b864bf68dedc9",
+  "protocols/r3_specification.json": "5191b0626e7567bcbca657cd904fdfe8d2661c55c629c0dfe555fd7f2f305275",
+  "protocols/comparator_composition_2026-11-11.json": "50da8670ebf5ad548beb3bd136b041e37714b612b4462982645aee942bbb6579",
+  "protocols/candidates_2026-11-11.json": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4",
+  "protocols/nf_sim_thresholds.json": "f057e2a5b748d12a18fd0c7c4ca3059bf8bba5e910e721420e8fdadb42f0c614",
+  "protocols/nber_dates.json": "47d0d9ef2675ea1f0f75036edd01924eb2d99af3d415ee46e7e8659c44e8c89c"
+ },
+ "composition": {
+  "file": "comparator_composition_2026-11-11.json",
+  "sha256": "50da8670ebf5ad548beb3bd136b041e37714b612b4462982645aee942bbb6579",
+  "members": {
+   "3": [
+    "PROBIT_SPREAD",
+    "SAHM_RULE"
+   ],
+   "6": [
+    "PROBIT_SPREAD",
+    "SAHM_RULE"
+   ],
+   "12": [
+    "PROBIT_SPREAD",
+    "SAHM_RULE"
+   ]
+  },
+  "losses": [
+   "Brier",
+   "log_score"
+  ]
+ },
+ "losses": [
+  "Brier",
+  "log_score"
+ ],
+ "multiplicity": {
+  "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+  "family": [
+   "ENSEMBLE_ADAPTIVE",
+   "ENSEMBLE_EQUAL"
+  ],
+  "family_size": 2,
+  "fwer": 0.1,
+  "replications": 10000,
+  "seed": 20261111,
+  "note": "one Romano-Wolf family of the two evaluated candidates per (horizon, loss) and window; both v2 reports publish the same adjusted p-values",
+  "adjusted_p_values": {
+   "ENSEMBLE_ADAPTIVE|h3": {
+    "ENSEMBLE_ADAPTIVE": {
+     "W1": {
+      "Brier": 1.0,
+      "log_score": 1.0
+     },
+     "W2": {
+      "Brier": 0.0522,
+      "log_score": 0.0417
+     }
+    },
+    "ENSEMBLE_EQUAL": {
+     "W1": {
+      "Brier": 1.0,
+      "log_score": 1.0
+     },
+     "W2": {
+      "Brier": 1.0,
+      "log_score": 1.0
+     }
+    }
+   },
+   "ENSEMBLE_ADAPTIVE|h6": {
+    "ENSEMBLE_ADAPTIVE": {
+     "W1": {
+      "Brier": 1.0,
+      "log_score": 1.0
+     },
+     "W2": {
+      "Brier": 0.1117,
+      "log_score": 0.0965
+     }
+    },
+    "ENSEMBLE_EQUAL": {
+     "W1": {
+      "Brier": 1.0,
+      "log_score": 1.0
+     },
+     "W2": {
+      "Brier": 1.0,
+      "log_score": 1.0
+     }
+    }
+   },
+   "ENSEMBLE_ADAPTIVE|h12": {
+    "ENSEMBLE_ADAPTIVE": {
+     "W1": {
+      "Brier": 1.0,
+      "log_score": 1.0
+     },
+     "W2": {
+      "Brier": 0.0583,
+      "log_score": 0.0471
+     }
+    },
+    "ENSEMBLE_EQUAL": {
+     "W1": {
+      "Brier": 1.0,
+      "log_score": 1.0
+     },
+     "W2": {
+      "Brier": 1.0,
+      "log_score": 1.0
+     }
+    }
+   },
+   "ENSEMBLE_EQUAL|h3": {
+    "ENSEMBLE_ADAPTIVE": {
+     "W1": {
+      "Brier": 1.0,
+      "log_score": 1.0
+     },
+     "W2": {
+      "Brier": 0.0522,
+      "log_score": 0.0417
+     }
+    },
+    "ENSEMBLE_EQUAL": {
+     "W1": {
+      "Brier": 1.0,
+      "log_score": 1.0
+     },
+     "W2": {
+      "Brier": 1.0,
+      "log_score": 1.0
+     }
+    }
+   },
+   "ENSEMBLE_EQUAL|h6": {
+    "ENSEMBLE_ADAPTIVE": {
+     "W1": {
+      "Brier": 1.0,
+      "log_score": 1.0
+     },
+     "W2": {
+      "Brier": 0.1117,
+      "log_score": 0.0965
+     }
+    },
+    "ENSEMBLE_EQUAL": {
+     "W1": {
+      "Brier": 1.0,
+      "log_score": 1.0
+     },
+     "W2": {
+      "Brier": 1.0,
+      "log_score": 1.0
+     }
+    }
+   },
+   "ENSEMBLE_EQUAL|h12": {
+    "ENSEMBLE_ADAPTIVE": {
+     "W1": {
+      "Brier": 1.0,
+      "log_score": 1.0
+     },
+     "W2": {
+      "Brier": 0.0583,
+      "log_score": 0.0471
+     }
+    },
+    "ENSEMBLE_EQUAL": {
+     "W1": {
+      "Brier": 1.0,
+      "log_score": 1.0
+     },
+     "W2": {
+      "Brier": 1.0,
+      "log_score": 1.0
+     }
+    }
+   }
+  }
+ },
+ "c4": {
+  "applies": false,
+  "pass": true,
+  "reason": "protocol targets.T3_RECESSION.c4_not_applicable: C4 does not apply to T3"
+ },
+ "c6": "NO_RESOLVED_FORECASTS for every pair: the forward registry has no resolved forecast; no stage above CANDIDATE/SHADOW_TEST is reachable from this evaluation alone",
+ "pairs": [
+  {
+   "candidate": "ENSEMBLE_ADAPTIVE",
+   "candidate_role": "candidate",
+   "horizon": 3,
+   "origins": {
+    "W1": 118,
+    "W2": 153
+   },
+   "protocol_origins": {
+    "W1": 118,
+    "W2": 153
+   },
+   "member_failures": {
+    "W1": 0,
+    "W2": 0
+   },
+   "candidate_failures": {
+    "W1": 0,
+    "W2": 0
+   },
+   "actual_missing": {
+    "W1": 0,
+    "W2": 0
+   },
+   "pseudo_origins_skipped": {
+    "W1": 0,
+    "W2": 0
+   },
+   "data_class": "REAL_TIME",
+   "status": "CANDIDATE",
+   "admission_allowed": true,
+   "C1_pass": false,
+   "C2_pass": false,
+   "C2_adjusted_p_worst": 1.0,
+   "C4": {
+    "applies": false,
+    "pass": true,
+    "reason": "protocol targets.T3_RECESSION.c4_not_applicable: C4 does not apply to T3"
+   },
+   "C5_pass": true,
+   "C6": {
+    "status": "NO_RESOLVED_FORECASTS",
+    "pass": false,
+    "reason": "the forward registry has no resolved forecast for the pair"
+   },
+   "per_window": {
+    "W1": {
+     "Brier": {
+      "relative_loss": 1.0328854031925003,
+      "candidate_loss": 0.07677566632425702,
+      "comparator_loss": 0.07433125309637881,
+      "threshold": 0.7055,
+      "c1_pass": false,
+      "c2_p_value": 0.7325682567766794,
+      "c2_adjusted_p_value": 1.0,
+      "c5_p_value": 0.26743174322332064,
+      "c5_ok": true
+     },
+     "log_score": {
+      "relative_loss": 1.00796262974309,
+      "candidate_loss": 0.27219035377541867,
+      "comparator_loss": 0.27004012425023605,
+      "threshold": 0.7976,
+      "c1_pass": false,
+      "c2_p_value": 0.5792204851770344,
+      "c2_adjusted_p_value": 1.0,
+      "c5_p_value": 0.4207795148229656,
+      "c5_ok": true
+     }
+    },
+    "W2": {
+     "Brier": {
+      "relative_loss": 0.9228405884837599,
+      "candidate_loss": 0.0927366794754613,
+      "comparator_loss": 0.10049046458590315,
+      "threshold": 0.7669,
+      "c1_pass": false,
+      "c2_p_value": 0.03431453436260756,
+      "c2_adjusted_p_value": 0.0522,
+      "c5_p_value": 0.9656854656373924,
+      "c5_ok": true
+     },
+     "log_score": {
+      "relative_loss": 0.9358540165278383,
+      "candidate_loss": 0.3184447744356459,
+      "comparator_loss": 0.3402718466894279,
+      "threshold": 0.8286,
+      "c1_pass": false,
+      "c2_p_value": 0.021984261723962728,
+      "c2_adjusted_p_value": 0.0417,
+      "c5_p_value": 0.9780157382760373,
+      "c5_ok": true
+     }
+    }
+   },
+   "report_file": "protocols/ensemble_eval_ENSEMBLE_ADAPTIVE_T3_h3_v2.json"
+  },
+  {
+   "candidate": "ENSEMBLE_ADAPTIVE",
+   "candidate_role": "candidate",
+   "horizon": 6,
+   "origins": {
+    "W1": 115,
+    "W2": 150
+   },
+   "protocol_origins": {
+    "W1": 115,
+    "W2": 150
+   },
+   "member_failures": {
+    "W1": 0,
+    "W2": 0
+   },
+   "candidate_failures": {
+    "W1": 0,
+    "W2": 0
+   },
+   "actual_missing": {
+    "W1": 0,
+    "W2": 0
+   },
+   "pseudo_origins_skipped": {
+    "W1": 0,
+    "W2": 0
+   },
+   "data_class": "REAL_TIME",
+   "status": "CANDIDATE",
+   "admission_allowed": true,
+   "C1_pass": false,
+   "C2_pass": false,
+   "C2_adjusted_p_worst": 1.0,
+   "C4": {
+    "applies": false,
+    "pass": true,
+    "reason": "protocol targets.T3_RECESSION.c4_not_applicable: C4 does not apply to T3"
+   },
+   "C5_pass": true,
+   "C6": {
+    "status": "NO_RESOLVED_FORECASTS",
+    "pass": false,
+    "reason": "the forward registry has no resolved forecast for the pair"
+   },
+   "per_window": {
+    "W1": {
+     "Brier": {
+      "relative_loss": 1.0978355840828053,
+      "candidate_loss": 0.09455061559791292,
+      "comparator_loss": 0.0861245681673781,
+      "threshold": 0.7192,
+      "c1_pass": false,
+      "c2_p_value": 0.8623018423224824,
+      "c2_adjusted_p_value": 1.0,
+      "c5_p_value": 0.13769815767751759,
+      "c5_ok": true
+     },
+     "log_score": {
+      "relative_loss": 1.0462174774277735,
+      "candidate_loss": 0.3238394097724328,
+      "comparator_loss": 0.3095335499160492,
+      "threshold": 0.8153,
+      "c1_pass": false,
+      "c2_p_value": 0.7782101186199926,
+      "c2_adjusted_p_value": 1.0,
+      "c5_p_value": 0.22178988138000744,
+      "c5_ok": true
+     }
+    },
+    "W2": {
+     "Brier": {
+      "relative_loss": 0.9262661341131464,
+      "candidate_loss": 0.10957358210958036,
+      "comparator_loss": 0.11829600378782239,
+      "threshold": 0.7864,
+      "c1_pass": false,
+      "c2_p_value": 0.09758104770926246,
+      "c2_adjusted_p_value": 0.1117,
+      "c5_p_value": 0.9024189522907375,
+      "c5_ok": true
+     },
+     "log_score": {
+      "relative_loss": 0.9314455867745527,
+      "candidate_loss": 0.3550294172021175,
+      "comparator_loss": 0.3811595891838703,
+      "threshold": 0.8497,
+      "c1_pass": false,
+      "c2_p_value": 0.07900020284011006,
+      "c2_adjusted_p_value": 0.0965,
+      "c5_p_value": 0.92099979715989,
+      "c5_ok": true
+     }
+    }
+   },
+   "report_file": "protocols/ensemble_eval_ENSEMBLE_ADAPTIVE_T3_h6_v2.json"
+  },
+  {
+   "candidate": "ENSEMBLE_ADAPTIVE",
+   "candidate_role": "candidate",
+   "horizon": 12,
+   "origins": {
+    "W1": 109,
+    "W2": 144
+   },
+   "protocol_origins": {
+    "W1": 109,
+    "W2": 144
+   },
+   "member_failures": {
+    "W1": 0,
+    "W2": 0
+   },
+   "candidate_failures": {
+    "W1": 0,
+    "W2": 0
+   },
+   "actual_missing": {
+    "W1": 0,
+    "W2": 0
+   },
+   "pseudo_origins_skipped": {
+    "W1": 0,
+    "W2": 0
+   },
+   "data_class": "REAL_TIME",
+   "status": "CANDIDATE",
+   "admission_allowed": true,
+   "C1_pass": false,
+   "C2_pass": false,
+   "C2_adjusted_p_worst": 1.0,
+   "C4": {
+    "applies": false,
+    "pass": true,
+    "reason": "protocol targets.T3_RECESSION.c4_not_applicable: C4 does not apply to T3"
+   },
+   "C5_pass": true,
+   "C6": {
+    "status": "NO_RESOLVED_FORECASTS",
+    "pass": false,
+    "reason": "the forward registry has no resolved forecast for the pair"
+   },
+   "per_window": {
+    "W1": {
+     "Brier": {
+      "relative_loss": 1.039778102466825,
+      "candidate_loss": 0.13547202055528787,
+      "comparator_loss": 0.13028935715599976,
+      "threshold": 0.7184,
+      "c1_pass": false,
+      "c2_p_value": 0.6335935614433503,
+      "c2_adjusted_p_value": 1.0,
+      "c5_p_value": 0.36640643855664967,
+      "c5_ok": true
+     },
+     "log_score": {
+      "relative_loss": 1.0159146597127566,
+      "candidate_loss": 0.42618433390923854,
+      "comparator_loss": 0.4195080067352699,
+      "threshold": 0.8134,
+      "c1_pass": false,
+      "c2_p_value": 0.5861916904095957,
+      "c2_adjusted_p_value": 1.0,
+      "c5_p_value": 0.41380830959040427,
+      "c5_ok": true
+     }
+    },
+    "W2": {
+     "Brier": {
+      "relative_loss": 0.9095260341075924,
+      "candidate_loss": 0.11814090828558056,
+      "comparator_loss": 0.1298928275335163,
+      "threshold": 0.7938,
+      "c1_pass": false,
+      "c2_p_value": 0.04396097587974901,
+      "c2_adjusted_p_value": 0.0583,
+      "c5_p_value": 0.956039024120251,
+      "c5_ok": true
+     },
+     "log_score": {
+      "relative_loss": 0.9174304116190445,
+      "candidate_loss": 0.37497995032434545,
+      "comparator_loss": 0.4087284938185075,
+      "threshold": 0.8501,
+      "c1_pass": false,
+      "c2_p_value": 0.028388769588232776,
+      "c2_adjusted_p_value": 0.0471,
+      "c5_p_value": 0.9716112304117672,
+      "c5_ok": true
+     }
+    }
+   },
+   "report_file": "protocols/ensemble_eval_ENSEMBLE_ADAPTIVE_T3_h12_v2.json"
+  },
+  {
+   "candidate": "ENSEMBLE_EQUAL",
+   "candidate_role": "control",
+   "horizon": 3,
+   "origins": {
+    "W1": 118,
+    "W2": 153
+   },
+   "protocol_origins": {
+    "W1": 118,
+    "W2": 153
+   },
+   "member_failures": {
+    "W1": 0,
+    "W2": 0
+   },
+   "candidate_failures": {
+    "W1": 0,
+    "W2": 0
+   },
+   "actual_missing": {
+    "W1": 0,
+    "W2": 0
+   },
+   "pseudo_origins_skipped": {
+    "W1": 0,
+    "W2": 0
+   },
+   "data_class": "REAL_TIME",
+   "status": "CANDIDATE",
+   "admission_allowed": true,
+   "C1_pass": false,
+   "C2_pass": false,
+   "C2_adjusted_p_worst": 1.0,
+   "C4": {
+    "applies": false,
+    "pass": true,
+    "reason": "protocol targets.T3_RECESSION.c4_not_applicable: C4 does not apply to T3"
+   },
+   "C5_pass": true,
+   "C6": {
+    "status": "NO_RESOLVED_FORECASTS",
+    "pass": false,
+    "reason": "the forward registry has no resolved forecast for the pair"
+   },
+   "per_window": {
+    "W1": {
+     "Brier": {
+      "relative_loss": 1.0,
+      "candidate_loss": 0.07433125309637881,
+      "comparator_loss": 0.07433125309637881,
+      "threshold": 0.7055,
+      "c1_pass": false,
+      "c2_p_value": 0.5,
+      "c2_adjusted_p_value": 1.0,
+      "c5_p_value": 0.5,
+      "c5_ok": true
+     },
+     "log_score": {
+      "relative_loss": 1.0,
+      "candidate_loss": 0.27004012425023605,
+      "comparator_loss": 0.27004012425023605,
+      "threshold": 0.7976,
+      "c1_pass": false,
+      "c2_p_value": 0.5,
+      "c2_adjusted_p_value": 1.0,
+      "c5_p_value": 0.5,
+      "c5_ok": true
+     }
+    },
+    "W2": {
+     "Brier": {
+      "relative_loss": 1.0,
+      "candidate_loss": 0.10049046458590315,
+      "comparator_loss": 0.10049046458590315,
+      "threshold": 0.7669,
+      "c1_pass": false,
+      "c2_p_value": 0.5,
+      "c2_adjusted_p_value": 1.0,
+      "c5_p_value": 0.5,
+      "c5_ok": true
+     },
+     "log_score": {
+      "relative_loss": 1.0,
+      "candidate_loss": 0.3402718466894279,
+      "comparator_loss": 0.3402718466894279,
+      "threshold": 0.8286,
+      "c1_pass": false,
+      "c2_p_value": 0.5,
+      "c2_adjusted_p_value": 1.0,
+      "c5_p_value": 0.5,
+      "c5_ok": true
+     }
+    }
+   },
+   "report_file": "protocols/ensemble_eval_ENSEMBLE_EQUAL_T3_h3_v2.json"
+  },
+  {
+   "candidate": "ENSEMBLE_EQUAL",
+   "candidate_role": "control",
+   "horizon": 6,
+   "origins": {
+    "W1": 115,
+    "W2": 150
+   },
+   "protocol_origins": {
+    "W1": 115,
+    "W2": 150
+   },
+   "member_failures": {
+    "W1": 0,
+    "W2": 0
+   },
+   "candidate_failures": {
+    "W1": 0,
+    "W2": 0
+   },
+   "actual_missing": {
+    "W1": 0,
+    "W2": 0
+   },
+   "pseudo_origins_skipped": {
+    "W1": 0,
+    "W2": 0
+   },
+   "data_class": "REAL_TIME",
+   "status": "CANDIDATE",
+   "admission_allowed": true,
+   "C1_pass": false,
+   "C2_pass": false,
+   "C2_adjusted_p_worst": 1.0,
+   "C4": {
+    "applies": false,
+    "pass": true,
+    "reason": "protocol targets.T3_RECESSION.c4_not_applicable: C4 does not apply to T3"
+   },
+   "C5_pass": true,
+   "C6": {
+    "status": "NO_RESOLVED_FORECASTS",
+    "pass": false,
+    "reason": "the forward registry has no resolved forecast for the pair"
+   },
+   "per_window": {
+    "W1": {
+     "Brier": {
+      "relative_loss": 1.0,
+      "candidate_loss": 0.0861245681673781,
+      "comparator_loss": 0.0861245681673781,
+      "threshold": 0.7192,
+      "c1_pass": false,
+      "c2_p_value": 0.5,
+      "c2_adjusted_p_value": 1.0,
+      "c5_p_value": 0.5,
+      "c5_ok": true
+     },
+     "log_score": {
+      "relative_loss": 1.0,
+      "candidate_loss": 0.3095335499160492,
+      "comparator_loss": 0.3095335499160492,
+      "threshold": 0.8153,
+      "c1_pass": false,
+      "c2_p_value": 0.5,
+      "c2_adjusted_p_value": 1.0,
+      "c5_p_value": 0.5,
+      "c5_ok": true
+     }
+    },
+    "W2": {
+     "Brier": {
+      "relative_loss": 1.0,
+      "candidate_loss": 0.11829600378782239,
+      "comparator_loss": 0.11829600378782239,
+      "threshold": 0.7864,
+      "c1_pass": false,
+      "c2_p_value": 0.5,
+      "c2_adjusted_p_value": 1.0,
+      "c5_p_value": 0.5,
+      "c5_ok": true
+     },
+     "log_score": {
+      "relative_loss": 1.0,
+      "candidate_loss": 0.3811595891838703,
+      "comparator_loss": 0.3811595891838703,
+      "threshold": 0.8497,
+      "c1_pass": false,
+      "c2_p_value": 0.5,
+      "c2_adjusted_p_value": 1.0,
+      "c5_p_value": 0.5,
+      "c5_ok": true
+     }
+    }
+   },
+   "report_file": "protocols/ensemble_eval_ENSEMBLE_EQUAL_T3_h6_v2.json"
+  },
+  {
+   "candidate": "ENSEMBLE_EQUAL",
+   "candidate_role": "control",
+   "horizon": 12,
+   "origins": {
+    "W1": 109,
+    "W2": 144
+   },
+   "protocol_origins": {
+    "W1": 109,
+    "W2": 144
+   },
+   "member_failures": {
+    "W1": 0,
+    "W2": 0
+   },
+   "candidate_failures": {
+    "W1": 0,
+    "W2": 0
+   },
+   "actual_missing": {
+    "W1": 0,
+    "W2": 0
+   },
+   "pseudo_origins_skipped": {
+    "W1": 0,
+    "W2": 0
+   },
+   "data_class": "REAL_TIME",
+   "status": "CANDIDATE",
+   "admission_allowed": true,
+   "C1_pass": false,
+   "C2_pass": false,
+   "C2_adjusted_p_worst": 1.0,
+   "C4": {
+    "applies": false,
+    "pass": true,
+    "reason": "protocol targets.T3_RECESSION.c4_not_applicable: C4 does not apply to T3"
+   },
+   "C5_pass": true,
+   "C6": {
+    "status": "NO_RESOLVED_FORECASTS",
+    "pass": false,
+    "reason": "the forward registry has no resolved forecast for the pair"
+   },
+   "per_window": {
+    "W1": {
+     "Brier": {
+      "relative_loss": 1.0,
+      "candidate_loss": 0.13028935715599976,
+      "comparator_loss": 0.13028935715599976,
+      "threshold": 0.7184,
+      "c1_pass": false,
+      "c2_p_value": 0.5,
+      "c2_adjusted_p_value": 1.0,
+      "c5_p_value": 0.5,
+      "c5_ok": true
+     },
+     "log_score": {
+      "relative_loss": 1.0,
+      "candidate_loss": 0.4195080067352699,
+      "comparator_loss": 0.4195080067352699,
+      "threshold": 0.8134,
+      "c1_pass": false,
+      "c2_p_value": 0.5,
+      "c2_adjusted_p_value": 1.0,
+      "c5_p_value": 0.5,
+      "c5_ok": true
+     }
+    },
+    "W2": {
+     "Brier": {
+      "relative_loss": 1.0,
+      "candidate_loss": 0.1298928275335163,
+      "comparator_loss": 0.1298928275335163,
+      "threshold": 0.7938,
+      "c1_pass": false,
+      "c2_p_value": 0.5,
+      "c2_adjusted_p_value": 1.0,
+      "c5_p_value": 0.5,
+      "c5_ok": true
+     },
+     "log_score": {
+      "relative_loss": 1.0,
+      "candidate_loss": 0.4087284938185075,
+      "comparator_loss": 0.4087284938185075,
+      "threshold": 0.8501,
+      "c1_pass": false,
+      "c2_p_value": 0.5,
+      "c2_adjusted_p_value": 1.0,
+      "c5_p_value": 0.5,
+      "c5_ok": true
+     }
+    }
+   },
+   "report_file": "protocols/ensemble_eval_ENSEMBLE_EQUAL_T3_h12_v2.json"
+  }
+ ],
+ "limits": [
+  "T3 has about eight post-war recessions, so the power of every test is low; the protocol ceiling for T3 is LIMITED_DEPLOYMENT",
+  "C6 is NO_RESOLVED_FORECASTS: the forward registry does not exist yet, so the SHADOW_TEST -> LIMITED_DEPLOYMENT stage cannot be reached",
+  "C4 does not apply to T3 by the protocol (degenerate conditional test)",
+  "C2 p-values are Romano-Wolf adjusted over a family of two candidates only; the error accumulates over (target, horizon, loss) pairs and over W1/W2",
+  "statuses are harness results, not an admission decision"
+ ],
+ "licence_note": "forecasts and actual values are not stored: only digests and derived metrics (docs/84, D-147)",
+ "reporting_only": "harness statuses only; no admission is assigned by this report"
+}

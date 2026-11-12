@@ -1,0 +1,1116 @@
+{
+  "protocol_id": "AMFE-EVAL",
+  "version": "5.0.0",
+  "status": "FROZEN",
+  "supersedes": {
+    "version": "4.0.0",
+    "file": "evaluation_protocol_v4.json",
+    "sha256": "bd965f4d9f23151b4ccfd27202f0669d0a7807e642639ed18c0b864bf68dedc9",
+    "note": "v4 stays in the repository unchanged and frozen; v5 replaces it for new evaluations under owner decision D-151 (A+E). v1-v4 remain frozen."
+  },
+  "decision_ids": [
+    "D-121",
+    "D-122",
+    "D-123",
+    "D-124",
+    "D-125",
+    "D-126",
+    "D-127",
+    "D-128",
+    "D-131",
+    "D-132",
+    "D-151"
+  ],
+  "closes_questions": [
+    "Q-001",
+    "Q-002",
+    "Q-003",
+    "Q-004",
+    "Q-005",
+    "Q-006"
+  ],
+  "meta_gate": {
+    "reference": "D-100",
+    "stage": "APPROVED",
+    "diff": "changes_from_v4 below",
+    "impact_analysis": "v5 is prospective: no evaluation has been run under v5 yet; v4 results (docs/76, docs/87, docs/102) are not revised. v5 only makes the T1 C4 evaluable on the reconstructed 1990-1996 window and adds a weekly forward cadence with a distinct-period minimum. C1/C2/C5 stay on REAL_TIME origins; the frozen chain (R3 to v4, NF-SIM, composition) is unchanged and no NF-SIM threshold is needed for C4.",
+    "independent_review": "docs/111 - independent review of the PROPOSED version (another LLM instance, not a human): verdict CONDITIONAL with 9 blocking findings (B-1..B-9). All blocking findings are closed in this frozen version: B-1 origin-month C4 mask (runner + protocol text + test), B-2 fail-closed reconstructed classes and T2 guard, B-3 fixed W1_EXT comparator and pooling rule, B-4 dossier-sourced numbers + carrier-lag disclosure (numbers no longer restated in v5), B-5 single C4 minimum 12 and T2 unchanged (v5 narrow scope), B-6 real-time slice is reporting-only with the protocol-defined start 1996-12-31, B-7 machine-readable conditional_data_class / status_label, B-8 C6 requires 4 distinct target periods, B-9 c4_analysis --check PASS. The delta check was performed by the same reviewer-LLM (limitation recorded in docs/111 section 7).",
+    "approval": "APPROVED",
+    "owner_decisions": [
+      {
+        "date": "2026-11-11",
+        "decision": "No permission is requested from any data provider. The project works with openly available information only and replaces any other needed model quantity with its own models."
+      },
+      {
+        "date": "2026-11-11",
+        "decision": "D-131: T3 is evaluated on W1 starting 1996-12. ALFRED vintages of GS10 and TB3MS start 1996-12-03; before that date PROBIT_SPREAD is PSEUDO_REAL_TIME, the T3 comparator has one REAL_TIME member and C1 would be undefined. The start is fixed by data availability, not chosen from any result."
+      },
+      {
+        "date": "2026-11-11",
+        "decision": "D-132: every data acquisition step is automated. No human download is required or allowed as a pipeline step. Retrieval runs through the project tool and CI within the published terms; a quantity that cannot be retrieved automatically is replaced by the project model or dropped, and the decision is recorded. Raw third-party files are never committed."
+      },
+      {
+        "date": "2026-11-11",
+        "decision": "D-131 implementation: to make the narrowed T3 W1 REAL_TIME, PROBIT_SPREAD uses only the GS10-TB3MS spread; T10Y3M is dropped from its inputs because its ALFRED vintages start 2014-01-27. D-132 implementation: automatic retrieval covers vintage sets through the ALFRED download-data form (actual vintage dates entered into the form), the NBER chronology through USREC, and every source the pipeline actually uses; a source that is not automated is not used."
+      },
+      {
+        "date": "2026-11-12",
+        "decision": "D-151: option A+E - reconstructed PIT for the T1 C4 only, reporting-only real-time slice, weekly forward cadence with 4 distinct target periods; provisional C6 not accepted; product scope T1 CPI h=1 + T3 recession probability; structural stages 2-5 move to the 2027 research backlog."
+      }
+    ],
+    "owner_confirmations": [
+      {
+        "date": "2026-11-11",
+        "decision": "The owner instructed both changes directly on 2026-11-11: narrow the T3 W1 start to 1996-12 and make all data acquisition automatic.",
+        "source": "owner message of 2026-11-11"
+      },
+      {
+        "date": "2026-11-11",
+        "decision": "The owner instructed 'меняй правила' for T3 and 'выполняй все автоматически, любые загрузки человеком исключены' for the data pipeline. Both instructions cover the implementation choices: PROBIT uses GS10-TB3MS only (T10Y3M dropped), vintage files are retrieved automatically, and the NBER chronology is represented by USREC in the plan.",
+        "source": "owner message of 2026-11-11"
+      }
+    ],
+    "owner_confirmation_needed": [],
+    "on_approval": "Add decision D-133, freeze this file with a pinned SHA-256 in evaluation_protocol_v4.sha256, leave v1, v2 and v3 untouched.",
+    "approved_on": "2026-11-12"
+  },
+  "amendment_rule": "Once FROZEN this file is never edited. A change is a new file evaluation_protocol_v5.json approved through the D-100 meta-gate. The licence register is a separate append-only file and is not frozen.",
+  "universe": "US",
+  "origin_policy": {
+    "default": "End of a calendar month; only information with a publication time on or before the origin may be used.",
+    "t1_horizon": "At the end of month t the CPI of month t-1 is the last published value. Horizon h means the y/y inflation of month t-1+h; RW forecasts the last published y/y value.",
+    "t2_origins": "For horizon 0 every month-end origin is used (months 1, 2 and 3 of the quarter, reported separately). For horizons 1, 2 and 4 the origin is the end of the third month of the quarter, one origin per quarter; the HAC lag h-1 is counted in quarters.",
+    "spf_alignment": "Comparisons with the SPF re-run every model at the survey deadline date published in the SPF documentation, using only data published by then. Month-end origins are never compared with SPF forecasts."
+  },
+  "comparison_unit": "The object under test is a forecasting method (model, estimation window and procedure), not the truth of a model.",
+  "forecast_product": {
+    "distribution": "A precise predictive distribution given as quantiles 5% to 95% in 5% steps, so that proper scoring rules apply.",
+    "imprecise_probabilities": "Allowed only in the scenario layer; never in a scored forecast.",
+    "baseline_distributions": "Models without their own predictive distribution (RW, AO, AR_BIC) use the empirical quantiles of their own errors over the estimation window, centred on the point forecast.",
+    "pool": "The density comparator is an equal-weight mixture of the members' CDFs: piecewise linear between the 5% and 95% quantiles, Gaussian tails matched to those two quantiles outside. Averaging quantiles is not the pool.",
+    "crps": "CRPS is computed as twice the mean pinball loss over the 19 quantiles.",
+    "log_score": "Event probabilities are clipped to [0.01, 0.99] before the log score.",
+    "event_targets": "For T3 the forecast is the probability of the binary event; the 19-quantile representation does not apply to T3, its distribution is Bernoulli(p), the pool is the equal-weight average of the members' probabilities, and only the event losses (Brier, log score) are computed, never CRPS."
+  },
+  "licence_policy": {
+    "reason": "A benchmark that nobody else can recompute is not a benchmark, and the project may not take what its owner has no right to take.",
+    "register_file": "protocols/licence_register.json",
+    "register_rule": "The register is a separate append-only journal outside this frozen file. The status of a source is the one in the register on the date the candidate is evaluated. A new entry applies only to candidates evaluated after it; earlier candidates are recomputed or marked. The composition of the primary comparator is hashed by date, so a member cannot be added or removed after results are seen. Integrity of the register rests on the dated entries and the repository history; no separate hash of each entry is kept, and the hash of the comparator composition is separate. The hash of the terms text appears on R2.",
+    "intended_use": "Non-commercial research. Published artifacts contain derived statistics only (error metrics, charts, scores), never raw third-party data.",
+    "no_permissions": "The project requests no permission, licence or approval from any data provider. It uses only data whose published terms allow the intended use without asking.",
+    "rule": "OPEN sources may be used in the primary comparator, in control arms and in criteria, under the conditions listed in their register entries. RESTRICTED and UNVERIFIED sources are not used anywhere in the project. An UNVERIFIED source becomes usable only through a new register entry (OPEN) made after its terms are read.",
+    "substitute": "A model quantity that is available only through a RESTRICTED or UNVERIFIED source is replaced by the project's own model built from OPEN data (for example OWN_NOWCAST_BRIDGE). The substitute is never presented as equal to the source it replaces and is validated only against OPEN actuals, like any baseline. Naming the source it replaces is allowed; using its data is not. The principle covers model quantities only: a survey or an opinion (for example the SPF) is not replaced by a model, and if its source is not OPEN the quantity is simply not used. The quality of a substitute relative to the excluded sources is unknown and cannot be checked; the admission bar for a combination whose comparator contains a substitute can therefore be lower than with the best excluded source, and every report of such a combination says so.",
+    "data_channel": {
+      "fred_alfred": "Vintage files of the registered series are retrieved by the project retrieval tool, automatically: latest files through the public FRED CSV endpoint, and vintage sets through one POST per series to the ALFRED download-data form (entered vintage dates, 'Observations by Vintage Date, All Observations', zipped CSV). One series per request, no FRED API key or API cache, no crawling of the catalogue. The tool identifies itself, rate-limits the requests and logs every retrieval. The qualified prohibition on robots and scraping covers disruptive or bulk gathering, which a rate-limited single-series retrieval avoids; the general terms allow personal non-commercial use.",
+      "automation": "No step of the data pipeline requires or permits a human download. The retrieval tool runs in the project CI on a schedule and can be triggered through the GitHub API; it writes only metadata (into the repository when the log is committed, otherwise into the private CI artifact) and keeps raw files outside the repository. Every source currently used is in protocols/data_plan.json; a source that is not automated is not used. If a quantity cannot be retrieved automatically within the published terms, it is replaced by the project model (licence_policy.substitute) or dropped, and the decision is recorded.",
+      "ml_training": "No training or fine-tuning of any model on FRED or ALFRED content; foundation models and LLM forecasters therefore use only series from sources whose register entry allows it.",
+      "alternative": "Primary public-domain sources (BLS, BEA, Treasury, Federal Reserve Board) are the alternative channel and are retrieved by the same automated tool once R2 has read their archive terms. BLS and BEA terms were read on 2026-11-11 (public domain, citation requested; docs/63, docs/65)."
+    },
+    "raw_data": "Raw third-party archives are never committed to the repository. The retrieval tool records the URL, the retrieval date, the bytes and the SHA-256 of each file in protocols/data_log.json together with the row count and the last observation date read from the file; the downloaded files stay outside the repository.",
+    "privacy": "The repository is private. If it becomes public, every register entry is re-verified before the next evaluation.",
+    "audit": "The register was checked against the primary terms pages on 2026-11-11; the quotes, the corrections and the items still unverified are in docs/63_Лицензионный_аудит_2026-11-11.md.",
+    "gdpnow": {
+      "use": "none: not downloaded, not stored, not scored",
+      "permission_request": "NOT PURSUED by owner decision of 2026-11-11",
+      "replacement": "OWN_NOWCAST_BRIDGE; the published description of GDPNow-type bridge equations is a method, and implementing a method from public descriptions does not use the archive"
+    }
+  },
+  "comparator_minimum": {
+    "min_members": 2,
+    "rule": "A comparator needs at least 2 members for the loss it serves (the point comparator, the density comparator). A combination (target, horizon, loss) with fewer remains CANDIDATE and is not eligible for admission until the register gives it 2 members.",
+    "members_by_loss": "The point comparator uses members that provide a point forecast; the density comparator uses members that provide a predictive distribution (point_only members are excluded); for T3 the event comparator uses members that provide an event probability.",
+    "licence_inputs_by_target": "Each member lists its input series per target; a member counts for a target only if every one of those inputs is OPEN in the register on the evaluation date."
+  },
+  "targets": [
+    {
+      "id": "T1_CPI_YOY",
+      "kind": "point_and_distribution",
+      "series": [
+        "CPIAUCSL",
+        "CPILFESL"
+      ],
+      "definition": "100*(CPI_t/CPI_(t-12) - 1), headline and core, evaluated separately",
+      "horizons_months": [
+        1,
+        3,
+        6,
+        12
+      ],
+      "note": "The series are seasonally adjusted and revised by annual seasonal factors, so first-publication and later actuals differ. The first publication of the y/y value takes the numerator and the denominator from the vintage of the month of publication."
+    },
+    {
+      "id": "T2_GDP_GROWTH",
+      "kind": "point_and_distribution",
+      "series": [
+        "GDPC1"
+      ],
+      "definition": "400*ln(GDP_q/GDP_(q-1)), real GDP, quarter-on-quarter annualised",
+      "horizons_quarters": [
+        0,
+        1,
+        2,
+        4
+      ],
+      "note": "Horizon 0 is the nowcast of the current quarter, reported separately for origins in months 1, 2 and 3 of the quarter."
+    },
+    {
+      "id": "T3_RECESSION",
+      "kind": "event_probability",
+      "series": [
+        "NBER_CYCLE_DATES"
+      ],
+      "definition": "1 if at least one month in (t, t+h] is an NBER recession month, counted from the month after the peak to the trough, in the chronology available at evaluation time",
+      "horizons_months": [
+        3,
+        6,
+        12
+      ],
+      "note": "About eight post-war recessions: low statistical power. Ceiling LIMITED_DEPLOYMENT.",
+      "resolution": "A forecast is resolved by the NBER chronology available at the evaluation date. The value is 1 if the chronology dates at least one recession month (counted from the month after the peak to the trough) in (t, t+h], including a recession that began before the origin. The value is 0 when the chronology is complete for the interval and dates no recession month in (t, t+h] - in particular, when no peak lies inside (t, t+h) (a peak exactly at t+h starts a recession after the interval) and any recession that began before t has a dated trough at or before t. The chronology is complete for the interval when a turning point after t+h is dated or when 24 months have passed after t+h and no peak at or before t+h has been announced. A forecast whose value is still undetermined is not scored; if it remains undetermined after the completeness deadline, it is reported as unresolved and is not read as 0.",
+      "c4_not_applicable": "C4 does not apply to T3: in a recession month the event is almost sure to occur, so the condition is degenerate."
+    }
+  ],
+  "actuals": {
+    "primary": "first publication of the target value",
+    "secondary": "value in the vintage available 12 months after the reference period",
+    "rule": "Both are always reported, never pooled. T3 uses the NBER chronology as of the evaluation date for both; its secondary actuals equal its primary actuals."
+  },
+  "estimation": {
+    "scheme": "rolling",
+    "window_months": 180,
+    "window_quarters": 60,
+    "T3": {
+      "window_months": 240,
+      "sensitivity_windows_months": [
+        180,
+        360
+      ],
+      "status": "PROPOSED parameter change from v2 (180 months); needs the owner's confirmation",
+      "reason": "A 180-month window contains one or two recessions, so a probit or logit is not identified; the Giacomini-White finite-window requirement still holds. A 240-month window reaches back to the 1970s, so the yield-spread input before 1982 comes from GS10 and TB3MS."
+    },
+    "sensitivity_windows_months": [
+      120,
+      240
+    ],
+    "sensitivity_applies_to": "T1 and T2 only; T3 has its own list in estimation.T3.sensitivity_windows_months",
+    "reason": "Giacomini-White tests require a finite estimation window; a recursive (expanding) window is excluded.",
+    "recursive_variant": {
+      "allowed": true,
+      "test": "Clark-West",
+      "applies_to": "nested model pairs only; reported separately, never counted toward admission"
+    }
+  },
+  "data_depth": {
+    "verified_on": "2026-11-11",
+    "first_realtime_vintage": {
+      "ALFRED_CPIAUCSL": "1972-07-21",
+      "FRED-MD": "1999-08",
+      "FRED-QD": "2018-05",
+      "SPF_GDP_quarterly_forecasts": "1968Q4",
+      "SPF_CPI": "1981Q3",
+      "Cleveland_inflation_nowcast": "2013-07",
+      "ALFRED_UNRATE": "1960-03-15",
+      "ALFRED_GS10": "1996-12-03",
+      "ALFRED_TB3MS": "1996-12-03",
+      "ALFRED_T10Y3M": "2014-01-27",
+      "ALFRED_USREC": "latest file retrieved automatically; vintage announcements are a later R2 refinement"
+    },
+    "verification_notes": {
+      "source": "docs/58 and docs/61, primary sources opened on 2026-11-11",
+      "Cleveland_inflation_nowcast": "Chart range starts 2013-07; whether the series is an archive of values published in real time is not confirmed (level U).",
+      "ALFRED_CPIAUCSL": "Vintages dated 1972-07-21 to 1994-02-16 hold only the final 1.5 years of data, so an estimation window of 180 months cannot be built from a single vintage before 1994-02-17."
+    },
+    "classification_rule": "A forecast is REAL_TIME only if every input series comes from the vintage available at the origin; a first-release tape is class REAL_TIME_TAPE; otherwise PSEUDO_REAL_TIME. The class is named REAL_TIME_TAPE because it approximates the information available at the origin; the splice below is not the literal first-release tape and the difference is reported. REAL_TIME and REAL_TIME_TAPE forecasts count toward C1, C2, C4 and C5 and appear in the reported C3 set; REAL_TIME_TAPE results are always accompanied by a sensitivity result without the origins that depend on the tape. PSEUDO_REAL_TIME forecasts are reported separately. v5 adds the reconstructed C4 classes (data_depth.reconstruction): they are allowed only for the T1 C4 on W1_EXT and are never used for C1/C2/C5 or for T2.",
+    "first_release_tape": "Where one vintage is too short for the estimation window (CPIAUCSL before 1994-02-17), the history is assembled as the latest value of each observation among the vintages available at the origin date. The assembly method is documented and spot-checked; a failed spot check turns every origin of the affected window into PSEUDO_REAL_TIME.",
+    "consequence": "DFM_FREDMD is REAL_TIME only from origin 1999-08, so W1 (1990-2006) is mostly pseudo-real-time for it.",
+    "alfred_panel": {
+      "purpose": "real-time DFM before 1999-08",
+      "series_count_range": [
+        30,
+        50
+      ],
+      "status": "R2 task, not built; every series must be listed in the register first",
+      "fallback": "DFM counts toward admission from 1999-08 only"
+    },
+    "gate": "R2 acceptance: reconstruct what was known on a date t for 1990-2026; a spot check of at least 30 (series, date) pairs, with at least 10 of them before 2000, must match the primary-source release of that time, within rounding. Origins in 1990-1999 that fail the check are PSEUDO_REAL_TIME. A failed pair turns every origin whose estimation window relies on that pair into PSEUDO_REAL_TIME, as in data_depth.first_release_tape.",
+    "vintage_sources": [
+      "ALFRED (automated retrieval by the project tool)",
+      "Philadelphia Fed Real-Time Data Set for Macroeconomists (register status OPEN; the SPF documentation is not yet read)",
+      "FRED-MD/FRED-QD vintage archive (when its register entry is OPEN)"
+    ],
+    "retrieval": {
+      "tool": "tools/fetch_data.py",
+      "workflow": ".github/workflows/data-refresh.yml",
+      "data_log": "protocols/data_log.json",
+      "rule": "Automated retrieval only; no human download step. Raw files are never committed; the CI run keeps them outside the repository (private artifacts). The data log records URL, retrieval date, bytes, SHA-256, row count and last observation - metadata only, never values.",
+      "modes": "latest via the public FRED CSV endpoint; vintage sets via one GET of the ALFRED download-data page (to read the actual vintage dates) plus one POST per series, where the planned year-end dates are mapped to the latest actual vintage date in the same year, the observation range is the series' own first/last observation, and the response is a zipped CSV with one column per vintage",
+      "log_fields": [
+        "series",
+        "register",
+        "vintage",
+        "url",
+        "retrieved_at",
+        "bytes",
+        "sha256",
+        "file",
+        "rows",
+        "last_observation",
+        "planned_vintages",
+        "vintage_dates",
+        "available_vintage_dates",
+        "vintage_count",
+        "vintage_last_observation",
+        "vintage_check"
+      ],
+      "trigger": "monthly schedule, manual workflow dispatch and GitHub API workflow_dispatch",
+      "failure_rule": "A failed retrieval is logged with its reason, retried on the next run, and the affected source is not used until it succeeds; no manual download is substituted."
+    },
+    "nber_rule": "The T3 target and the C4 split use the NBER chronology as of the evaluation date (a published record, not a vintage series). For model estimation a recession label enters only if the NBER announcement that covers it was published before the origin. The automated pipeline retrieves the machine-readable NBER chronology through the USREC series (register ALFRED:USREC, citation required) and records the retrieval; the NBER cycle-dates page remains the attribution source.",
+    "automation_coverage": "Every source that the current pipeline uses is in protocols/data_plan.json directly or through its machine-readable representation (NBER_CYCLE_DATES via ALFRED:USREC): the FRED/ALFRED series, including vintage sets requested through the ALFRED download-data form, and the NBER chronology. Sources whose file layout is fixed in R2 (SPF, RTDSM) are added to the plan before they are used; a source that is not automated is not used, and the project never falls back to a human download. FRED-MD/QD is UNVERIFIED and is not used.",
+    "nber_source_id": "NBER_CYCLE_DATES is represented in the automated plan by ALFRED:USREC (the monthly NBER recession indicator, citation required); the NBER cycle-dates page is the attribution source. The protocol keeps the target series id NBER_CYCLE_DATES.",
+    "reconstruction": {
+      "id": "PIT-RECON-1990-1996",
+      "status": "PROPOSED",
+      "dossier": "protocols/pit_reconstruction.json",
+      "dossier_pin": "protocols/pit_reconstruction.sha256",
+      "purpose": "make the T1 C4 evaluable where the real ALFRED vintages of the comparator inputs start in 1996-12 and the 1990-91 recession (8 months) would otherwise be lost",
+      "classes": {
+        "REAL_TIME_RECONSTRUCTED_MARKET": {
+          "series": [
+            "GS10",
+            "TB3MS"
+          ],
+          "rule": "values from the earliest archived ALFRED vintage (1996-12-03) for 1990-1996; the measured earliest-vs-latest revisions are zero for GS10 (n=881) and at most 0.01 p.p. for TB3MS (n=1112), i.e. publication rounding; see the dossier for the per-series table",
+          "look_ahead": "no revision-based look-ahead; the vintage date is reconstructed and flagged"
+        },
+        "RECONSTRUCTED_PIT": {
+          "series": [
+            "CPIAUCSL",
+            "CPILFESL",
+            "UNRATE"
+          ],
+          "rule": "earliest archived print per observation, monthly grid 1990-01-15..1996-11-15, tape-override of the sparse real CPIAUCSL snapshots before 1994-03-16 (the tape rule is recorded in the dossier tape_override section); the measured revision sizes (index points and target units) and the carrier-lag statistics are in the dossier and are not restated here",
+          "look_ahead": "tape approximation: the earliest archived print may itself post-date the reconstructed vintage (carrier lag up to 1521 days for CPIAUCSL and 2523 days for CPILFESL/rates, measured in the dossier); therefore the class is conditional and needs the REAL_TIME-only slice; it is never used for C1/C2/C5"
+        }
+      },
+      "not_used": {
+        "GDPC1": "reconstructed GDP growth is diagnostic only: earliest-vs-latest revisions in target units are material (mean about 1.1 pp, max about 4.8 pp; dossier); T2 is not changed by v5 (v4 rules, REAL_TIME only, min 12) and no reconstructed GDPC1 is admitted"
+      },
+      "admission_classes": [
+        "REAL_TIME",
+        "REAL_TIME_TAPE",
+        "REAL_TIME_RECONSTRUCTED"
+      ],
+      "c4_classes": [
+        "REAL_TIME",
+        "REAL_TIME_TAPE",
+        "REAL_TIME_RECONSTRUCTED_MARKET",
+        "RECONSTRUCTED_PIT"
+      ],
+      "report_class": {
+        "REAL_TIME_RECONSTRUCTED": "report-level class when the C4 uses W1_EXT and C1/C2/C5 use REAL_TIME origins; the per-origin mix is recorded in every report"
+      },
+      "sensitivity": "C1/C2/C5 are always computed on REAL_TIME origins only. C4 uses the T1 extended window W1_EXT and must also publish the REAL_TIME-only C4 slice (reporting-only, not gating) plus leave-one-episode-out results; a C4 pass that depends on reconstructed origins advances the pair to SHADOW_TEST only with the CONDITIONAL_DATA_CLASS label recorded in the report, decision log and model card."
+    }
+  },
+  "windows": {
+    "training_start": "1960-01",
+    "defined_by": "Windows are defined by the date of the origin and by the date of the target; an origin belongs to a window only if both fall inside it.",
+    "W1": {
+      "start": "1990-01",
+      "end": "2006-12",
+      "use": "evaluation"
+    },
+    "W2": {
+      "start": "2007-01",
+      "end": "2019-12",
+      "use": "evaluation"
+    },
+    "W3": {
+      "start": "2020-01",
+      "end": "2026-10",
+      "use": "stress report only; contaminated by researcher and LLM knowledge of the episode; forecasts whose target is later than the end are not scored"
+    },
+    "origin_exclusion": {
+      "covid_targets": "Origins whose target period lies in 2020-03 to 2021-02 are excluded from W2 and reported separately; for T3 this covers origins whose interval (t, t+h] contains those months.",
+      "reason": "One target (2020Q2, about -30% annualised) would otherwise decide the RMSE of horizons 2 and 4 on W2."
+    },
+    "forward_registry": {
+      "start": null,
+      "use": "the only uncontaminated window; the start is the date of the first registry commit, no backdating, and not earlier than the month after the end of W3"
+    },
+    "target_overrides": {
+      "T3_RECESSION": {
+        "W1_start": "1996-12",
+        "reason": "ALFRED vintages of GS10 and TB3MS start 1996-12-03, and PROBIT_SPREAD uses only these two rates (T10Y3M is dropped because its vintages start 2014-01-27). Before 1996-12-03 PROBIT_SPREAD is PSEUDO_REAL_TIME and the T3 comparator has a single REAL_TIME member (SAHM_RULE), below comparator_minimum, so C1 on W1 would be undefined. The start is fixed by data availability; owner decision D-131."
+      }
+    },
+    "W1_EXT": {
+      "start": "1990-01",
+      "end": "2006-12",
+      "use": "T1 C4 only: origins before the first real ALFRED vintage (1996-12-31) are reconstructed and flagged; C1/C2/C5 never use W1_EXT"
+    }
+  },
+  "baselines": [
+    {
+      "id": "RW",
+      "applies_to": [
+        "T1_CPI_YOY"
+      ],
+      "comparator_member": true,
+      "inputs_by_target": {
+        "T1_CPI_YOY": [
+          "ALFRED:CPIAUCSL",
+          "ALFRED:CPILFESL"
+        ]
+      },
+      "note": "last published y/y value"
+    },
+    {
+      "id": "AO",
+      "applies_to": [
+        "T1_CPI_YOY",
+        "T2_GDP_GROWTH"
+      ],
+      "comparator_member": true,
+      "inputs_by_target": {
+        "T1_CPI_YOY": [
+          "ALFRED:CPIAUCSL",
+          "ALFRED:CPILFESL"
+        ],
+        "T2_GDP_GROWTH": [
+          "ALFRED:GDPC1"
+        ]
+      },
+      "note": "Atkeson-Ohanian average of the last four quarters / historical mean"
+    },
+    {
+      "id": "AR_BIC",
+      "applies_to": [
+        "T1_CPI_YOY",
+        "T2_GDP_GROWTH"
+      ],
+      "comparator_member": true,
+      "inputs_by_target": {
+        "T1_CPI_YOY": [
+          "ALFRED:CPIAUCSL",
+          "ALFRED:CPILFESL"
+        ],
+        "T2_GDP_GROWTH": [
+          "ALFRED:GDPC1"
+        ]
+      },
+      "note": "autoregression, order by BIC, rolling window"
+    },
+    {
+      "id": "BVAR_MINNESOTA",
+      "applies_to": [
+        "T1_CPI_YOY",
+        "T2_GDP_GROWTH"
+      ],
+      "comparator_member": true,
+      "inputs_by_target": {
+        "T1_CPI_YOY": [
+          "ALFRED:CPIAUCSL",
+          "ALFRED:CPILFESL",
+          "ALFRED:UNRATE",
+          "ALFRED:GS10",
+          "ALFRED:TB3MS"
+        ],
+        "T2_GDP_GROWTH": [
+          "ALFRED:GDPC1",
+          "ALFRED:UNRATE",
+          "ALFRED:GS10",
+          "ALFRED:TB3MS"
+        ]
+      },
+      "note": "the variable set is fixed in the R3 specification from series that are OPEN"
+    },
+    {
+      "id": "DFM_FREDMD",
+      "applies_to": [
+        "T1_CPI_YOY",
+        "T2_GDP_GROWTH"
+      ],
+      "comparator_member": true,
+      "inputs_by_target": {
+        "T1_CPI_YOY": [
+          "FRED-MD_FRED-QD"
+        ],
+        "T2_GDP_GROWTH": [
+          "FRED-MD_FRED-QD"
+        ]
+      },
+      "note": "factors from FRED-MD/QD, number by information criterion; a member only once its register entry is OPEN"
+    },
+    {
+      "id": "PROBIT_SPREAD",
+      "applies_to": [
+        "T3_RECESSION"
+      ],
+      "comparator_member": true,
+      "inputs_by_target": {
+        "T3_RECESSION": [
+          "ALFRED:GS10",
+          "ALFRED:TB3MS",
+          "NBER_CYCLE_DATES"
+        ]
+      },
+      "note": "Estrella-Mishkin yield-curve probit with the GS10-TB3MS spread only; T10Y3M is dropped because its ALFRED vintages start 2014-01-27 (docs/65), which would leave the T3 comparator with one REAL_TIME member for the whole W1.",
+      "point": "Estrella-Mishkin yield-curve probit. Binary outcome 1 if at least one NBER recession month lies in (t, t+h]; regressors constant and the term spread GS10 minus TB3MS, both with ALFRED vintages from 1996-12-03. The T10Y3M series is not used: its ALFRED vintages start 2014-01-27, which would make the model PSEUDO_REAL_TIME for the whole W1 and for W2 before 2014. Probit MLE on the rolling 240-month window; the fitted probability is the forecast. A recession label enters the estimation only if the NBER announcement that covers it was published before the origin."
+    },
+    {
+      "id": "SAHM_RULE",
+      "applies_to": [
+        "T3_RECESSION"
+      ],
+      "comparator_member": true,
+      "inputs_by_target": {
+        "T3_RECESSION": [
+          "ALFRED:UNRATE",
+          "NBER_CYCLE_DATES"
+        ]
+      },
+      "note": "Sahm recession indicator converted to a probability by logistic calibration on the rolling window"
+    },
+    {
+      "id": "SPF_MEDIAN",
+      "applies_to": [
+        "T1_CPI_YOY",
+        "T2_GDP_GROWTH"
+      ],
+      "comparator_member": false,
+      "inputs_by_target": {
+        "T1_CPI_YOY": [
+          "PHILADELPHIA_FED"
+        ],
+        "T2_GDP_GROWTH": [
+          "PHILADELPHIA_FED"
+        ]
+      },
+      "point_only": true,
+      "note": "SPF median at survey deadlines only; point-only. Not a comparator member until its files are retrieved automatically and the definition mapping is fixed (R2): T1 is never scored against SPF because SPF has no monthly y/y CPI forecast, and T2 is scored only after automation (SPF quarterly GDP growth matches the T2 definition).",
+      "available_from": "R2 (automatic retrieval of the SPF files and the definition mapping)"
+    },
+    {
+      "id": "SPF_NEG_GDP_PROB",
+      "applies_to": [
+        "T3_RECESSION"
+      ],
+      "scored": false,
+      "comparator_member": false,
+      "event_mismatch": true,
+      "note": "SPF reports the probability of negative quarterly real GDP growth, not an NBER recession; descriptive only"
+    },
+    {
+      "id": "OWN_NOWCAST_BRIDGE",
+      "applies_to": [
+        "T2_GDP_GROWTH"
+      ],
+      "horizons_quarters": [
+        0
+      ],
+      "comparator_member": true,
+      "inputs_by_target": {
+        "T2_GDP_GROWTH": [
+          "ALFRED:GDPC1",
+          "ALFRED:UNRATE",
+          "ALFRED:GS10",
+          "ALFRED:TB3MS"
+        ]
+      },
+      "substitutes": "external GDP nowcasts that the project does not use",
+      "report": "Every T2 horizon 0 report states that the quality of this substitute relative to the excluded external nowcasts is unknown and cannot be checked, so the admission bar may be lower than with the best public nowcast.",
+      "specification_required": "The structure, the series, the factor selection and the update rules are written into a specification and fixed with the hash of its code before any candidate is evaluated. Available only from the origins for which its inputs are REAL_TIME, so before 1999 the T2 horizon 0 comparator has no such member.",
+      "note": "the project's own nowcast of the current quarter from OPEN monthly data (bridge equations and a dynamic factor model); horizon 0 only"
+    },
+    {
+      "id": "NOWCAST_NYFED",
+      "applies_to": [
+        "T2_GDP_GROWTH"
+      ],
+      "horizons_quarters": [
+        0
+      ],
+      "comparator_member": false,
+      "inputs_by_target": {
+        "T2_GDP_GROWTH": [
+          "NY_FED"
+        ]
+      },
+      "note": "NY Fed Staff Nowcast, horizon 0 only; a control arm, used only if R2 confirms a real-time archive; never part of the primary comparator"
+    },
+    {
+      "id": "EQUAL_WEIGHT_POINT",
+      "applies_to": [
+        "T1_CPI_YOY",
+        "T2_GDP_GROWTH"
+      ],
+      "comparator_member": false,
+      "note": "mean of the point forecasts of the comparator members; the primary comparator for point losses"
+    },
+    {
+      "id": "EQUAL_WEIGHT_DENSITY",
+      "applies_to": [
+        "T1_CPI_YOY",
+        "T2_GDP_GROWTH",
+        "T3_RECESSION"
+      ],
+      "comparator_member": false,
+      "note": "equal-weight mixture of the predictive distributions of the comparator members that provide one (forecast_product.pool); for T3 the equal-weight average of the member event probabilities; the primary comparator for distribution and event losses"
+    }
+  ],
+  "primary_comparator_rule": "EQUAL_WEIGHT_POINT for point losses and EQUAL_WEIGHT_DENSITY for distribution and event losses. Members: baselines with comparator_member true, scored, REAL_TIME (or REAL_TIME_TAPE) at the origin, and whose inputs for the target are all OPEN in the register on the evaluation date (comparator_minimum applies). The composition by date is recorded and hashed before any candidate is evaluated. No selection window. A candidate is also reported against every other scored baseline and control arm, and against a comparator of fixed composition (the members available over the whole window) as a sensitivity result.",
+  "losses": {
+    "point": "RMSE",
+    "distribution": "CRPS (see forecast_product.crps)",
+    "event": [
+      "Brier",
+      "log score (see forecast_product.log_score)"
+    ],
+    "rule": "Every criterion that uses a loss must hold for each loss applicable to the pair; the loss is never chosen after seeing results."
+  },
+  "admission": {
+    "scope": "per (target, horizon) pair; a model can be ACTIVE for one pair and not for another",
+    "initial_values_revisable_only_via_v4": true,
+    "criteria": [
+      {
+        "id": "C1",
+        "gating": true,
+        "text": "relative loss (candidate/primary comparator) <= threshold on W1 and on W2 separately, for each applicable loss; threshold per admission.threshold_rule; W1 is target-specific (admission.window_note)."
+      },
+      {
+        "id": "C2",
+        "gating": true,
+        "text": "Giacomini-White test with the constant as the only instrument (equivalent to a Diebold-Mariano test with a finite estimation window), HAC with h-1 lags and Harvey-Leybourne-Newbold small-sample correction, one-sided t test, Romano-Wolf adjusted p < 0.10 on W1 and on W2, for each applicable loss; multi-instrument conditional variants are reported only; W1 is target-specific (admission.window_note)."
+      },
+      {
+        "id": "C3",
+        "gating": false,
+        "text": "Model Confidence Set 90% against the scored baselines admitted by the licence rule: membership and set size are reported; short samples make the set wide, so it does not gate"
+      },
+      {
+        "id": "C4",
+        "gating": true,
+        "applies_to": [
+          "T1_CPI_YOY",
+          "T2_GDP_GROWTH"
+        ],
+        "text": "relative loss <= 1.00 in the origins whose month is an NBER recession month in the chronology as of the evaluation date (a split of the sample made after the fact), in W1 and W2, and the Giacomini-White test with instruments (constant, recession-month indicator of the origin) does not reject; reject means p < 0.10 and the estimated mean loss difference in recession months, the constant plus the indicator coefficient, favours the comparator; with fewer than 12 recession months the result is inconclusive, which counts as not passed and leaves the pair in CANDIDATE. The recession mask is the ORIGIN MONTH (not the (t,t+h] window). For T1 the C4 is evaluated on W1_EXT (1990-01..2006-12; origins before 1996-12-31 carry reconstructed classes) and on W2; the REAL_TIME-only slice of W1 (1996-12..2006-12, 8 recession months) is published but is reporting-only and does not gate, because it cannot reach the minimum by construction."
+      },
+      {
+        "id": "C5",
+        "gating": true,
+        "text": "not significantly worse than the primary comparator on the secondary actuals: the C2 test with the opposite one-sided alternative, p >= 0.10, on W1 and W2; for T3 the secondary actuals equal the primary ones, so C5 repeats C2; W1 is target-specific (admission.window_note)."
+      },
+      {
+        "id": "C6",
+        "gating": true,
+        "text": "at least 12 resolved forward-registry forecasts for the pair, cumulative relative loss <= 1.00 and, for T1 and T2, empirical interval coverage within 10 percentage points of nominal; for T3 calibration replaces coverage: the mean forecast probability against the event frequency in at least 3 probability bins, within 10 percentage points"
+      }
+    ],
+    "threshold_rule": {
+      "value": "min(0.97, q05_equal_methods)",
+      "q05_equal_methods": "5th percentile of the relative loss between two statistically equivalent forecasting methods, from the NF-SIM study, computed separately for each (target, horizon, loss)",
+      "noise_floor_study": {
+        "id": "NF-SIM",
+        "design": "Simulate pairs of methods with the same data-generating process and different estimation noise, calibrated on the baselines.",
+        "sample_sizes": "The effective REAL_TIME evaluation length of each (target, horizon, window), after losing h observations and allowing for the h-1 overlap of forecast errors; reference lengths 156 and 204 months, 52 and 68 quarters when every origin is REAL_TIME.",
+        "timing": "Run after the R2 data gate has fixed the effective lengths and after the comparator composition is recorded.",
+        "combination": "The primary comparator is a combination and has less noise than a single method; the study also reports the threshold for a combination of equivalent members and the stricter of the two is used.",
+        "table": "The table of thresholds by (target, horizon, loss) is hashed.",
+        "must_be_complete_and_frozen_before": "any candidate is evaluated"
+      }
+    },
+    "recession_conditioning": {
+      "instrument": "indicator that the origin month is an NBER recession month, from the chronology as of the evaluation date",
+      "used_in": [
+        "C4"
+      ],
+      "min_recession_months": 12,
+      "report": "the number of distinct recession episodes behind the recession months"
+    },
+    "long_horizon": {
+      "resolved_definition": "A forecast is resolved when its target period has been published (T3: see targets.resolution, including the completeness deadline); it is evaluable at origin + horizon.",
+      "independent_outcome": "A resolved forecast whose target window does not overlap another counted forecast.",
+      "min_independent_outcomes_for_ACTIVE": 8,
+      "ceiling_when_fewer": "LIMITED_DEPLOYMENT",
+      "pairs_expected_to_hit_ceiling": [
+        "T1_CPI_YOY all horizons",
+        "T3_RECESSION all horizons"
+      ],
+      "pairs_expected_note": "The list is an informal expectation, not a rule; independent_outcome and min_independent_outcomes_for_ACTIVE decide. The target window of T1 is the 12 months of the y/y change, so every T1 horizon yields about one independent outcome a year; T2 has a one-quarter target window, so T2 h=4 can reach the minimum in a few years; T3 uses the interval (t, t+h]."
+    },
+    "stages": {
+      "CANDIDATE_to_SHADOW_TEST": "C1, C2, C4 (where it applies) and C5 on REAL_TIME historical forecasts; a CONTAMINATED candidate moves to SHADOW_TEST by registration and opening of its registry entries, without C1 to C5",
+      "SHADOW_TEST_to_LIMITED_DEPLOYMENT": "C6",
+      "LIMITED_DEPLOYMENT_to_ACTIVE": "C6 repeated over a second, non-overlapping block, no drift trigger, and long_horizon.min_independent_outcomes_for_ACTIVE met"
+    },
+    "T3_ceiling": "LIMITED_DEPLOYMENT",
+    "reporting_requirements": [
+      "C4: number of recession episodes",
+      "C6: statistical power of the coverage check, which is low with 12 forecasts",
+      "composition of the primary comparator by date",
+      "HAC results with a bandwidth wider than h-1",
+      "T3: unresolved forecasts do not enter the C6 count, so the registry resolves up to the completeness deadline after origin+h and that delay is stated in every T3 report",
+      "T2 horizon 0: the comparator member is the project's own substitute; its quality against the excluded external nowcasts is unknown, so the admission bar may be lower"
+    ],
+    "window_note": "Where a criterion says W1, T1 and T2 use windows.W1 unchanged; T3 uses the narrowed start in windows.target_overrides.T3_RECESSION.W1_start (1996-12). W2 is unchanged for all targets.",
+    "c4_window_and_minimum": {
+      "min_recession_months": 12,
+      "note": "single source: the C4 minimum stays 12 recession months for every target (v4 recession_conditioning); T2 is not changed by v5",
+      "extended_window": {
+        "T1_CPI_YOY": "W1_EXT"
+      },
+      "real_time_slice": {
+        "start_origin": "1996-12-31",
+        "status": "REPORTING_ONLY_NOT_GATING",
+        "reason": "the first real ALFRED vintage of the comparator inputs is dated 1996-12-03; the 1996-12..2006-12 slice has 8 recession months < 12, so by construction it is INCONCLUSIVE and must not block a T1 decision that passes C4 on W1_EXT"
+      },
+      "comparator_on_w1_ext": {
+        "members": [
+          "AO",
+          "AR_BIC",
+          "BVAR_MINNESOTA",
+          "RW"
+        ],
+        "rule": "the frozen comparator composition is used on W1_EXT with the reconstructed inputs; the REAL_TIME-member requirement of primary_comparator_rule is waived for C4 on W1_EXT only, because no REAL_TIME member exists before 1996-12; DFM is not a member of the frozen composition, so the composition does not change between 1990 and 2006",
+        "pooling": "all origins of W1_EXT are pooled; the report publishes the per-episode relative loss (1990-91, 2001) and leave-one-episode-out; a pass that rests on a single episode is not a pass"
+      },
+      "sensitivity": "T1: C4 on W1_EXT (reconstructed) and W2; REAL_TIME-only W1 slice published as reporting-only; leave-one-episode-out; the pair may advance to SHADOW_TEST only with the CONDITIONAL_DATA_CLASS label. T2: v4 rules unchanged."
+    },
+    "admission_classes": [
+      "REAL_TIME",
+      "REAL_TIME_TAPE",
+      "REAL_TIME_RECONSTRUCTED"
+    ],
+    "reconstructed_caveat": "a SHADOW_TEST decision that relies on reconstructed origins is reported with the machine-readable field conditional_data_class = true and the label CONDITIONAL_DATA_CLASS in the report, the decision log and the model card; it does not lower the C6 bar and does not grant ACTIVE. The label is removed only by a subsequent evaluation that passes C4 without reconstructed origins.",
+    "stages_note": "admission.stages is unchanged in substance: CANDIDATE -> SHADOW_TEST still requires C1, C2, C4 and C5; v5 only specifies that C4 for T1 may be computed on W1_EXT, in which case the status is SHADOW_TEST with conditional_data_class = true. C6 and ACTIVE rules are unchanged."
+  },
+  "multiplicity": {
+    "registry_of_candidates": "Every candidate that was evaluated is recorded, including rejected ones; the count is part of every report. Each COVID variant of a candidate counts as a separate candidate.",
+    "primary": "Romano-Wolf stepdown, family-wise error rate 0.10. Family: all candidates evaluated for one (target, horizon, loss) up to the date of the decision; a candidate must pass on both W1 and W2. Earlier decisions are not withdrawn when the family grows, but the adjusted p-values are published. Error accumulates over pairs, which is stated in every report. W1 is target-specific (admission.window_note).",
+    "secondary": "Benjamini-Hochberg FDR q = 0.10, reported only because candidate losses are dependent.",
+    "many_candidates": "White Reality Check or Hansen SPA when more than 20 candidates are compared against the same comparator."
+  },
+  "model_class_rules": {
+    "applies_to": [
+      "time-series foundation models",
+      "LLM-based forecasters",
+      "LLM-agent-proposed hypotheses or models"
+    ],
+    "data": "Same real-time vintages as every other candidate; a forecast on the latest vintage compared with a baseline trained on older vintages is invalid. Training or fine-tuning on FRED or ALFRED content is not done (licence_policy.data_channel).",
+    "llm_evidence": "A result counts only if it comes from (a) the forward registry, (b) a period after the model's documented knowledge cutoff, or (c) a chronologically consistent model. Any other result is labelled CONTAMINATED and excluded from C1 to C5.",
+    "agent_selection": "A model or hypothesis proposed by an LLM agent and selected on historical windows is CONTAMINATED for those windows.",
+    "registry_access": "The forward registry is open to every candidate whatever its stage; for a contaminated candidate the only route to admission is the registry and C6 (admission.stages)."
+  },
+  "covid_handling": {
+    "window": "2020-03 to 2021-02",
+    "required_variants": [
+      "robust outlier handling (Lenza-Primiceri variance scaling or an outlier component in stochastic volatility)",
+      "variant with the window excluded from estimation"
+    ],
+    "declaration": "The variant is declared when the candidate is registered; it cannot be switched afterwards.",
+    "reporting": "W3 is reported separately for each variant; W3 never counts toward admission."
+  },
+  "forward_registry": {
+    "cadence": "monthly anchor row after the last data release of the month, plus weekly vintage rows (one per week after the first data release of the week; D-151). The 12 resolved forecasts required by C6 may accumulate from both cadences, but C6 additionally requires at least 4 DISTINCT target periods: correlated rows for the same target month do not replace independent periods, and the independent-outcome requirement for ACTIVE (8) is unchanged.",
+    "record": [
+      "candidate_id",
+      "code_commit",
+      "data_vintage_hash",
+      "target",
+      "horizon",
+      "origin",
+      "quantiles_5_to_95_step_5 (T1 and T2) or event_probability (T3)",
+      "point",
+      "scoring_rule_commit"
+    ],
+    "control_arms": [
+      "RW",
+      "EQUAL_WEIGHT_POINT",
+      "EQUAL_WEIGHT_DENSITY",
+      "OWN_NOWCAST_BRIDGE"
+    ],
+    "control_arm_rule": "A control arm enters the registry only while its inputs are OPEN in the register. Rows of control arms contain our own forecasts and derived statistics; a single third-party forecast (for example the SPF median) is recorded only where its register entry is OPEN and the terms allow it, always with attribution, and raw third-party datasets are never recorded. NOWCAST_NYFED joins only after R2 confirms that its archive is usable as a control arm, with the NY Fed attribution. SPF joins as a control arm only after R2 automates its files and fixes the definition mapping.",
+    "integrity": "committed to the repository before the actual value is published; rows are append-only; a correction is a new row that references the old one",
+    "cadence_note": "the weekly cadence, together with the 4-distinct-period minimum, makes 12 resolved T1 forecasts reachable in about four months instead of twelve; it is prospective, no row is backdated, and the first row is still committed before its actual is published",
+    "c6_min_distinct_target_periods": 4
+  },
+  "drift_triggers": {
+    "forecast_breakdown": "Giacomini-Rossi forecast breakdown test at 10%",
+    "coverage": "interval coverage outside nominal +-15 percentage points over the trailing 24 months; for T3 the calibration check of C6",
+    "action": "SUSPENDED and review per D-101; automatic rollback only to the previous ACTIVE version"
+  },
+  "changes_from_v2": [
+    {
+      "id": "L1",
+      "disposition": "adopted",
+      "paths": [
+        "licence_policy.rule",
+        "primary_comparator_rule"
+      ],
+      "summary": "The primary comparator uses only sources that are OPEN in the register; RESTRICTED and UNVERIFIED sources are used nowhere."
+    },
+    {
+      "id": "L2",
+      "disposition": "adopted",
+      "paths": [
+        "baselines",
+        "forward_registry"
+      ],
+      "summary": "GDPNow is dropped; the NY Fed nowcast is a control arm only after R2 confirms a real-time archive; OWN_NOWCAST_BRIDGE replaces external nowcasts in the comparator."
+    },
+    {
+      "id": "L3",
+      "disposition": "adopted",
+      "paths": [
+        "licence_policy.raw_data",
+        "licence_policy.gdpnow"
+      ],
+      "summary": "Raw archives are never committed; no permission is requested from anyone (owner decision 2026-11-11)."
+    },
+    {
+      "id": "L4",
+      "disposition": "adopted",
+      "paths": [
+        "licence_policy.no_permissions",
+        "licence_policy.substitute",
+        "meta_gate.owner_decisions"
+      ],
+      "summary": "Open information only; model quantities available only through restricted sources are replaced by the project's own models and validated against OPEN actuals."
+    },
+    {
+      "id": "V3-01",
+      "disposition": "adopted",
+      "paths": [
+        "comparator_minimum",
+        "baselines"
+      ],
+      "summary": "Comparator needs at least 2 members per loss, otherwise the pair stays CANDIDATE; inputs are listed per target."
+    },
+    {
+      "id": "V3-02",
+      "disposition": "adopted",
+      "paths": [
+        "licence_policy.register_file",
+        "licence_policy.register_rule"
+      ],
+      "summary": "The register moves to protocols/licence_register.json, an append-only journal; a new entry applies to candidates evaluated after it."
+    },
+    {
+      "id": "V3-03",
+      "disposition": "adopted",
+      "paths": [
+        "licence_policy.intended_use",
+        "baselines"
+      ],
+      "summary": "Register by series and source with the intended use defined; the group ALFRED_OTHER_SERIES is gone."
+    },
+    {
+      "id": "V3-04",
+      "disposition": "adopted_needs_owner_confirmation",
+      "paths": [
+        "licence_policy.data_channel",
+        "model_class_rules.data"
+      ],
+      "summary": "FRED and ALFRED vintage files are downloaded by hand, one per series, and are not committed; no ML training on FRED content; primary public-domain sources are the alternative channel."
+    },
+    {
+      "id": "V3-05",
+      "disposition": "adopted",
+      "paths": [
+        "licence_policy.rule",
+        "admission.criteria"
+      ],
+      "summary": "UNVERIFIED is used nowhere; C3 includes only baselines admitted by the licence rule."
+    },
+    {
+      "id": "V3-06",
+      "disposition": "adopted",
+      "paths": [
+        "baselines",
+        "licence_policy.substitute"
+      ],
+      "summary": "OWN_NOWCAST_BRIDGE needs a specification fixed with a code hash; naming the replaced source is allowed."
+    },
+    {
+      "id": "V3-07",
+      "disposition": "adopted",
+      "paths": [
+        "admission.criteria",
+        "admission.recession_conditioning",
+        "targets"
+      ],
+      "summary": "C4 defined by the origin month, direction and the inconclusive outcome stated; recession dating convention; C4 does not apply to T3."
+    },
+    {
+      "id": "V3-08",
+      "disposition": "adopted",
+      "paths": [
+        "admission.stages",
+        "model_class_rules.registry_access"
+      ],
+      "summary": "A CONTAMINATED candidate moves to SHADOW_TEST by registration, then C6."
+    },
+    {
+      "id": "V3-09",
+      "disposition": "adopted",
+      "paths": [
+        "forward_registry.control_arm_rule",
+        "licence_policy.privacy",
+        "data_depth.vintage_sources"
+      ],
+      "summary": "Control arms and vintage sources follow the register; privacy of the repository recorded."
+    },
+    {
+      "id": "V3-10",
+      "disposition": "adopted_needs_owner_confirmation",
+      "paths": [
+        "windows.defined_by",
+        "windows.origin_exclusion"
+      ],
+      "summary": "Windows by origin and target; COVID-target origins leave W2 and are reported separately."
+    },
+    {
+      "id": "V3-11",
+      "disposition": "adopted",
+      "paths": [
+        "data_depth.classification_rule",
+        "data_depth.first_release_tape"
+      ],
+      "summary": "Class REAL_TIME_TAPE with a sensitivity result; the tape is the latest value of each observation among the vintages at the origin."
+    },
+    {
+      "id": "V3-12",
+      "disposition": "adopted",
+      "paths": [
+        "origin_policy",
+        "targets"
+      ],
+      "summary": "T1 horizon counted from the last published CPI month; T2 origins and lag unit stated; y/y first publication defined."
+    },
+    {
+      "id": "V3-13",
+      "disposition": "adopted",
+      "paths": [
+        "forecast_product"
+      ],
+      "summary": "Distributions of RW, AO, AR_BIC from empirical errors; mixture pool; CRPS formula; clipped log score."
+    },
+    {
+      "id": "V3-14",
+      "disposition": "adopted",
+      "paths": [
+        "primary_comparator_rule",
+        "multiplicity.primary",
+        "admission.criteria",
+        "admission.reporting_requirements"
+      ],
+      "summary": "Fixed-composition sensitivity; sequential family for Romano-Wolf; C5 defined as the opposite-alternative test; wide-bandwidth HAC reported."
+    },
+    {
+      "id": "V3-15",
+      "disposition": "adopted",
+      "paths": [
+        "targets",
+        "estimation.T3",
+        "admission.criteria"
+      ],
+      "summary": "T3 resolution rule (rewritten in 0.3 to cover recessions that began before the origin); sensitivity windows 180 and 360; calibration replaces coverage for T3."
+    },
+    {
+      "id": "V3-16",
+      "disposition": "adopted",
+      "paths": [
+        "licence_policy.substitute",
+        "baselines",
+        "admission.reporting_requirements"
+      ],
+      "summary": "The own nowcast is called a substitute, not an approximation; its quality against excluded sources is unknown and stated in every T2 horizon 0 report; the principle covers model quantities only; clean implementation from published descriptions and a hashed specification."
+    },
+    {
+      "id": "V3-17",
+      "disposition": "adopted",
+      "paths": [
+        "baselines"
+      ],
+      "summary": "Horizon fields are lists (horizons_quarters); the test checks every baseline and control arm for restricted or unverified inputs, not only comparator members."
+    },
+    {
+      "id": "R-01",
+      "disposition": "adopted",
+      "paths": [
+        "data_depth.first_release_tape"
+      ],
+      "summary": "First-release tape for CPIAUCSL before 1994-02-17, documented and spot-checked."
+    },
+    {
+      "id": "R-02",
+      "disposition": "adopted",
+      "paths": [
+        "data_depth.gate"
+      ],
+      "summary": "The R2 gate covers 1990-2026, with at least 10 spot-check pairs before 2000."
+    },
+    {
+      "id": "R-03",
+      "disposition": "adopted",
+      "paths": [
+        "admission.threshold_rule.noise_floor_study"
+      ],
+      "summary": "NF-SIM uses the effective REAL_TIME length and the h-1 overlap."
+    },
+    {
+      "id": "R-04",
+      "disposition": "adopted",
+      "paths": [
+        "baselines",
+        "primary_comparator_rule"
+      ],
+      "summary": "Point-only baselines enter point losses; separate point and density comparators; SPF scored only after the definition mapping."
+    },
+    {
+      "id": "R-05",
+      "disposition": "adopted_needs_owner_confirmation",
+      "paths": [
+        "admission.recession_conditioning",
+        "admission.criteria"
+      ],
+      "summary": "C4 instrument and the meaning of reject."
+    },
+    {
+      "id": "R-06",
+      "disposition": "adopted_needs_owner_confirmation",
+      "paths": [
+        "admission.criteria"
+      ],
+      "summary": "C2 is the constant-instrument Giacomini-White test with a one-sided t test and HLN correction; conditional variants are reported."
+    },
+    {
+      "id": "R-07",
+      "disposition": "adopted",
+      "paths": [
+        "estimation.recursive_variant"
+      ],
+      "summary": "Clark-West only for nested pairs."
+    },
+    {
+      "id": "R-08",
+      "disposition": "adopted_needs_owner_confirmation",
+      "paths": [
+        "multiplicity",
+        "admission.criteria"
+      ],
+      "summary": "C2 uses Romano-Wolf adjusted p-values; family defined."
+    },
+    {
+      "id": "R-09",
+      "disposition": "adopted_needs_owner_confirmation",
+      "paths": [
+        "losses.rule",
+        "admission.threshold_rule"
+      ],
+      "summary": "Criteria hold for each applicable loss; q05 per (target, horizon, loss)."
+    },
+    {
+      "id": "R-10",
+      "disposition": "adopted_needs_owner_confirmation",
+      "paths": [
+        "estimation.T3"
+      ],
+      "summary": "T3 estimation window 240 months."
+    },
+    {
+      "id": "R-11",
+      "disposition": "no_change",
+      "paths": [
+        "estimation"
+      ],
+      "summary": "The 180-month window stays for T1 and T2."
+    },
+    {
+      "id": "R-12",
+      "disposition": "adopted",
+      "paths": [
+        "admission.long_horizon"
+      ],
+      "summary": "Expected-ceiling list corrected; the rule decides."
+    },
+    {
+      "id": "R-13",
+      "disposition": "recorded_as_caveat",
+      "paths": [
+        "admission.reporting_requirements",
+        "admission.recession_conditioning"
+      ],
+      "summary": "Report the number of recession episodes."
+    },
+    {
+      "id": "R-14",
+      "disposition": "recorded_as_caveat",
+      "paths": [
+        "admission.reporting_requirements"
+      ],
+      "summary": "Report the low power of the C6 coverage check."
+    },
+    {
+      "id": "R-15",
+      "disposition": "adopted",
+      "paths": [
+        "model_class_rules.registry_access",
+        "admission.stages"
+      ],
+      "summary": "The forward registry is open to every candidate; the contaminated route is explicit."
+    },
+    {
+      "id": "R-16",
+      "disposition": "adopted",
+      "paths": [
+        "covid_handling.declaration",
+        "multiplicity.registry_of_candidates"
+      ],
+      "summary": "COVID variant declared at registration and counted as a separate candidate."
+    },
+    {
+      "id": "R-17",
+      "disposition": "adopted",
+      "paths": [
+        "primary_comparator_rule",
+        "windows.W3",
+        "targets"
+      ],
+      "summary": "Comparator composition recorded by date; W3 ends 2026-10; seasonal revision of CPI noted."
+    }
+  ],
+  "changes_from_v3": [
+    {
+      "id": "W4-01",
+      "disposition": "adopted",
+      "paths": [
+        "windows.target_overrides",
+        "admission.window_note",
+        "admission.criteria",
+        "baselines",
+        "data_depth"
+      ],
+      "summary": "T3 is evaluated on W1 from 1996-12; PROBIT_SPREAD uses the GS10-TB3MS spread only (T10Y3M dropped, its ALFRED vintages start 2014-01-27), so both T3 members are REAL_TIME over the narrowed W1; the criteria apply W1 per target (D-131)."
+    },
+    {
+      "id": "W4-02",
+      "disposition": "adopted",
+      "paths": [
+        "licence_policy.data_channel",
+        "licence_policy.raw_data",
+        "data_depth.retrieval",
+        "data_depth.vintage_sources"
+      ],
+      "summary": "Automated retrieval replaces the human download step: tool plus CI; latest files through FRED and vintage sets through one ALFRED download-form POST per series; NBER chronology through USREC; rate-limited, no API cache, no raw data in the repository. SPF_MEDIAN is not a comparator member until its files are automated and mapped in R2 (D-132). The SPF median leaves the control arms until R2."
+    }
+  ],
+  "status_note": "v5 is the prospective data-availability amendment approved by the owner (D-151, option A+E) after independent review docs/111. Narrow scope: only T1 gets the extended reconstructed C4 window; C1/C2/C5 stay on REAL_TIME origins; T2 is unchanged from v4 and is outside the 2026 product scope. No provisional C6 and no retroactive PASS.",
+  "changes_from_v4": [
+    "5.0.0 (2026-11-12, D-151, after docs/111): new data-depth classes for the 1990-1996 origins (REAL_TIME_RECONSTRUCTED_MARKET for GS10/TB3MS, RECONSTRUCTED_PIT for CPIAUCSL/CPILFESL/UNRATE, report class REAL_TIME_RECONSTRUCTED), documented in protocols/pit_reconstruction.json; the T1 C4 uses the extended window windows.W1_EXT (1990-01..2006-12) with reconstructed origins, while C1/C2/C5 remain REAL_TIME-only and the REAL_TIME-only C4 slice is reporting-only; the forward registry adds weekly vintage rows with a minimum of 4 distinct target periods for C6; no change to C1/C2/C5 thresholds, targets, horizons, W1/W2/W3 endpoints, the comparator composition, the C4 minimum of 12 months, R3 or NF-SIM."
+  ],
+  "frozen_on": "2026-11-12"
+}

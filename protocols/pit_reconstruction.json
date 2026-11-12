@@ -1,0 +1,799 @@
+{
+  "schema": "amfe.pit_reconstruction.v2",
+  "document": "protocols/pit_reconstruction.json",
+  "status": "PROPOSED",
+  "generated_at": "2026-11-12T17:49:53+00:00",
+  "generated_by": "tools/reconstruct_pit.py (offline; deterministic data artefacts)",
+  "sources": {
+    "data_root": "G:/Мировая экономика модель/data/raw",
+    "archive": "ALFRED merged vintages (data/raw/<SERIES>/vintages.zip), fetched by tools/fetch_data.py",
+    "network": false
+  },
+  "method": {
+    "summary": "Value of an observation = the earliest non-empty vintage column of the merged source archive (first archived print). Tape vintages are monthly dates on the 15th plus, per series, every real vintage date before the series' full-history date (the tape override); an observation is included only when its reference period ended before the vintage date. Genuine ALFRED vintage columns from the full-history date on are preserved unchanged in the same zip, and a genuine column wins over a grid date on a clash.",
+    "value_source": "earliest non-empty vintage column per observation (verbatim cell)",
+    "inclusion_rule": {
+      "monthly": "period_end < vintage_date",
+      "quarterly": "quarter_end + 1 month < vintage_date (conservative, advance estimate lag)",
+      "no_observation_after_vintage": true
+    },
+    "grid": {
+      "frequency": "monthly",
+      "vintage_day": 15,
+      "start": "1990-01-15",
+      "end": "1996-11-15",
+      "dates": 83
+    },
+    "tape_override": "real vintage columns dated before the full-history date are replaced by tape columns on the same dates (see the tape_override section); genuine columns from the full-history date on are kept verbatim",
+    "determinism": "fixed zip member timestamp (1980-01-01), UTF-8 BOM CSV with \\n line endings, byte-copied latest.csv; a rerun yields identical SHA-256",
+    "revision_classification": {
+      "ZERO": "max_abs == 0 in the classification basis",
+      "ZERO_WITHIN_ROUNDING": "max_abs <= 0.01 and mean_abs <= 0.001 (publication rounding of a rate)",
+      "SMALL": "mean_abs <= 0.05 and max_abs <= 0.5 (usable as RECONSTRUCTED_PIT with sensitivity)",
+      "MATERIAL": "otherwise (not usable for an admission-relevant target without genuine archives)"
+    },
+    "revisions_measured_on": "the source archive data/raw, aggregates only; no series values are written to this dossier (licence policy, docs/84)"
+  },
+  "reconstruction": {
+    "range": {
+      "start": "1990-01-15",
+      "end": "1996-11-15"
+    },
+    "vintage_dates": 83,
+    "series": [
+      "CPIAUCSL",
+      "CPILFESL",
+      "GDPC1",
+      "UNRATE",
+      "GS10",
+      "TB3MS"
+    ],
+    "latest_only": [
+      "USREC"
+    ],
+    "data_root_env": "AMFE_DATA_ROOT=data/reconstructed"
+  },
+  "series": {
+    "CPIAUCSL": {
+      "first_real_vintage": "1990-03-20",
+      "real_vintages_in_source": 147,
+      "real_vintages_preserved": 131,
+      "reconstructed_vintages_written": 85,
+      "reconstructed_vintages_requested": 83,
+      "grid_collisions_with_real_vintages": [
+        "1996-03-15"
+      ],
+      "rows": 955,
+      "reconstructed_cells": 46862,
+      "carrier_after_vintage_date": {
+        "cells": 31707,
+        "max_lag_days": 1521,
+        "observations_entering_before_their_earliest_print": 577
+      },
+      "tape_override": {
+        "full_history_date": "1994-03-16",
+        "full_history_observations": 566,
+        "min_full_history_observations": 120,
+        "replaced_real_vintages": [
+          "1990-03-20",
+          "1990-06-15",
+          "1990-09-18",
+          "1990-12-18",
+          "1991-03-19",
+          "1991-06-14",
+          "1991-09-13",
+          "1991-12-13",
+          "1992-03-17",
+          "1992-06-12",
+          "1992-09-15",
+          "1992-12-13",
+          "1993-03-17",
+          "1993-06-15",
+          "1993-09-14",
+          "1993-12-10"
+        ],
+        "replaced_real_vintages_count": 16,
+        "replaced_real_vintages_also_on_grid": [
+          "1990-06-15",
+          "1992-09-15",
+          "1993-06-15"
+        ],
+        "kept_real_vintages_count": 131,
+        "tape_vintages_written": 85,
+        "tape_vintages_from_grid": 72,
+        "carrier_after_vintage_date": {
+          "cells": 31707,
+          "max_lag_days": 1521,
+          "observations_entering_before_their_earliest_print": 577
+        }
+      },
+      "vintages_zip": {
+        "path": "CPIAUCSL/vintages.zip",
+        "sha256": "ef9e17a1cc2a7d52bfee229683a55199a5413db39ce528ad5399d7e1c7c4c666",
+        "bytes": 19856
+      },
+      "latest_csv": {
+        "path": "CPIAUCSL/latest.csv",
+        "sha256": "c9be2d4909ffd28d91f07df5d113151b0fe7ba602144ee6fd453d3bc8426efde",
+        "bytes": 17782
+      },
+      "revisions": {
+        "levels": {
+          "unit": "index points (level units)",
+          "earliest_vs_latest": {
+            "unit": "index points (level units)",
+            "n": 955,
+            "mean_abs": 0.083685,
+            "max": 0.719,
+            "median": 0.0
+          },
+          "step_1": {
+            "unit": "index points (level units)",
+            "n": 98991,
+            "mean_abs": 0.001749,
+            "max": 0.761,
+            "median": 0.0
+          }
+        },
+        "target_units": {
+          "transform": "cpi_yoy",
+          "unit": "percentage points (CPI y/y)",
+          "earliest_vs_latest": {
+            "unit": "percentage points (CPI y/y)",
+            "n": 943,
+            "mean_abs": 0.019237,
+            "max": 0.222841,
+            "median": 0.0
+          },
+          "step_1": {
+            "unit": "percentage points (CPI y/y)",
+            "n": 97239,
+            "mean_abs": 0.000465,
+            "max": 0.168824,
+            "median": 0.0
+          },
+          "window_1990_1992": {
+            "unit": "percentage points (CPI y/y)",
+            "n": 36,
+            "mean_abs": 0.038325,
+            "max": 0.084416,
+            "median": 0.012889
+          }
+        },
+        "revision_class": "SMALL",
+        "zero_revision": false,
+        "classification_basis": "percentage points (CPI y/y)"
+      }
+    },
+    "CPILFESL": {
+      "first_real_vintage": "1996-12-12",
+      "real_vintages_in_source": 120,
+      "real_vintages_preserved": 120,
+      "reconstructed_vintages_written": 83,
+      "reconstructed_vintages_requested": 83,
+      "grid_collisions_with_real_vintages": [],
+      "rows": 835,
+      "reconstructed_cells": 36271,
+      "carrier_after_vintage_date": {
+        "cells": 36271,
+        "max_lag_days": 2523,
+        "observations_entering_before_their_earliest_print": 478
+      },
+      "tape_override": {
+        "full_history_date": "1996-12-12",
+        "full_history_observations": 479,
+        "min_full_history_observations": 120,
+        "replaced_real_vintages": [],
+        "replaced_real_vintages_count": 0,
+        "replaced_real_vintages_also_on_grid": [],
+        "kept_real_vintages_count": 120,
+        "tape_vintages_written": 83,
+        "tape_vintages_from_grid": 83,
+        "carrier_after_vintage_date": {
+          "cells": 36271,
+          "max_lag_days": 2523,
+          "observations_entering_before_their_earliest_print": 478
+        }
+      },
+      "vintages_zip": {
+        "path": "CPILFESL/vintages.zip",
+        "sha256": "183511fff67a1664a0e694dc92308364c29ff7b34b5375f1bf6e41f15251b131",
+        "bytes": 17758
+      },
+      "latest_csv": {
+        "path": "CPILFESL/latest.csv",
+        "sha256": "b9f2504703e841cc721242ffab7c638f2e26a97baec9783502c8b606e352f58c",
+        "bytes": 15622
+      },
+      "revisions": {
+        "levels": {
+          "unit": "index points (level units)",
+          "earliest_vs_latest": {
+            "unit": "index points (level units)",
+            "n": 835,
+            "mean_abs": 0.089661,
+            "max": 0.494,
+            "median": 0.022
+          },
+          "step_1": {
+            "unit": "index points (level units)",
+            "n": 78061,
+            "mean_abs": 0.001459,
+            "max": 0.423,
+            "median": 0.0
+          }
+        },
+        "target_units": {
+          "transform": "cpi_yoy",
+          "unit": "percentage points (CPI y/y)",
+          "earliest_vs_latest": {
+            "unit": "percentage points (CPI y/y)",
+            "n": 823,
+            "mean_abs": 0.016326,
+            "max": 0.178731,
+            "median": 0.002177
+          },
+          "step_1": {
+            "unit": "percentage points (CPI y/y)",
+            "n": 76633,
+            "mean_abs": 0.000379,
+            "max": 0.178731,
+            "median": 0.0
+          },
+          "window_1990_1992": {
+            "unit": "percentage points (CPI y/y)",
+            "n": 36,
+            "mean_abs": 0.015663,
+            "max": 0.075141,
+            "median": 0.007365
+          }
+        },
+        "revision_class": "SMALL",
+        "zero_revision": false,
+        "classification_basis": "percentage points (CPI y/y)"
+      }
+    },
+    "GDPC1": {
+      "first_real_vintage": "1991-12-20",
+      "real_vintages_in_source": 140,
+      "real_vintages_preserved": 140,
+      "reconstructed_vintages_written": 63,
+      "reconstructed_vintages_requested": 83,
+      "grid_collisions_with_real_vintages": [],
+      "rows": 318,
+      "reconstructed_cells": 11586,
+      "carrier_after_vintage_date": {
+        "cells": 4427,
+        "max_lag_days": 1072,
+        "observations_entering_before_their_earliest_print": 197
+      },
+      "tape_override": {
+        "full_history_date": "1991-12-20",
+        "full_history_observations": 131,
+        "min_full_history_observations": 120,
+        "replaced_real_vintages": [],
+        "replaced_real_vintages_count": 0,
+        "replaced_real_vintages_also_on_grid": [],
+        "kept_real_vintages_count": 140,
+        "tape_vintages_written": 63,
+        "tape_vintages_from_grid": 63,
+        "carrier_after_vintage_date": {
+          "cells": 4427,
+          "max_lag_days": 1072,
+          "observations_entering_before_their_earliest_print": 197
+        }
+      },
+      "vintages_zip": {
+        "path": "GDPC1/vintages.zip",
+        "sha256": "defa79b8f80d2be14249f722a335526c7e4b0fe2082f952c81445d7acc196e19",
+        "bytes": 25287
+      },
+      "latest_csv": {
+        "path": "GDPC1/latest.csv",
+        "sha256": "1c6c6e9f59e383e20c849dd299175c7a307526c09abdc18f18da9754fc5b3343",
+        "bytes": 6548
+      },
+      "revisions": {
+        "levels": {
+          "unit": "index points (level units)",
+          "earliest_vs_latest": {
+            "unit": "index points (level units)",
+            "n": 318,
+            "mean_abs": 3030.060151,
+            "max": 5905.71,
+            "median": 2805.204
+          },
+          "step_1": {
+            "unit": "index points (level units)",
+            "n": 33836,
+            "mean_abs": 28.832012,
+            "max": 1881.5,
+            "median": 0.0
+          }
+        },
+        "target_units": {
+          "transform": "gdp_growth",
+          "unit": "percentage points (GDP q/q annualised)",
+          "earliest_vs_latest": {
+            "unit": "percentage points (GDP q/q annualised)",
+            "n": 317,
+            "mean_abs": 1.137011,
+            "max": 4.845969,
+            "median": 0.933685
+          },
+          "step_1": {
+            "unit": "percentage points (GDP q/q annualised)",
+            "n": 33697,
+            "mean_abs": 0.022242,
+            "max": 3.970227,
+            "median": 0.0
+          },
+          "window_1990_1992": {
+            "unit": "percentage points (GDP q/q annualised)",
+            "n": 12,
+            "mean_abs": 1.043684,
+            "max": 2.782036,
+            "median": 0.632444
+          }
+        },
+        "revision_class": "MATERIAL",
+        "zero_revision": false,
+        "classification_basis": "percentage points (GDP q/q annualised)"
+      }
+    },
+    "UNRATE": {
+      "first_real_vintage": "1990-03-09",
+      "real_vintages_in_source": 147,
+      "real_vintages_preserved": 147,
+      "reconstructed_vintages_written": 56,
+      "reconstructed_vintages_requested": 83,
+      "grid_collisions_with_real_vintages": [],
+      "rows": 943,
+      "reconstructed_cells": 30520,
+      "carrier_after_vintage_date": {
+        "cells": 1090,
+        "max_lag_days": 54,
+        "observations_entering_before_their_earliest_print": 559
+      },
+      "tape_override": {
+        "full_history_date": "1990-03-09",
+        "full_history_observations": 506,
+        "min_full_history_observations": 120,
+        "replaced_real_vintages": [],
+        "replaced_real_vintages_count": 0,
+        "replaced_real_vintages_also_on_grid": [],
+        "kept_real_vintages_count": 147,
+        "tape_vintages_written": 56,
+        "tape_vintages_from_grid": 56,
+        "carrier_after_vintage_date": {
+          "cells": 1090,
+          "max_lag_days": 54,
+          "observations_entering_before_their_earliest_print": 559
+        }
+      },
+      "vintages_zip": {
+        "path": "UNRATE/vintages.zip",
+        "sha256": "3f9437e49aff7d9313dc80c11143d3fe70cdd5a1e6aae7598506b9573b860b1a",
+        "bytes": 10984
+      },
+      "latest_csv": {
+        "path": "UNRATE/latest.csv",
+        "sha256": "fb669461abc34e00324b940be6bad1c7f89117652f28587196a7b8bf4a9f56a1",
+        "bytes": 14226
+      },
+      "revisions": {
+        "levels": {
+          "unit": "index points (level units)",
+          "earliest_vs_latest": {
+            "unit": "index points (level units)",
+            "n": 943,
+            "mean_abs": 0.025557,
+            "max": 0.3,
+            "median": 0.0
+          },
+          "step_1": {
+            "unit": "index points (level units)",
+            "n": 105628,
+            "mean_abs": 0.000425,
+            "max": 0.2,
+            "median": 0.0
+          }
+        },
+        "revision_class": "SMALL",
+        "zero_revision": false,
+        "classification_basis": "index level"
+      }
+    },
+    "GS10": {
+      "first_real_vintage": "1996-12-03",
+      "real_vintages_in_source": 120,
+      "real_vintages_preserved": 120,
+      "reconstructed_vintages_written": 83,
+      "reconstructed_vintages_requested": 83,
+      "grid_collisions_with_real_vintages": [],
+      "rows": 881,
+      "reconstructed_cells": 40006,
+      "carrier_after_vintage_date": {
+        "cells": 40006,
+        "max_lag_days": 2514,
+        "observations_entering_before_their_earliest_print": 523
+      },
+      "tape_override": {
+        "full_history_date": "1996-12-03",
+        "full_history_observations": 524,
+        "min_full_history_observations": 120,
+        "replaced_real_vintages": [],
+        "replaced_real_vintages_count": 0,
+        "replaced_real_vintages_also_on_grid": [],
+        "kept_real_vintages_count": 120,
+        "tape_vintages_written": 83,
+        "tape_vintages_from_grid": 83,
+        "carrier_after_vintage_date": {
+          "cells": 40006,
+          "max_lag_days": 2514,
+          "observations_entering_before_their_earliest_print": 523
+        }
+      },
+      "vintages_zip": {
+        "path": "GS10/vintages.zip",
+        "sha256": "7cbdc529767f0f3b9485fe37ff493676782e8380a02d9e8216c532689b7de000",
+        "bytes": 10669
+      },
+      "latest_csv": {
+        "path": "GS10/latest.csv",
+        "sha256": "018e609eb98c52ec8d2cf0ea9f8e1450c24974c31cca455cc19717a77703af78",
+        "bytes": 14222
+      },
+      "revisions": {
+        "levels": {
+          "unit": "index points (level units)",
+          "earliest_vs_latest": {
+            "unit": "index points (level units)",
+            "n": 881,
+            "mean_abs": 0.0,
+            "max": 0.0,
+            "median": 0.0
+          },
+          "step_1": {
+            "unit": "index points (level units)",
+            "n": 83419,
+            "mean_abs": 0.0,
+            "max": 0.0,
+            "median": 0.0
+          }
+        },
+        "revision_class": "ZERO",
+        "zero_revision": true,
+        "classification_basis": "index level"
+      }
+    },
+    "TB3MS": {
+      "first_real_vintage": "1996-12-03",
+      "real_vintages_in_source": 120,
+      "real_vintages_preserved": 120,
+      "reconstructed_vintages_written": 83,
+      "reconstructed_vintages_requested": 83,
+      "grid_collisions_with_real_vintages": [],
+      "rows": 1112,
+      "reconstructed_cells": 59179,
+      "carrier_after_vintage_date": {
+        "cells": 59179,
+        "max_lag_days": 2514,
+        "observations_entering_before_their_earliest_print": 754
+      },
+      "tape_override": {
+        "full_history_date": "1996-12-03",
+        "full_history_observations": 755,
+        "min_full_history_observations": 120,
+        "replaced_real_vintages": [],
+        "replaced_real_vintages_count": 0,
+        "replaced_real_vintages_also_on_grid": [],
+        "kept_real_vintages_count": 120,
+        "tape_vintages_written": 83,
+        "tape_vintages_from_grid": 83,
+        "carrier_after_vintage_date": {
+          "cells": 59179,
+          "max_lag_days": 2514,
+          "observations_entering_before_their_earliest_print": 754
+        }
+      },
+      "vintages_zip": {
+        "path": "TB3MS/vintages.zip",
+        "sha256": "ee47389fedd868ebb6c0a7787265afc7f09a10a1631b842f9b747981844b555c",
+        "bytes": 12368
+      },
+      "latest_csv": {
+        "path": "TB3MS/latest.csv",
+        "sha256": "33fae406051a658c316580f8e8b5e461157e6663bc03b35648cc7cd3e89ee26b",
+        "bytes": 17881
+      },
+      "revisions": {
+        "levels": {
+          "unit": "index points (level units)",
+          "earliest_vs_latest": {
+            "unit": "index points (level units)",
+            "n": 1112,
+            "mean_abs": 1.8e-05,
+            "max": 0.01,
+            "median": 0.0
+          },
+          "step_1": {
+            "unit": "index points (level units)",
+            "n": 110908,
+            "mean_abs": 0.0,
+            "max": 0.01,
+            "median": 0.0
+          }
+        },
+        "revision_class": "ZERO_WITHIN_ROUNDING",
+        "zero_revision": false,
+        "classification_basis": "index level"
+      }
+    }
+  },
+  "tape_override": {
+    "rule": "Real ALFRED vintage columns dated before the series' full-history date are sparse snapshots (~1.5 years of history) and are replaced by tape columns on the same dates: an observation is the earliest archived print of the series (the tape of first prints). Genuine columns from the full-history date on are preserved verbatim; a tape column is not written for a month that has a genuine vintage, and a genuine column wins over a grid date on a clash.",
+    "min_full_history_observations": 120,
+    "full_history_definition": "first real vintage column of the source archive with at least 120 non-empty observations",
+    "why": "the sparse CPIAUCSL snapshots 1990-03-20 .. 1993-12-16 hold only ~19 observations, so an origin in 1990-1993 saw 19 CPI observations and 7 y/y values; the forecast models need >= 60 y/y observations, and the 1990-91 recession was therefore outside any C4 computation. This is the same idea as data_depth.first_release_tape: a tape approximation, declared and disclosed, not a silent substitution.",
+    "series": {
+      "CPIAUCSL": {
+        "full_history_date": "1994-03-16",
+        "full_history_observations": 566,
+        "replaced_real_vintages_count": 16,
+        "replaced_real_vintages": [
+          "1990-03-20",
+          "1990-06-15",
+          "1990-09-18",
+          "1990-12-18",
+          "1991-03-19",
+          "1991-06-14",
+          "1991-09-13",
+          "1991-12-13",
+          "1992-03-17",
+          "1992-06-12",
+          "1992-09-15",
+          "1992-12-13",
+          "1993-03-17",
+          "1993-06-15",
+          "1993-09-14",
+          "1993-12-10"
+        ],
+        "kept_real_vintages_count": 131,
+        "tape_vintages_written": 85,
+        "carrier_after_vintage_date": {
+          "cells": 31707,
+          "max_lag_days": 1521,
+          "observations_entering_before_their_earliest_print": 577
+        }
+      },
+      "CPILFESL": {
+        "full_history_date": "1996-12-12",
+        "full_history_observations": 479,
+        "replaced_real_vintages_count": 0,
+        "replaced_real_vintages": [],
+        "kept_real_vintages_count": 120,
+        "tape_vintages_written": 83,
+        "carrier_after_vintage_date": {
+          "cells": 36271,
+          "max_lag_days": 2523,
+          "observations_entering_before_their_earliest_print": 478
+        }
+      },
+      "GDPC1": {
+        "full_history_date": "1991-12-20",
+        "full_history_observations": 131,
+        "replaced_real_vintages_count": 0,
+        "replaced_real_vintages": [],
+        "kept_real_vintages_count": 140,
+        "tape_vintages_written": 63,
+        "carrier_after_vintage_date": {
+          "cells": 4427,
+          "max_lag_days": 1072,
+          "observations_entering_before_their_earliest_print": 197
+        }
+      },
+      "UNRATE": {
+        "full_history_date": "1990-03-09",
+        "full_history_observations": 506,
+        "replaced_real_vintages_count": 0,
+        "replaced_real_vintages": [],
+        "kept_real_vintages_count": 147,
+        "tape_vintages_written": 56,
+        "carrier_after_vintage_date": {
+          "cells": 1090,
+          "max_lag_days": 54,
+          "observations_entering_before_their_earliest_print": 559
+        }
+      },
+      "GS10": {
+        "full_history_date": "1996-12-03",
+        "full_history_observations": 524,
+        "replaced_real_vintages_count": 0,
+        "replaced_real_vintages": [],
+        "kept_real_vintages_count": 120,
+        "tape_vintages_written": 83,
+        "carrier_after_vintage_date": {
+          "cells": 40006,
+          "max_lag_days": 2514,
+          "observations_entering_before_their_earliest_print": 523
+        }
+      },
+      "TB3MS": {
+        "full_history_date": "1996-12-03",
+        "full_history_observations": 755,
+        "replaced_real_vintages_count": 0,
+        "replaced_real_vintages": [],
+        "kept_real_vintages_count": 120,
+        "tape_vintages_written": 83,
+        "carrier_after_vintage_date": {
+          "cells": 59179,
+          "max_lag_days": 2514,
+          "observations_entering_before_their_earliest_print": 754
+        }
+      }
+    },
+    "disclosure": {
+      "CPIAUCSL": "1990-03..1994-02 history is assembled from prints archived up to 1994-03-16; CPI revisions are measured and small (earliest-vs-latest 0.019 pp y/y on average, max 0.223 pp), so this segment is RECONSTRUCTED_PIT and requires the REAL_TIME-only sensitivity slice.",
+      "CPILFESL": "no override: the archive starts 1996-12-12 with 479 observations; only tape columns before that date exist (reconstructed, small revisions).",
+      "UNRATE": "no override: the first real vintage (1990-03-09) already carries 506 observations.",
+      "GS10": "no override: the first real vintage (1996-12-03) carries 524 observations; revisions measured zero.",
+      "TB3MS": "no override: the first real vintage (1996-12-03) carries 755 observations; revisions within 0.01 p.p. rounding.",
+      "GDPC1": "no override, but MATERIAL revisions: T2 must not use this data root."
+    }
+  },
+  "rates_zero_revision_check": {
+    "series": {
+      "GS10": {
+        "zero_revision": true,
+        "revision_class": "ZERO",
+        "earliest_vs_latest": {
+          "unit": "index points (level units)",
+          "n": 881,
+          "mean_abs": 0.0,
+          "max": 0.0,
+          "median": 0.0
+        },
+        "step_1": {
+          "unit": "index points (level units)",
+          "n": 83419,
+          "mean_abs": 0.0,
+          "max": 0.0,
+          "median": 0.0
+        }
+      },
+      "TB3MS": {
+        "zero_revision": false,
+        "revision_class": "ZERO_WITHIN_ROUNDING",
+        "earliest_vs_latest": {
+          "unit": "index points (level units)",
+          "n": 1112,
+          "mean_abs": 1.8e-05,
+          "max": 0.01,
+          "median": 0.0
+        },
+        "step_1": {
+          "unit": "index points (level units)",
+          "n": 110908,
+          "mean_abs": 0.0,
+          "max": 0.01,
+          "median": 0.0
+        }
+      }
+    },
+    "conclusion": "GS10 has exactly zero revisions in the archive; TB3MS differs by at most 0.01 p.p. (publication rounding). Both are treated as no-revision market series for the reconstruction (docs/106 §3 п.1)."
+  },
+  "look_ahead_disclosure": {
+    "no_observation_after_vintage_date": "enforced by the builder and re-checked through amfe.forecast.data.load_vintages; a violation aborts the build",
+    "tape_override": "columns dated before a series' full-history date are a declared tape approximation, not genuine snapshots: the stored value of an observation is its earliest archived print, and that print may be archived in a column dated later than the reconstructed vintage (the carrier lag is reported per series). For CPIAUCSL this makes 1990-03..1994-02 usable (full history instead of ~19 observations) at the price of carrying CPI first-print revisions; the measured CPI revisions are small, so the segment stays RECONSTRUCTED_PIT and requires the REAL_TIME-only sensitivity slice. It is the analogue of data_depth.first_release_tape.",
+    "carrier_vintage_caveat": "the earliest archived print may itself have been published after the tape vintage date (the archive simply does not hold an earlier print; the early columns of the CPIAUCSL merged file are sparse snapshots, which is exactly why they are overridden by the tape). The per-series field carrier_after_vintage_date reports how many cells, how many observations and how many days this affects; the stored value is the earliest print available, which is the declared approximation. Because the vintage grid of the source archive is sparse (quarterly), the day count is an upper bound: a value is published some weeks before the next archived column date.",
+    "per_series": {
+      "GS10": "no revisions (measured zero 1996-2026); reconstruction is exact for the stored values",
+      "TB3MS": "no revisions beyond 0.01 p.p. publication rounding; reconstruction is exact within rounding",
+      "CPIAUCSL": "small revisions; use only via RECONSTRUCTED_PIT with the REAL_TIME-only sensitivity slice",
+      "CPILFESL": "small revisions; same disclosure as CPIAUCSL (core CPI starts 1996-12 in the archive)",
+      "UNRATE": "small revisions; disclosed as RECONSTRUCTED_PIT input",
+      "GDPC1": "material revisions (mean |d| ~1.1 pp of q/q annualised growth over the full archive); T2 must not be admitted on this reconstruction"
+    },
+    "rates": "no revisions -> reconstruction of the stored values is exact",
+    "cpi": "small revisions -> admissible as RECONSTRUCTED_PIT only together with the REAL_TIME-only sensitivity slice",
+    "gdp": "material revisions -> do not use for T2",
+    "t2_usage": "T2 must not use this data root in 2026 (genuine first releases are required)"
+  },
+  "usage": {
+    "GS10": "REAL_TIME_RECONSTRUCTED_MARKET -- measured zero revision; usable in W1 as no-revision series",
+    "TB3MS": "REAL_TIME_RECONSTRUCTED_MARKET -- revisions within publication rounding; usable in W1",
+    "CPIAUCSL": "RECONSTRUCTED_PIT -- small revision; admissible only with the REAL_TIME-only sensitivity slice (docs/106 §3 п.2)",
+    "CPILFESL": "RECONSTRUCTED_PIT -- small revision; same sensitivity requirement",
+    "UNRATE": "RECONSTRUCTED_PIT -- small revision; input to T3, not an admission-relevant target by itself",
+    "GDPC1": "RECONSTRUCTED_PIT_DIAGNOSTIC_ONLY -- material revisions; do NOT use for T2 in 2026 (genuine BEA first releases or FRASER scans are required)"
+  },
+  "artifacts": {
+    "data_root": "G:/Мировая экономика модель/data/reconstructed",
+    "series": {
+      "CPIAUCSL": {
+        "vintages.zip": {
+          "sha256": "ef9e17a1cc2a7d52bfee229683a55199a5413db39ce528ad5399d7e1c7c4c666",
+          "bytes": 19856
+        },
+        "latest.csv": {
+          "sha256": "c9be2d4909ffd28d91f07df5d113151b0fe7ba602144ee6fd453d3bc8426efde",
+          "bytes": 17782
+        }
+      },
+      "CPILFESL": {
+        "vintages.zip": {
+          "sha256": "183511fff67a1664a0e694dc92308364c29ff7b34b5375f1bf6e41f15251b131",
+          "bytes": 17758
+        },
+        "latest.csv": {
+          "sha256": "b9f2504703e841cc721242ffab7c638f2e26a97baec9783502c8b606e352f58c",
+          "bytes": 15622
+        }
+      },
+      "GDPC1": {
+        "vintages.zip": {
+          "sha256": "defa79b8f80d2be14249f722a335526c7e4b0fe2082f952c81445d7acc196e19",
+          "bytes": 25287
+        },
+        "latest.csv": {
+          "sha256": "1c6c6e9f59e383e20c849dd299175c7a307526c09abdc18f18da9754fc5b3343",
+          "bytes": 6548
+        }
+      },
+      "UNRATE": {
+        "vintages.zip": {
+          "sha256": "3f9437e49aff7d9313dc80c11143d3fe70cdd5a1e6aae7598506b9573b860b1a",
+          "bytes": 10984
+        },
+        "latest.csv": {
+          "sha256": "fb669461abc34e00324b940be6bad1c7f89117652f28587196a7b8bf4a9f56a1",
+          "bytes": 14226
+        }
+      },
+      "GS10": {
+        "vintages.zip": {
+          "sha256": "7cbdc529767f0f3b9485fe37ff493676782e8380a02d9e8216c532689b7de000",
+          "bytes": 10669
+        },
+        "latest.csv": {
+          "sha256": "018e609eb98c52ec8d2cf0ea9f8e1450c24974c31cca455cc19717a77703af78",
+          "bytes": 14222
+        }
+      },
+      "TB3MS": {
+        "vintages.zip": {
+          "sha256": "ee47389fedd868ebb6c0a7787265afc7f09a10a1631b842f9b747981844b555c",
+          "bytes": 12368
+        },
+        "latest.csv": {
+          "sha256": "33fae406051a658c316580f8e8b5e461157e6663bc03b35648cc7cd3e89ee26b",
+          "bytes": 17881
+        }
+      },
+      "USREC": {
+        "latest.csv": {
+          "sha256": "7d28698513be7460870afa883c2325d3502ddaecd6b1e781ed5f655126341b44",
+          "bytes": 26842
+        }
+      }
+    },
+    "digest": "23e879337e53741310084fe07409d501be33b14a5b44ba43146a0f3c6bfe3cff",
+    "digest_definition": "sha256 over '<relative path> <sha256>' lines of every file, sorted"
+  },
+  "verification": {
+    "build": "python tools/reconstruct_pit.py",
+    "tests": "python tests/test_reconstruct_pit.py",
+    "reader_check": "AMFE_DATA_ROOT=data/reconstructed python -c \"from amfe.forecast.data import DataContext; print(DataContext.from_local('1990-06-30').describe())\""
+  },
+  "limitations": [
+    "This is a reconstruction, not genuine first-release data; revision sizes are disclosed above.",
+    "The source archive has ~147 sparse (quarterly) vintage columns per series, not the original monthly publication grid.",
+    "The early CPIAUCSL vintage columns are sparse snapshots (~1.5 years of history); they are replaced by tape columns up to the full-history date 1994-03-16 (tape_override). This is a declared tape approximation (analogue of data_depth.first_release_tape): full history is gained, but the CPI first-print revisions are carried into 1990-1993 and a sensitivity slice without those origins is mandatory.",
+    "The early vintage columns of other series are partial in the same way at the margins, so for some observations the earliest archived print is a later vintage; the carrier_after_vintage_date counters bound that effect per series.",
+    "For observations published before the archive's first vintage the stored value is the earliest archived print (revisions up to that vintage are baked in).",
+    "GDPC1 is material: T2 must not be admitted on this data root.",
+    "USREC has no vintage archive; only latest.csv is copied.",
+    "Nothing under src/ is modified; the alternative root is selected only via AMFE_DATA_ROOT."
+  ]
+}

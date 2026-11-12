@@ -385,8 +385,8 @@ def c4_recession_condition(differential, recession_mask, horizon: int = 1,
             "mean_differential_recession": mean_recession,
             "favours_comparator_in_recession": favours_comparator,
             "pass": status == "PASS",
-            "note": "C4 pass requires >= 12 recession origins, relative loss <= 1.00 and no "
-                    "conditional rejection that favours the comparator"}
+            "note": f"C4 pass requires >= {int(min_recession_origins)} recession origins, relative "
+                    "loss <= 1.00 and no conditional rejection that favours the comparator"}
 
 
 # -------------------------------------------------------------------------------- C6 helpers
@@ -886,6 +886,10 @@ def _regrade_status(report: dict) -> dict:
         "LIMITED_DEPLOYMENT_to_ACTIVE": False,
     }
     report["status"] = status
+    report["status_label"] = (
+        "SHADOW_TEST_CONDITIONAL_DATA_CLASS"
+        if status == "SHADOW_TEST" and report.get("conditional_data_class")
+        else status)
     return report
 
 
@@ -945,7 +949,7 @@ def evaluate_family(target: str, horizon: int, family: dict[str, dict], *,
 # --------------------------------------------------------------------------------- window block
 def evaluate_window(window: str, target: str, horizon: int, actual_primary, actual_secondary=None,
                     *, candidate: dict, comparator: dict, table: dict | None = None,
-                    recession_mask=None) -> dict:
+                    recession_mask=None, min_recession_origins: int = 12) -> dict:
     """All loss and test results for one evaluation window.
 
     candidate/comparator are dicts with the keys the target needs:
@@ -1001,8 +1005,9 @@ def evaluate_window(window: str, target: str, horizon: int, actual_primary, actu
             ratio = None
             if np.any(mask) and np.sum(comp[mask]) > 0:
                 ratio = float(np.sum(cand[mask]) / np.sum(comp[mask]))
-            block["recession"][loss] = c4_recession_condition(cand - comp, mask, horizon,
-                                                              relative_loss_recession=ratio)
+            block["recession"][loss] = c4_recession_condition(
+                cand - comp, mask, horizon, relative_loss_recession=ratio,
+                min_recession_origins=min_recession_origins)
     return block
 
 
@@ -1013,7 +1018,12 @@ def evaluate_admission(target: str, horizon: int, windows: dict[str, dict], *,
                        family: dict[str, dict] | None = None, candidate_id: str | None = None,
                        rw_replications: int = DEFAULT_RW_REPLICATIONS,
                        rw_seed: int = DEFAULT_RW_SEED,
-                       rw_block_length: int | None = None, fwer: float = ALPHA) -> dict:
+                       rw_block_length: int | None = None, fwer: float = ALPHA,
+                       c4_windows: dict[str, dict] | None = None,
+                       min_recession_origins: int = 12,
+                       admission_classes: tuple[str, ...] | None = None,
+                       protocol_label: str = "protocols/evaluation_protocol_v4.json",
+                       conditional_data_class: bool = False) -> dict:
     """Full C1-C6 admission report for one (target, horizon) pair.
 
     windows: {"W1": data, "W2": data} where data has actual_primary, actual_secondary, candidate,
@@ -1029,9 +1039,12 @@ def evaluate_admission(target: str, horizon: int, windows: dict[str, dict], *,
     report states multiplicity_method = RAW_UNCORRECTED_NO_FAMILY_DECLARED (backward compatible
     path for reports that cannot name the family).
 
-    data_class is the protocol v4 data-depth class of the evaluated forecasts: admission is only
-    allowed for REAL_TIME or REAL_TIME_TAPE.  PSEUDO_REAL_TIME (the latest tape truncated to the
-    origin) and UNSTATED can only produce a CANDIDATE report; they never advance a stage.
+    data_class is the data-depth class of the evaluated forecasts: admission is allowed for the
+    classes listed in `admission_classes` (default: REAL_TIME, REAL_TIME_TAPE, the v4 rule).  v5
+    (D-151) may also allow REAL_TIME_RECONSTRUCTED_MARKET and RECONSTRUCTED_PIT, but C1/C2/C5 are
+    then still computed on the REAL_TIME windows; reconstructed origins enter only through
+    `c4_windows` (the extended W1).  PSEUDO_REAL_TIME (the latest tape truncated to the origin) and
+    UNSTATED can only produce a CANDIDATE report; they never advance a stage.
     """
     table = load_thresholds() if table is None else table
     if target not in TARGET_HORIZONS:
@@ -1062,7 +1075,7 @@ def evaluate_admission(target: str, horizon: int, windows: dict[str, dict], *,
         blocks[window] = evaluate_window(
             window, target, horizon, data["actual_primary"], data.get("actual_secondary"),
             candidate=data["candidate"], comparator=data["comparator"], table=table,
-            recession_mask=data.get("recession"))
+            recession_mask=data.get("recession"), min_recession_origins=min_recession_origins)
     losses = loss_names(target)
     per_window = {}
     for window, block in blocks.items():
@@ -1077,15 +1090,39 @@ def evaluate_admission(target: str, horizon: int, windows: dict[str, dict], *,
                   for w in per_window for loss in losses)
     c4_block = None
     if target != "T3_RECESSION":
-        c4_block = {"applies": True, "per_window": {}}
+        c4_source = dict(c4_windows or {})
+        c4_block = {"applies": True, "per_window": {}, "extended": {},
+                    "min_recession_origins": int(min_recession_origins),
+                    "admission_classes": list(admission_classes) if admission_classes else
+                    ["REAL_TIME", "REAL_TIME_TAPE"]}
         c4_pass = True
         for window in ("W1", "W2"):
-            data = windows[window]
-            if data.get("recession") is None:
-                c4_block["per_window"][window] = {"status": "MISSING_RECESSION_MASK", "pass": False}
-                c4_pass = False
-                continue
-            window_result = blocks[window].get("recession")
+            if window in c4_source:
+                ext = c4_source[window]
+                ext_block = evaluate_window(
+                    window, target, horizon, ext["actual_primary"], ext.get("actual_secondary"),
+                    candidate=ext["candidate"], comparator=ext["comparator"], table=table,
+                    recession_mask=ext.get("recession"),
+                    min_recession_origins=min_recession_origins)
+                window_result = ext_block.get("recession")
+                c4_block["extended"][window] = {
+                    "source": "extended_window", "data_class": ext.get("data_class"),
+                    "n_origins": int(np.asarray(ext["actual_primary"]).size),
+                }
+                if window_result is None:
+                    c4_block["per_window"][window] = {"status": "MISSING_RECESSION_MASK",
+                                                      "pass": False}
+                    c4_pass = False
+                    continue
+            else:
+                data = windows[window]
+                c4_block["extended"][window] = {"source": "standard_window"}
+                if data.get("recession") is None:
+                    c4_block["per_window"][window] = {"status": "MISSING_RECESSION_MASK",
+                                                      "pass": False}
+                    c4_pass = False
+                    continue
+                window_result = blocks[window].get("recession")
             c4_block["per_window"][window] = window_result
             c4_pass = c4_pass and all(result["pass"] for result in window_result.values())
         c4_block["pass"] = c4_pass
@@ -1101,10 +1138,13 @@ def evaluate_admission(target: str, horizon: int, windows: dict[str, dict], *,
     else:
         c6_block = dict(forward)
         c6_block["status"] = "PASS" if forward["pass"] else "FAIL"
-    admission_allowed = data_class in ("REAL_TIME", "REAL_TIME_TAPE")
-    data_class_note = ("admission allowed: REAL_TIME data" if admission_allowed else
-                       f"admission NOT allowed: data class is {data_class}; protocol v4 "
-                       "data_depth.classification_rule counts only REAL_TIME and REAL_TIME_TAPE")
+    allowed_classes = tuple(admission_classes) if admission_classes else ("REAL_TIME",
+                                                                          "REAL_TIME_TAPE")
+    admission_allowed = data_class in allowed_classes
+    data_class_note = (
+        f"admission allowed: data class {data_class} is in {list(allowed_classes)}" if admission_allowed
+        else (f"admission NOT allowed: data class is {data_class}; the protocol's admission classes "
+              f"are {list(allowed_classes)}"))
     if members is None:
         multiplicity_method = RAW_NO_FAMILY_METHOD
         multiplicity_block = {
@@ -1136,7 +1176,7 @@ def evaluate_admission(target: str, horizon: int, windows: dict[str, dict], *,
             "C2 requires adjusted p < 0.10 on W1 and W2; a later candidate does not retract an "
             "earlier decision but the adjusted p-values are republished")
     report = {
-        "protocol": "protocols/evaluation_protocol_v4.json",
+        "protocol": protocol_label,
         "target": target,
         "horizon": int(horizon),
         "min_comparator_members": min_members,
@@ -1168,6 +1208,7 @@ def evaluate_admission(target: str, horizon: int, windows: dict[str, dict], *,
             "LIMITED_DEPLOYMENT_to_ACTIVE": False,
         },
         "status": "CANDIDATE",
+        "conditional_data_class": bool(conditional_data_class),
         "data_class": data_class,
         "admission_allowed": admission_allowed,
         "data_class_note": data_class_note,

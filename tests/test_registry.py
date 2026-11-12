@@ -58,16 +58,21 @@ class RegistryJournal(unittest.TestCase):
     def tearDown(self):
         self.tmp.cleanup()
 
-    def test_repository_journal_exists_empty_and_valid(self):
+    def test_repository_journal_is_open_valid_and_not_backdated(self):
         self.assertTrue(REPO_JOURNAL.exists(), "registry/forecasts.jsonl must be committed")
         self.assertTrue(README.exists(), "registry/README.md must explain the commit decision")
         rows, problems = registry.validate_journal(REPO_JOURNAL)
-        self.assertEqual(rows, [])
         self.assertEqual(problems, [])
-        self.assertEqual(REPO_JOURNAL.stat().st_size, 0, "the journal is opened empty")
+        self.assertGreaterEqual(len(rows), 5, "the journal was opened with the first 2026-11 rows")
+        self.assertGreater(REPO_JOURNAL.stat().st_size, 0, "the journal is open, not empty")
         status = registry.journal_status(REPO_JOURNAL)
-        self.assertIsNone(status["first_registered_at"])
-        self.assertIsNone(status["forward_registry_start"])
+        self.assertEqual(status["rows"], len(rows))
+        self.assertIsNotNone(status["first_registered_at"])
+        self.assertIsNotNone(status["forward_registry_start"])
+        # the registry start is the date of the first committed row; later rows are append-only
+        first_day = min(row["registered_at"][:10] for row in rows)
+        self.assertEqual(status["forward_registry_start"], first_day)
+        self.assertEqual(status["first_registered_at"][:10], first_day)
 
     def test_readme_states_the_commit_decision(self):
         text = README.read_text(encoding="utf-8")

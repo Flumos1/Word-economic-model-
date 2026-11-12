@@ -174,7 +174,10 @@ class FixtureVerdict(unittest.TestCase):
         warning_ids = [check["id"] for check in self.report["checks"]
                        if check["severity"] == "warning" and check["status"] == "FAIL"]
         self.assertIn("frozen.r2_gate_fact", warning_ids)
-        self.assertIn("reports.forward_registry", warning_ids)
+        # the forward journal is open since 2026-11-12 (D-151), so the empty-registry warning is gone
+        self.assertNotIn("reports.forward_registry", warning_ids)
+        forward = check_by_id(self.report, "reports.forward_registry")
+        self.assertEqual(forward["status"], "PASS", forward)
         # after the 2026-11-12 data refresh the gate report covers every planned vintage series
         coverage = check_by_id(self.report, "reports.plan_coverage")
         self.assertEqual(coverage["severity"], "warning")

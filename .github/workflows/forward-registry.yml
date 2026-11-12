@@ -1,0 +1,127 @@
+name: Forward registry (monthly forecast journal)
+
+# Protocol v4 -> forward_registry: the journal is filled monthly, after the last data release of
+# the month, before the actual value of the target period is published.  This workflow runs on the
+# 15th (after the CPI release, which the BLS publishes around the 10th-15th) and on demand.
+#
+# It restores the private data artifacts (data/raw is git-ignored), builds the rows of the origin
+# with tools/forward_forecast.py, validates and resolves the journal and uploads the result as an
+# artifact.  It NEVER commits, pushes or tags: the journal itself is committed by a human/Lead
+# after review, so the workflow cannot silently rewrite the append-only file.
+
+on:
+  schedule:
+    - cron: '0 14 15 * *'   # 15th of each month, 14:00 UTC (after the CPI release)
+  workflow_dispatch:
+    inputs:
+      origin:
+        description: 'Origin month YYYY-MM (default: the current month)'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: forward-registry
+  cancel-in-progress: false
+
+jobs:
+  forward-registry:
+    name: Build, validate and resolve the monthly forward rows
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install the test dependencies (numpy)
+        run: python -m pip install --quiet numpy
+      - name: Restore the latest private data artifacts (data/raw is git-ignored)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -eu
+          mkdir -p data/raw
+          restore() {
+            workflow="$1"
+            prefix="$2"
+            run_id="$(gh run list --workflow="$workflow" --branch=main --status=success \
+                       --limit=1 --json databaseId --jq '.[0].databaseId // empty' || true)"
+            if [ -z "$run_id" ]; then echo "no successful $workflow artifact found"; return 0; fi
+            echo "restoring from $workflow run $run_id"
+            if ! gh run download "$run_id" --name "$prefix-$run_id" --dir "tmp-$prefix"; then
+              echo "artifact download failed for $workflow run $run_id"; return 0
+            fi
+            if [ -d "tmp-$prefix/data/raw" ]; then cp -r "tmp-$prefix/data/raw/." data/raw/; fi
+          }
+          restore data-refresh.yml amfe-data
+          restore r2-metadata.yml r2-metadata
+          ls data/raw | head -20
+      - name: Build the rows of the origin
+        id: build
+        env:
+          INPUT_ORIGIN: ${{ inputs.origin }}
+        run: |
+          set -eu
+          mkdir -p build
+          origin="${INPUT_ORIGIN:-$(date -u +%Y-%m)}"
+          echo "origin=$origin" >> "$GITHUB_OUTPUT"
+          python tools/forward_forecast.py --origin "$origin" \
+            --targets T1_CPI_YOY:1 --out build/forward_records.json
+      - name: Validate the journal
+        run: |
+          set -eu
+          python tools/registry.py --validate | tee build/registry_validate.json
+      - name: C6 status and resolution (no raw values)
+        if: always()
+        run: |
+          set -u
+          mkdir -p build
+          python tools/registry_resolve.py --status > build/c6_status.json || true
+          python tools/registry_resolve.py --resolve > build/c6_resolve.json || true
+          cat build/c6_status.json
+      - name: Summary on the run page
+        if: always()
+        run: |
+          set -u
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          lines = ["## AMFE forward registry", ""]
+          build = Path("build")
+          for name, label in (("registry_validate.json", "journal validation"),
+                              ("c6_status.json", "C6 status")):
+              path = build / name
+              if not path.exists():
+                  lines.append(f"- {label}: missing")
+                  continue
+              payload = json.loads(path.read_text(encoding="utf-8"))
+              if name == "registry_validate.json":
+                  lines.append(f"- {label}: valid={payload.get('valid')}, "
+                               f"problems={len(payload.get('problems') or [])}")
+              else:
+                  lines.append(f"- {label}: rows={payload.get('rows')}, "
+                               f"resolved={payload.get('resolved_rows')}, "
+                               f"status={payload.get('status')}")
+          records = build / "forward_records.json"
+          if records.exists():
+              payload = json.loads(records.read_text(encoding="utf-8"))
+              lines.append(f"- rows generated: {len(payload.get('records') or [])} "
+                           f"(origin {payload.get('origin')}, pre_origin={payload.get('pre_origin')})")
+          print("\n".join(lines))
+          PY
+      - name: Upload the journal, the generated rows and the C6 reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: amfe-forward-registry-${{ github.run_id }}
+          path: |
+            registry/forecasts.jsonl
+            build/forward_records.json
+            build/registry_validate.json
+            build/c6_status.json
+            build/c6_resolve.json
+          retention-days: 90
+          if-no-files-found: warn
