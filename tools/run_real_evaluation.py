@@ -31,7 +31,16 @@ sys.path.insert(0, str(ROOT / "tools"))
 from amfe.forecast import forecast  # noqa: E402
 from amfe.forecast.data import load_latest, month_index, usrec_event  # noqa: E402
 from amfe.candidates.models import (CANDIDATE_DESCRIPTION, CANDIDATE_IDS,  # noqa: E402
-                                    candidate_forecast)
+                                    candidate_forecast as rw_ar_candidate)
+from amfe.ensemble import ENSEMBLE_IDS  # noqa: E402
+from amfe.ensemble.ensemble import candidate_forecast as ensemble_candidate  # noqa: E402
+
+
+def candidate_forecast(candidate_id, target, origin, horizon, series_id=None, mode="auto"):
+    """Dispatcher: ensemble candidates come from amfe.ensemble, the rest from amfe.candidates."""
+    if candidate_id in ENSEMBLE_IDS:
+        return ensemble_candidate(candidate_id, target, origin, horizon, series_id=series_id, mode=mode)
+    return rw_ar_candidate(candidate_id, target, origin, horizon, series_id=series_id, mode=mode)
 from amfe.evaluation.actuals import actual_pair  # noqa: E402
 from amfe.evaluation.distributions import mixture_quantiles  # noqa: E402
 import evaluate  # noqa: E402
@@ -176,7 +185,7 @@ def main(argv=None) -> int:
                     help="include PSEUDO_REAL_TIME origins (the admission guard will then refuse)")
     ap.add_argument("--out", default=str(ROOT / "protocols" / "first_real_evaluation_report.json"))
     args = ap.parse_args(argv)
-    if args.candidate not in CANDIDATE_IDS:
+    if args.candidate not in CANDIDATE_IDS and args.candidate not in ENSEMBLE_IDS:
         raise SystemExit(f"unknown candidate {args.candidate}")
     protocol = json.loads(PROTOCOL.read_text(encoding="utf-8"))
     candidate_doc = {
