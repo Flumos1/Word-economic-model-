@@ -3535,5 +3535,6 @@
     "min_pairs": 30,
     "min_pairs_pre_2000": 10,
     "mismatches_allowed": 0
-  }
+  },
+  "licence_note": "values are not stored: each compared pair carries SHA-256 digests and an equality flag; the underlying values stay in the private CI artifact (docs/84)"
 }

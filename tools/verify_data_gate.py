@@ -347,6 +347,8 @@ def main(argv=None) -> int:
                         "failures": len(report["failures"]), "excluded": len(report["excluded"])}
     report["passed"] = (matched >= args.min_pairs and matched_pre_2000 >= args.min_pairs_pre_2000
                         and not report["failures"])
+    report["licence_note"] = ("values are not stored: each compared pair carries SHA-256 digests and an "
+                              "equality flag; the underlying values stay in the private CI artifact (docs/84)")
     report["criteria"] = {"min_pairs": args.min_pairs, "min_pairs_pre_2000": args.min_pairs_pre_2000,
                           "mismatches_allowed": 0}
     out = Path(args.report)
