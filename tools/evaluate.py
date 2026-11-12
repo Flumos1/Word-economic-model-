@@ -11,8 +11,10 @@ Implemented from protocols/evaluation_protocol_v4.json:
                by (target, horizon, loss, window), on W1 and W2 separately;
   C2           Giacomini-White with the constant as the only instrument (= Diebold-Mariano with a
                finite estimation window), HAC with h-1 lags, Harvey-Leybourne-Newbold small-sample
-               correction, one-sided test that the candidate is better, p < 0.10 on W1 and W2; the
-               Romano-Wolf adjusted p-value enters through apply_romano_wolf();
+               correction, one-sided test that the candidate is better.  Multiplicity: full
+               Romano-Wolf stepdown (max-statistic, stationary bootstrap, FWER 0.10) over the
+               declared family of candidates for one (target, horizon, loss), on W1 and on W2;
+               romano_wolf_stepdown() / evaluate_admission(family=...) / evaluate_family();
   C3           Model Confidence Set - reported as NOT_IMPLEMENTED (non-gating by the protocol);
   C4           recession origins: relative loss <= 1.00 and the conditional GW test (instruments:
                constant and the recession-month indicator) does not reject; fewer than 12 recession
@@ -23,12 +25,25 @@ Implemented from protocols/evaluation_protocol_v4.json:
                interval coverage within 10 pp of nominal (T3: calibration in probability bins,
                at least 3 non-empty bins, within 10 pp).
 
+Multiplicity (protocol v4 multiplicity.primary):
+  * family = all candidates evaluated for one (target, horizon, loss) up to the decision date; the
+    caller declares it through evaluate_admission(family=..., candidate_id=...) or evaluate_family();
+  * the bootstrap is the Politis-Romano stationary bootstrap of the loss differentials (shared index
+    matrix for the whole family, default mean block length max(ceil(n**(1/3)), horizon), 10000
+    replications, deterministic seed 20261111); the stepdown takes the max of the centered
+    studentized statistics over the still-active hypotheses and reports adjusted p-values;
+  * a candidate passes C2 when the adjusted p-value is < 0.10 on W1 and on W2 for every applicable
+    loss; earlier decisions are not withdrawn when the family grows but adjusted p-values are
+    republished; the error accumulates over pairs, which the report states;
+  * without a declared family C2 keeps the raw p-value and the report says so
+    (multiplicity_method = RAW_UNCORRECTED_NO_FAMILY_DECLARED).  apply_romano_wolf() is a legacy
+    Holm fallback for callers that only have p-values.
+
 Simplifications (documented in docs/72):
   * C3 (Model Confidence Set) is not implemented - the protocol makes it non-gating;
-  * the Romano-Wolf stepdown is implemented as a Holm stepdown on the family of candidates
-    (conservative, valid FWER control under arbitrary dependence; it does not exploit the
-    dependence as a full bootstrap Romano-Wolf does) - see apply_romano_wolf();
-  * p-values use the normal approximation with the HLN correction instead of a t distribution;
+  * p-values use the normal approximation with the HLN correction instead of a t distribution; the
+    Romano-Wolf bootstrap resamples the differentials and keeps the observed HAC scale fixed;
+  * only the one-sided C2 alternative is supported by romano_wolf_stepdown(); C5 stays a raw test;
   * C4 relative loss is checked on the recession subsets of W1 and W2 separately; the conditional
     GW test is a HAC Wald test of the recession-indicator coefficient in d_t = a + b*r_t + e_t;
   * C6 coverage is checked on the central 50%, 80% and 90% intervals and all three must be within
@@ -457,14 +472,198 @@ def c6_forward_check(target: str, realized, *, candidate_point=None, candidate_q
                     "delay must be stated in every T3 report"}
 
 
-# ------------------------------------------------------------------------ Romano-Wolf (simplified)
-def romano_wolf_simplified(p_values: dict[str, float], fwer: float = ALPHA) -> dict:
-    """Conservative Romano-Wolf stepdown: Holm on the family of candidates.
+# ------------------------------------------------------------------ multiplicity: Romano-Wolf
+RW_METHOD = "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP"
+HOLM_FALLBACK_METHOD = "HOLM_STEPDOWN_CONSERVATIVE_FALLBACK"
+RAW_NO_FAMILY_METHOD = "RAW_UNCORRECTED_NO_FAMILY_DECLARED"
+DEFAULT_RW_REPLICATIONS = 10000       # protocol-level default; tests use fewer for speed
+DEFAULT_RW_SEED = 20261111            # deterministic bootstrap seed
 
-    A full Romano-Wolf needs the joint bootstrap distribution of the test statistics; this
-    implementation uses the Holm stepdown, which controls the family-wise error rate at `fwer`
-    under arbitrary dependence but is conservative relative to the bootstrap version.
-    The adjusted p-values are reported and compared with `fwer`.
+
+def default_block_length(n: int, horizon: int = 1) -> int:
+    """Mean block length of the stationary bootstrap: max(ceil(n**(1/3)), horizon).
+
+    The n**(1/3) rule is the standard stationary-bootstrap rate for weakly dependent series; the
+    horizon guard keeps blocks at least as long as the h-1 overlap of forecast errors.  A caller
+    can pass block_length explicitly (block_length=1 is the i.i.d. bootstrap, reported only as a
+    sensitivity check).
+    """
+    n = int(n)
+    if n < 2:
+        raise EvaluationError("the bootstrap needs at least two observations")
+    return int(max(math.ceil(n ** (1.0 / 3.0)), int(horizon), 1))
+
+
+def stationary_bootstrap_indices(rng, n: int, mean_block_length: float,
+                                 replications: int) -> np.ndarray:
+    """Politis-Romano stationary-bootstrap index matrix of shape (replications, n).
+
+    Every draw starts a new block with probability 1/mean_block_length and otherwise continues the
+    previous index cyclically, so the expected block length is mean_block_length and the resampled
+    series keeps the local dependence of the original one (mean_block_length = 1 is the i.i.d.
+    bootstrap).  One index matrix is shared by all candidates of the family, which preserves the
+    joint dependence between their loss differentials.
+    """
+    n = int(n)
+    reps = int(replications)
+    block = float(mean_block_length)
+    if n < 2:
+        raise EvaluationError("the bootstrap needs at least two observations")
+    if reps < 1:
+        raise EvaluationError("replications must be a positive integer")
+    if not math.isfinite(block) or block < 1.0:
+        raise EvaluationError("mean block length must be a finite number >= 1")
+    probability = 1.0 / block
+    indices = np.empty((reps, n), dtype=np.int64)
+    indices[:, 0] = rng.integers(0, n, size=reps)
+    for step in range(1, n):
+        fresh = rng.random(reps) < probability
+        starts = rng.integers(0, n, size=reps)
+        indices[:, step] = np.where(fresh, starts, (indices[:, step - 1] + 1) % n)
+    return indices
+
+
+def _studentized_differential(differential, horizon: int, name: str = "differential") -> dict:
+    """DM statistic in the "candidate better" orientation plus its normal-approximation p-value.
+
+    statistic = -mean(d) / (sqrt(HAC_variance / n) / HLN), so a positive value favours the
+    candidate (mean differential < 0).  A degenerate differential (zero HAC variance, e.g. two
+    identical methods) gets statistic 0 and p 0.5, the limits used by dm_test().
+    """
+    d = _vector(differential, name)
+    n = d.size
+    mean = float(np.mean(d))
+    variance = newey_west_variance(d, max(0, int(horizon) - 1))
+    hln = hln_factor(n, horizon)
+    if variance <= 0.0:
+        if abs(mean) <= 1e-15:
+            return {"statistic": 0.0, "mean_differential": mean, "scale": 0.0, "p_value": 0.5,
+                    "n": n, "degenerate": True,
+                    "note": "degenerate differential (zero HAC variance); limits used"}
+        statistic = math.copysign(math.inf, -mean)
+        return {"statistic": statistic, "mean_differential": mean, "scale": 0.0,
+                "p_value": 0.0 if statistic > 0 else 1.0, "n": n, "degenerate": True,
+                "note": "degenerate differential (zero HAC variance); limits used"}
+    scale = math.sqrt(variance / n) / hln
+    statistic = -mean / scale
+    return {"statistic": statistic, "mean_differential": mean, "scale": scale,
+            "p_value": max(0.0, min(1.0, _normal_cdf(-statistic))), "n": n, "degenerate": False,
+            "note": "HAC h-1 lags, HLN correction, normal approximation"}
+
+
+def romano_wolf_stepdown(differentials: dict[str, np.ndarray], *, horizon: int = 1,
+                         replications: int = DEFAULT_RW_REPLICATIONS,
+                         seed: int = DEFAULT_RW_SEED, block_length: int | None = None,
+                         fwer: float = ALPHA, calibration: str = "t_variance") -> dict:
+    """Full Romano-Wolf stepdown on a family of loss differentials (stationary bootstrap).
+
+    differentials: {candidate: array_like} of per-origin loss differentials candidate minus
+    comparator, all arrays the same length and in the same origin order.  Only the protocol C2
+    one-sided alternative H1: E[d] < 0 (candidate better) is supported.
+
+    Procedure:
+      1. studentize every candidate with the DM/GW statistic (HAC h-1 lags, HLN correction);
+      2. draw one stationary-bootstrap index matrix and reuse it for the whole family, so the
+         joint dependence between candidates is preserved;
+      3. for the still-active hypotheses take the maximum of the centered bootstrap statistics
+         (max-statistic stepdown, ordered by the observed statistics);
+      4. adjusted p-value of a hypothesis = successive maximum of the bootstrap tail
+         probabilities, so p_adj controls the FWER at `fwer` over the family.
+
+    The studentization scale is taken from the observed sample (fixed-scale studentization), which
+    with a block bootstrap is asymptotically equivalent to recomputing it in every replicate.
+    `calibration="t_variance"` rescales each bootstrap statistic to the finite-sample variance of
+    the one-sided t test with n-1 degrees of freedom; this removes the known downward finite-sample
+    variance bias of the stationary bootstrap at the short evaluation windows (without it the max
+    threshold is too low and the simulated FWER at n=120, family of 5 is ~0.13-0.14 instead of
+    0.10).  `calibration="none"` returns the uncalibrated bootstrap (sensitivity check only).
+    """
+    if not isinstance(differentials, dict) or not differentials:
+        raise EvaluationError("differentials must be a non-empty dict of arrays")
+    reps = int(replications)
+    if reps < 1:
+        raise EvaluationError("replications must be a positive integer")
+    if calibration not in ("t_variance", "none"):
+        raise EvaluationError(f"unknown bootstrap calibration {calibration!r}")
+    names = sorted(differentials)
+    stats = {}
+    length = None
+    for name in names:
+        stats[name] = _studentized_differential(differentials[name], horizon, str(name))
+        if length is None:
+            length = stats[name]["n"]
+        elif stats[name]["n"] != length:
+            raise EvaluationError(f"family length mismatch: {name} has {stats[name]['n']} "
+                                  f"observations, the first candidate has {length}")
+    n = int(length)
+    block = default_block_length(n, horizon) if block_length is None else int(block_length)
+    rng = np.random.default_rng(int(seed))
+    indices = stationary_bootstrap_indices(rng, n, block, reps)
+    bootstrap = {}
+    for name in names:
+        entry = stats[name]
+        if entry["degenerate"]:
+            bootstrap[name] = np.zeros(reps, dtype=float)
+            continue
+        data = _vector(differentials[name], str(name))
+        means = data[indices].mean(axis=1)
+        bootstrap[name] = -means / entry["scale"] - entry["statistic"]
+    df = max(1, n - 1)
+    target_variance = (df / (df - 2.0) if calibration == "t_variance" and df > 2 else 1.0)
+    bootstrap_sd = {}
+    calibration_factor = {}
+    for name in names:
+        spread = float(np.std(bootstrap[name]))
+        bootstrap_sd[name] = spread
+        factor = 1.0
+        if calibration == "t_variance" and spread > 0.0:
+            factor = math.sqrt(target_variance / spread ** 2)
+            bootstrap[name] = bootstrap[name] * factor
+        calibration_factor[name] = factor
+    order = sorted(names, key=lambda item: (-stats[item]["statistic"], str(item)))
+    adjusted: dict[str, float] = {}
+    previous = 0.0
+    for rank, name in enumerate(order):
+        remaining = order[rank:]
+        max_statistic = np.maximum.reduce([bootstrap[item] for item in remaining])
+        tail = float(np.count_nonzero(max_statistic >= stats[name]["statistic"])) / reps
+        previous = max(previous, tail)
+        adjusted[name] = min(1.0, previous)
+    return {
+        "method": RW_METHOD,
+        "fwer": float(fwer),
+        "replications": reps,
+        "seed": int(seed),
+        "block_length": block,
+        "block_length_rule": ("max(ceil(n**(1/3)), horizon)" if block_length is None
+                              else "explicit"),
+        "null_calibration": calibration,
+        "target_null_variance": target_variance,
+        "horizon": int(horizon),
+        "n": n,
+        "family_size": len(names),
+        "family": names,
+        "statistics": {name: stats[name]["statistic"] for name in names},
+        "mean_differentials": {name: stats[name]["mean_differential"] for name in names},
+        "raw_p_values": {name: stats[name]["p_value"] for name in names},
+        "bootstrap_sd": bootstrap_sd,
+        "calibration_factor": calibration_factor,
+        "adjusted_p_values": adjusted,
+        "rejected": sorted(name for name, value in adjusted.items() if value < fwer),
+        "sign_convention": "positive statistic = candidate better (mean differential < 0)",
+        "note": "one-sided Romano-Wolf stepdown with the stationary bootstrap; the HAC/HLN "
+                "studentization uses the observed sample as scale (fixed-scale studentization), "
+                "one shared bootstrap index matrix keeps the joint dependence of the family, and "
+                "the bootstrap null distribution is variance-calibrated to the t(n-1) reference",
+    }
+
+
+def holm_stepdown(p_values: dict[str, float], fwer: float = ALPHA) -> dict:
+    """Holm stepdown on raw p-values: legacy fallback, not the protocol's Romano-Wolf.
+
+    Controls the FWER under arbitrary dependence but is conservative relative to the bootstrap
+    Romano-Wolf.  Kept only for reports that carry p-values but no differentials; the primary path
+    is romano_wolf_stepdown() / evaluate_admission(family=...).
     """
     if not p_values:
         raise EvaluationError("empty family")
@@ -473,15 +672,26 @@ def romano_wolf_simplified(p_values: dict[str, float], fwer: float = ALPHA) -> d
     adjusted: dict[str, float] = {}
     previous = 0.0
     for rank, (name, p) in enumerate(ordered, start=1):
-        value = min(1.0, (m - rank + 1) * p)
+        value = min(1.0, (m - rank + 1) * float(p))
         previous = max(previous, value)
         adjusted[name] = previous
-    return {"method": "HOLM_STEPDOWN_CONSERVATIVE_ROMANO_WOLF_PROXY",
-            "fwer": fwer,
+    return {"method": HOLM_FALLBACK_METHOD,
+            "fwer": float(fwer),
+            "family_size": m,
             "adjusted_p_values": adjusted,
             "rejected": sorted(name for name, value in adjusted.items() if value < fwer),
-            "note": "conservative stepdown proxy for Romano-Wolf; the full bootstrap version is "
-                    "not implemented, the reported p-values are FWER-adjusted (Holm)"}
+            "note": "Holm stepdown on raw p-values: valid FWER control under arbitrary "
+                    "dependence, conservative relative to the bootstrap Romano-Wolf; fallback "
+                    "only, the primary path is the full Romano-Wolf stepdown"}
+
+
+def romano_wolf_simplified(p_values: dict[str, float], fwer: float = ALPHA) -> dict:
+    """Deprecated alias of holm_stepdown(), kept for backward compatibility."""
+    result = holm_stepdown(p_values, fwer)
+    result["deprecated"] = True
+    result["note"] = ("deprecated Holm proxy; use romano_wolf_stepdown() or "
+                      "evaluate_admission(family=...) for the full Romano-Wolf") 
+    return result
 
 
 def family_p_value(report: dict) -> float:
@@ -492,7 +702,9 @@ def family_p_value(report: dict) -> float:
         windows = report.get("criteria", {}).get("C2", {}).get("windows", {})
     for block in windows.values():
         for loss, entry in block.items():
-            if isinstance(entry, dict) and "p_value" in entry:
+            if isinstance(entry, dict) and "raw_p_value" in entry:
+                values.append(entry["raw_p_value"])
+            elif isinstance(entry, dict) and "p_value" in entry:
                 values.append(entry["p_value"])
             elif isinstance(entry, dict) and "c2" in entry:
                 values.append(entry["c2"]["p_value"])
@@ -500,14 +712,234 @@ def family_p_value(report: dict) -> float:
 
 
 def apply_romano_wolf(reports: dict[str, dict], fwer: float = ALPHA) -> dict:
-    """Adjust the C2 p-values of a family of candidates and set the multiplicity verdict."""
-    adjusted = romano_wolf_simplified({name: family_p_value(report)
-                                       for name, report in reports.items()}, fwer)
+    """Legacy adjustment of the raw C2 p-values with the Holm fallback.
+
+    Reports produced by evaluate_admission() with a declared `family` already carry the full
+    bootstrap Romano-Wolf adjusted p-values and `multiplicity_method`; this helper never replaces
+    them.  It exists for backwards compatibility and for callers that only have p-values.
+    """
+    adjusted = holm_stepdown({name: family_p_value(report)
+                              for name, report in reports.items()}, fwer)
     for name, report in reports.items():
-        report["criteria"]["C2"]["romano_wolf_adjusted_p"] = adjusted["adjusted_p_values"][name]
-        report["criteria"]["C2"]["romano_wolf_pass"] = (
-            adjusted["adjusted_p_values"][name] < fwer)
+        criteria = report.setdefault("criteria", {})
+        c2 = criteria.setdefault("C2", {})
+        c2["romano_wolf_adjusted_p"] = adjusted["adjusted_p_values"][name]
+        c2["romano_wolf_pass"] = adjusted["adjusted_p_values"][name] < fwer
+        if c2.get("multiplicity_method") in (None, RAW_NO_FAMILY_METHOD):
+            c2["multiplicity_method"] = HOLM_FALLBACK_METHOD
+        if report.get("multiplicity_method") in (None, RAW_NO_FAMILY_METHOD):
+            report["multiplicity_method"] = HOLM_FALLBACK_METHOD
     return adjusted
+
+
+def _validate_family(family) -> None:
+    """A family maps candidate ids to {"W1": window_data, "W2": window_data}."""
+    if not isinstance(family, dict):
+        raise EvaluationError("family must be a dict {candidate_id: {'W1': ..., 'W2': ...}}")
+    for name, data in family.items():
+        if not isinstance(name, str) or not name:
+            raise EvaluationError("family candidate ids must be non-empty strings")
+        if not isinstance(data, dict) or set(data) != {"W1", "W2"}:
+            raise EvaluationError(f"family member {name!r} must map exactly W1 and W2 to "
+                                  "window data (actual_primary, candidate, comparator, ...)")
+
+
+def _window_differentials(target: str, data: dict) -> dict[str, np.ndarray]:
+    """Loss differentials (candidate - comparator) per loss for one window of window data."""
+    if not isinstance(data, dict) or not {"actual_primary", "candidate", "comparator"} <= set(data):
+        raise EvaluationError("window data needs actual_primary, candidate and comparator")
+    y = _vector(data["actual_primary"], "actual_primary")
+    candidate = data["candidate"] or {}
+    comparator = data["comparator"] or {}
+    result = {}
+    for loss in loss_names(target):
+        cand = observation_loss(loss, y, point=candidate.get("point"),
+                                quantiles=candidate.get("quantiles"),
+                                probability=candidate.get("probability"))
+        comp = observation_loss(loss, y, point=comparator.get("point"),
+                                quantiles=comparator.get("quantiles"),
+                                probability=comparator.get("probability"))
+        result[loss] = cand - comp
+    return result
+
+
+def family_differentials(target: str, family: dict[str, dict]) -> dict:
+    """{window: {loss: {candidate: differential}}} for a declared family of candidates.
+
+    family: {candidate_id: {"W1": window_data, "W2": window_data}}; window_data is the dict that
+    evaluate_admission() accepts (actual_primary, optional actual_secondary, candidate,
+    comparator, optional recession).
+    """
+    _validate_family(family)
+    result = {window: {} for window in ("W1", "W2")}
+    losses = loss_names(target)
+    for window in ("W1", "W2"):
+        computed = {name: _window_differentials(target, family[name][window])
+                    for name in sorted(family)}
+        for loss in losses:
+            arrays = {name: computed[name][loss] for name in sorted(family)}
+            lengths = {name: array.size for name, array in arrays.items()}
+            if len(set(lengths.values())) > 1:
+                raise EvaluationError(f"family {window}/{loss}: length mismatch {lengths}")
+            result[window][loss] = arrays
+    return result
+
+
+def _family_romano_wolf(target: str, horizon: int, family: dict[str, dict], *,
+                        replications: int, seed: int, block_length: int | None,
+                        fwer: float) -> dict:
+    """Run romano_wolf_stepdown() for every (window, loss) of the family."""
+    differentials = family_differentials(target, family)
+    losses = loss_names(target)
+    results = {window: {} for window in ("W1", "W2")}
+    for window_index, window in enumerate(("W1", "W2")):
+        for loss_index, loss in enumerate(losses):
+            results[window][loss] = romano_wolf_stepdown(
+                differentials[window][loss], horizon=horizon, replications=replications,
+                seed=int(seed) + 1000 * window_index + loss_index,
+                block_length=block_length, fwer=fwer)
+    return results
+
+
+def _adjusted_table(results: dict, target: str) -> dict:
+    """{candidate: {window: {loss: adjusted p}}} extracted from the family results."""
+    losses = loss_names(target)
+    names = sorted(results["W1"][losses[0]]["family"])
+    return {name: {window: {loss: results[window][loss]["adjusted_p_values"][name]
+                            for loss in losses}
+                   for window in ("W1", "W2")}
+            for name in names}
+
+
+def _attach_multiplicity(report: dict, candidate_id: str, results: dict, target: str, *,
+                         fwer: float, replications: int, seed: int,
+                         block_length: int | None) -> dict:
+    """Write the bootstrap Romano-Wolf adjusted p-values into one admission report."""
+    losses = loss_names(target)
+    adjusted = _adjusted_table(results, target)
+    c2 = report["criteria"]["C2"]
+    own = adjusted[candidate_id]
+    worst = max(own[window][loss] for window in ("W1", "W2") for loss in losses)
+    c2["multiplicity_method"] = RW_METHOD
+    c2["romano_wolf_adjusted_p"] = worst
+    c2["romano_wolf_pass"] = bool(worst < fwer)
+    c2["family_size"] = len(adjusted)
+    c2["family"] = {name: adjusted[name] for name in adjusted}
+    c2["multiplicity"] = {
+        "method": RW_METHOD,
+        "fwer": float(fwer),
+        "family": sorted(adjusted),
+        "family_size": len(adjusted),
+        "replications": int(replications),
+        "seed": int(seed),
+        "block_length": None if block_length is None else int(block_length),
+        "adjusted_p_values": {name: adjusted[name] for name in adjusted},
+        "romano_wolf_adjusted_p": worst,
+        "romano_wolf_pass": bool(worst < fwer),
+        "rule": "adjusted p < fwer on W1 and on W2 for every applicable loss",
+    }
+    for window in ("W1", "W2"):
+        for loss in losses:
+            entry = c2["windows"][window][loss]
+            family_result = results[window][loss]
+            entry["adjusted_p_value"] = own[window][loss]
+            entry["raw_p_value"] = family_result["raw_p_values"][candidate_id]
+            entry["family_size"] = family_result["family_size"]
+            entry["replications"] = family_result["replications"]
+            entry["bootstrap_block_length"] = family_result["block_length"]
+    c2["pass"] = bool(all(own[window][loss] < fwer
+                          for window in ("W1", "W2") for loss in losses))
+    report["multiplicity_method"] = RW_METHOD
+    report["multiplicity"] = {
+        "primary": "Romano-Wolf stepdown FWER 0.10 (stationary bootstrap) on W1 and W2",
+        "method": RW_METHOD,
+        "family": sorted(adjusted),
+        "family_size": len(adjusted),
+        "replications": int(replications),
+        "seed": int(seed),
+        "block_length": None if block_length is None else int(block_length),
+        "block_length_rule": ("max(ceil(n**(1/3)), horizon)" if block_length is None
+                              else "explicit"),
+        "adjusted_p_values": {name: adjusted[name] for name in adjusted},
+        "secondary": "Benjamini-Hochberg FDR q=0.10, reported only",
+        "note": "family = all candidates evaluated for this (target, horizon, loss) up to the "
+                "decision date; later candidates do not retract earlier decisions but the "
+                "adjusted p-values are republished; the error accumulates over (target, horizon, "
+                "loss) pairs and over W1/W2",
+    }
+    return report
+
+
+def _regrade_status(report: dict) -> dict:
+    """Recompute the gates and the status from the (possibly adjusted) criteria of a report."""
+    criteria = report["criteria"]
+    historical_gate = bool(criteria["C1"]["pass"] and criteria["C2"]["pass"]
+                           and criteria["C5"]["pass"] and criteria["C4"]["pass"])
+    forward_pass = bool(criteria["C6"]["pass"])
+    status = ("LIMITED_DEPLOYMENT" if historical_gate and forward_pass
+              else "SHADOW_TEST" if historical_gate else "CANDIDATE")
+    if status != "CANDIDATE" and not report.get("admission_allowed", False):
+        status = "CANDIDATE"
+    report["stages"] = {
+        "CANDIDATE_to_SHADOW_TEST": historical_gate,
+        "SHADOW_TEST_to_LIMITED_DEPLOYMENT": historical_gate and forward_pass,
+        "LIMITED_DEPLOYMENT_to_ACTIVE": False,
+    }
+    report["status"] = status
+    return report
+
+
+def evaluate_family(target: str, horizon: int, family: dict[str, dict], *,
+                    forward: dict[str, dict] | None = None, min_members: int | None = None,
+                    table: dict | None = None, data_class: str = "UNSTATED",
+                    rw_replications: int = DEFAULT_RW_REPLICATIONS,
+                    rw_seed: int = DEFAULT_RW_SEED,
+                    rw_block_length: int | None = None, fwer: float = ALPHA) -> dict:
+    """Full admission reports for every candidate of one family, with RW adjusted p-values.
+
+    family: {candidate_id: {"W1": window_data, "W2": window_data}} - the whole family evaluated
+    for one (target, horizon, loss) up to the decision date.  The Romano-Wolf stepdown is computed
+    once over the family and injected into every report, so all reports publish the same adjusted
+    p-values.  `forward` optionally maps candidate ids to c6_forward_check() outputs (candidates
+    without an entry get the NO_RESOLVED_FORECASTS C6 block).
+    """
+    _validate_family(family)
+    if not family:
+        raise EvaluationError("the family is empty")
+    table = load_thresholds() if table is None else table
+    if forward is not None:
+        if not isinstance(forward, dict):
+            raise EvaluationError("forward must map candidate ids to c6_forward_check() outputs")
+        unknown = sorted(set(forward) - set(family))
+        if unknown:
+            raise EvaluationError(f"forward names are not in the family: {unknown}")
+    results = _family_romano_wolf(target, horizon, family, replications=rw_replications,
+                                  seed=rw_seed, block_length=rw_block_length, fwer=fwer)
+    reports = {}
+    for name in sorted(family):
+        report = evaluate_admission(target, horizon, family[name],
+                                    forward=None if forward is None else forward.get(name),
+                                    min_members=min_members, table=table, data_class=data_class)
+        _attach_multiplicity(report, name, results, target, fwer=fwer,
+                             replications=rw_replications, seed=rw_seed,
+                             block_length=rw_block_length)
+        reports[name] = _regrade_status(report)
+    return {
+        "target": target,
+        "horizon": int(horizon),
+        "multiplicity_method": RW_METHOD,
+        "fwer": float(fwer),
+        "replications": int(rw_replications),
+        "seed": int(rw_seed),
+        "block_length": None if rw_block_length is None else int(rw_block_length),
+        "family": sorted(family),
+        "family_size": len(family),
+        "adjusted_p_values": _adjusted_table(results, target),
+        "reports": reports,
+        "note": "family fixed by the decision date; every report carries the same Romano-Wolf "
+                "adjusted p-values; a later candidate does not retract an earlier decision but "
+                "the adjusted p-values are republished",
+    }
 
 
 # --------------------------------------------------------------------------------- window block
@@ -577,12 +1009,25 @@ def evaluate_window(window: str, target: str, horizon: int, actual_primary, actu
 # --------------------------------------------------------------------------------- admission
 def evaluate_admission(target: str, horizon: int, windows: dict[str, dict], *,
                        forward: dict | None = None, min_members: int | None = None,
-                       table: dict | None = None, data_class: str = "UNSTATED") -> dict:
+                       table: dict | None = None, data_class: str = "UNSTATED",
+                       family: dict[str, dict] | None = None, candidate_id: str | None = None,
+                       rw_replications: int = DEFAULT_RW_REPLICATIONS,
+                       rw_seed: int = DEFAULT_RW_SEED,
+                       rw_block_length: int | None = None, fwer: float = ALPHA) -> dict:
     """Full C1-C6 admission report for one (target, horizon) pair.
 
     windows: {"W1": data, "W2": data} where data has actual_primary, actual_secondary, candidate,
     comparator and optionally recession.  `forward` is the output of c6_forward_check() for the
     resolved registry rows (None when the journal has no resolved forecast for the pair yet).
+
+    family/candidate_id/rw_replications/rw_seed/rw_block_length declare the Romano-Wolf family:
+    `family` maps the OTHER candidates evaluated for this (target, horizon, loss) up to the
+    decision date to their {"W1": data, "W2": data}, and `candidate_id` names the evaluated
+    candidate (default "candidate").  The full stationary-bootstrap Romano-Wolf stepdown is then
+    computed on W1 and W2; its adjusted p-values gate C2 and are published for every family
+    member.  Without `family` no family is declared, C2 keeps the raw HAC/HLN p-value and the
+    report states multiplicity_method = RAW_UNCORRECTED_NO_FAMILY_DECLARED (backward compatible
+    path for reports that cannot name the family).
 
     data_class is the protocol v4 data-depth class of the evaluated forecasts: admission is only
     allowed for REAL_TIME or REAL_TIME_TAPE.  PSEUDO_REAL_TIME (the latest tape truncated to the
@@ -595,6 +1040,22 @@ def evaluate_admission(target: str, horizon: int, windows: dict[str, dict], *,
         raise EvaluationError(f"horizon {horizon} is not defined for {target}")
     if set(windows) != {"W1", "W2"}:
         raise EvaluationError("the report needs exactly the W1 and W2 windows")
+    members = None
+    self_id = None
+    rw_results = None
+    if family is not None:
+        _validate_family(family)
+        self_id = "candidate" if candidate_id is None else str(candidate_id)
+        if not self_id:
+            raise EvaluationError("candidate_id must be a non-empty string")
+        if self_id in family:
+            raise EvaluationError("family must list the other candidates only; the evaluated "
+                                  "candidate is added under candidate_id")
+        members = dict(family)
+        members[self_id] = windows
+        rw_results = _family_romano_wolf(target, horizon, members,
+                                         replications=rw_replications, seed=rw_seed,
+                                         block_length=rw_block_length, fwer=fwer)
     blocks = {}
     for window in ("W1", "W2"):
         data = windows[window]
@@ -640,32 +1101,54 @@ def evaluate_admission(target: str, horizon: int, windows: dict[str, dict], *,
     else:
         c6_block = dict(forward)
         c6_block["status"] = "PASS" if forward["pass"] else "FAIL"
-    historical_gate = c1_pass and c2_pass and c5_pass and c4_block["pass"]
-    if historical_gate and c6_block["pass"]:
-        status = "LIMITED_DEPLOYMENT"
-    elif historical_gate:
-        status = "SHADOW_TEST"
-    else:
-        status = "CANDIDATE"
-    if target == "T3_RECESSION" and status == "LIMITED_DEPLOYMENT":
-        status = "LIMITED_DEPLOYMENT"
     admission_allowed = data_class in ("REAL_TIME", "REAL_TIME_TAPE")
     data_class_note = ("admission allowed: REAL_TIME data" if admission_allowed else
                        f"admission NOT allowed: data class is {data_class}; protocol v4 "
                        "data_depth.classification_rule counts only REAL_TIME and REAL_TIME_TAPE")
-    if status != "CANDIDATE" and not admission_allowed:
-        status = "CANDIDATE"
+    if members is None:
+        multiplicity_method = RAW_NO_FAMILY_METHOD
+        multiplicity_block = {
+            "primary": "Romano-Wolf stepdown FWER 0.10 - no family declared for this report",
+            "method": RAW_NO_FAMILY_METHOD,
+            "family": [], "family_size": 1, "replications": None, "seed": None,
+            "block_length": None, "adjusted_p_values": {},
+            "secondary": "Benjamini-Hochberg FDR q=0.10, reported only",
+            "note": "no family was declared: C2 passes on the raw HAC/HLN p-value; pass family=... "
+                    "to evaluate_admission() to gate C2 on the Romano-Wolf adjusted p-value over "
+                    "the candidates evaluated up to the decision date",
+        }
+        multiplicity_note = "multiplicity: no family declared, C2 uses the raw p-value"
+    else:
+        multiplicity_method = RW_METHOD
+        multiplicity_block = {
+            "primary": "Romano-Wolf stepdown FWER 0.10 (stationary bootstrap) on W1 and W2",
+            "method": RW_METHOD,
+            "family": sorted(members), "family_size": len(members),
+            "replications": int(rw_replications), "seed": int(rw_seed),
+            "block_length": None if rw_block_length is None else int(rw_block_length),
+            "adjusted_p_values": {},
+            "secondary": "Benjamini-Hochberg FDR q=0.10, reported only",
+            "note": "adjusted p-values are attached to the report after its assembly",
+        }
+        multiplicity_note = (
+            f"multiplicity: full Romano-Wolf stepdown over {len(members)} candidates, "
+            f"{int(rw_replications)} stationary-bootstrap replications, seed {int(rw_seed)}; "
+            "C2 requires adjusted p < 0.10 on W1 and W2; a later candidate does not retract an "
+            "earlier decision but the adjusted p-values are republished")
     report = {
         "protocol": "protocols/evaluation_protocol_v4.json",
         "target": target,
         "horizon": int(horizon),
         "min_comparator_members": min_members,
+        "multiplicity_method": multiplicity_method,
         "criteria": {
             "C1": {"gating": True, "pass": c1_pass,
                    "threshold_rule": "min(0.97, q05_equal_methods) from protocols/nf_sim_thresholds.json",
                    "windows": {w: {loss: per_window[w][loss]["c1"] for loss in losses} for w in per_window}},
             "C2": {"gating": True, "pass": c2_pass,
+                   "multiplicity_method": multiplicity_method,
                    "windows": {w: {loss: {"p_value": per_window[w][loss]["c2"]["p_value"],
+                                           "raw_p_value": per_window[w][loss]["c2"]["p_value"],
                                            "statistic": per_window[w][loss]["c2"]["statistic"],
                                            "hac_lags": per_window[w][loss]["c2"]["hac_lags"],
                                            "hln_factor": per_window[w][loss]["c2"]["hln_factor"]}
@@ -678,22 +1161,25 @@ def evaluate_admission(target: str, horizon: int, windows: dict[str, dict], *,
                                for w in per_window}},
             "C6": dict(c6_block, gating=True),
         },
-        "multiplicity": {"primary": "Romano-Wolf stepdown FWER 0.10 - see apply_romano_wolf()",
-                         "secondary": "Benjamini-Hochberg FDR q=0.10, reported only"},
+        "multiplicity": multiplicity_block,
         "stages": {
-            "CANDIDATE_to_SHADOW_TEST": historical_gate,
-            "SHADOW_TEST_to_LIMITED_DEPLOYMENT": historical_gate and c6_block["pass"],
+            "CANDIDATE_to_SHADOW_TEST": False,
+            "SHADOW_TEST_to_LIMITED_DEPLOYMENT": False,
             "LIMITED_DEPLOYMENT_to_ACTIVE": False,
         },
-        "status": status,
+        "status": "CANDIDATE",
         "data_class": data_class,
         "admission_allowed": admission_allowed,
         "data_class_note": data_class_note,
         "notes": ["C3 not implemented (non-gating)", "C4/C5/C6 simplifications in docs/72",
                   "W1 for T3 starts 1996-12 (windows.target_overrides.T3_RECESSION.W1_start)",
-                  data_class_note],
+                  data_class_note, multiplicity_note],
     }
-    return report
+    if rw_results is not None:
+        _attach_multiplicity(report, self_id, rw_results, target, fwer=fwer,
+                             replications=rw_replications, seed=rw_seed,
+                             block_length=rw_block_length)
+    return _regrade_status(report)
 
 
 # --------------------------------------------------------------------------------- self-test
@@ -720,17 +1206,23 @@ def _synthetic_demo() -> dict:
 
     windows = {"W1": window(actual, candidate_point, candidate_q, comparator_point, comparator_q),
                "W2": window(actual, candidate_point, candidate_q, comparator_point, comparator_q)}
-    good = evaluate_admission("T1_CPI_YOY", horizon, windows)
-    bad = evaluate_admission("T1_CPI_YOY", horizon,
-                             {"W1": window(actual, bad_point, bad_point[:, None] + shapes[None, :],
-                                           comparator_point, comparator_q),
-                              "W2": window(actual, bad_point, bad_point[:, None] + shapes[None, :],
-                                           comparator_point, comparator_q)})
-    identical = evaluate_admission("T1_CPI_YOY", horizon,
-                                   {"W1": window(actual, comparator_point, comparator_q,
-                                                 comparator_point, comparator_q),
-                                    "W2": window(actual, comparator_point, comparator_q,
-                                                 comparator_point, comparator_q)})
+    family = {
+        "good_candidate": windows,
+        "bad_candidate": {
+            "W1": window(actual, bad_point, bad_point[:, None] + shapes[None, :],
+                         comparator_point, comparator_q),
+            "W2": window(actual, bad_point, bad_point[:, None] + shapes[None, :],
+                         comparator_point, comparator_q)},
+        "identical_candidate": {
+            "W1": window(actual, comparator_point, comparator_q,
+                         comparator_point, comparator_q),
+            "W2": window(actual, comparator_point, comparator_q,
+                         comparator_point, comparator_q)},
+    }
+    family_report = evaluate_family("T1_CPI_YOY", horizon, family)
+    good = family_report["reports"]["good_candidate"]
+    bad = family_report["reports"]["bad_candidate"]
+    identical = family_report["reports"]["identical_candidate"]
     p = np.clip(0.2 + 0.5 * (rng.random(n) < 0.3), 0.01, 0.99)
     event = (rng.random(n) < 0.3).astype(float)
     forward = c6_forward_check("T1_CPI_YOY", actual, candidate_point=candidate_point,
@@ -747,6 +1239,16 @@ def _synthetic_demo() -> dict:
             "relative_loss": identical["criteria"]["C1"]["windows"]["W1"]["RMSE"]["relative_loss"]},
         "bad_candidate": {"status": bad["status"], "C1": bad["criteria"]["C1"]["pass"],
                           "C2": bad["criteria"]["C2"]["pass"]},
+        "family_romano_wolf": {
+            "multiplicity_method": family_report["multiplicity_method"],
+            "replications": family_report["replications"],
+            "block_length": family_report["block_length"],
+            "family": family_report["family"],
+            "statuses": {name: family_report["reports"][name]["status"]
+                         for name in family_report["family"]},
+            "adjusted_p": {name: family_report["reports"][name]["criteria"]["C2"]
+                           ["romano_wolf_adjusted_p"] for name in family_report["family"]},
+        },
         "c6_t1": {"n_resolved": forward["n_resolved"], "pass": forward["pass"],
                   "coverage": {k: v["coverage"] for k, v in forward["coverage"].items()}},
         "t3_forward_row": {"n_resolved": n, "brier": aggregate_loss(

@@ -4,6 +4,7 @@ The harness must be independent of the forecast models: it imports only numpy an
 protocol files, so this suite exercises it before src/amfe/forecast exists.
 """
 import json
+import math
 import sys
 import unittest
 from pathlib import Path
@@ -144,6 +145,8 @@ class Tests(unittest.TestCase):
         self.assertLessEqual(result["adjusted_p_values"]["a"], result["adjusted_p_values"]["b"])
         self.assertGreaterEqual(result["adjusted_p_values"]["a"], 0.003)
         self.assertIn("HOLM", result["method"])
+        self.assertTrue(result["deprecated"])
+        self.assertIn("FALLBACK", result["method"])
 
     def test_identical_methods_ratio_is_one(self):
         d = self.data
@@ -356,6 +359,201 @@ class DataClassGuard(unittest.TestCase):
             self.assertFalse(report["admission_allowed"], data_class)
             self.assertEqual(report["status"], "CANDIDATE", data_class)
             self.assertIn("admission NOT allowed", report["data_class_note"])
+
+
+def ar1_noise(rng, n, phi=0.8):
+    """Stationary AR(1) series with unit innovation variance (variance 1/(1-phi^2))."""
+    innovation = rng.normal(0.0, 1.0, size=n)
+    series = np.empty(n)
+    series[0] = innovation[0] / math.sqrt(1.0 - phi * phi)
+    for step in range(1, n):
+        series[step] = phi * series[step - 1] + innovation[step]
+    return series
+
+
+class RomanoWolfStepdown(unittest.TestCase):
+    """Full Romano-Wolf stepdown: stationary bootstrap, max-statistic, stepdown, FWER 0.10."""
+
+    def test_identical_methods_give_adjusted_p_one(self):
+        differentials = {"identical_a": np.zeros(80), "identical_b": np.zeros(80)}
+        result = ev.romano_wolf_stepdown(differentials, replications=199, seed=7)
+        self.assertEqual(result["method"], ev.RW_METHOD)
+        self.assertEqual(result["family_size"], 2)
+        self.assertEqual(result["block_length"], ev.default_block_length(80, 1))
+        for name in differentials:
+            self.assertEqual(result["adjusted_p_values"][name], 1.0)
+            self.assertEqual(result["raw_p_values"][name], 0.5)
+        self.assertEqual(result["rejected"], [])
+        self.assertEqual(result["family"], ["identical_a", "identical_b"])
+
+    def test_good_candidate_in_family_of_five(self):
+        rng = np.random.default_rng(20261111)
+        n = 240
+        differentials = {f"null_{j}": rng.normal(0.0, 1.0, size=n) for j in range(4)}
+        differentials["good_candidate"] = rng.normal(-0.25, 1.0, size=n)
+        result = ev.romano_wolf_stepdown(differentials, horizon=3, replications=999)
+        good = result["adjusted_p_values"]["good_candidate"]
+        self.assertLess(good, 0.02)
+        self.assertLessEqual(good, result["raw_p_values"]["good_candidate"] + 1e-12)
+        for name in (f"null_{j}" for j in range(4)):
+            self.assertGreater(result["adjusted_p_values"][name], 0.10)
+        self.assertEqual(result["rejected"], ["good_candidate"])
+        self.assertEqual(result["replications"], 999)
+
+    def test_fwer_simulation_under_the_null(self):
+        """Raw family p-values reject ~40% under H0; the stepdown stays near FWER 0.10.
+
+        Measured with simulation seed 8123 (300 simulated families of 5 candidates, 299
+        bootstrap replications each): raw family rejection ~0.40-0.42, Romano-Wolf ~0.12.
+        The 0.15 tolerance covers the Monte-Carlo error of 300 simulations.
+        """
+        simulations = 300
+        rng = np.random.default_rng(8123)
+        raw_rejections = 0
+        rw_rejections = 0
+        for _ in range(simulations):
+            seed = int(rng.integers(2 ** 31))
+            local = np.random.default_rng(seed)
+            differentials = {f"candidate_{j}": local.normal(0.0, 1.0, size=120)
+                             for j in range(5)}
+            result = ev.romano_wolf_stepdown(differentials, replications=299, seed=seed)
+            raw_rejections += any(p < 0.10 for p in result["raw_p_values"].values())
+            rw_rejections += any(p < 0.10 for p in result["adjusted_p_values"].values())
+        raw_frequency = raw_rejections / simulations
+        rw_frequency = rw_rejections / simulations
+        self.assertGreater(raw_frequency, 0.30)          # the multiplicity problem is real
+        self.assertLessEqual(rw_frequency, 0.15)         # FWER 0.10 + tolerance
+        self.assertLessEqual(rw_frequency, raw_frequency)
+
+    def test_block_bootstrap_captures_ar1_autocorrelation(self):
+        rng = np.random.default_rng(20261111)
+        n = 400
+        noise = ar1_noise(rng, n, phi=0.8)
+        differential = noise - noise.mean() - 0.2
+        iid = ev.romano_wolf_stepdown({"candidate": differential}, horizon=3,
+                                      replications=999, seed=5, block_length=1,
+                                      calibration="none")
+        block = ev.romano_wolf_stepdown({"candidate": differential}, horizon=3,
+                                        replications=999, seed=5, block_length=None,
+                                        calibration="none")
+        self.assertEqual(iid["block_length"], 1)
+        self.assertGreater(block["block_length"], iid["block_length"])
+        # i.i.d. resampling underestimates the null spread of the persistent differential ...
+        self.assertGreater(block["bootstrap_sd"]["candidate"],
+                           1.5 * iid["bootstrap_sd"]["candidate"])
+        # ... so its adjusted p-value is anti-conservative compared with the blocked bootstrap
+        self.assertGreater(block["adjusted_p_values"]["candidate"],
+                           3.0 * max(iid["adjusted_p_values"]["candidate"], 1e-9))
+        calibrated = ev.romano_wolf_stepdown({"candidate": differential}, horizon=3,
+                                             replications=999, seed=5, block_length=None)
+        self.assertEqual(calibrated["null_calibration"], "t_variance")
+        self.assertAlmostEqual(calibrated["target_null_variance"], 399.0 / 397.0, places=12)
+        self.assertAlmostEqual(calibrated["bootstrap_sd"]["candidate"],
+                               block["bootstrap_sd"]["candidate"], places=12)
+
+    def test_determinism_by_seed(self):
+        rng = np.random.default_rng(4)
+        differentials = {f"candidate_{j}": rng.normal(0.0, 1.0, size=120) for j in range(3)}
+        first = ev.romano_wolf_stepdown(differentials, replications=299, seed=99)
+        second = ev.romano_wolf_stepdown(differentials, replications=299, seed=99)
+        self.assertEqual(first["adjusted_p_values"], second["adjusted_p_values"])
+        self.assertEqual(first["bootstrap_sd"], second["bootstrap_sd"])
+        other = ev.romano_wolf_stepdown(differentials, replications=299, seed=100)
+        self.assertNotEqual(first["bootstrap_sd"], other["bootstrap_sd"])
+
+    def test_validation(self):
+        with self.assertRaises(ev.EvaluationError):
+            ev.romano_wolf_stepdown({})
+        with self.assertRaises(ev.EvaluationError):
+            ev.romano_wolf_stepdown({"a": np.zeros(10), "b": np.zeros(11)}, replications=99)
+        with self.assertRaises(ev.EvaluationError):
+            ev.romano_wolf_stepdown({"a": np.zeros(10)}, replications=0)
+        with self.assertRaises(ev.EvaluationError):
+            ev.romano_wolf_stepdown({"a": np.zeros(10)}, replications=99, calibration="unknown")
+        with self.assertRaises(ev.EvaluationError):
+            ev.stationary_bootstrap_indices(np.random.default_rng(1), 10, 0.5, 10)
+
+
+class FamilyMultiplicity(unittest.TestCase):
+    """evaluate_admission(family=...)/evaluate_family(): W1+W2 rule, published adjusted p."""
+
+    @staticmethod
+    def family():
+        data = synthetic_pair()
+        rng = np.random.default_rng(3)
+        null_point = data["comp_point"] + rng.normal(0.0, 1.5, size=N)
+        null_q = null_point[:, None] + QUANTILE_SHAPE[None, :]
+
+        def windows(point, quantiles):
+            return {
+                "W1": window_data(data["actual"], point, data["comp_point"], quantiles,
+                                  data["comp_q"], secondary=data["secondary"],
+                                  recession=data["recession"]),
+                "W2": window_data(data["actual"], point, data["comp_point"], quantiles,
+                                  data["comp_q"], secondary=data["secondary"],
+                                  recession=data["recession"])}
+
+        return {"good_candidate": windows(data["good_point"], data["good_q"]),
+                "null_candidate": windows(null_point, null_q),
+                "bad_candidate": windows(data["bad_point"], data["bad_q"])}
+
+    def test_evaluate_family_publishes_adjusted_p_for_every_candidate(self):
+        family = self.family()
+        report = ev.evaluate_family("T1_CPI_YOY", H, family, data_class="REAL_TIME",
+                                    rw_replications=499)
+        self.assertEqual(report["multiplicity_method"], ev.RW_METHOD)
+        self.assertEqual(report["family_size"], 3)
+        self.assertEqual(report["family"], ["bad_candidate", "good_candidate", "null_candidate"])
+        self.assertEqual(report["replications"], 499)
+        for name in family:
+            candidate_report = report["reports"][name]
+            self.assertEqual(candidate_report["multiplicity_method"], ev.RW_METHOD)
+            c2 = candidate_report["criteria"]["C2"]
+            self.assertEqual(c2["multiplicity_method"], ev.RW_METHOD)
+            self.assertEqual(c2["family_size"], 3)
+            self.assertEqual(sorted(c2["family"]), sorted(family))
+            for window in ("W1", "W2"):
+                for loss in ("RMSE", "CRPS"):
+                    entry = c2["windows"][window][loss]
+                    self.assertIn("adjusted_p_value", entry)
+                    self.assertIn("raw_p_value", entry)
+                    self.assertEqual(entry["family_size"], 3)
+            self.assertEqual(c2["pass"], c2["romano_wolf_pass"])
+            self.assertAlmostEqual(
+                c2["romano_wolf_adjusted_p"],
+                max(c2["windows"][w][loss]["adjusted_p_value"]
+                    for w in ("W1", "W2") for loss in ("RMSE", "CRPS")))
+        self.assertTrue(report["reports"]["good_candidate"]["criteria"]["C2"]["pass"])
+        self.assertFalse(report["reports"]["bad_candidate"]["criteria"]["C2"]["pass"])
+        self.assertEqual(report["reports"]["good_candidate"]["status"], "SHADOW_TEST")
+        self.assertEqual(report["reports"]["bad_candidate"]["status"], "CANDIDATE")
+        self.assertTrue(report["reports"]["good_candidate"]["stages"]["CANDIDATE_to_SHADOW_TEST"])
+
+    def test_single_candidate_family_parameter_and_raw_backward_compatibility(self):
+        family = self.family()
+        others = {name: data for name, data in family.items() if name != "good_candidate"}
+        report = ev.evaluate_admission("T1_CPI_YOY", H, family["good_candidate"],
+                                       family=others, candidate_id="good_candidate",
+                                       rw_replications=299, data_class="REAL_TIME")
+        c2 = report["criteria"]["C2"]
+        self.assertEqual(report["multiplicity_method"], ev.RW_METHOD)
+        self.assertEqual(c2["family_size"], 3)
+        self.assertIn("good_candidate", c2["family"])
+        self.assertTrue(c2["romano_wolf_pass"])
+        self.assertEqual(c2["pass"], c2["romano_wolf_pass"])
+        self.assertEqual(report["multiplicity"]["family_size"], 3)
+        raw = ev.evaluate_admission("T1_CPI_YOY", H, family["good_candidate"],
+                                    data_class="REAL_TIME")
+        self.assertEqual(raw["multiplicity_method"], ev.RAW_NO_FAMILY_METHOD)
+        self.assertEqual(raw["criteria"]["C2"]["multiplicity_method"],
+                         ev.RAW_NO_FAMILY_METHOD)
+        self.assertNotIn("adjusted_p_value", raw["criteria"]["C2"]["windows"]["W1"]["RMSE"])
+        with self.assertRaises(ev.EvaluationError):
+            ev.evaluate_admission("T1_CPI_YOY", H, family["good_candidate"],
+                                  family=family, candidate_id="good_candidate")
+        with self.assertRaises(ev.EvaluationError):
+            ev.evaluate_admission("T1_CPI_YOY", H, family["good_candidate"],
+                                  family={"x": {"W1": {}}}, candidate_id="y")
 
 
 if __name__ == "__main__":
