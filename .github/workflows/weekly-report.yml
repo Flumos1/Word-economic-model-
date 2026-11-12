@@ -31,23 +31,32 @@ jobs:
         # the model/evaluation-load tests import numpy; without it the regression step would fail on
         # import instead of testing the code
         run: python -m pip install --quiet numpy
-      - name: Restore the latest private data artifact (data/raw is git-ignored)
-        # Some tests exercise the local PIT layer and skip without data/raw; the data-dependent
-        # branch of tests/test_evaluation_layer.py even imports its module only when the data exists.
-        # Restoring the newest successful data-refresh artifact makes the regression run the full
-        # suite. Raw data stays private (the artifact is read inside the runner, nothing is committed).
+      - name: Restore the latest private data artifacts (data/raw is git-ignored)
+        # Several tests exercise the local PIT layer and skip without data/raw. The dense vintages
+        # come from the newest successful data-refresh artifact; the SPF medians (used by the
+        # ensemble smoke test) come from the newest r2-metadata artifact. Raw data stays private:
+        # the artifacts are read inside the runner and nothing is committed.
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -eu
-          run_id="$(gh run list --workflow=data-refresh.yml --branch=main --status=success \
-                     --limit=1 --json databaseId --jq '.[0].databaseId // empty' || true)"
-          if [ -z "$run_id" ]; then echo "no successful data-refresh artifact found; data tests will skip"; exit 0; fi
-          echo "restoring data/raw from data-refresh run $run_id"
-          gh run download "$run_id" --name "amfe-data-$run_id" --dir restored
-          mkdir -p data
-          cp -r restored/data/raw data/raw
+          mkdir -p data/raw
+          restore() {
+            workflow="$1"
+            prefix="$2"
+            run_id="$(gh run list --workflow="$workflow" --branch=main --status=success \
+                       --limit=1 --json databaseId --jq '.[0].databaseId // empty' || true)"
+            if [ -z "$run_id" ]; then echo "no successful $workflow artifact found"; return 0; fi
+            echo "restoring from $workflow run $run_id"
+            if ! gh run download "$run_id" --name "$prefix-$run_id" --dir "tmp-$prefix"; then
+              echo "artifact download failed for $workflow run $run_id"; return 0
+            fi
+            if [ -d "tmp-$prefix/data/raw" ]; then cp -r "tmp-$prefix/data/raw/." data/raw/; fi
+          }
+          restore data-refresh.yml amfe-data
+          restore r2-metadata.yml r2-metadata
           ls data/raw | head -20
+          ls data/raw/spf 2>/dev/null || true
       - name: Weekly integration report (deterministic, offline)
         run: |
           mkdir -p build
