@@ -168,7 +168,7 @@
         "ENSEMBLE_ADAPTIVE"
       ],
       "registered_on": "2026-11-11",
-      "sha256": "cf9a0d28cc66d6f59ebd59f852f0207f5549b6b992756608b625ed295ce321e2"
+      "sha256": "4177e575c1bf18f930dd8c6fb16e8bd21fdb199d7d054c574f25d6353f917ec4"
     },
     "licence_register": {
       "file": "protocols/licence_register.json",
