@@ -165,18 +165,24 @@ def _array_digest(values) -> str:
 
 
 def _sanitized_window(window: dict) -> dict:
-    """Report wrapper: derived metadata and digests only, never the third-party actual values."""
+    """Report wrapper: derived metadata and digests only, never raw arrays or third-party values."""
     out = {k: v for k, v in window.items()
-           if k not in ("actual_primary", "actual_secondary", "recession")}
-    if "actual_primary" in window:
-        out["actual_primary_sha256"] = _array_digest(window["actual_primary"])
-        out["actual_primary_n"] = int(np.asarray(window["actual_primary"]).size)
-    if "actual_secondary" in window:
-        out["actual_secondary_sha256"] = _array_digest(window["actual_secondary"])
-        out["actual_secondary_n"] = int(np.asarray(window["actual_secondary"]).size)
+           if k not in ("actual_primary", "actual_secondary", "recession", "candidate", "comparator")}
+    for key in ("actual_primary", "actual_secondary"):
+        if key in window:
+            out[f"{key}_sha256"] = _array_digest(window[key])
+            out[f"{key}_n"] = int(np.asarray(window[key]).size)
     if "recession" in window:
         out["recession_mask_sha256"] = _array_digest(window["recession"])
-    out["licence_note"] = "actual values are not stored; only digests and derived metrics (docs/84)"
+    for role in ("candidate", "comparator"):
+        block = window.get(role) or {}
+        clean = {}
+        for name, values in block.items():
+            clean[f"{name}_sha256"] = _array_digest(values)
+            clean[f"{name}_n"] = int(np.asarray(values).size)
+        out[role] = clean
+    out["licence_note"] = ("forecasts and actual values are not stored: only digests and derived metrics "
+                           "(docs/84, D-147)")
     return out
 
 

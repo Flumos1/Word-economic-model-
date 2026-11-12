@@ -5,7 +5,7 @@
   "generated_at": "2026-11-12T00:00:00Z",
   "root": "G:\\Мировая экономика модель",
   "options": {
-    "skip_tests": false,
+    "skip_tests": true,
     "timeout_seconds": 900.0
   },
   "status": "CONDITIONAL",
@@ -13,16 +13,17 @@
   "counts": {
     "checks": 21,
     "passed": 18,
-    "failed": 3,
-    "skipped": 0
+    "failed": 2,
+    "skipped": 1
   },
   "blockers": [],
   "warnings": [
     "frozen.r2_gate_fact",
-    "reports.references_current",
     "reports.forward_registry"
   ],
-  "skipped": [],
+  "skipped": [
+    "tests.regression"
+  ],
   "checks": [
     {
       "id": "frozen.protocol_v4",
@@ -118,7 +119,7 @@
       "group": "repository",
       "severity": "warning",
       "status": "PASS",
-      "detail": "git-индекс прочитан: 276 файлов"
+      "detail": "git-индекс прочитан: 279 файлов"
     },
     {
       "id": "repo.no_tracked_data",
@@ -127,7 +128,7 @@
       "status": "PASS",
       "detail": "в git-индексе нет файлов под data/",
       "evidence": {
-        "tracked_files": 276
+        "tracked_files": 279
       }
     },
     {
@@ -151,7 +152,7 @@
       "status": "PASS",
       "detail": "отчёт первой реальной оценки корректен: AMFE-FIRST-REAL-EVALUATION, data_class=REAL_TIME, C1–C6 на месте, licence_note есть",
       "evidence": {
-        "generated_at": "2026-11-12T07:57:26Z",
+        "generated_at": "2026-11-12T09:55:54Z",
         "candidate": "ENSEMBLE_RW_AR",
         "admission_status": "CANDIDATE"
       }
@@ -215,27 +216,8 @@
       "id": "reports.references_current",
       "group": "references",
       "severity": "warning",
-      "status": "FAIL",
-      "detail": "отчёт первой реальной оценки ссылается на устаревшие версии замороженных артефактов: candidates, composition, r3_specification (оценка выполнена до последних обновлений; нужен перезапуск или запись о версии)",
-      "evidence": {
-        "mismatches": {
-          "r3_specification": {
-            "referenced": "707a71064125",
-            "current": "5191b0626e75",
-            "referenced_version": "1.0.0"
-          },
-          "composition": {
-            "referenced": "d4d1fb5fe822",
-            "current": "a664eb93f995",
-            "referenced_version": null
-          },
-          "candidates": {
-            "referenced": "e1e8bba93b83",
-            "current": "cf9a0d28cc66",
-            "referenced_version": null
-          }
-        }
-      }
+      "status": "PASS",
+      "detail": "ссылки отчёта оценки совпадают с текущими замороженными артефактами"
     },
     {
       "id": "reports.forward_registry",
@@ -269,315 +251,26 @@
       "id": "tests.regression",
       "group": "regression",
       "severity": "blocker",
-      "status": "PASS",
-      "detail": "локальная регрессия зелёная: 47/47 тестовых файлов за 87.7 s",
+      "status": "SKIP",
+      "detail": "локальная регрессия пропущена (--skip-tests): 47 тестовых файлов не запускались",
       "evidence": {
-        "ran": true,
-        "total": 47,
-        "passed": 47,
-        "failed": 0,
-        "duration_seconds": 87.728,
-        "failures": [],
-        "tests": [
-          {
-            "file": "tests/test_accounting_core_v06.py",
-            "status": "passed",
-            "duration_seconds": 0.505,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_accounts.py",
-            "status": "passed",
-            "duration_seconds": 14.106,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_c4_analysis.py",
-            "status": "passed",
-            "duration_seconds": 11.016,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_closed_economy_v01.py",
-            "status": "passed",
-            "duration_seconds": 0.126,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_composition.py",
-            "status": "passed",
-            "duration_seconds": 0.225,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_core_calibration.py",
-            "status": "passed",
-            "duration_seconds": 0.828,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_data_gate_report.py",
-            "status": "passed",
-            "duration_seconds": 0.191,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_dense_vintages.py",
-            "status": "passed",
-            "duration_seconds": 0.604,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_domestic_journal_v01.py",
-            "status": "passed",
-            "duration_seconds": 7.414,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_dynamics.py",
-            "status": "passed",
-            "duration_seconds": 1.369,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_ensemble.py",
-            "status": "passed",
-            "duration_seconds": 5.241,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_ensemble_validation.py",
-            "status": "passed",
-            "duration_seconds": 0.687,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_evaluate_harness.py",
-            "status": "passed",
-            "duration_seconds": 2.449,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_evaluation_layer.py",
-            "status": "passed",
-            "duration_seconds": 1.068,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_extended_accounts_v07.py",
-            "status": "passed",
-            "duration_seconds": 0.208,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_first_evaluation.py",
-            "status": "passed",
-            "duration_seconds": 0.204,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_forecast_models.py",
-            "status": "passed",
-            "duration_seconds": 9.385,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_government_economy_v02.py",
-            "status": "passed",
-            "duration_seconds": 0.126,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_government_parameter_grid_v03.py",
-            "status": "passed",
-            "duration_seconds": 0.371,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_integrated_world_longrun.py",
-            "status": "passed",
-            "duration_seconds": 7.515,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_integrated_world_v01.py",
-            "status": "passed",
-            "duration_seconds": 0.204,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_international.py",
-            "status": "passed",
-            "duration_seconds": 0.24,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_licence_hygiene.py",
-            "status": "passed",
-            "duration_seconds": 0.509,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_monitoring.py",
-            "status": "passed",
-            "duration_seconds": 0.83,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_national_accounts_bridge_v01.py",
-            "status": "passed",
-            "duration_seconds": 6.207,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_national_accounts_v01.py",
-            "status": "passed",
-            "duration_seconds": 1.62,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_nber_dates.py",
-            "status": "passed",
-            "duration_seconds": 0.281,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_nf_sim.py",
-            "status": "passed",
-            "duration_seconds": 0.22,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_protocol_v1.py",
-            "status": "passed",
-            "duration_seconds": 0.284,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_protocol_v2.py",
-            "status": "passed",
-            "duration_seconds": 0.284,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_protocol_v3.py",
-            "status": "passed",
-            "duration_seconds": 0.254,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_protocol_v4.py",
-            "status": "passed",
-            "duration_seconds": 0.277,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_r3_specification.py",
-            "status": "passed",
-            "duration_seconds": 0.232,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_registry.py",
-            "status": "passed",
-            "duration_seconds": 0.265,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_regression_report.py",
-            "status": "passed",
-            "duration_seconds": 1.167,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_release_check.py",
-            "status": "passed",
-            "duration_seconds": 6.281,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_resources.py",
-            "status": "passed",
-            "duration_seconds": 0.259,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_sector_accounts_v04.py",
-            "status": "passed",
-            "duration_seconds": 0.146,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_sfc_accounts_v05.py",
-            "status": "passed",
-            "duration_seconds": 0.317,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_spf_calendar.py",
-            "status": "passed",
-            "duration_seconds": 0.517,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_spf_mapping.py",
-            "status": "passed",
-            "duration_seconds": 0.371,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_spf_median.py",
-            "status": "passed",
-            "duration_seconds": 0.195,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_terms_hashes.py",
-            "status": "passed",
-            "duration_seconds": 0.33,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_two_country_v01.py",
-            "status": "passed",
-            "duration_seconds": 0.194,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_weekly_report.py",
-            "status": "passed",
-            "duration_seconds": 0.642,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_windows.py",
-            "status": "passed",
-            "duration_seconds": 0.367,
-            "output_tail": null
-          },
-          {
-            "file": "tests/test_world_core.py",
-            "status": "passed",
-            "duration_seconds": 1.597,
-            "output_tail": null
-          }
-        ]
+        "tests": 47,
+        "ran": false
       }
     }
   ],
   "known_limitations": [
-    "научный статус: ни один gating-критерий не пройден (C1, C2, C3, C4, C5, C6); кандидат ENSEMBLE_RW_AR — CANDIDATE, допуск не присвоен (отчёт 2026-11-12T07:57:26Z).",
+    "научный статус: ни один gating-критерий не пройден (C3, C4, C6); кандидат ENSEMBLE_RW_AR — CANDIDATE, допуск не присвоен (отчёт 2026-11-12T09:55:54Z).",
     "C3 (Model Confidence Set) не реализован — негейтинговый критерий, известное ограничение harness.",
     "C6 недоступен: forward registry пуст, forward-окно не начато (C6 появится не раньше чем через 12 разрешённых прогнозов).",
     "журнал будущих прогнозов registry/forecasts.jsonl пуст (0 записей).",
     "зарегистрированы, но ещё не оценены кандидаты: ENSEMBLE_EQUAL, ENSEMBLE_INVERSE_MSE, ENSEMBLE_BAYES, ENSEMBLE_ADAPTIVE; отчёт первой реальной оценки покрывает только ENSEMBLE_RW_AR.",
-    "отчёт первой реальной оценки ссылается на устаревшие версии артефактов — для релизных утверждений нужен перезапуск оценки против текущей замороженной цепочки или явная запись о версии.",
     "в R3 зафиксирован прежний отчёт ворот R2 (59d42c17cb40); текущий отчёт — 333 пар (123 до 2000), это ожидаемое обновление после D-138/D-139 и docs/75.",
     "сырые третьи данные не коммитятся: CI-артефакты приватные, retention 90 дней; локальная регрессия требует скачанных data/raw (это by design).",
     "REAL_TIME-оценка покрывает T1 (CPI г/г, h=1) на W1+W2; T2/T3 и W3 остаются вне первой реальной оценки.",
     "бюллетень tools/weekly_report.py и этот чеклист — статусные снимки, а не замороженные документы и не присвоение допуска."
   ],
   "readme_version_note": "README: статус проекта — документация версии 0.1; релиз 1.0 фиксируется этим чеклистом и docs/89.",
-  "executed_tests": 47,
-  "markdown": "# AMFE — релизный чеклист\n\nОтчёт: `AMFE-RELEASE-CHECK` · сформирован 2026-11-12T00:00:00Z\n**Статус: CONDITIONAL** (exit code 2)\n\nПроверок: 21, PASS: 18, FAIL: 3, SKIP: 0.\n\n## Предупреждения (CONDITIONAL):\n- frozen.r2_gate_fact\n- reports.references_current\n- reports.forward_registry\n\n## frozen: CONDITIONAL\n\n| проверка | статус | детали |\n|---|---|---|\n| `frozen.protocol_v4` | PASS | протокол оценки v4: пин совпадает (bd965f4d9f23); version=4.0.0; status=FROZEN |\n| `frozen.r3_specification` | PASS | R3-спецификация: пин совпадает (5191b0626e75); version=1.0.1; status=FROZEN |\n| `frozen.nf_sim` | PASS | NF-SIM таблица порогов: пин совпадает (f057e2a5b748); study_id=NF-SIM; entries=44 |\n| `frozen.composition` | PASS | состав компаратора: пин совпадает (a664eb93f995); document_id=AMFE-COMPARATOR-COMPOSITION; evaluation_date=2026-11-11 |\n| `frozen.chain` | PASS | замороженная цепочка согласована (v4 → R3 → composition → licence register) |\n| `frozen.r2_gate_fact` | FAIL | R3 заморожена с прежним отчётом ворот R2; текущий отчёт новее (это ожидаемо после этапа 9 и фиксируется в docs/75) |\n\n## repository: PASS\n\n| проверка | статус | детали |\n|---|---|---|\n| `repo.index_available` | PASS | git-индекс прочитан: 276 файлов |\n| `repo.no_tracked_data` | PASS | в git-индексе нет файлов под data/ |\n| `repo.no_raw_archives` | PASS | в git-индексе нет файлов сырых форматов (.csv, .dta, .feather, .gz, .parquet, .tsv, .xls, .xlsx, .zip) |\n| `repo.gitignore_data` | PASS | .gitignore закрывает /data/raw/ и /data/external/ |\n\n## reports: PASS\n\n| проверка | статус | детали |\n|---|---|---|\n| `reports.evaluation` | PASS | отчёт первой реальной оценки корректен: AMFE-FIRST-REAL-EVALUATION, data_class=REAL_TIME, C1–C6 на месте, licence_note есть |\n| `reports.r2_gate` | PASS | ворота R2: passed=true, 333 пар (123 до 2000), 0 расхождений |\n| `reports.data_log` | PASS | журнал данных: 37 записей, 18 винтажных наборов, failures=0, vintage_check=true |\n| `reports.plan_coverage` | PASS | ворота R2 покрывают все 18 рядов плана |\n| `reports.no_third_party_values` | PASS | отчёты санитизированы: только агрегаты/диджесты, без массивов наблюдений (docs/84 F-1/F-2) |\n\n## references: CONDITIONAL\n\n| проверка | статус | детали |\n|---|---|---|\n| `reports.references_current` | FAIL | отчёт первой реальной оценки ссылается на устаревшие версии замороженных артефактов: candidates, composition, r3_specification (оценка выполнена до последних обновлений; нужен перезапуск или запись о версии) |\n| `reports.forward_registry` | FAIL | журнал будущих прогнозов пуст: forward-окно не начато, C6 недоступен (D-139) |\n\n## documentation: PASS\n\n| проверка | статус | детали |\n|---|---|---|\n| `docs.required` | PASS | обязательные документы на месте: README, docs/42, docs/83, docs/84 |\n| `docs.links` | PASS | локальные ссылки README и дорожной карты разрешаются (119 ссылок) |\n| `docs.release_checklist` | PASS | опубликован релизный чеклист: docs/89_Релизный_чеклист_этап9.md |\n\n## regression: PASS\n\n| проверка | статус | детали |\n|---|---|---|\n| `tests.regression` | PASS | локальная регрессия зелёная: 47/47 тестовых файлов за 87.7 s |\n\n## Известные ограничения\n\n1. научный статус: ни один gating-критерий не пройден (C1, C2, C3, C4, C5, C6); кандидат ENSEMBLE_RW_AR — CANDIDATE, допуск не присвоен (отчёт 2026-11-12T07:57:26Z).\n2. C3 (Model Confidence Set) не реализован — негейтинговый критерий, известное ограничение harness.\n3. C6 недоступен: forward registry пуст, forward-окно не начато (C6 появится не раньше чем через 12 разрешённых прогнозов).\n4. журнал будущих прогнозов registry/forecasts.jsonl пуст (0 записей).\n5. зарегистрированы, но ещё не оценены кандидаты: ENSEMBLE_EQUAL, ENSEMBLE_INVERSE_MSE, ENSEMBLE_BAYES, ENSEMBLE_ADAPTIVE; отчёт первой реальной оценки покрывает только ENSEMBLE_RW_AR.\n6. отчёт первой реальной оценки ссылается на устаревшие версии артефактов — для релизных утверждений нужен перезапуск оценки против текущей замороженной цепочки или явная запись о версии.\n7. в R3 зафиксирован прежний отчёт ворот R2 (59d42c17cb40); текущий отчёт — 333 пар (123 до 2000), это ожидаемое обновление после D-138/D-139 и docs/75.\n8. сырые третьи данные не коммитятся: CI-артефакты приватные, retention 90 дней; локальная регрессия требует скачанных data/raw (это by design).\n9. REAL_TIME-оценка покрывает T1 (CPI г/г, h=1) на W1+W2; T2/T3 и W3 остаются вне первой реальной оценки.\n10. бюллетень tools/weekly_report.py и этот чеклист — статусные снимки, а не замороженные документы и не присвоение допуска.\n\n## Как запускать\n\n```\npython tools/release_check.py                          # полный чеклист с регрессией\npython tools/release_check.py --skip-tests=true       # только артефактные проверки\npython tools/release_check.py --date 2026-11-12 --out build/release_check.json\n```\n"
+  "executed_tests": null,
+  "markdown": "# AMFE — релизный чеклист\n\nОтчёт: `AMFE-RELEASE-CHECK` · сформирован 2026-11-12T00:00:00Z\n**Статус: CONDITIONAL** (exit code 2)\n\nПроверок: 21, PASS: 18, FAIL: 2, SKIP: 1.\n\n## Предупреждения (CONDITIONAL):\n- frozen.r2_gate_fact\n- reports.forward_registry\n\n## Пропущено:\n- tests.regression\n\n## frozen: CONDITIONAL\n\n| проверка | статус | детали |\n|---|---|---|\n| `frozen.protocol_v4` | PASS | протокол оценки v4: пин совпадает (bd965f4d9f23); version=4.0.0; status=FROZEN |\n| `frozen.r3_specification` | PASS | R3-спецификация: пин совпадает (5191b0626e75); version=1.0.1; status=FROZEN |\n| `frozen.nf_sim` | PASS | NF-SIM таблица порогов: пин совпадает (f057e2a5b748); study_id=NF-SIM; entries=44 |\n| `frozen.composition` | PASS | состав компаратора: пин совпадает (a664eb93f995); document_id=AMFE-COMPARATOR-COMPOSITION; evaluation_date=2026-11-11 |\n| `frozen.chain` | PASS | замороженная цепочка согласована (v4 → R3 → composition → licence register) |\n| `frozen.r2_gate_fact` | FAIL | R3 заморожена с прежним отчётом ворот R2; текущий отчёт новее (это ожидаемо после этапа 9 и фиксируется в docs/75) |\n\n## repository: PASS\n\n| проверка | статус | детали |\n|---|---|---|\n| `repo.index_available` | PASS | git-индекс прочитан: 279 файлов |\n| `repo.no_tracked_data` | PASS | в git-индексе нет файлов под data/ |\n| `repo.no_raw_archives` | PASS | в git-индексе нет файлов сырых форматов (.csv, .dta, .feather, .gz, .parquet, .tsv, .xls, .xlsx, .zip) |\n| `repo.gitignore_data` | PASS | .gitignore закрывает /data/raw/ и /data/external/ |\n\n## reports: PASS\n\n| проверка | статус | детали |\n|---|---|---|\n| `reports.evaluation` | PASS | отчёт первой реальной оценки корректен: AMFE-FIRST-REAL-EVALUATION, data_class=REAL_TIME, C1–C6 на месте, licence_note есть |\n| `reports.r2_gate` | PASS | ворота R2: passed=true, 333 пар (123 до 2000), 0 расхождений |\n| `reports.data_log` | PASS | журнал данных: 37 записей, 18 винтажных наборов, failures=0, vintage_check=true |\n| `reports.plan_coverage` | PASS | ворота R2 покрывают все 18 рядов плана |\n| `reports.no_third_party_values` | PASS | отчёты санитизированы: только агрегаты/диджесты, без массивов наблюдений (docs/84 F-1/F-2) |\n\n## references: CONDITIONAL\n\n| проверка | статус | детали |\n|---|---|---|\n| `reports.references_current` | PASS | ссылки отчёта оценки совпадают с текущими замороженными артефактами |\n| `reports.forward_registry` | FAIL | журнал будущих прогнозов пуст: forward-окно не начато, C6 недоступен (D-139) |\n\n## documentation: PASS\n\n| проверка | статус | детали |\n|---|---|---|\n| `docs.required` | PASS | обязательные документы на месте: README, docs/42, docs/83, docs/84 |\n| `docs.links` | PASS | локальные ссылки README и дорожной карты разрешаются (119 ссылок) |\n| `docs.release_checklist` | PASS | опубликован релизный чеклист: docs/89_Релизный_чеклист_этап9.md |\n\n## regression: CONDITIONAL\n\n| проверка | статус | детали |\n|---|---|---|\n| `tests.regression` | SKIP | локальная регрессия пропущена (--skip-tests): 47 тестовых файлов не запускались |\n\n## Известные ограничения\n\n1. научный статус: ни один gating-критерий не пройден (C3, C4, C6); кандидат ENSEMBLE_RW_AR — CANDIDATE, допуск не присвоен (отчёт 2026-11-12T09:55:54Z).\n2. C3 (Model Confidence Set) не реализован — негейтинговый критерий, известное ограничение harness.\n3. C6 недоступен: forward registry пуст, forward-окно не начато (C6 появится не раньше чем через 12 разрешённых прогнозов).\n4. журнал будущих прогнозов registry/forecasts.jsonl пуст (0 записей).\n5. зарегистрированы, но ещё не оценены кандидаты: ENSEMBLE_EQUAL, ENSEMBLE_INVERSE_MSE, ENSEMBLE_BAYES, ENSEMBLE_ADAPTIVE; отчёт первой реальной оценки покрывает только ENSEMBLE_RW_AR.\n6. в R3 зафиксирован прежний отчёт ворот R2 (59d42c17cb40); текущий отчёт — 333 пар (123 до 2000), это ожидаемое обновление после D-138/D-139 и docs/75.\n7. сырые третьи данные не коммитятся: CI-артефакты приватные, retention 90 дней; локальная регрессия требует скачанных data/raw (это by design).\n8. REAL_TIME-оценка покрывает T1 (CPI г/г, h=1) на W1+W2; T2/T3 и W3 остаются вне первой реальной оценки.\n9. бюллетень tools/weekly_report.py и этот чеклист — статусные снимки, а не замороженные документы и не присвоение допуска.\n\n## Как запускать\n\n```\npython tools/release_check.py                          # полный чеклист с регрессией\npython tools/release_check.py --skip-tests=true       # только артефактные проверки\npython tools/release_check.py --date 2026-11-12 --out build/release_check.json\n```\n"
 }
