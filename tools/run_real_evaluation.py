@@ -68,7 +68,7 @@ def recession_mask(target: str, origins: list, horizon: int) -> list:
 
 
 def build_window(target: str, horizon: int, window: str, candidate_id: str, series_id,
-                 mode: str) -> dict:
+                 mode: str, allow_pseudo: bool = False) -> dict:
     protocol = json.loads(PROTOCOL.read_text(encoding="utf-8"))
     composition = json.loads(COMPOSITION.read_text(encoding="utf-8"))
     rows = windows.origins_for(protocol, target, horizon, window)
@@ -81,6 +81,7 @@ def build_window(target: str, horizon: int, window: str, candidate_id: str, seri
     vintage_dates = set()
     used_origins = []
     member_failures = 0
+    pseudo_skipped = 0
     for origin in origins:
         try:
             cand = candidate_forecast(candidate_id, target, origin, horizon, series_id=series_id, mode=mode)
@@ -98,7 +99,11 @@ def build_window(target: str, horizon: int, window: str, candidate_id: str, seri
                 member_failures += 1
         if len(member_forecasts) < 2:
             continue
-        data_classes.update([cand["data_class"]] + [m["data_class"] for m in member_forecasts])
+        origin_classes = {cand["data_class"]} | {m["data_class"] for m in member_forecasts}
+        if not allow_pseudo and origin_classes != {"REAL_TIME"}:
+            pseudo_skipped += 1
+            continue
+        data_classes.update(origin_classes)
         vintage_dates.update([m["vintage_date"] for m in member_forecasts if m.get("vintage_date")])
         if target == "T3_RECESSION":
             prob = np.mean([float(m["probability"]) for m in member_forecasts])
@@ -122,6 +127,7 @@ def build_window(target: str, horizon: int, window: str, candidate_id: str, seri
         "data_class": data_class,
         "vintage_dates": sorted(vintage_dates),
         "member_failures": member_failures,
+        "pseudo_origins_skipped": pseudo_skipped,
         "actual_primary": np.asarray(actual_primary, dtype=float),
         "actual_secondary": np.asarray(actual_secondary, dtype=float),
     }
@@ -144,6 +150,8 @@ def main(argv=None) -> int:
     ap.add_argument("--horizon", type=int, default=1)
     ap.add_argument("--series-id", default=None)
     ap.add_argument("--mode", default="auto", help="auto uses vintages when present (REAL_TIME)")
+    ap.add_argument("--allow-pseudo", action="store_true",
+                    help="include PSEUDO_REAL_TIME origins (the admission guard will then refuse)")
     ap.add_argument("--out", default=str(ROOT / "protocols" / "first_real_evaluation_report.json"))
     args = ap.parse_args(argv)
     if args.candidate not in CANDIDATE_IDS:
@@ -165,8 +173,10 @@ def main(argv=None) -> int:
     }
     CANDIDATES.write_text(json.dumps(candidate_doc, ensure_ascii=False, indent=2) + "\n",
                           encoding="utf-8", newline="\n")
-    w1 = build_window(args.target, args.horizon, "W1", args.candidate, args.series_id, args.mode)
-    w2 = build_window(args.target, args.horizon, "W2", args.candidate, args.series_id, args.mode)
+    w1 = build_window(args.target, args.horizon, "W1", args.candidate, args.series_id, args.mode,
+                      allow_pseudo=args.allow_pseudo)
+    w2 = build_window(args.target, args.horizon, "W2", args.candidate, args.series_id, args.mode,
+                      allow_pseudo=args.allow_pseudo)
     data_class = "REAL_TIME" if w1["data_class"] == w2["data_class"] == "REAL_TIME" else "PSEUDO_REAL_TIME"
     report = {
         "report_id": "AMFE-FIRST-REAL-EVALUATION",
@@ -199,8 +209,10 @@ def main(argv=None) -> int:
         "W2": {k: w2[k] for k in ("actual_primary", "actual_secondary", "candidate", "comparator", "recession")},
     }
     if args.target != "T3_RECESSION":
-        report["admission"] = evaluate.evaluate_admission(args.target, args.horizon, windows_with_mask,
-                                                          data_class=data_class)
+        family = {}  # the evaluated candidate is added under candidate_id; other candidates go here
+        report["admission"] = evaluate.evaluate_admission(
+            args.target, args.horizon, windows_with_mask, data_class=data_class,
+            family=family, candidate_id=args.candidate)
     Path(args.out).write_text(json.dumps(report, ensure_ascii=False, indent=1) + "\n",
                               encoding="utf-8", newline="\n")
     adm = report["admission"]

@@ -1,7 +1,7 @@
 {
   "spec_id": "AMFE-R3",
-  "version": "1.0.0",
-  "revision_note": "0.3 - linked to the frozen protocol v4 (SHA-256 bd965f4d9f23...), PROBIT inputs reduced to GS10-TB3MS, SPF kept outside the comparator and control arms until R2 automation/mapping, automated retrieval described. 0.4 - the R2 gate was passed on 2026-11-11 (docs/68, protocols/r2_gate_report.json). 0.5 - the NF-SIM table was generated and frozen on 2026-11-11 (protocols/nf_sim_thresholds.json, SHA-256 f057e2a5b748...). 0.6 - the seven implemented baselines record their code hashes (src/amfe/forecast, tests/test_forecast_models.py); the R2 gate, the NF-SIM table and the comparator composition are recorded in the checklist. 0.7 - answers the independent implementation review docs/73: T3 labels use the recorded NBER announcement dates (not a fixed lag), the four code hashes are refreshed, the gate facts and open items are corrected, and the harness blocks admission on PSEUDO_REAL_TIME data. 1.0.0 - FROZEN on 2026-11-11 (D-136): code hashes, NF-SIM table, R2 gate and the composition are pinned; the fixed-lag fallback for T3 labels was removed (refusal instead of a possible look-ahead).",
+  "version": "1.0.1",
+  "revision_note": "0.3 - linked to the frozen protocol v4 (SHA-256 bd965f4d9f23...), PROBIT inputs reduced to GS10-TB3MS, SPF kept outside the comparator and control arms until R2 automation/mapping, automated retrieval described. 0.4 - the R2 gate was passed on 2026-11-11 (docs/68, protocols/r2_gate_report.json). 0.5 - the NF-SIM table was generated and frozen on 2026-11-11 (protocols/nf_sim_thresholds.json, SHA-256 f057e2a5b748...). 0.6 - the seven implemented baselines record their code hashes (src/amfe/forecast, tests/test_forecast_models.py); the R2 gate, the NF-SIM table and the comparator composition are recorded in the checklist. 0.7 - answers the independent implementation review docs/73: T3 labels use the recorded NBER announcement dates (not a fixed lag), the four code hashes are refreshed, the gate facts and open items are corrected, and the harness blocks admission on PSEUDO_REAL_TIME data. 1.0.0 - FROZEN on 2026-11-11 (D-136): code hashes, NF-SIM table, R2 gate and the composition are pinned; the fixed-lag fallback for T3 labels was removed (refusal instead of a possible look-ahead). 1.0.1 (2026-11-12) - test-only amendment after the dense-vintage CI run: the quarterly archive is no longer stale, so the vintage-mode test asserts 1 <= effective_steps <= 13 instead of > 1; the model code and the specification are unchanged, only the recorded test hash changes.",
   "status": "FROZEN",
   "purpose": "Fix the content of the R3 layer - the baselines of the frozen evaluation protocol v3, the project's own nowcast, the predictive distributions and the pooling, the comparator composition, the scoring and the NF-SIM threshold study - before any candidate is evaluated.",
   "frozen_protocol": {
@@ -714,7 +714,7 @@
     "src/amfe/forecast/__init__.py": "458b90f188aabf1715ee6aa666218df60ba98c12fca1474e550f26385fda60c2",
     "src/amfe/forecast/data.py": "22c921473a45db9376b31f0c5bb08737867e15190351dd5b2c912ad747bfbf54",
     "src/amfe/forecast/models.py": "a7cb97d93b6f640ca1c15aaa23fad7b66dece4a3c5027010528006b1a24850aa",
-    "tests/test_forecast_models.py": "299164016cba40a74b3f7ec2ff43c90f0f0dfc81d727db732328463729a0d6eb"
+    "tests/test_forecast_models.py": "e386b39c7aa1b92d388d62a498197227af14f2eeee4a13a33aea44357ccfd0e1"
   },
   "implementation": {
     "package": "src/amfe/forecast",
@@ -736,5 +736,24 @@
     "nf_sim_thresholds": "f057e2a5b748d12a18fd0c7c4ca3059bf8bba5e910e721420e8fdadb42f0c614",
     "r2_gate_report": "59d42c17cb407cea31c8b79e53e3c1a68e257383e0b563578dd07f34818abb12"
   },
-  "freeze_note": "The R3 hash chain: this file is pinned first, then the comparator composition is regenerated against it and pinned separately (protocols/comparator_composition_2026-11-11.sha256); the composition documents the members, this file documents the specification and code hashes."
+  "freeze_note": "The R3 hash chain: this file is pinned first, then the comparator composition is regenerated against it and pinned separately (protocols/comparator_composition_2026-11-11.sha256); the composition documents the members, this file documents the specification and code hashes.",
+  "amendment": {
+    "date": "2026-11-12",
+    "type": "TEST_ONLY",
+    "reason": "dense quarterly ALFRED vintages (docs/75) made the old stale-yearly-grid expectation obsolete",
+    "models_changed": false,
+    "specification_changed": false,
+    "code_files_before": {
+      "src/amfe/forecast/__init__.py": "458b90f188aabf1715ee6aa666218df60ba98c12fca1474e550f26385fda60c2",
+      "src/amfe/forecast/data.py": "22c921473a45db9376b31f0c5bb08737867e15190351dd5b2c912ad747bfbf54",
+      "src/amfe/forecast/models.py": "a7cb97d93b6f640ca1c15aaa23fad7b66dece4a3c5027010528006b1a24850aa",
+      "tests/test_forecast_models.py": "299164016cba40a74b3f7ec2ff43c90f0f0dfc81d727db732328463729a0d6eb"
+    },
+    "code_files_after": {
+      "src/amfe/forecast/__init__.py": "458b90f188aabf1715ee6aa666218df60ba98c12fca1474e550f26385fda60c2",
+      "src/amfe/forecast/data.py": "22c921473a45db9376b31f0c5bb08737867e15190351dd5b2c912ad747bfbf54",
+      "src/amfe/forecast/models.py": "a7cb97d93b6f640ca1c15aaa23fad7b66dece4a3c5027010528006b1a24850aa",
+      "tests/test_forecast_models.py": "e386b39c7aa1b92d388d62a498197227af14f2eeee4a13a33aea44357ccfd0e1"
+    }
+  }
 }

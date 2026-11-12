@@ -56,3 +56,13 @@ python tools/registry.py --list
 создан пустым: первая запись появится после R2 и регистрации первого кандидата (протокол,
 `admission.stages`, `acceptance_checklist`: «forward registry opened and the first registry
 commit made; candidates registered before any evaluation»).
+
+
+## Открытие журнала (2026-11-12)
+
+- `forward_registry.start` = **2026-11-12** (дата этого коммита; задним числом не заполняется).
+- Зарегистрированы кандидаты: `ENSEMBLE_RW_AR` (см. [protocols/candidates_2026-11-11.json](../protocols/candidates_2026-11-11.json)).
+  Регистрация произошла **до** первой реальной оценки ([docs/76](../docs/76_Первая_реальная_оценка_REAL_TIME.md)).
+- Строк прогнозов пока нет: первая запись появится после первого месячного origin, следующего за
+  датой открытия; форма записи — по `forward_registry.record` протокола v4, с хешем кода кандидата,
+  хешем винтажных данных и хешем правила оценки.

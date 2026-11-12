@@ -1,0 +1,22 @@
+{
+  "document_id": "AMFE-CANDIDATES",
+  "registered_on": "2026-11-11",
+  "registered_before_evaluation": true,
+  "candidates": [
+    {
+      "id": "ENSEMBLE_RW_AR",
+      "description": "equal-weight ensemble of the RW and AR_BIC baselines: the point is their mean, the predictive distribution is the mixture of their 19-quantile distributions",
+      "code_file": "src/amfe/candidates/models.py",
+      "code_sha256": "ee3538d73cee75c01043a9a3a7dc4d8bfd1d6769ad09abd1c33efd8ac789080f",
+      "targets": [
+        "T1_CPI_YOY",
+        "T2_GDP_GROWTH"
+      ],
+      "members": [
+        "RW",
+        "AR_BIC"
+      ],
+      "note": "candidate registered before the first real evaluation; forward-registry start follows"
+    }
+  ]
+}
