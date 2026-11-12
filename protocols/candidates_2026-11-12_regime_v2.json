@@ -1,0 +1,30 @@
+{
+  "document_id": "AMFE-CANDIDATES",
+  "registered_on": "2026-11-12",
+  "registered_before_evaluation": true,
+  "batch": "wave-7 regime candidate v2",
+  "candidates": [
+    {
+      "id": "ENSEMBLE_REGIME_V2",
+      "description": "risk-off switch (Sahm-like gap >= 0.5 p.p. only): 50/50 shrinkage of BVAR_MINNESOTA toward the frozen comparator distribution; inverse-MSE ensemble otherwise",
+      "code_file": "src/amfe/ensemble/regime_v2.py",
+      "code_sha256": "af79634917b6bca445433df7adf8fa21040a6eaa6c16769f5ba2f426c1e6c7ce",
+      "targets": [
+        "T1_CPI_YOY"
+      ],
+      "horizons": [
+        1
+      ],
+      "members": [
+        "AO",
+        "AR_BIC",
+        "BVAR_MINNESOTA",
+        "RW"
+      ],
+      "registered_before_evaluation": true,
+      "motivation": "v1 (ENSEMBLE_REGIME) fixed the C4 RMSE in recessions (0.9734/0.9035) but failed C4 CRPS (1.0019/1.0133) and C1 W2 (0.9705); v2 removes the noisy inversion trigger and shrinks the risk-off distribution to the benchmark",
+      "design_disclosure": "shrinkage to the comparator is a standard robustification; the risk-off distribution is not exactly the comparator (BVAR point gets 50% weight), so C4 is not a by-construction equality; v1 remains published and is not re-scored",
+      "note": "registered before its own evaluation; report protocols/regime_v2_candidate_evaluation_report.json"
+    }
+  ]
+}

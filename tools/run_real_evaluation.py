@@ -48,9 +48,15 @@ except Exception:  # pragma: no cover - tool not importable
     spf_candidate_forecast = None
 try:
     from amfe.ensemble import regime as regime_candidate  # noqa: E402
-    REGIME_IDS = regime_candidate.CANDIDATE_IDS
+    REGIME_MODULES = {regime_candidate.CANDIDATE_ID: regime_candidate}
+    try:
+        from amfe.ensemble import regime_v2 as regime_candidate_v2  # noqa: E402
+        REGIME_MODULES[regime_candidate_v2.CANDIDATE_ID] = regime_candidate_v2
+    except Exception:  # pragma: no cover - module not importable
+        pass
+    REGIME_IDS = tuple(REGIME_MODULES)
 except Exception:  # pragma: no cover - module not importable
-    regime_candidate = None
+    REGIME_MODULES = {}
     REGIME_IDS = ()
 
 
@@ -60,8 +66,9 @@ def candidate_forecast(candidate_id, target, origin, horizon, series_id=None, mo
     if candidate_id in ENSEMBLE_IDS:
         return ensemble_candidate(candidate_id, target, origin, horizon, series_id=series_id, mode=mode)
     if REGIME_IDS and candidate_id in REGIME_IDS:
-        return regime_candidate.candidate_forecast(candidate_id, target, origin, horizon,
-                                                   series_id=series_id, mode=mode)
+        module = REGIME_MODULES[candidate_id]
+        return module.candidate_forecast(candidate_id, target, origin, horizon,
+                                         series_id=series_id, mode=mode)
     if SPF_CANDIDATE_IDS and candidate_id in SPF_CANDIDATE_IDS:
         return spf_candidate_forecast(candidate_id, target, origin, horizon,
                                       series_id=series_id, mode=mode)
@@ -164,7 +171,7 @@ def build_window(target: str, horizon: int, window: str, candidate_id: str, seri
     for origin in origins:
         try:
             if candidate_id in REGIME_IDS:
-                compose = regime_candidate.compose(predict)
+                compose = REGIME_MODULES[candidate_id].compose(predict)
                 cand = predict("candidate", candidate_id,
                                lambda: compose(origin, horizon, series_id, mode))
             else:
