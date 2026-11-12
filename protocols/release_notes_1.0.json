@@ -1,0 +1,451 @@
+{
+  "document_id": "AMFE-RELEASE-NOTES-1.0",
+  "version": "1.0.0",
+  "release_date": "2026-11-12",
+  "release_type": "research-platform",
+  "prepared": {
+    "at_head": "8e78dfeb590a821734fabceab6efa2d2a269ca0a",
+    "date": "2026-11-12",
+    "note": "машиночитаемые release notes; human-readable версия — docs/96_Релиз_1.0_подготовка.md"
+  },
+  "hash_convention": "SHA-256 of the LF-normalised file bytes (same normalisation as the project pins)",
+  "status": {
+    "release": "CONDITIONAL",
+    "summary": "Инженерных блокеров нет; релиз 1.0 возможен как исследовательская платформа после решения владельца. Остаются задокументированные предупреждения (замороженный факт R3, пустой forward-журнал) и научные ограничения: допущенной модели нет (C4 открыт, C6 недоступен). Тегирование не выполнено и автоматически не выполняется.",
+    "release_check": {
+      "status": "CONDITIONAL",
+      "exit_code": 2,
+      "blockers": [],
+      "warnings": [
+        "frozen.r2_gate_fact",
+        "reports.forward_registry"
+      ],
+      "report": "protocols/release_check_report.json",
+      "tool": "tools/release_check.py",
+      "checks_total": 21,
+      "checks_passed": 18,
+      "full_local_run": {
+        "date": "2026-11-12",
+        "status": "CONDITIONAL",
+        "blockers": [],
+        "warnings": [
+          "frozen.r2_gate_fact",
+          "reports.forward_registry"
+        ],
+        "test_files": 47,
+        "test_files_failed": 0,
+        "regression_seconds": 204.1
+      }
+    },
+    "scientific": {
+      "admitted_models": 0,
+      "candidate_status": "CANDIDATE",
+      "candidate": "ENSEMBLE_RW_AR",
+      "criteria": {
+        "C1": "PASS",
+        "C2": "PASS",
+        "C3": "NOT_IMPLEMENTED",
+        "C4": "FAIL",
+        "C5": "PASS",
+        "C6": "NO_RESOLVED_FORECASTS"
+      },
+      "note": "C4 не пройден структурно (REAL_TIME-рецессионные начала W1: 8 < 12); C6 недоступен до накопления forward-журнала"
+    }
+  },
+  "tag": {
+    "name": "v1.0.0",
+    "created": false,
+    "created_on": null,
+    "created_by": null,
+    "owner_decision_required": true,
+    "policy": "Тег ставит только владелец проекта (или Lead по его явному решению) после выполнения чек-листа тегирования; workflow release-check ничего не тегирует и не коммитит. Файл release notes не создаёт тег.",
+    "existing_tags": []
+  },
+  "frozen_artifacts": {
+    "evaluation_protocol_v4": {
+      "file": "protocols/evaluation_protocol_v4.json",
+      "version": "4.0.0",
+      "status": "FROZEN",
+      "frozen_on": "2026-11-11",
+      "sha256": "bd965f4d9f23151b4ccfd27202f0669d0a7807e642639ed18c0b864bf68dedc9",
+      "pin_file": "protocols/evaluation_protocol_v4.sha256",
+      "pin": "bd965f4d9f23151b4ccfd27202f0669d0a7807e642639ed18c0b864bf68dedc9"
+    },
+    "r3_specification": {
+      "file": "protocols/r3_specification.json",
+      "version": "1.0.1",
+      "status": "FROZEN",
+      "frozen_on": "2026-11-11",
+      "sha256": "5191b0626e7567bcbca657cd904fdfe8d2661c55c629c0dfe555fd7f2f305275",
+      "pin_file": "protocols/r3_specification.sha256",
+      "pin": "5191b0626e7567bcbca657cd904fdfe8d2661c55c629c0dfe555fd7f2f305275",
+      "amendment": "D-141: test-only amendment 1.0.0 -> 1.0.1; model code and protocol unchanged"
+    },
+    "nf_sim_thresholds": {
+      "file": "protocols/nf_sim_thresholds.json",
+      "study_id": "NF-SIM",
+      "threshold_rule": "min(0.97, q05_single, q05_combination)",
+      "entries": 44,
+      "replications": 10000,
+      "sha256": "f057e2a5b748d12a18fd0c7c4ca3059bf8bba5e910e721420e8fdadb42f0c614",
+      "pin_file": "protocols/nf_sim_thresholds.sha256",
+      "pin": "f057e2a5b748d12a18fd0c7c4ca3059bf8bba5e910e721420e8fdadb42f0c614"
+    },
+    "comparator_composition": {
+      "file": "protocols/comparator_composition_2026-11-11.json",
+      "document_id": "AMFE-COMPARATOR-COMPOSITION",
+      "evaluation_date": "2026-11-11",
+      "sha256": "5b42b61e183d7272508060a2d37b25516e26f7c6894c9b3e663628fecd29d9ee",
+      "pin_file": "protocols/comparator_composition_2026-11-11.sha256",
+      "pin": "5b42b61e183d7272508060a2d37b25516e26f7c6894c9b3e663628fecd29d9ee"
+    }
+  },
+  "artifacts": {
+    "data_plan": {
+      "file": "protocols/data_plan.json",
+      "plan_id": "AMFE-DATA-PLAN",
+      "version": "0.4.0",
+      "series": 19,
+      "vintage_series": 18,
+      "rate_limit_seconds": 2.0,
+      "sha256": "7269bfa4b4cf5423b2204208090e64ccf8d74c5d5a7c22174ee523353743ce2d"
+    },
+    "data_log": {
+      "file": "protocols/data_log.json",
+      "generated_at": "2026-11-12T09:17:57Z",
+      "entries": 37,
+      "latest_files": 19,
+      "vintage_sets": 18,
+      "failures": 0,
+      "vintage_check_all": true,
+      "sha256": "81947fc0adbb251792156de800c2915f4b4362bfcd5dfbb7569157e59eacd6ab"
+    },
+    "r2_gate_report": {
+      "file": "protocols/r2_gate_report.json",
+      "generated_at": "2026-11-12T09:17:58Z",
+      "passed": true,
+      "matched_pairs": 333,
+      "matched_pairs_pre_2000": 123,
+      "failures": 0,
+      "excluded": 1,
+      "series_covered": 18,
+      "sha256": "c1031f6816a2764c68a339fa084c7d43bfb39cb3a84e25f4406eb416ef9cc09b"
+    },
+    "first_real_evaluation_report": {
+      "file": "protocols/first_real_evaluation_report.json",
+      "report_id": "AMFE-FIRST-REAL-EVALUATION",
+      "generated_at": "2026-11-12T09:55:54Z",
+      "candidate": "ENSEMBLE_RW_AR",
+      "target": "T1_CPI_YOY",
+      "horizon": 1,
+      "data_class": "REAL_TIME",
+      "admission_status": "CANDIDATE",
+      "admission_allowed": true,
+      "stage_transitions_passed": 0,
+      "sha256": "23379fd0693960077060573f3ee6273be1a30a146409ba8eeab048df01d73590"
+    },
+    "candidates": {
+      "file": "protocols/candidates_2026-11-11.json",
+      "count": 5,
+      "ids": [
+        "ENSEMBLE_RW_AR",
+        "ENSEMBLE_EQUAL",
+        "ENSEMBLE_INVERSE_MSE",
+        "ENSEMBLE_BAYES",
+        "ENSEMBLE_ADAPTIVE"
+      ],
+      "registered_on": "2026-11-11",
+      "sha256": "cf9a0d28cc66d6f59ebd59f852f0207f5549b6b992756608b625ed295ce321e2"
+    },
+    "licence_register": {
+      "file": "protocols/licence_register.json",
+      "entries": 30,
+      "frozen": false,
+      "rule": "append-only dated register; the composition pins its digest",
+      "digest_rule": "digest pinned by protocols/comparator_composition_2026-11-11.json"
+    },
+    "forward_registry": {
+      "file": "registry/forecasts.jsonl",
+      "records": 0,
+      "start": "2026-11-12",
+      "c6_available_from": "не раньше 2027-11 (нужно ≥12 разрешённых прогнозов)"
+    }
+  },
+  "data": {
+    "series": [
+      "CPIAUCSL",
+      "CPILFESL",
+      "GDPC1",
+      "UNRATE",
+      "GS10",
+      "TB3MS",
+      "GCE",
+      "GCEC1",
+      "GPDIC1",
+      "EXPGSC1",
+      "IMPGSC1",
+      "GDPDEF",
+      "A191RL1Q225SBEA",
+      "PCEPILFE",
+      "PAYEMS",
+      "INDPRO",
+      "RSAFS",
+      "PCECC96",
+      "USREC"
+    ],
+    "vintage_series": [
+      "CPIAUCSL",
+      "CPILFESL",
+      "GDPC1",
+      "UNRATE",
+      "GS10",
+      "TB3MS",
+      "GCE",
+      "GCEC1",
+      "GPDIC1",
+      "EXPGSC1",
+      "IMPGSC1",
+      "GDPDEF",
+      "A191RL1Q225SBEA",
+      "PCEPILFE",
+      "PAYEMS",
+      "INDPRO",
+      "RSAFS",
+      "PCECC96"
+    ],
+    "series_count": 19,
+    "vintage_series_count": 18,
+    "vintage_columns_total": 2352,
+    "merged_rows_total": 11162,
+    "archive": "dense quarterly ALFRED vintages, plan grid 1990-03-31..2026-09-30",
+    "gate": {
+      "passed": true,
+      "matched_pairs": 333,
+      "matched_pairs_pre_2000": 123,
+      "failures": 0
+    },
+    "raw_data_committed": false,
+    "raw_data_location": "private CI artifact of the data-refresh workflow (90 days) + local ignored data directory"
+  },
+  "models": {
+    "r3_models": [
+      "RW",
+      "AO",
+      "AR_BIC",
+      "BVAR_MINNESOTA",
+      "DFM_FREDMD",
+      "PROBIT_SPREAD",
+      "SAHM_RULE",
+      "SPF_MEDIAN",
+      "SPF_NEG_GDP_PROB",
+      "OWN_NOWCAST_BRIDGE",
+      "NOWCAST_NYFED"
+    ],
+    "derived_comparators": [
+      "EQUAL_WEIGHT_POINT",
+      "EQUAL_WEIGHT_DENSITY"
+    ],
+    "harness": "tools/evaluate.py: C1-C6 admission harness (Romano-Wolf stepdown, FWMA 0.10)",
+    "candidate_runner": "tools/run_real_evaluation.py",
+    "first_evaluation": {
+      "report": "protocols/first_real_evaluation_report.json",
+      "doc": "docs/76_Первая_реальная_оценка_REAL_TIME.md",
+      "candidate": "ENSEMBLE_RW_AR",
+      "target": "T1_CPI_YOY",
+      "horizon": 1,
+      "windows": "W1 1996-12..2006-12 (121 origin), W2 2007-01..2019-12 (156 origins)",
+      "result": "CANDIDATE: C1/C2/C5 PASS, C4 FAIL (structural), C6 unavailable"
+    }
+  },
+  "included": [
+    "замороженный протокол оценки v4 (4.0.0) и R3-спецификация 1.0.1 (модели + harness C1-C6)",
+    "замороженная таблица NF-SIM (44 порога C1) и замороженный состав компаратора (2026-11-11)",
+    "плотный винтажный архив ALFRED: 19 рядов (18 винтажных + USREC), 333 пары ворот R2 (123 до 2000)",
+    "первая реальная REAL_TIME-оценка: ENSEMBLE_RW_AR, T1 CPI г/г h=1, W1+W2 (статус CANDIDATE)",
+    "прототипы этапов 2-8: accounts, international, resources, dynamics, world core, ensemble, monitoring",
+    "инструменты эксплуатации: fetch_data/verify_data_gate, run_real_evaluation, evaluate, weekly_report, regression_report, release_check",
+    "документация docs/01-docs/92, включая релизный чеклист docs/89 и подготовку релиза docs/96",
+    "CI: accounting-regression, data-refresh, r2-metadata, probe-vintages, weekly-report, release-check (новый)"
+  ],
+  "not_included": [
+    "допущенная модель (admitted model): ни один кандидат не прошёл C4 (структурно) и C6 (нет журнала)",
+    "C6 / forward-подтверждение: forward-журнал открыт 2026-11-12, пуст; ≥12 разрешённых прогнозов — не раньше 2027-11",
+    "закрытие C4/W1 и протокол v5: только черновик и анализ docs/88; v4 остаётся замороженным",
+    "первая реальная оценка T2 (GDP growth), T3 (recession) и окна W3 (загрязнено знанием эпизода)",
+    "DFM/FRED-MD как член компаратора (реестр UNVERIFIED, не используется)",
+    "SPF как член основного компаратора (маппинг T2 готов, docs/86; T1/T3 не маппятся)",
+    "треки третьей волны, не завершённые на момент подготовки (docs/93-95, 97-99); если они закоммичены в релизном коммите, входят как прототипы без допуска",
+    "сырые сторонние данные в репозитории (запрещено licence_policy; только приватные CI-артефакты)",
+    "утверждения о превосходстве платформы над компаратором за пределами T1 h=1 (нужны T2/T3, C4, C6)"
+  ],
+  "prerequisites": [
+    "явное решение владельца о выпуске релиза 1.0 и тегировании",
+    "release_check на закоммиченном коммите: PASS или CONDITIONAL с 0 блокерами и записанными предупреждениями",
+    "зелёная полная локальная регрессия (tests/test_*.py, 47 файлов на 2026-11-12)",
+    "зелёные CI: accounting-regression, weekly-report, release-check; успешный data-refresh с актуальным артефактом",
+    "совпадение frozen-хешей v4 / R3 / NF-SIM / composition с пинами (проверяется release_check)",
+    "release notes (protocols/release_notes_1.0.json) и docs/96 закоммичены в том же коммите, что тегируется",
+    "git-тег v1.0.0 аннотированный; GitHub Release с текстом из docs/96 и ссылкой на release_notes"
+  ],
+  "tagging_checklist": [
+    {
+      "step": 1,
+      "owner": "owner",
+      "action": "явно подтвердить выпуск 1.0 и тегирование (D-решение)",
+      "criterion": "письменное решение владельца"
+    },
+    {
+      "step": 2,
+      "owner": "lead",
+      "action": "закоммитить и запушить docs/96, release_notes, workflow release-check и прогоны",
+      "criterion": "main содержит все релизные файлы"
+    },
+    {
+      "step": 3,
+      "owner": "ci",
+      "action": "workflow release-check: полный прогон с восстановленными приватными данными",
+      "criterion": "status PASS или CONDITIONAL, blockers=[]; FAIL — чинить, а не отключать проверки"
+    },
+    {
+      "step": 4,
+      "owner": "lead",
+      "action": "повторить полный локальный прогон tests/test_*.py и release_check на тегируемом коммите",
+      "criterion": "0 упавших тестов; отчёт сохранён"
+    },
+    {
+      "step": 5,
+      "owner": "lead",
+      "action": "проверить frozen-пины и отсутствие data/ в индексе на тегируемом коммите",
+      "criterion": "release_check blockers=[]"
+    },
+    {
+      "step": 6,
+      "owner": "lead",
+      "action": "создать аннотированный тег v1.0.0 на тегируемом коммите",
+      "criterion": "git tag -a v1.0.0 -m 'AMFE 1.0.0 research platform (CONDITIONAL)'"
+    },
+    {
+      "step": 7,
+      "owner": "lead",
+      "action": "опубликовать GitHub Release v1.0.0 с release notes и предупреждениями",
+      "criterion": "релиз содержит docs/96, release_notes и статус CONDITIONAL"
+    },
+    {
+      "step": 8,
+      "owner": "lead",
+      "action": "после тега приложить protocols/release_check_report.json и артефакт release-check",
+      "criterion": "артефакт прикреплён; тег не двигается"
+    }
+  ],
+  "reproduction": {
+    "python": "3.11+ (CI 3.11, локально проверено 3.12)",
+    "dependencies": [
+      "numpy"
+    ],
+    "commands": [
+      "git clone https://github.com/Flumos1/Word-economic-model-.git",
+      "git checkout v1.0.0  # после тегирования; до него — коммит, содержащий release notes",
+      "python -m pip install numpy",
+      "python tools/release_check.py --date 2026-11-12 --out build/release_check.json",
+      "python tools/weekly_report.py --date 2026-11-12 --out build/weekly_report.md",
+      "python tools/regression_report.py --json-out build/regression_report.json",
+      "python tools/release_check.py --skip-tests=true --date 2026-11-12 --out build/release_check_fast.json",
+      "gh run download 43189654920 --name amfe-data-43189654920 --dir restored  # приватные данные для data-зависимых тестов",
+      "cp -r restored/data/raw data/raw",
+      "python tools/run_real_evaluation.py --candidate ENSEMBLE_RW_AR --target T1_CPI_YOY --horizon 1 --out build/first_real_evaluation_report.json"
+    ],
+    "notes": [
+      "data-зависимые тесты без восстановленных приватных данных корректно скипаются; сырые данные в git не попадают",
+      "полный release_check без --skip-tests запускает все tests/test_*.py (~3.5 мин на 47 файлах)",
+      "отчёты содержат диджесты вместо третьих значений (licence_policy, docs/84): численные потери воспроизводятся в допустимых пределах"
+    ]
+  },
+  "verification": {
+    "protocol_test": "tests/test_protocol_v4.py (13/13)",
+    "r3_test": "tests/test_r3_specification.py (14/14)",
+    "release_check_tests": "tests/test_release_check.py (22/22)",
+    "release_notes_tests": "tests/test_release_notes.py (29 tests)",
+    "full_regression": {
+      "files": 47,
+      "failed": 0,
+      "seconds": 204.1,
+      "date": "2026-11-12"
+    },
+    "ci_evidence": [
+      {
+        "workflow": "accounting-regression",
+        "run_id": 43197310546,
+        "conclusion": "success",
+        "commit": "0e4f527"
+      },
+      {
+        "workflow": "weekly-report",
+        "run_id": 43197583949,
+        "conclusion": "success",
+        "commit": "0e4f527"
+      },
+      {
+        "workflow": "data-refresh",
+        "run_id": 43189654920,
+        "conclusion": "success",
+        "commit": "d940ed6"
+      },
+      {
+        "workflow": "r2-metadata",
+        "run_id": 43087213929,
+        "conclusion": "success",
+        "commit": "0375252"
+      }
+    ],
+    "release_check_workflow": {
+      "file": ".github/workflows/release-check.yml",
+      "runs": []
+    }
+  },
+  "ci": {
+    "workflows": {
+      "accounting-regression": ".github/workflows/accounting-regression.yml",
+      "data-refresh": ".github/workflows/data-refresh.yml",
+      "probe-vintages": ".github/workflows/probe-vintages.yml",
+      "r2-metadata": ".github/workflows/r2-metadata.yml",
+      "weekly-report": ".github/workflows/weekly-report.yml",
+      "release-check": ".github/workflows/release-check.yml"
+    },
+    "release_check_workflow": {
+      "schedule": "weekly (Monday 07:00 UTC)",
+      "dispatch": true,
+      "restores_private_artifacts": [
+        "data-refresh",
+        "r2-metadata"
+      ],
+      "full_regression": true,
+      "writes_report": "build/release_check.json + build/release_check.md (artifact, 90 days)",
+      "fails_run_only_on_blockers": true,
+      "tags_or_commits": false
+    }
+  },
+  "documents": {
+    "release_notes": "protocols/release_notes_1.0.json",
+    "release_preparation": "docs/96_Релиз_1.0_подготовка.md",
+    "release_checklist": "docs/89_Релизный_чеклист_этап9.md",
+    "release_check_report": "protocols/release_check_report.json",
+    "first_real_evaluation": "docs/76_Первая_реальная_оценка_REAL_TIME.md",
+    "c4_v5_analysis": "docs/88_C4_W1_варианты_и_черновик_v5.md",
+    "roadmap": "docs/42_Дорожная_карта_реализации_AMFE17_и_контрольные_ворота.md",
+    "decision_journal": "docs/04_Журнал_решений.md"
+  },
+  "known_limitations": [
+    "Допущенной модели нет: C4 не пройден (W1 INCONCLUSIVE, 8 рецессионных начал < 12), C6 недоступен; ENSEMBLE_RW_AR — CANDIDATE.",
+    "C4/W1 структурно недостижим на текущем архиве: REAL_TIME-винтажи CPILFESL/GS10/TB3MS начинаются только в 1996-12 (1990-91 теряются); варианты — docs/88, решение владельца.",
+    "C6 недоступен: forward-журнал открыт 2026-11-12, пуст; ≥12 разрешённых прогнозов появятся не раньше 2027-11.",
+    "C3 (Model Confidence Set) не реализован — негейтинговый критерий harness.",
+    "Зарегистрированы, но не оценены кандидаты ENSEMBLE_EQUAL, ENSEMBLE_INVERSE_MSE, ENSEMBLE_BAYES, ENSEMBLE_ADAPTIVE.",
+    "REAL_TIME-оценка покрывает только T1 (CPI г/г, h=1) на W1+W2; T2, T3 и W3 вне первой реальной оценки.",
+    "R3 заморожена с прежним отчётом ворот R2 (87 пар); актуальный отчёт — 333 пары (123 до 2000), R3 не редактируется — это ожидаемое обновление (docs/75).",
+    "Сырые третьи данные не коммитятся: приватные CI-артефакты, retention 90 дней; полная регрессия воспроизводится только после восстановления data/raw.",
+    "Прототипы этапов 2-8 и второй волны не откалиброваны на реальных данных и не прошли OOS-валидацию гипотез (V2/V3 — честные статусы в docs).",
+    "Лицензионные ограничения и риски зафиксированы в docs/84 и docs/90; это чтение условий, а не юридическая консультация.",
+    "Статус release_check CONDITIONAL (0 блокеров, 2 предупреждения); релиз 1.0 тегируется только по решению владельца и не является допуском модели.",
+    "release notes и docs/96 описывают коммит на 2026-11-12 (HEAD release-подготовки); перед тегом обязателен повторный полный прогон на тегируемом коммите."
+  ]
+}

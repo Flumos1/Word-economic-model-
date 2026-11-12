@@ -1,0 +1,104 @@
+name: Release readiness check (1.0)
+
+# Stage 9 / release 1.0: this additive workflow runs the offline release checklist from
+# tools/release_check.py on every run and in the weekly schedule. It restores the latest private data
+# artifacts (the local regression needs data/raw and the SPF medians; raw third-party data stays
+# private and is never committed), installs the numpy test dependency, writes the machine-readable
+# report and the Markdown summary, publishes the summary on the run page and uploads both files as a
+# private artifact. The workflow never tags, commits or pushes: tagging is a separate owner decision.
+#
+# Exit semantics of the checklist (tools/release_check.py):
+#   0 = PASS, 1 = FAIL (blockers), 2 = CONDITIONAL (0 blockers, warnings only).
+# The job fails only on FAIL; CONDITIONAL is reported as a warning annotation so the weekly run stays
+# informative until the owner closes the remaining warnings.
+on:
+  schedule:
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: release-check
+  cancel-in-progress: false
+
+jobs:
+  release-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install the test dependency (numpy)
+        run: python -m pip install --quiet numpy
+      - name: Restore the latest private data artifacts (data/raw is git-ignored)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -eu
+          mkdir -p data/raw
+          restore() {
+            workflow="$1"
+            prefix="$2"
+            run_id="$(gh run list --workflow="$workflow" --branch=main --status=success \
+                       --limit=1 --json databaseId --jq '.[0].databaseId // empty' || true)"
+            if [ -z "$run_id" ]; then echo "no successful $workflow artifact found"; return 0; fi
+            echo "restoring from $workflow run $run_id"
+            if ! gh run download "$run_id" --name "$prefix-$run_id" --dir "tmp-$prefix"; then
+              echo "artifact download failed for $workflow run $run_id"; return 0
+            fi
+            if [ -d "tmp-$prefix/data/raw" ]; then cp -r "tmp-$prefix/data/raw/." data/raw/; fi
+          }
+          restore data-refresh.yml amfe-data
+          restore r2-metadata.yml r2-metadata
+          ls data/raw | head -20
+          ls data/raw/spf 2>/dev/null || true
+      - name: Release checklist (artefacts and full regression)
+        id: release_check
+        run: |
+          set -u
+          mkdir -p build
+          code=0
+          python tools/release_check.py --date "$(date -u +%F)" \
+            --out build/release_check.json --markdown-out build/release_check.md || code=$?
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          if [ -f build/release_check.md ]; then
+            {
+              echo "## AMFE release checklist"
+              echo ""
+              cat build/release_check.md
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "$code" -eq 1 ]; then
+            echo "::error::release_check status FAIL (blockers present, see build/release_check.md)"
+            exit 1
+          elif [ "$code" -eq 2 ]; then
+            echo "::warning::release_check status CONDITIONAL (0 blockers, warnings only; see build/release_check.md)"
+          else
+            echo "release_check status PASS"
+          fi
+          exit 0
+      - name: Show the report status
+        if: always()
+        run: |
+          if [ -f build/release_check.json ]; then
+            python - <<'PY'
+          import json
+          report = json.load(open("build/release_check.json", encoding="utf-8"))
+          print("release_check:", report.get("status"), "| exit:", report.get("exit_code"),
+                "| blockers:", report.get("blockers"), "| warnings:", report.get("warnings"))
+          PY
+          fi
+      - name: Upload the release checklist report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: amfe-release-check-${{ github.run_id }}
+          path: |
+            build/release_check.json
+            build/release_check.md
+          retention-days: 90
+          if-no-files-found: warn
