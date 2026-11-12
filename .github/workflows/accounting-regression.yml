@@ -21,6 +21,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Install the test dependency (numpy)
+        run: python -m pip install --quiet numpy
       - name: Three-sector accounting regression
         run: python tests/test_closed_economy_v01.py
       - name: Four-sector accounting regression
@@ -64,3 +66,33 @@ jobs:
         run: python tests/test_nf_sim.py
       - name: First evaluation pilot report (pilot, no admission)
         run: python tests/test_first_evaluation.py
+      - name: Typed accounting core, stage 2 (49 tests)
+        run: python tests/test_accounts.py
+      - name: Two countries and two currencies, stage 3 (27 tests)
+        run: python tests/test_international.py
+      - name: Real economy and resources, stage 4 (34 tests)
+        run: python tests/test_resources.py
+      - name: Dynamic mechanisms, stage 5 (31 tests)
+        run: python tests/test_dynamics.py
+      - name: Adaptive ensemble, stage 7 (48 tests)
+        run: python tests/test_ensemble.py
+      - name: Monitoring, versioning and rollback, stage 8 (38 tests)
+        run: python tests/test_monitoring.py
+      - name: Baseline models and PIT data layer (38 tests)
+        run: python tests/test_forecast_models.py
+      - name: Admission harness, composition and registry (39 tests)
+        run: python tests/test_evaluate_harness.py && python tests/test_composition.py && python tests/test_registry.py
+      - name: Evaluation layer: actuals, mixtures, candidates (10 tests)
+        run: python tests/test_evaluation_layer.py
+      - name: Windows and origins (6 tests)
+        run: python tests/test_windows.py
+      - name: Dense vintage archive tooling (15 tests)
+        run: python tests/test_dense_vintages.py
+      - name: NBER announcement dates (6 tests)
+        run: python tests/test_nber_dates.py
+      - name: SPF metadata (5 tests)
+        run: python tests/test_spf_median.py
+      - name: Licence hygiene (18 tests)
+        run: python tests/test_licence_hygiene.py
+      - name: Weekly report and regression report (18 tests)
+        run: python tests/test_weekly_report.py && python tests/test_regression_report.py
