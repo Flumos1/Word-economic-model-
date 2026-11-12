@@ -226,7 +226,8 @@ class CliTests(unittest.TestCase):
         self.assertFalse(payload["values"]["available"])
         self.assertIn("reason", payload["values"])
 
-    @unittest.skipUnless(VALUES.exists(), "local git-ignored SPF values are absent")\n    def test_cli_forecast_outputs_verdict(self):
+    @unittest.skipUnless(VALUES.exists(), "local git-ignored SPF values are absent")
+    def test_cli_forecast_outputs_verdict(self):
         out = io.StringIO()
         with redirect_stdout(out):
             code = spf.main(["--origin", "2020-02-14", "--target", "T2_GDP_GROWTH",
