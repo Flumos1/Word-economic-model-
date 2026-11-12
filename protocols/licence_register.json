@@ -3,13 +3,14 @@
   "kind": "append-only journal of source terms; a change of status is a new dated entry, never an edit (the initial composition of 2026-11-11 was corrected in place before any candidate was evaluated; git history keeps the earlier wording)",
   "protocol": "evaluation_protocol_v4.json (licence_policy)",
   "intended_use": "Non-commercial research. Published artifacts contain derived statistics only (error metrics, charts, scores), never raw third-party data. The repository is private; if it becomes public, every entry must be re-verified.",
-  "revision_note": "First composition 2026-11-11. Corrected in place on 2026-11-11 after the licence audit in docs/63, then updated the same day after the R2 documentary audit in docs/65 (BEA status, SPF/RTDSM facts, vintage depth, Cleveland archive evidence, FRED-MD format) and after the owner decision D-132 that makes retrieval automatic (the CHANNEL condition), all before any candidate or comparator composition was recorded; the append-only rule applies from the first recorded evaluation, and git history keeps the earlier wording. 2026-11-12: facts and conditions updated in place after the second licence audit in docs/84 (automated ALFRED/FRED retrieval, SPF metadata-only automation, RTDSM probe, NBER announcement retrieval, repository hygiene findings). No status changed, so the append-only status rule is not triggered; duplicate dated entries cannot be appended because the register ids must stay unique (tests/test_protocol_v3.py), and the change of the file hash is recorded as a finding in docs/84. 2026-11-12 (task-27): F-5 closed - terms-passages-v1 hashes of the terms excerpts are recorded for FRED/ALFRED, Philadelphia Fed (SPF and RTDSM) and NBER (terms_sha256, terms_retrieved_at; excerpts and normalisation in docs/90); F-6 closed - the unlogged local T10Y3M probe file was removed and the row is recorded as not used. Statuses unchanged. 2026-11-12 (task-36): per-series ALFRED entries added for the 12 plan series that had no ALFRED:<ID> entry (BEA/BLS series rest on BEA_PRIMARY/BLS_PRIMARY; INDPRO and RSAFS on their direct FRED tags; GCE direct, the other BEA series by publisher group). BLS and BEA terms hashes are recorded (docs/97). Statuses unchanged.",
+  "revision_note": "First composition 2026-11-11. Corrected in place on 2026-11-11 after the licence audit in docs/63, then updated the same day after the R2 documentary audit in docs/65 (BEA status, SPF/RTDSM facts, vintage depth, Cleveland archive evidence, FRED-MD format) and after the owner decision D-132 that makes retrieval automatic (the CHANNEL condition), all before any candidate or comparator composition was recorded; the append-only rule applies from the first recorded evaluation, and git history keeps the earlier wording. 2026-11-12: facts and conditions updated in place after the second licence audit in docs/84 (automated ALFRED/FRED retrieval, SPF metadata-only automation, RTDSM probe, NBER announcement retrieval, repository hygiene findings). No status changed, so the append-only status rule is not triggered; duplicate dated entries cannot be appended because the register ids must stay unique (tests/test_protocol_v3.py), and the change of the file hash is recorded as a finding in docs/84. 2026-11-12 (task-27): F-5 closed - terms-passages-v1 hashes of the terms excerpts are recorded for FRED/ALFRED, Philadelphia Fed (SPF and RTDSM) and NBER (terms_sha256, terms_retrieved_at; excerpts and normalisation in docs/90); F-6 closed - the unlogged local T10Y3M probe file was removed and the row is recorded as not used. Statuses unchanged. 2026-11-12 (task-36): per-series ALFRED entries added for the 12 plan series that had no ALFRED:<ID> entry (BEA/BLS series rest on BEA_PRIMARY/BLS_PRIMARY; INDPRO and RSAFS on their direct FRED tags; GCE direct, the other BEA series by publisher group). BLS and BEA terms hashes are recorded (docs/97). Statuses unchanged. 2026-11-12 (task-45): the nine series that were label-verified by publisher group (GCEC1, GPDIC1, EXPGSC1, IMPGSC1, GDPDEF, A191RL1Q225SBEA, PCEPILFE, PCECC96, PAYEMS) now have the FRED series page read directly; label_verification changed from publisher_group to direct, no status changed. tools/check_terms.py and docs/103 added.",
   "audit": [
     "docs/63_Лицензионный_аудит_2026-11-11.md",
     "docs/65_R2_документарный_аудит_2026-11-11.md (primary terms, documentation and metadata pages opened on 2026-11-11; no raw data downloaded)",
     "docs/84_Лицензионный_аудит_2_2026-11-12.md (repository hygiene and the new uses; no raw data downloaded)",
     "docs/90_Условия_источников_хеши.md (terms excerpts, normalisation and sha256, retrieved 2026-11-12; F-5 and F-6 closed)",
-    "docs/97_Лицензии_ряды_и_terms.md (per-series labels for the 19 data_plan series and the BLS/BEA terms hashes; checked 2026-11-12)"
+    "docs/97_Лицензии_ряды_и_terms.md (per-series labels for the 19 data_plan series and the BLS/BEA terms hashes; checked 2026-11-12)",
+    "docs/103_Лицензии_прямые_метки.md (direct FRED labels for the nine publisher-group series, read 2026-11-12; no new terms sources)"
   ],
   "raw_data_rule": "Raw third-party archives are never committed to the repository: downloaded files stay in the git-ignored data directory or in the private CI artifact, and only the URL, retrieval date, bytes and SHA-256, row counts and date ranges go to protocols/data_log.json or to a metadata file. Committed artifacts carry derived statistics and metadata only, never third-party data series or their values (evaluation_protocol_v4 licence_policy.intended_use and raw_data). The known exceptions and their required owner decisions are recorded in docs/84.",
   "statuses": {
@@ -433,16 +434,16 @@
         "https://alfred.stlouisfed.org/series?seid=GCEC1"
       ],
       "label": "Public Domain: Citation Requested",
-      "label_verification": "publisher_group",
-      "label_source": "publisher group BEA: FRED tag verified directly on GCE (2026-11-12); BEA is a federal public-domain source (BEA_PRIMARY). The FRED page of this series was not read separately.",
+      "label_verification": "direct",
+      "label_source": "FRED series tag on https://fred.stlouisfed.org/series/GCEC1, read 2026-11-12",
       "primary_anchor": "BEA_PRIMARY",
-      "basis": "FRED series label: 'Public Domain: Citation Requested'. Primary source BEA: 'Unless stated otherwise, the information posted on the BEA web site is in the public domain and may be used or reproduced without specific permission.' (BEA_PRIMARY, checked 2026-11-12). Retrieved through ALFRED under the FRED_ALFRED_SERVICES conditions; non-commercial research only, derived statistics published, raw files never committed.",
+      "basis": "FRED series label: 'Public Domain: Citation Requested' (read directly on 2026-11-12). primary source BEA: 'Unless stated otherwise, the information posted on the BEA web site is in the public domain and may be used or reproduced without specific permission.' (BEA_PRIMARY, checked 2026-11-12). Retrieved through ALFRED under the FRED_ALFRED_SERVICES conditions; non-commercial research only, derived statistics published, raw files never committed.",
       "conditions": [
         "see FRED_ALFRED_SERVICES",
-        "primary anchor BEA_PRIMARY (public domain; attribution requested)",
-        "the label was inherited from the publisher group; the FRED label for this exact series was not read separately, the licence basis is the primary source quoted in the anchor entry"
+        "FRED label 'Public Domain: Citation Requested' read directly on the series page 2026-11-12",
+        "primary anchor BEA_PRIMARY (public domain; attribution requested)"
       ],
-      "decision": "usable for non-commercial research under the anchor and channel conditions; labels to be re-read if the series is used in a published comparator beyond the registered evaluation"
+      "decision": "usable for non-commercial research under the FRED label and the primary anchor; the label was read directly on 2026-11-12 (docs/103)"
     },
     {
       "id": "ALFRED:GPDIC1",
@@ -454,16 +455,16 @@
         "https://alfred.stlouisfed.org/series?seid=GPDIC1"
       ],
       "label": "Public Domain: Citation Requested",
-      "label_verification": "publisher_group",
-      "label_source": "publisher group BEA: FRED tag verified directly on GCE (2026-11-12); BEA is a federal public-domain source (BEA_PRIMARY). The FRED page of this series was not read separately.",
+      "label_verification": "direct",
+      "label_source": "FRED series tag on https://fred.stlouisfed.org/series/GPDIC1, read 2026-11-12",
       "primary_anchor": "BEA_PRIMARY",
-      "basis": "FRED series label: 'Public Domain: Citation Requested'. Primary source BEA: 'Unless stated otherwise, the information posted on the BEA web site is in the public domain and may be used or reproduced without specific permission.' (BEA_PRIMARY, checked 2026-11-12). Retrieved through ALFRED under the FRED_ALFRED_SERVICES conditions; non-commercial research only, derived statistics published, raw files never committed.",
+      "basis": "FRED series label: 'Public Domain: Citation Requested' (read directly on 2026-11-12). primary source BEA: 'Unless stated otherwise, the information posted on the BEA web site is in the public domain and may be used or reproduced without specific permission.' (BEA_PRIMARY, checked 2026-11-12). Retrieved through ALFRED under the FRED_ALFRED_SERVICES conditions; non-commercial research only, derived statistics published, raw files never committed.",
       "conditions": [
         "see FRED_ALFRED_SERVICES",
-        "primary anchor BEA_PRIMARY (public domain; attribution requested)",
-        "the label was inherited from the publisher group; the FRED label for this exact series was not read separately, the licence basis is the primary source quoted in the anchor entry"
+        "FRED label 'Public Domain: Citation Requested' read directly on the series page 2026-11-12",
+        "primary anchor BEA_PRIMARY (public domain; attribution requested)"
       ],
-      "decision": "usable for non-commercial research under the anchor and channel conditions; labels to be re-read if the series is used in a published comparator beyond the registered evaluation"
+      "decision": "usable for non-commercial research under the FRED label and the primary anchor; the label was read directly on 2026-11-12 (docs/103)"
     },
     {
       "id": "ALFRED:EXPGSC1",
@@ -475,16 +476,16 @@
         "https://alfred.stlouisfed.org/series?seid=EXPGSC1"
       ],
       "label": "Public Domain: Citation Requested",
-      "label_verification": "publisher_group",
-      "label_source": "publisher group BEA: FRED tag verified directly on GCE (2026-11-12); BEA is a federal public-domain source (BEA_PRIMARY). The FRED page of this series was not read separately.",
+      "label_verification": "direct",
+      "label_source": "FRED series tag on https://fred.stlouisfed.org/series/EXPGSC1, read 2026-11-12",
       "primary_anchor": "BEA_PRIMARY",
-      "basis": "FRED series label: 'Public Domain: Citation Requested'. Primary source BEA: 'Unless stated otherwise, the information posted on the BEA web site is in the public domain and may be used or reproduced without specific permission.' (BEA_PRIMARY, checked 2026-11-12). Retrieved through ALFRED under the FRED_ALFRED_SERVICES conditions; non-commercial research only, derived statistics published, raw files never committed.",
+      "basis": "FRED series label: 'Public Domain: Citation Requested' (read directly on 2026-11-12). primary source BEA: 'Unless stated otherwise, the information posted on the BEA web site is in the public domain and may be used or reproduced without specific permission.' (BEA_PRIMARY, checked 2026-11-12). Retrieved through ALFRED under the FRED_ALFRED_SERVICES conditions; non-commercial research only, derived statistics published, raw files never committed.",
       "conditions": [
         "see FRED_ALFRED_SERVICES",
-        "primary anchor BEA_PRIMARY (public domain; attribution requested)",
-        "the label was inherited from the publisher group; the FRED label for this exact series was not read separately, the licence basis is the primary source quoted in the anchor entry"
+        "FRED label 'Public Domain: Citation Requested' read directly on the series page 2026-11-12",
+        "primary anchor BEA_PRIMARY (public domain; attribution requested)"
       ],
-      "decision": "usable for non-commercial research under the anchor and channel conditions; labels to be re-read if the series is used in a published comparator beyond the registered evaluation"
+      "decision": "usable for non-commercial research under the FRED label and the primary anchor; the label was read directly on 2026-11-12 (docs/103)"
     },
     {
       "id": "ALFRED:IMPGSC1",
@@ -496,16 +497,16 @@
         "https://alfred.stlouisfed.org/series?seid=IMPGSC1"
       ],
       "label": "Public Domain: Citation Requested",
-      "label_verification": "publisher_group",
-      "label_source": "publisher group BEA: FRED tag verified directly on GCE (2026-11-12); BEA is a federal public-domain source (BEA_PRIMARY). The FRED page of this series was not read separately.",
+      "label_verification": "direct",
+      "label_source": "FRED series tag on https://fred.stlouisfed.org/series/IMPGSC1, read 2026-11-12",
       "primary_anchor": "BEA_PRIMARY",
-      "basis": "FRED series label: 'Public Domain: Citation Requested'. Primary source BEA: 'Unless stated otherwise, the information posted on the BEA web site is in the public domain and may be used or reproduced without specific permission.' (BEA_PRIMARY, checked 2026-11-12). Retrieved through ALFRED under the FRED_ALFRED_SERVICES conditions; non-commercial research only, derived statistics published, raw files never committed.",
+      "basis": "FRED series label: 'Public Domain: Citation Requested' (read directly on 2026-11-12). primary source BEA: 'Unless stated otherwise, the information posted on the BEA web site is in the public domain and may be used or reproduced without specific permission.' (BEA_PRIMARY, checked 2026-11-12). Retrieved through ALFRED under the FRED_ALFRED_SERVICES conditions; non-commercial research only, derived statistics published, raw files never committed.",
       "conditions": [
         "see FRED_ALFRED_SERVICES",
-        "primary anchor BEA_PRIMARY (public domain; attribution requested)",
-        "the label was inherited from the publisher group; the FRED label for this exact series was not read separately, the licence basis is the primary source quoted in the anchor entry"
+        "FRED label 'Public Domain: Citation Requested' read directly on the series page 2026-11-12",
+        "primary anchor BEA_PRIMARY (public domain; attribution requested)"
       ],
-      "decision": "usable for non-commercial research under the anchor and channel conditions; labels to be re-read if the series is used in a published comparator beyond the registered evaluation"
+      "decision": "usable for non-commercial research under the FRED label and the primary anchor; the label was read directly on 2026-11-12 (docs/103)"
     },
     {
       "id": "ALFRED:GDPDEF",
@@ -517,16 +518,16 @@
         "https://alfred.stlouisfed.org/series?seid=GDPDEF"
       ],
       "label": "Public Domain: Citation Requested",
-      "label_verification": "publisher_group",
-      "label_source": "publisher group BEA: FRED tag verified directly on GCE (2026-11-12); BEA is a federal public-domain source (BEA_PRIMARY). The FRED page of this series was not read separately.",
+      "label_verification": "direct",
+      "label_source": "FRED series tag on https://fred.stlouisfed.org/series/GDPDEF, read 2026-11-12",
       "primary_anchor": "BEA_PRIMARY",
-      "basis": "FRED series label: 'Public Domain: Citation Requested'. Primary source BEA: 'Unless stated otherwise, the information posted on the BEA web site is in the public domain and may be used or reproduced without specific permission.' (BEA_PRIMARY, checked 2026-11-12). Retrieved through ALFRED under the FRED_ALFRED_SERVICES conditions; non-commercial research only, derived statistics published, raw files never committed.",
+      "basis": "FRED series label: 'Public Domain: Citation Requested' (read directly on 2026-11-12). primary source BEA: 'Unless stated otherwise, the information posted on the BEA web site is in the public domain and may be used or reproduced without specific permission.' (BEA_PRIMARY, checked 2026-11-12). Retrieved through ALFRED under the FRED_ALFRED_SERVICES conditions; non-commercial research only, derived statistics published, raw files never committed.",
       "conditions": [
         "see FRED_ALFRED_SERVICES",
-        "primary anchor BEA_PRIMARY (public domain; attribution requested)",
-        "the label was inherited from the publisher group; the FRED label for this exact series was not read separately, the licence basis is the primary source quoted in the anchor entry"
+        "FRED label 'Public Domain: Citation Requested' read directly on the series page 2026-11-12",
+        "primary anchor BEA_PRIMARY (public domain; attribution requested)"
       ],
-      "decision": "usable for non-commercial research under the anchor and channel conditions; labels to be re-read if the series is used in a published comparator beyond the registered evaluation"
+      "decision": "usable for non-commercial research under the FRED label and the primary anchor; the label was read directly on 2026-11-12 (docs/103)"
     },
     {
       "id": "ALFRED:A191RL1Q225SBEA",
@@ -538,16 +539,16 @@
         "https://alfred.stlouisfed.org/series?seid=A191RL1Q225SBEA"
       ],
       "label": "Public Domain: Citation Requested",
-      "label_verification": "publisher_group",
-      "label_source": "publisher group BEA: FRED tag verified directly on GCE (2026-11-12); BEA is a federal public-domain source (BEA_PRIMARY). The FRED page of this series was not read separately.",
+      "label_verification": "direct",
+      "label_source": "FRED series tag on https://fred.stlouisfed.org/series/A191RL1Q225SBEA, read 2026-11-12",
       "primary_anchor": "BEA_PRIMARY",
-      "basis": "FRED series label: 'Public Domain: Citation Requested'. Primary source BEA: 'Unless stated otherwise, the information posted on the BEA web site is in the public domain and may be used or reproduced without specific permission.' (BEA_PRIMARY, checked 2026-11-12). Retrieved through ALFRED under the FRED_ALFRED_SERVICES conditions; non-commercial research only, derived statistics published, raw files never committed.",
+      "basis": "FRED series label: 'Public Domain: Citation Requested' (read directly on 2026-11-12). primary source BEA: 'Unless stated otherwise, the information posted on the BEA web site is in the public domain and may be used or reproduced without specific permission.' (BEA_PRIMARY, checked 2026-11-12). Retrieved through ALFRED under the FRED_ALFRED_SERVICES conditions; non-commercial research only, derived statistics published, raw files never committed.",
       "conditions": [
         "see FRED_ALFRED_SERVICES",
-        "primary anchor BEA_PRIMARY (public domain; attribution requested)",
-        "the label was inherited from the publisher group; the FRED label for this exact series was not read separately, the licence basis is the primary source quoted in the anchor entry"
+        "FRED label 'Public Domain: Citation Requested' read directly on the series page 2026-11-12",
+        "primary anchor BEA_PRIMARY (public domain; attribution requested)"
       ],
-      "decision": "usable for non-commercial research under the anchor and channel conditions; labels to be re-read if the series is used in a published comparator beyond the registered evaluation"
+      "decision": "usable for non-commercial research under the FRED label and the primary anchor; the label was read directly on 2026-11-12 (docs/103)"
     },
     {
       "id": "ALFRED:PCEPILFE",
@@ -559,16 +560,16 @@
         "https://alfred.stlouisfed.org/series?seid=PCEPILFE"
       ],
       "label": "Public Domain: Citation Requested",
-      "label_verification": "publisher_group",
-      "label_source": "publisher group BEA: FRED tag verified directly on GCE (2026-11-12); BEA is a federal public-domain source (BEA_PRIMARY). The FRED page of this series was not read separately.",
+      "label_verification": "direct",
+      "label_source": "FRED series tag on https://fred.stlouisfed.org/series/PCEPILFE, read 2026-11-12",
       "primary_anchor": "BEA_PRIMARY",
-      "basis": "FRED series label: 'Public Domain: Citation Requested'. Primary source BEA: 'Unless stated otherwise, the information posted on the BEA web site is in the public domain and may be used or reproduced without specific permission.' (BEA_PRIMARY, checked 2026-11-12). Retrieved through ALFRED under the FRED_ALFRED_SERVICES conditions; non-commercial research only, derived statistics published, raw files never committed.",
+      "basis": "FRED series label: 'Public Domain: Citation Requested' (read directly on 2026-11-12). primary source BEA: 'Unless stated otherwise, the information posted on the BEA web site is in the public domain and may be used or reproduced without specific permission.' (BEA_PRIMARY, checked 2026-11-12). Retrieved through ALFRED under the FRED_ALFRED_SERVICES conditions; non-commercial research only, derived statistics published, raw files never committed.",
       "conditions": [
         "see FRED_ALFRED_SERVICES",
-        "primary anchor BEA_PRIMARY (public domain; attribution requested)",
-        "the label was inherited from the publisher group; the FRED label for this exact series was not read separately, the licence basis is the primary source quoted in the anchor entry"
+        "FRED label 'Public Domain: Citation Requested' read directly on the series page 2026-11-12",
+        "primary anchor BEA_PRIMARY (public domain; attribution requested)"
       ],
-      "decision": "usable for non-commercial research under the anchor and channel conditions; labels to be re-read if the series is used in a published comparator beyond the registered evaluation"
+      "decision": "usable for non-commercial research under the FRED label and the primary anchor; the label was read directly on 2026-11-12 (docs/103)"
     },
     {
       "id": "ALFRED:PCECC96",
@@ -580,16 +581,16 @@
         "https://alfred.stlouisfed.org/series?seid=PCECC96"
       ],
       "label": "Public Domain: Citation Requested",
-      "label_verification": "publisher_group",
-      "label_source": "publisher group BEA: FRED tag verified directly on GCE (2026-11-12); BEA is a federal public-domain source (BEA_PRIMARY). The FRED page of this series was not read separately.",
+      "label_verification": "direct",
+      "label_source": "FRED series tag on https://fred.stlouisfed.org/series/PCECC96, read 2026-11-12",
       "primary_anchor": "BEA_PRIMARY",
-      "basis": "FRED series label: 'Public Domain: Citation Requested'. Primary source BEA: 'Unless stated otherwise, the information posted on the BEA web site is in the public domain and may be used or reproduced without specific permission.' (BEA_PRIMARY, checked 2026-11-12). Retrieved through ALFRED under the FRED_ALFRED_SERVICES conditions; non-commercial research only, derived statistics published, raw files never committed.",
+      "basis": "FRED series label: 'Public Domain: Citation Requested' (read directly on 2026-11-12). primary source BEA: 'Unless stated otherwise, the information posted on the BEA web site is in the public domain and may be used or reproduced without specific permission.' (BEA_PRIMARY, checked 2026-11-12). Retrieved through ALFRED under the FRED_ALFRED_SERVICES conditions; non-commercial research only, derived statistics published, raw files never committed.",
       "conditions": [
         "see FRED_ALFRED_SERVICES",
-        "primary anchor BEA_PRIMARY (public domain; attribution requested)",
-        "the label was inherited from the publisher group; the FRED label for this exact series was not read separately, the licence basis is the primary source quoted in the anchor entry"
+        "FRED label 'Public Domain: Citation Requested' read directly on the series page 2026-11-12",
+        "primary anchor BEA_PRIMARY (public domain; attribution requested)"
       ],
-      "decision": "usable for non-commercial research under the anchor and channel conditions; labels to be re-read if the series is used in a published comparator beyond the registered evaluation"
+      "decision": "usable for non-commercial research under the FRED label and the primary anchor; the label was read directly on 2026-11-12 (docs/103)"
     },
     {
       "id": "ALFRED:PAYEMS",
@@ -601,16 +602,16 @@
         "https://alfred.stlouisfed.org/series?seid=PAYEMS"
       ],
       "label": "Public Domain: Citation Requested",
-      "label_verification": "publisher_group",
-      "label_source": "publisher group BLS: the FRED page of this series was not read separately; BLS is a federal public-domain source (BLS_PRIMARY, checked 2026-11-12).",
+      "label_verification": "direct",
+      "label_source": "FRED series tag on https://fred.stlouisfed.org/series/PAYEMS, read 2026-11-12",
       "primary_anchor": "BLS_PRIMARY",
-      "basis": "FRED series label: 'Public Domain: Citation Requested'. Primary source BLS: everything that we publish, both in hard copy and electronically, is in the public domain ... You are free to use our public domain material without specific permission, although we do ask that you cite the Bureau of Labor Statistics as the source. (BLS_PRIMARY, checked 2026-11-12). Retrieved through ALFRED under the FRED_ALFRED_SERVICES conditions; non-commercial research only, derived statistics published, raw files never committed.",
+      "basis": "FRED series label: 'Public Domain: Citation Requested' (read directly on 2026-11-12). primary source BLS: 'everything that we publish ... is in the public domain ... You are free to use our public domain material without specific permission, although we do ask that you cite the Bureau of Labor Statistics as the source.' (BLS_PRIMARY, checked 2026-11-12). Retrieved through ALFRED under the FRED_ALFRED_SERVICES conditions; non-commercial research only, derived statistics published, raw files never committed.",
       "conditions": [
         "see FRED_ALFRED_SERVICES",
-        "primary anchor BLS_PRIMARY (public domain; attribution requested)",
-        "the label was inherited from the publisher group; the FRED label for this exact series was not read separately, the licence basis is the primary source quoted in the anchor entry"
+        "FRED label 'Public Domain: Citation Requested' read directly on the series page 2026-11-12",
+        "primary anchor BLS_PRIMARY (public domain; attribution requested)"
       ],
-      "decision": "usable for non-commercial research under the anchor and channel conditions; labels to be re-read if the series is used in a published comparator beyond the registered evaluation"
+      "decision": "usable for non-commercial research under the FRED label and the primary anchor; the label was read directly on 2026-11-12 (docs/103)"
     },
     {
       "id": "ALFRED:INDPRO",
@@ -661,7 +662,7 @@
     "checked_at": "2026-11-12",
     "series_count": 19,
     "alfred_entries": 19,
-    "label_rule": "Each plan series has an ALFRED:<ID> entry with status OPEN and either a directly read FRED label or the primary anchor BEA_PRIMARY/BLS_PRIMARY (publisher-group inheritance is recorded in label_verification/label_source); USREC uses the existing ALFRED:USREC entry.",
-    "remaining": "The FRED label of the individual BEA series (except GCE) and of PAYEMS was not read separately; the licence basis is the primary public-domain source. A CI step that re-reads labels and terms is described in docs/97."
+    "label_rule": "Every plan series has an ALFRED:<ID> entry with a directly read FRED series label (all 19 were read directly by 2026-11-12) and, for BEA/BLS series, the primary anchor BEA_PRIMARY/BLS_PRIMARY as the licence basis; USREC uses the existing ALFRED:USREC entry.",
+    "remaining": "All 19 FRED labels are now direct. The remaining items are the CI terms check (tools/check_terms.py needs to be wired into a workflow by the Lead) and FRED-MD_FRED-QD (UNVERIFIED, not used); T10Y3M is not used."
   }
 }

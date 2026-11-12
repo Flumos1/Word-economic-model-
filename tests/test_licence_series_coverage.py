@@ -132,11 +132,13 @@ class SeriesLabels(unittest.TestCase):
             if series not in {"CPIAUCSL", "CPILFESL", "GDPC1", "UNRATE", "GS10", "TB3MS", "USREC"}:
                 self.assertRegex(entry["date"], ISO_DATE, series)
 
-    def test_publisher_group_entries_name_their_primary_anchor(self):
+    def test_all_labels_are_direct(self):
+        # after task-45 every plan series has its FRED page read directly; publisher_group is gone
         group = [s for s in self.series
-                 if self.entries["ALFRED:" + s].get("label_verification") == "publisher_group"]
-        self.assertEqual(sorted(group), ["A191RL1Q225SBEA", "EXPGSC1", "GCEC1", "GDPDEF",
-                                         "GPDIC1", "IMPGSC1", "PAYEMS", "PCECC96", "PCEPILFE"])
+                 if self.entries["ALFRED:" + s].get("label_verification") != "direct"]
+        self.assertEqual(group, [])
+        for s in self.series:
+            self.assertIn("fred.stlouisfed.org/series/" + s, self.entries["ALFRED:" + s]["label_source"])
         for series in group:
             entry = self.entries["ALFRED:" + series]
             self.assertIn(entry.get("primary_anchor"), {"BEA_PRIMARY", "BLS_PRIMARY"}, series)
@@ -144,11 +146,10 @@ class SeriesLabels(unittest.TestCase):
             self.assertEqual(entry["status"], "OPEN", series)
 
     def test_direct_labels_cite_the_fred_series_page(self):
-        direct = [s for s in self.series
-                  if self.entries["ALFRED:" + s].get("label_verification") == "direct"
-                  and s not in {"CPIAUCSL", "CPILFESL", "GDPC1", "UNRATE", "GS10", "TB3MS", "USREC"}]
-        for series in direct:
-            self.assertIn("fred.stlouisfed.org/series/" + series, self.entries["ALFRED:" + series]["label_source"])
+        for series in self.series:
+            entry = self.entries["ALFRED:" + series]
+            self.assertEqual(entry["label_verification"], "direct", series)
+            self.assertIn("fred.stlouisfed.org/series/" + series, entry["label_source"], series)
 
     def test_primary_anchor_entries_carry_the_series_list(self):
         for anchor in ("BEA_PRIMARY", "BLS_PRIMARY"):

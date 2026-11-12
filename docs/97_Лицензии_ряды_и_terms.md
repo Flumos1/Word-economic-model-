@@ -21,24 +21,24 @@ NFC; каждая последовательность пробельных си
 | 5 | `GS10` | `ALFRED:GS10` | Public Domain: Citation Requested | direct (docs/63) | **OPEN** | `ALFRED:GS10` |
 | 6 | `TB3MS` | `ALFRED:TB3MS` | Public Domain: Citation Requested | direct (docs/63) | **OPEN** | `ALFRED:TB3MS` |
 | 7 | `GCE` | `BEA_PRIMARY` | Public Domain: Citation Requested | direct | **OPEN** | `ALFRED:GCE` |
-| 8 | `GCEC1` | `BEA_PRIMARY` | Public Domain: Citation Requested | publisher_group | **OPEN** | `ALFRED:GCEC1` |
-| 9 | `GPDIC1` | `BEA_PRIMARY` | Public Domain: Citation Requested | publisher_group | **OPEN** | `ALFRED:GPDIC1` |
-| 10 | `EXPGSC1` | `BEA_PRIMARY` | Public Domain: Citation Requested | publisher_group | **OPEN** | `ALFRED:EXPGSC1` |
-| 11 | `IMPGSC1` | `BEA_PRIMARY` | Public Domain: Citation Requested | publisher_group | **OPEN** | `ALFRED:IMPGSC1` |
-| 12 | `GDPDEF` | `BEA_PRIMARY` | Public Domain: Citation Requested | publisher_group | **OPEN** | `ALFRED:GDPDEF` |
-| 13 | `A191RL1Q225SBEA` | `BEA_PRIMARY` | Public Domain: Citation Requested | publisher_group | **OPEN** | `ALFRED:A191RL1Q225SBEA` |
-| 14 | `PCEPILFE` | `BEA_PRIMARY` | Public Domain: Citation Requested | publisher_group | **OPEN** | `ALFRED:PCEPILFE` |
-| 15 | `PAYEMS` | `BLS_PRIMARY` | Public Domain: Citation Requested | publisher_group | **OPEN** | `ALFRED:PAYEMS` |
+| 8 | `GCEC1` | `BEA_PRIMARY` | Public Domain: Citation Requested | direct (docs/103) | **OPEN** | `ALFRED:GCEC1` |
+| 9 | `GPDIC1` | `BEA_PRIMARY` | Public Domain: Citation Requested | direct (docs/103) | **OPEN** | `ALFRED:GPDIC1` |
+| 10 | `EXPGSC1` | `BEA_PRIMARY` | Public Domain: Citation Requested | direct (docs/103) | **OPEN** | `ALFRED:EXPGSC1` |
+| 11 | `IMPGSC1` | `BEA_PRIMARY` | Public Domain: Citation Requested | direct (docs/103) | **OPEN** | `ALFRED:IMPGSC1` |
+| 12 | `GDPDEF` | `BEA_PRIMARY` | Public Domain: Citation Requested | direct (docs/103) | **OPEN** | `ALFRED:GDPDEF` |
+| 13 | `A191RL1Q225SBEA` | `BEA_PRIMARY` | Public Domain: Citation Requested | direct (docs/103) | **OPEN** | `ALFRED:A191RL1Q225SBEA` |
+| 14 | `PCEPILFE` | `BEA_PRIMARY` | Public Domain: Citation Requested | direct (docs/103) | **OPEN** | `ALFRED:PCEPILFE` |
+| 15 | `PAYEMS` | `BLS_PRIMARY` | Public Domain: Citation Requested | direct (docs/103) | **OPEN** | `ALFRED:PAYEMS` |
 | 16 | `INDPRO` | `FRED_ALFRED_SERVICES` | Public Domain: Citation Requested | direct | **OPEN** | `ALFRED:INDPRO` |
 | 17 | `RSAFS` | `FRED_ALFRED_SERVICES` | Public Domain: Citation Requested | direct | **OPEN** | `ALFRED:RSAFS` |
-| 18 | `PCECC96` | `BEA_PRIMARY` | Public Domain: Citation Requested | publisher_group | **OPEN** | `ALFRED:PCECC96` |
+| 18 | `PCECC96` | `BEA_PRIMARY` | Public Domain: Citation Requested | direct (docs/103) | **OPEN** | `ALFRED:PCECC96` |
 | 19 | `USREC` | `ALFRED:USREC` | Copyrighted: Citation Required | direct (docs/63) | **OPEN** | `ALFRED:USREC` |
 
 Итого: **19 из 19** рядов плана имеют запись `ALFRED:<ID>` со статусом **OPEN**; первичные якоря `BEA_PRIMARY` (9 BEA-рядов: `GCE`, `GCEC1`, `GPDIC1`, `EXPGSC1`, `IMPGSC1`, `GDPDEF`, `A191RL1Q225SBEA`, `PCEPILFE`, `PCECC96`) и `BLS_PRIMARY` (PAYEMS) — OPEN; `USREC` использует существующую запись `ALFRED:USREC` и `NBER_CYCLE_DATES`.
 
 Примечания:
 - **Прямо прочитаны метки** для `GCE`, `INDPRO`, `RSAFS` (все — «Public Domain: Citation Requested») и ранее для шести рядов ALFRED (docs/63) и `USREC` («Copyrighted: Citation Required»).
-- **Групповая проверка**: остальные 8 BEA-рядов (`GCEC1`, `GPDIC1`, `EXPGSC1`, `IMPGSC1`, `GDPDEF`, `A191RL1Q225SBEA`, `PCEPILFE`, `PCECC96`) и `PAYEMS` — лицензионное основание берётся из первичного источника (BEA/BLS public domain, дословные цитаты в `BEA_PRIMARY`/`BLS_PRIMARY`), а не из чтения FRED-страницы каждого ряда; в реестре это помечено `label_verification: "publisher_group"`.
+- **Прямое чтение меток (2026-11-12)**: все девять рядов, ранее проверенных по группе (`GCEC1`, `GPDIC1`, `EXPGSC1`, `IMPGSC1`, `GDPDEF`, `A191RL1Q225SBEA`, `PCEPILFE`, `PCECC96`, `PAYEMS`), прочитаны на своих FRED-страницах — везде «Public Domain: Citation Requested»; `label_verification` заменён на `direct`, см. [docs/103](103_Лицензии_прямые_метки.md).
 - `USREC` — «Copyrighted: Citation Required», используется как машиночитаемая хронология NBER с атрибуцией (запись уже существовала).
 
 ## Хеши условий (F-5)
@@ -83,7 +83,7 @@ Organizations may use the BEA logo on a web page as an aid to establishing link 
 <!-- /terms-passages -->
 
 ## Что осталось
-- **Групповая проверка меток**: FRED-страницы 8 BEA-рядов и `PAYEMS` не читались по отдельности; лицензионное основание — первичный источник. Если ряд пойдёт в публикуемый компаратор вне текущей оценки, метку нужно прочитать и заменить `publisher_group` на `direct`.
+- **Метки**: все 19 рядов прочитаны напрямую 2026-11-12 (см. docs/103); `publisher_group` в реестре больше не встречается.
 - **CI-проверка условий** (предложение, `tools/` вне границ задачи): workflow-шаг перечитывает URL из таблицы, извлекает те же выдержки, нормализует `terms-passages-v1` и сравнивает с `terms_sha256`; расхождение — падение «terms changed, new dated register entry required». Сейчас офлайн-проверку выполняют `tests/test_terms_hashes.py` (4 записи docs/90) и `tests/test_licence_series_coverage.py` (BLS/BEA из docs/97).
 - **FRED-MD_FRED-QD** остаётся UNVERIFIED (не используется). **T10Y3M** не используется (docs/90, F-6).
 - Условия могут меняться без уведомления: при изменении — новая датированная запись, история не переписывается.
