@@ -5,7 +5,7 @@
   "licence_inputs_by_target": "Each member lists its input series per target; a member counts for a target only if every one of those inputs is OPEN in the register on the evaluation date.",
   "licence_register": {
     "file": "protocols/licence_register.json",
-    "sha256": "32d55eda10bca24e355205eadde3b8a78c54b438fad8f04a5ae142a78f5650ef"
+    "sha256": "5433d5fe1951cd2a9ea6595b899e335d5536e883094ac761611cafd9a5700ffa"
   },
   "minimum_members": 2,
   "minimum_rule": "A comparator needs at least 2 members for the loss it serves (the point comparator, the density comparator). A combination (target, horizon, loss) with fewer remains CANDIDATE and is not eligible for admission until the register gives it 2 members.",
