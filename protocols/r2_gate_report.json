@@ -1,248 +1,411 @@
 {
   "gate": "R2",
   "protocol": "protocols/evaluation_protocol_v4.json",
-  "generated_at": "2026-11-11T19:23:03Z",
+  "generated_at": "2026-11-12T07:50:11Z",
   "tolerance": 0.05,
   "series": [
     {
       "series": "CPIAUCSL",
       "vintage_dates": [
-        "1996-12-12",
-        "1997-12-16",
-        "1998-12-15",
+        "1990-03-20",
+        "1990-09-18",
+        "1991-06-14",
+        "1991-12-13",
+        "1992-06-12",
+        "1992-12-13",
+        "1993-09-14",
+        "1994-03-16",
+        "1994-09-13",
+        "1995-06-13",
+        "1995-12-14",
+        "1996-06-12",
+        "1997-03-19",
+        "1997-09-16",
+        "1998-03-19",
+        "1998-09-17",
+        "1999-06-16",
         "1999-12-14",
-        "2001-12-14",
+        "2000-03-17",
+        "2001-09-18",
+        "2003-03-21",
         "2004-12-17",
+        "2006-06-14",
         "2007-12-14",
-        "2010-12-15",
-        "2013-12-17",
-        "2020-12-10"
+        "2009-06-17",
+        "2011-03-17",
+        "2012-09-14",
+        "2014-03-18",
+        "2015-09-16",
+        "2017-06-14",
+        "2018-12-12",
+        "2020-06-10",
+        "2021-12-10",
+        "2023-09-13",
+        "2025-03-12",
+        "2026-09-11"
       ],
       "channel": "retrieved vintages",
-      "initial_release_rows": 10,
-      "checked": 10,
-      "matched": 10,
+      "initial_release_rows": 36,
+      "checked": 36,
+      "matched": 36,
       "mismatches": [],
-      "initial_release_sha256": "e8da2411756a1944205f34b12e00e3750a8c61ef00acfd91b84bca038ec4d732"
+      "initial_release_sha256": "1e018a0814436d6ae4e7e6349c0acf7383f94938ab59d602b2deebcf12aeae95"
     },
     {
       "series": "CPILFESL",
       "vintage_dates": [
         "1996-12-12",
+        "1997-03-19",
+        "1997-06-17",
+        "1997-09-16",
         "1997-12-16",
+        "1998-03-19",
+        "1998-06-16",
+        "1998-09-17",
         "1998-12-15",
+        "1999-03-18",
+        "1999-06-16",
+        "1999-09-15",
         "1999-12-14",
-        "2001-12-14",
+        "2000-03-17",
+        "2001-06-15",
+        "2002-09-18",
+        "2003-09-16",
         "2004-12-17",
-        "2007-12-14",
+        "2006-03-16",
+        "2007-06-15",
+        "2008-09-16",
+        "2009-12-16",
         "2010-12-15",
-        "2013-12-17",
-        "2020-12-10"
+        "2012-03-16",
+        "2013-06-18",
+        "2014-09-17",
+        "2015-12-15",
+        "2016-12-15",
+        "2018-03-13",
+        "2019-06-12",
+        "2020-09-11",
+        "2021-12-10",
+        "2023-03-14",
+        "2024-03-12",
+        "2025-06-11",
+        "2026-09-11"
       ],
       "channel": "retrieved vintages",
-      "initial_release_rows": 9,
-      "checked": 9,
-      "matched": 9,
+      "initial_release_rows": 35,
+      "checked": 35,
+      "matched": 35,
       "mismatches": [],
-      "initial_release_sha256": "e448f99c986f22a243fc7b3958bda1b0c83317ef66ab1f5c2c101a3288008e1d"
+      "initial_release_sha256": "b7b6699bf82b570486ecc7f231a8e67b654731e3b8d8b539b2228ddd9ea56fa9"
     },
     {
       "series": "GDPC1",
       "vintage_dates": [
-        "1996-12-20",
+        "1991-12-20",
+        "1992-06-25",
+        "1992-12-22",
+        "1993-06-23",
+        "1993-12-22",
+        "1994-03-31",
+        "1994-09-29",
+        "1995-03-31",
+        "1995-09-29",
+        "1996-02-23",
+        "1996-09-27",
+        "1997-03-28",
+        "1997-09-26",
         "1997-12-23",
+        "1998-06-25",
         "1998-12-23",
+        "1999-06-25",
         "1999-12-22",
-        "2001-12-21",
+        "2000-03-30",
+        "2001-09-28",
+        "2003-03-27",
         "2004-12-22",
+        "2006-06-29",
         "2007-12-20",
-        "2010-12-22",
-        "2013-12-20",
-        "2020-12-22"
+        "2009-06-25",
+        "2011-03-25",
+        "2012-09-27",
+        "2014-03-27",
+        "2015-09-25",
+        "2017-06-29",
+        "2018-12-21",
+        "2020-06-25",
+        "2021-12-22",
+        "2023-09-28",
+        "2025-03-27",
+        "2026-09-30"
       ],
-      "channel": "release-date supplement",
-      "initial_release_rows": 40,
-      "checked": 40,
-      "matched": 40,
+      "channel": "retrieved vintages",
+      "initial_release_rows": 1,
+      "checked": 1,
+      "matched": 1,
       "mismatches": [],
-      "supplement": {
-        "reason": "retrieved vintage dates contain no initial releases for this series (year-end vintages of a quarterly series are revisions)",
-        "first_attempt_error": "RuntimeError('initial-release output unavailable for GDPC1: not a zip (attempt 3): \\'<!DOCTYPE html> | <html lang=\"en\"> | <head> |     <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> |     <meta charset=\"utf-8\"> |     <title> |         Download Data f\\'')",
-        "candidates": [
-          "2010-10-29",
-          "2011-01-28",
-          "2011-04-28",
-          "2011-07-29",
-          "2011-10-27",
-          "2012-01-27",
-          "2012-04-27",
-          "2012-07-27",
-          "2012-10-26",
-          "2013-01-30",
-          "2013-04-26",
-          "2013-07-31",
-          "2013-11-07",
-          "2014-01-30",
-          "2014-04-30",
-          "2014-07-30",
-          "2014-10-30",
-          "2015-01-30",
-          "2015-04-29",
-          "2015-07-30",
-          "2015-10-29",
-          "2016-01-29",
-          "2016-04-28",
-          "2016-07-29",
-          "2016-10-28",
-          "2017-01-27",
-          "2017-04-28",
-          "2017-07-28",
-          "2017-10-27",
-          "2018-01-26",
-          "2018-04-27",
-          "2018-07-27",
-          "2018-10-26",
-          "2019-04-26",
-          "2019-07-26",
-          "2019-10-30",
-          "2020-01-30",
-          "2020-04-29",
-          "2020-07-30",
-          "2020-10-29"
-        ],
-        "release_dates": [
-          "2010-10-29",
-          "2011-01-28",
-          "2011-04-28",
-          "2011-07-29",
-          "2011-10-27",
-          "2012-01-27",
-          "2012-04-27",
-          "2012-07-27",
-          "2012-10-26",
-          "2013-01-30",
-          "2013-04-26",
-          "2013-07-31",
-          "2013-11-07",
-          "2014-01-30",
-          "2014-04-30",
-          "2014-07-30",
-          "2014-10-30",
-          "2015-01-30",
-          "2015-04-29",
-          "2015-07-30",
-          "2015-10-29",
-          "2016-01-29",
-          "2016-04-28",
-          "2016-07-29",
-          "2016-10-28",
-          "2017-01-27",
-          "2017-04-28",
-          "2017-07-28",
-          "2017-10-27",
-          "2018-01-26",
-          "2018-04-27",
-          "2018-07-27",
-          "2018-10-26",
-          "2019-04-26",
-          "2019-07-26",
-          "2019-10-30",
-          "2020-01-30",
-          "2020-04-29",
-          "2020-07-30",
-          "2020-10-29"
-        ],
-        "initial_release_sha256": "bb60f2fa5dc2add274797a5a5a8ef4bfaf1734f05556fae633892288fde57e62",
-        "initial_release_bytes": 1608,
-        "bytes": 10977,
-        "sha256": "7d9b64a17263320b21cebdae353183b6a5421ec10c61dfbe959119fddd2f1d47"
-      }
+      "initial_release_sha256": "985599ded1678860170ca72ed5efd1a29d34df52a1ab4576302c6a163eb7e154"
     },
     {
       "series": "UNRATE",
       "vintage_dates": [
-        "1996-12-06",
-        "1997-12-05",
-        "1998-12-04",
+        "1990-03-09",
+        "1990-09-07",
+        "1991-06-07",
+        "1991-12-06",
+        "1992-06-05",
+        "1992-12-04",
+        "1993-09-03",
+        "1994-03-04",
+        "1994-09-02",
+        "1995-06-02",
+        "1995-12-08",
+        "1996-06-07",
+        "1997-03-07",
+        "1997-09-05",
+        "1998-03-06",
+        "1998-09-04",
+        "1999-06-04",
         "1999-12-03",
-        "2001-12-07",
+        "2000-03-03",
+        "2001-09-07",
+        "2003-03-07",
         "2004-12-03",
+        "2006-06-02",
         "2007-12-07",
-        "2010-12-03",
-        "2013-12-06",
-        "2020-12-04"
+        "2009-06-05",
+        "2011-03-04",
+        "2012-09-07",
+        "2014-03-07",
+        "2015-09-04",
+        "2017-06-02",
+        "2018-12-07",
+        "2020-06-05",
+        "2021-12-03",
+        "2023-09-01",
+        "2025-03-07",
+        "2026-09-04"
       ],
       "channel": "retrieved vintages",
-      "initial_release_rows": 10,
-      "checked": 10,
-      "matched": 10,
+      "initial_release_rows": 36,
+      "checked": 36,
+      "matched": 36,
       "mismatches": [],
-      "initial_release_sha256": "1183ea4057ca37d1aed93721e420478a6919a0b9625497c660191fb8e667ad86"
+      "initial_release_sha256": "1bf2aaeba1f307ff7983afa14f910a8b6ff9a05534c1d3c3277debd977ba0129"
     },
     {
       "series": "GS10",
       "vintage_dates": [
         "1996-12-03",
+        "1997-03-04",
+        "1997-06-03",
+        "1997-09-02",
         "1997-12-02",
+        "1998-03-03",
+        "1998-06-02",
+        "1998-09-08",
         "1998-12-08",
+        "1999-03-02",
+        "1999-06-08",
+        "1999-09-07",
         "1999-12-07",
-        "2001-12-04",
+        "2000-03-07",
+        "2001-06-05",
+        "2002-09-03",
+        "2003-09-02",
         "2004-12-06",
-        "2007-12-03",
+        "2006-03-06",
+        "2007-06-04",
+        "2008-09-02",
+        "2009-12-07",
         "2010-12-06",
-        "2013-12-02",
-        "2020-12-01"
+        "2012-03-05",
+        "2013-06-10",
+        "2014-09-02",
+        "2015-12-07",
+        "2016-12-01",
+        "2018-03-01",
+        "2019-06-03",
+        "2020-09-01",
+        "2021-12-01",
+        "2023-03-01",
+        "2024-03-01",
+        "2025-06-02",
+        "2026-09-01"
       ],
       "channel": "retrieved vintages",
-      "initial_release_rows": 9,
-      "checked": 9,
-      "matched": 9,
+      "initial_release_rows": 35,
+      "checked": 35,
+      "matched": 35,
       "mismatches": [],
-      "initial_release_sha256": "66cd143474f9199b3e7299c9ec8e67ac3b25ab16b835a4d40c734fae928af41c"
+      "initial_release_sha256": "48a62788d6ea409d40e95f0acdb1c50390fb9e180f9177bd18184365f5a67bb5"
     },
     {
       "series": "TB3MS",
       "vintage_dates": [
         "1996-12-03",
+        "1997-03-04",
+        "1997-06-03",
+        "1997-09-02",
         "1997-12-02",
+        "1998-03-03",
+        "1998-06-02",
+        "1998-09-08",
         "1998-12-08",
+        "1999-03-02",
+        "1999-06-08",
+        "1999-09-07",
         "1999-12-07",
-        "2001-12-04",
+        "2000-03-07",
+        "2001-06-05",
+        "2002-09-03",
+        "2003-09-02",
         "2004-12-06",
-        "2007-12-03",
+        "2006-03-06",
+        "2007-06-04",
+        "2008-09-02",
+        "2009-12-07",
         "2010-12-06",
-        "2013-12-02",
-        "2020-12-01"
+        "2012-03-05",
+        "2013-06-10",
+        "2014-09-02",
+        "2015-12-07",
+        "2016-12-01",
+        "2018-03-01",
+        "2019-06-03",
+        "2020-09-01",
+        "2021-12-01",
+        "2023-03-01",
+        "2024-03-01",
+        "2025-06-02",
+        "2026-09-01"
       ],
       "channel": "retrieved vintages",
-      "initial_release_rows": 9,
-      "checked": 9,
-      "matched": 9,
+      "initial_release_rows": 35,
+      "checked": 35,
+      "matched": 35,
       "mismatches": [],
-      "initial_release_sha256": "32ecee01ffdf364ba607b429b2804789c51dd601f7ab25a5af3ef27de4485004"
+      "initial_release_sha256": "b849a202e9ccd5ac39f0ad0bdd4ff6db214e77821a86e686be4ca291df43be84"
     }
   ],
   "pairs": [
     {
       "series": "CPIAUCSL",
-      "period": "1996-11-01",
-      "release": "1996-12-12",
-      "initial_release": 158.7,
-      "vintage_value": 158.7
+      "period": "1990-02-01",
+      "release": "1990-03-20",
+      "initial_release": 128.3,
+      "vintage_value": 128.3
     },
     {
       "series": "CPIAUCSL",
-      "period": "1997-11-01",
-      "release": "1997-12-16",
-      "initial_release": 161.8,
-      "vintage_value": 161.8
+      "period": "1990-08-01",
+      "release": "1990-09-18",
+      "initial_release": 131.5,
+      "vintage_value": 131.5
     },
     {
       "series": "CPIAUCSL",
-      "period": "1998-11-01",
-      "release": "1998-12-15",
-      "initial_release": 164.3,
-      "vintage_value": 164.3
+      "period": "1991-05-01",
+      "release": "1991-06-14",
+      "initial_release": 135.7,
+      "vintage_value": 135.7
+    },
+    {
+      "series": "CPIAUCSL",
+      "period": "1991-11-01",
+      "release": "1991-12-13",
+      "initial_release": 137.8,
+      "vintage_value": 137.8
+    },
+    {
+      "series": "CPIAUCSL",
+      "period": "1992-05-01",
+      "release": "1992-06-12",
+      "initial_release": 139.9,
+      "vintage_value": 139.9
+    },
+    {
+      "series": "CPIAUCSL",
+      "period": "1992-11-01",
+      "release": "1992-12-13",
+      "initial_release": 142.1,
+      "vintage_value": 142.1
+    },
+    {
+      "series": "CPIAUCSL",
+      "period": "1993-08-01",
+      "release": "1993-09-14",
+      "initial_release": 144.9,
+      "vintage_value": 144.9
+    },
+    {
+      "series": "CPIAUCSL",
+      "period": "1994-02-01",
+      "release": "1994-03-16",
+      "initial_release": 146.7,
+      "vintage_value": 146.7
+    },
+    {
+      "series": "CPIAUCSL",
+      "period": "1994-08-01",
+      "release": "1994-09-13",
+      "initial_release": 149.1,
+      "vintage_value": 149.1
+    },
+    {
+      "series": "CPIAUCSL",
+      "period": "1995-05-01",
+      "release": "1995-06-13",
+      "initial_release": 152.3,
+      "vintage_value": 152.3
+    },
+    {
+      "series": "CPIAUCSL",
+      "period": "1995-11-01",
+      "release": "1995-12-14",
+      "initial_release": 153.7,
+      "vintage_value": 153.7
+    },
+    {
+      "series": "CPIAUCSL",
+      "period": "1996-05-01",
+      "release": "1996-06-12",
+      "initial_release": 156.7,
+      "vintage_value": 156.7
+    },
+    {
+      "series": "CPIAUCSL",
+      "period": "1997-02-01",
+      "release": "1997-03-19",
+      "initial_release": 159.8,
+      "vintage_value": 159.8
+    },
+    {
+      "series": "CPIAUCSL",
+      "period": "1997-08-01",
+      "release": "1997-09-16",
+      "initial_release": 160.9,
+      "vintage_value": 160.9
+    },
+    {
+      "series": "CPIAUCSL",
+      "period": "1998-02-01",
+      "release": "1998-03-19",
+      "initial_release": 162.0,
+      "vintage_value": 162.0
+    },
+    {
+      "series": "CPIAUCSL",
+      "period": "1998-08-01",
+      "release": "1998-09-17",
+      "initial_release": 163.6,
+      "vintage_value": 163.6
+    },
+    {
+      "series": "CPIAUCSL",
+      "period": "1999-05-01",
+      "release": "1999-06-16",
+      "initial_release": 166.2,
+      "vintage_value": 166.2
     },
     {
       "series": "CPIAUCSL",
@@ -253,10 +416,24 @@
     },
     {
       "series": "CPIAUCSL",
-      "period": "2001-11-01",
-      "release": "2001-12-14",
-      "initial_release": 177.6,
-      "vintage_value": 177.6
+      "period": "2000-02-01",
+      "release": "2000-03-17",
+      "initial_release": 170.0,
+      "vintage_value": 170.0
+    },
+    {
+      "series": "CPIAUCSL",
+      "period": "2001-08-01",
+      "release": "2001-09-18",
+      "initial_release": 177.5,
+      "vintage_value": 177.5
+    },
+    {
+      "series": "CPIAUCSL",
+      "period": "2003-02-01",
+      "release": "2003-03-21",
+      "initial_release": 183.3,
+      "vintage_value": 183.3
     },
     {
       "series": "CPIAUCSL",
@@ -267,6 +444,13 @@
     },
     {
       "series": "CPIAUCSL",
+      "period": "2006-05-01",
+      "release": "2006-06-14",
+      "initial_release": 201.9,
+      "vintage_value": 201.9
+    },
+    {
+      "series": "CPIAUCSL",
       "period": "2007-11-01",
       "release": "2007-12-14",
       "initial_release": 210.565,
@@ -274,24 +458,108 @@
     },
     {
       "series": "CPIAUCSL",
-      "period": "2010-11-01",
-      "release": "2010-12-15",
-      "initial_release": 219.146,
-      "vintage_value": 219.146
+      "period": "2009-05-01",
+      "release": "2009-06-17",
+      "initial_release": 212.876,
+      "vintage_value": 212.876
     },
     {
       "series": "CPIAUCSL",
-      "period": "2013-11-01",
-      "release": "2013-12-17",
-      "initial_release": 233.887,
-      "vintage_value": 233.887
+      "period": "2011-02-01",
+      "release": "2011-03-17",
+      "initial_release": 222.27,
+      "vintage_value": 222.27
     },
     {
       "series": "CPIAUCSL",
-      "period": "2020-11-01",
-      "release": "2020-12-10",
-      "initial_release": 260.817,
-      "vintage_value": 260.817
+      "period": "2012-08-01",
+      "release": "2012-09-14",
+      "initial_release": 230.102,
+      "vintage_value": 230.102
+    },
+    {
+      "series": "CPIAUCSL",
+      "period": "2014-02-01",
+      "release": "2014-03-18",
+      "initial_release": 235.169,
+      "vintage_value": 235.169
+    },
+    {
+      "series": "CPIAUCSL",
+      "period": "2015-08-01",
+      "release": "2015-09-16",
+      "initial_release": 237.931,
+      "vintage_value": 237.931
+    },
+    {
+      "series": "CPIAUCSL",
+      "period": "2017-05-01",
+      "release": "2017-06-14",
+      "initial_release": 243.846,
+      "vintage_value": 243.846
+    },
+    {
+      "series": "CPIAUCSL",
+      "period": "2018-11-01",
+      "release": "2018-12-12",
+      "initial_release": 252.876,
+      "vintage_value": 252.876
+    },
+    {
+      "series": "CPIAUCSL",
+      "period": "2020-05-01",
+      "release": "2020-06-10",
+      "initial_release": 255.768,
+      "vintage_value": 255.768
+    },
+    {
+      "series": "CPIAUCSL",
+      "period": "2021-11-01",
+      "release": "2021-12-10",
+      "initial_release": 278.88,
+      "vintage_value": 278.88
+    },
+    {
+      "series": "CPIAUCSL",
+      "period": "2023-08-01",
+      "release": "2023-09-13",
+      "initial_release": 306.269,
+      "vintage_value": 306.269
+    },
+    {
+      "series": "CPIAUCSL",
+      "period": "2025-02-01",
+      "release": "2025-03-12",
+      "initial_release": 319.775,
+      "vintage_value": 319.775
+    },
+    {
+      "series": "CPIAUCSL",
+      "period": "2026-08-01",
+      "release": "2026-09-11",
+      "initial_release": 334.131,
+      "vintage_value": 334.131
+    },
+    {
+      "series": "CPILFESL",
+      "period": "1997-02-01",
+      "release": "1997-03-19",
+      "initial_release": 168.3,
+      "vintage_value": 168.3
+    },
+    {
+      "series": "CPILFESL",
+      "period": "1997-05-01",
+      "release": "1997-06-17",
+      "initial_release": 169.5,
+      "vintage_value": 169.5
+    },
+    {
+      "series": "CPILFESL",
+      "period": "1997-08-01",
+      "release": "1997-09-16",
+      "initial_release": 170.1,
+      "vintage_value": 170.1
     },
     {
       "series": "CPILFESL",
@@ -302,10 +570,52 @@
     },
     {
       "series": "CPILFESL",
+      "period": "1998-02-01",
+      "release": "1998-03-19",
+      "initial_release": 172.2,
+      "vintage_value": 172.2
+    },
+    {
+      "series": "CPILFESL",
+      "period": "1998-05-01",
+      "release": "1998-06-16",
+      "initial_release": 173.3,
+      "vintage_value": 173.3
+    },
+    {
+      "series": "CPILFESL",
+      "period": "1998-08-01",
+      "release": "1998-09-17",
+      "initial_release": 174.2,
+      "vintage_value": 174.2
+    },
+    {
+      "series": "CPILFESL",
       "period": "1998-11-01",
       "release": "1998-12-15",
       "initial_release": 175.1,
       "vintage_value": 175.1
+    },
+    {
+      "series": "CPILFESL",
+      "period": "1999-02-01",
+      "release": "1999-03-18",
+      "initial_release": 175.8,
+      "vintage_value": 175.8
+    },
+    {
+      "series": "CPILFESL",
+      "period": "1999-05-01",
+      "release": "1999-06-16",
+      "initial_release": 176.9,
+      "vintage_value": 176.9
+    },
+    {
+      "series": "CPILFESL",
+      "period": "1999-08-01",
+      "release": "1999-09-15",
+      "initial_release": 177.5,
+      "vintage_value": 177.5
     },
     {
       "series": "CPILFESL",
@@ -316,10 +626,31 @@
     },
     {
       "series": "CPILFESL",
-      "period": "2001-11-01",
-      "release": "2001-12-14",
-      "initial_release": 188.4,
-      "vintage_value": 188.4
+      "period": "2000-02-01",
+      "release": "2000-03-17",
+      "initial_release": 179.5,
+      "vintage_value": 179.5
+    },
+    {
+      "series": "CPILFESL",
+      "period": "2001-05-01",
+      "release": "2001-06-15",
+      "initial_release": 185.7,
+      "vintage_value": 185.7
+    },
+    {
+      "series": "CPILFESL",
+      "period": "2002-08-01",
+      "release": "2002-09-18",
+      "initial_release": 191.1,
+      "vintage_value": 191.1
+    },
+    {
+      "series": "CPILFESL",
+      "period": "2003-08-01",
+      "release": "2003-09-16",
+      "initial_release": 193.6,
+      "vintage_value": 193.6
     },
     {
       "series": "CPILFESL",
@@ -330,10 +661,31 @@
     },
     {
       "series": "CPILFESL",
-      "period": "2007-11-01",
-      "release": "2007-12-14",
-      "initial_release": 212.633,
-      "vintage_value": 212.633
+      "period": "2006-02-01",
+      "release": "2006-03-16",
+      "initial_release": 203.5,
+      "vintage_value": 203.5
+    },
+    {
+      "series": "CPILFESL",
+      "period": "2007-05-01",
+      "release": "2007-06-15",
+      "initial_release": 209.948,
+      "vintage_value": 209.948
+    },
+    {
+      "series": "CPILFESL",
+      "period": "2008-08-01",
+      "release": "2008-09-16",
+      "initial_release": 216.65,
+      "vintage_value": 216.65
+    },
+    {
+      "series": "CPILFESL",
+      "period": "2009-11-01",
+      "release": "2009-12-16",
+      "initial_release": 220.527,
+      "vintage_value": 220.527
     },
     {
       "series": "CPILFESL",
@@ -344,318 +696,220 @@
     },
     {
       "series": "CPILFESL",
-      "period": "2013-11-01",
-      "release": "2013-12-17",
-      "initial_release": 235.24,
-      "vintage_value": 235.24
+      "period": "2012-02-01",
+      "release": "2012-03-16",
+      "initial_release": 227.907,
+      "vintage_value": 227.907
     },
     {
       "series": "CPILFESL",
-      "period": "2020-11-01",
-      "release": "2020-12-10",
-      "initial_release": 269.887,
-      "vintage_value": 269.887
+      "period": "2013-05-01",
+      "release": "2013-06-18",
+      "initial_release": 233.267,
+      "vintage_value": 233.267
+    },
+    {
+      "series": "CPILFESL",
+      "period": "2014-08-01",
+      "release": "2014-09-17",
+      "initial_release": 238.345,
+      "vintage_value": 238.345
+    },
+    {
+      "series": "CPILFESL",
+      "period": "2015-11-01",
+      "release": "2015-12-15",
+      "initial_release": 244.135,
+      "vintage_value": 244.135
+    },
+    {
+      "series": "CPILFESL",
+      "period": "2016-11-01",
+      "release": "2016-12-15",
+      "initial_release": 249.357,
+      "vintage_value": 249.357
+    },
+    {
+      "series": "CPILFESL",
+      "period": "2018-02-01",
+      "release": "2018-03-13",
+      "initial_release": 255.751,
+      "vintage_value": 255.751
+    },
+    {
+      "series": "CPILFESL",
+      "period": "2019-05-01",
+      "release": "2019-06-12",
+      "initial_release": 262.032,
+      "vintage_value": 262.032
+    },
+    {
+      "series": "CPILFESL",
+      "period": "2020-08-01",
+      "release": "2020-09-11",
+      "initial_release": 268.747,
+      "vintage_value": 268.747
+    },
+    {
+      "series": "CPILFESL",
+      "period": "2021-11-01",
+      "release": "2021-12-10",
+      "initial_release": 283.201,
+      "vintage_value": 283.201
+    },
+    {
+      "series": "CPILFESL",
+      "period": "2023-02-01",
+      "release": "2023-03-14",
+      "initial_release": 304.07,
+      "vintage_value": 304.07
+    },
+    {
+      "series": "CPILFESL",
+      "period": "2024-02-01",
+      "release": "2024-03-12",
+      "initial_release": 315.565,
+      "vintage_value": 315.565
+    },
+    {
+      "series": "CPILFESL",
+      "period": "2025-05-01",
+      "release": "2025-06-11",
+      "initial_release": 326.854,
+      "vintage_value": 326.854
+    },
+    {
+      "series": "CPILFESL",
+      "period": "2026-08-01",
+      "release": "2026-09-11",
+      "initial_release": 337.765,
+      "vintage_value": 337.765
     },
     {
       "series": "GDPC1",
-      "period": "2010-07-01",
-      "release": "2010-10-29",
-      "initial_release": 13260.7,
-      "vintage_value": 13260.7
-    },
-    {
-      "series": "GDPC1",
-      "period": "2010-10-01",
-      "release": "2011-01-28",
-      "initial_release": 13382.6,
-      "vintage_value": 13382.6
-    },
-    {
-      "series": "GDPC1",
-      "period": "2011-01-01",
-      "release": "2011-04-28",
-      "initial_release": 13438.8,
-      "vintage_value": 13438.8
-    },
-    {
-      "series": "GDPC1",
-      "period": "2011-04-01",
-      "release": "2011-07-29",
-      "initial_release": 13270.1,
-      "vintage_value": 13270.1
-    },
-    {
-      "series": "GDPC1",
-      "period": "2011-07-01",
-      "release": "2011-10-27",
-      "initial_release": 13352.8,
-      "vintage_value": 13352.8
-    },
-    {
-      "series": "GDPC1",
-      "period": "2011-10-01",
-      "release": "2012-01-27",
-      "initial_release": 13422.4,
-      "vintage_value": 13422.4
-    },
-    {
-      "series": "GDPC1",
-      "period": "2012-01-01",
-      "release": "2012-04-27",
-      "initial_release": 13502.4,
-      "vintage_value": 13502.4
-    },
-    {
-      "series": "GDPC1",
-      "period": "2012-04-01",
-      "release": "2012-07-27",
-      "initial_release": 13558.0,
-      "vintage_value": 13558.0
-    },
-    {
-      "series": "GDPC1",
-      "period": "2012-07-01",
-      "release": "2012-10-26",
-      "initial_release": 13616.2,
-      "vintage_value": 13616.2
-    },
-    {
-      "series": "GDPC1",
-      "period": "2012-10-01",
-      "release": "2013-01-30",
-      "initial_release": 13647.6,
-      "vintage_value": 13647.6
-    },
-    {
-      "series": "GDPC1",
-      "period": "2013-01-01",
-      "release": "2013-04-26",
-      "initial_release": 13750.1,
-      "vintage_value": 13750.1
-    },
-    {
-      "series": "GDPC1",
-      "period": "2013-04-01",
-      "release": "2013-07-31",
-      "initial_release": 15648.7,
-      "vintage_value": 15648.7
-    },
-    {
-      "series": "GDPC1",
-      "period": "2013-07-01",
-      "release": "2013-11-07",
-      "initial_release": 15790.1,
-      "vintage_value": 15790.1
-    },
-    {
-      "series": "GDPC1",
-      "period": "2013-10-01",
-      "release": "2014-01-30",
-      "initial_release": 15965.6,
-      "vintage_value": 15965.6
-    },
-    {
-      "series": "GDPC1",
-      "period": "2014-01-01",
-      "release": "2014-04-30",
-      "initial_release": 15946.6,
-      "vintage_value": 15946.6
-    },
-    {
-      "series": "GDPC1",
-      "period": "2014-04-01",
-      "release": "2014-07-30",
-      "initial_release": 15985.7,
-      "vintage_value": 15985.7
-    },
-    {
-      "series": "GDPC1",
-      "period": "2014-07-01",
-      "release": "2014-10-30",
-      "initial_release": 16150.6,
-      "vintage_value": 16150.6
-    },
-    {
-      "series": "GDPC1",
-      "period": "2014-10-01",
-      "release": "2015-01-30",
-      "initial_release": 16311.6,
-      "vintage_value": 16311.6
-    },
-    {
-      "series": "GDPC1",
-      "period": "2015-01-01",
-      "release": "2015-04-29",
-      "initial_release": 16304.8,
-      "vintage_value": 16304.8
-    },
-    {
-      "series": "GDPC1",
-      "period": "2015-04-01",
-      "release": "2015-07-30",
-      "initial_release": 16270.4,
-      "vintage_value": 16270.4
-    },
-    {
-      "series": "GDPC1",
-      "period": "2015-07-01",
-      "release": "2015-10-29",
-      "initial_release": 16394.2,
-      "vintage_value": 16394.2
-    },
-    {
-      "series": "GDPC1",
-      "period": "2015-10-01",
-      "release": "2016-01-29",
-      "initial_release": 16442.3,
-      "vintage_value": 16442.3
-    },
-    {
-      "series": "GDPC1",
-      "period": "2016-01-01",
-      "release": "2016-04-28",
-      "initial_release": 16492.7,
-      "vintage_value": 16492.7
-    },
-    {
-      "series": "GDPC1",
-      "period": "2016-04-01",
-      "release": "2016-07-29",
-      "initial_release": 16575.1,
-      "vintage_value": 16575.1
-    },
-    {
-      "series": "GDPC1",
-      "period": "2016-07-01",
-      "release": "2016-10-28",
-      "initial_release": 16702.1,
-      "vintage_value": 16702.1
-    },
-    {
-      "series": "GDPC1",
-      "period": "2016-10-01",
-      "release": "2017-01-27",
-      "initial_release": 16804.8,
-      "vintage_value": 16804.8
-    },
-    {
-      "series": "GDPC1",
-      "period": "2017-01-01",
-      "release": "2017-04-28",
-      "initial_release": 16842.4,
-      "vintage_value": 16842.4
-    },
-    {
-      "series": "GDPC1",
-      "period": "2017-04-01",
-      "release": "2017-07-28",
-      "initial_release": 17010.7,
-      "vintage_value": 17010.7
-    },
-    {
-      "series": "GDPC1",
-      "period": "2017-07-01",
-      "release": "2017-10-27",
-      "initial_release": 17156.946,
-      "vintage_value": 17156.946
-    },
-    {
-      "series": "GDPC1",
-      "period": "2017-10-01",
-      "release": "2018-01-26",
-      "initial_release": 17272.468,
-      "vintage_value": 17272.468
-    },
-    {
-      "series": "GDPC1",
-      "period": "2018-01-01",
-      "release": "2018-04-27",
-      "initial_release": 17385.831,
-      "vintage_value": 17385.831
-    },
-    {
-      "series": "GDPC1",
-      "period": "2018-04-01",
-      "release": "2018-07-27",
-      "initial_release": 18507.2,
-      "vintage_value": 18507.2
-    },
-    {
-      "series": "GDPC1",
-      "period": "2018-07-01",
-      "release": "2018-10-26",
-      "initial_release": 18671.497,
-      "vintage_value": 18671.497
-    },
-    {
-      "series": "GDPC1",
-      "period": "2019-01-01",
-      "release": "2019-04-26",
-      "initial_release": 18912.326,
-      "vintage_value": 18912.326
-    },
-    {
-      "series": "GDPC1",
-      "period": "2019-04-01",
-      "release": "2019-07-26",
-      "initial_release": 19023.82,
-      "vintage_value": 19023.82
-    },
-    {
-      "series": "GDPC1",
-      "period": "2019-07-01",
-      "release": "2019-10-30",
-      "initial_release": 19112.542,
-      "vintage_value": 19112.542
-    },
-    {
-      "series": "GDPC1",
-      "period": "2019-10-01",
-      "release": "2020-01-30",
-      "initial_release": 19219.767,
-      "vintage_value": 19219.767
-    },
-    {
-      "series": "GDPC1",
-      "period": "2020-01-01",
-      "release": "2020-04-29",
-      "initial_release": 18987.877,
-      "vintage_value": 18987.877
-    },
-    {
-      "series": "GDPC1",
-      "period": "2020-04-01",
-      "release": "2020-07-30",
-      "initial_release": 17205.822,
-      "vintage_value": 17205.822
-    },
-    {
-      "series": "GDPC1",
-      "period": "2020-07-01",
-      "release": "2020-10-29",
-      "initial_release": 18583.984,
-      "vintage_value": 18583.984
+      "period": "1995-10-01",
+      "release": "1996-02-23",
+      "initial_release": 6783.8,
+      "vintage_value": 6783.8
     },
     {
       "series": "UNRATE",
-      "period": "1996-11-01",
-      "release": "1996-12-06",
-      "initial_release": 5.4,
-      "vintage_value": 5.4
+      "period": "1990-02-01",
+      "release": "1990-03-09",
+      "initial_release": 5.3,
+      "vintage_value": 5.3
     },
     {
       "series": "UNRATE",
-      "period": "1997-11-01",
-      "release": "1997-12-05",
+      "period": "1990-08-01",
+      "release": "1990-09-07",
+      "initial_release": 5.6,
+      "vintage_value": 5.6
+    },
+    {
+      "series": "UNRATE",
+      "period": "1991-05-01",
+      "release": "1991-06-07",
+      "initial_release": 6.9,
+      "vintage_value": 6.9
+    },
+    {
+      "series": "UNRATE",
+      "period": "1991-11-01",
+      "release": "1991-12-06",
+      "initial_release": 6.8,
+      "vintage_value": 6.8
+    },
+    {
+      "series": "UNRATE",
+      "period": "1992-05-01",
+      "release": "1992-06-05",
+      "initial_release": 7.5,
+      "vintage_value": 7.5
+    },
+    {
+      "series": "UNRATE",
+      "period": "1992-11-01",
+      "release": "1992-12-04",
+      "initial_release": 7.2,
+      "vintage_value": 7.2
+    },
+    {
+      "series": "UNRATE",
+      "period": "1993-08-01",
+      "release": "1993-09-03",
+      "initial_release": 6.7,
+      "vintage_value": 6.7
+    },
+    {
+      "series": "UNRATE",
+      "period": "1994-02-01",
+      "release": "1994-03-04",
+      "initial_release": 6.5,
+      "vintage_value": 6.5
+    },
+    {
+      "series": "UNRATE",
+      "period": "1994-08-01",
+      "release": "1994-09-02",
+      "initial_release": 6.1,
+      "vintage_value": 6.1
+    },
+    {
+      "series": "UNRATE",
+      "period": "1995-05-01",
+      "release": "1995-06-02",
+      "initial_release": 5.7,
+      "vintage_value": 5.7
+    },
+    {
+      "series": "UNRATE",
+      "period": "1995-11-01",
+      "release": "1995-12-08",
+      "initial_release": 5.6,
+      "vintage_value": 5.6
+    },
+    {
+      "series": "UNRATE",
+      "period": "1996-05-01",
+      "release": "1996-06-07",
+      "initial_release": 5.6,
+      "vintage_value": 5.6
+    },
+    {
+      "series": "UNRATE",
+      "period": "1997-02-01",
+      "release": "1997-03-07",
+      "initial_release": 5.3,
+      "vintage_value": 5.3
+    },
+    {
+      "series": "UNRATE",
+      "period": "1997-08-01",
+      "release": "1997-09-05",
+      "initial_release": 4.9,
+      "vintage_value": 4.9
+    },
+    {
+      "series": "UNRATE",
+      "period": "1998-02-01",
+      "release": "1998-03-06",
       "initial_release": 4.6,
       "vintage_value": 4.6
     },
     {
       "series": "UNRATE",
-      "period": "1998-11-01",
-      "release": "1998-12-04",
-      "initial_release": 4.4,
-      "vintage_value": 4.4
+      "period": "1998-08-01",
+      "release": "1998-09-04",
+      "initial_release": 4.5,
+      "vintage_value": 4.5
+    },
+    {
+      "series": "UNRATE",
+      "period": "1999-05-01",
+      "release": "1999-06-04",
+      "initial_release": 4.2,
+      "vintage_value": 4.2
     },
     {
       "series": "UNRATE",
@@ -666,10 +920,24 @@
     },
     {
       "series": "UNRATE",
-      "period": "2001-11-01",
-      "release": "2001-12-07",
-      "initial_release": 5.7,
-      "vintage_value": 5.7
+      "period": "2000-02-01",
+      "release": "2000-03-03",
+      "initial_release": 4.1,
+      "vintage_value": 4.1
+    },
+    {
+      "series": "UNRATE",
+      "period": "2001-08-01",
+      "release": "2001-09-07",
+      "initial_release": 4.9,
+      "vintage_value": 4.9
+    },
+    {
+      "series": "UNRATE",
+      "period": "2003-02-01",
+      "release": "2003-03-07",
+      "initial_release": 5.8,
+      "vintage_value": 5.8
     },
     {
       "series": "UNRATE",
@@ -680,6 +948,13 @@
     },
     {
       "series": "UNRATE",
+      "period": "2006-05-01",
+      "release": "2006-06-02",
+      "initial_release": 4.6,
+      "vintage_value": 4.6
+    },
+    {
+      "series": "UNRATE",
       "period": "2007-11-01",
       "release": "2007-12-07",
       "initial_release": 4.7,
@@ -687,24 +962,108 @@
     },
     {
       "series": "UNRATE",
-      "period": "2010-11-01",
-      "release": "2010-12-03",
-      "initial_release": 9.8,
-      "vintage_value": 9.8
+      "period": "2009-05-01",
+      "release": "2009-06-05",
+      "initial_release": 9.4,
+      "vintage_value": 9.4
     },
     {
       "series": "UNRATE",
-      "period": "2013-11-01",
-      "release": "2013-12-06",
-      "initial_release": 7.0,
-      "vintage_value": 7.0
+      "period": "2011-02-01",
+      "release": "2011-03-04",
+      "initial_release": 8.9,
+      "vintage_value": 8.9
     },
     {
       "series": "UNRATE",
-      "period": "2020-11-01",
-      "release": "2020-12-04",
+      "period": "2012-08-01",
+      "release": "2012-09-07",
+      "initial_release": 8.1,
+      "vintage_value": 8.1
+    },
+    {
+      "series": "UNRATE",
+      "period": "2014-02-01",
+      "release": "2014-03-07",
       "initial_release": 6.7,
       "vintage_value": 6.7
+    },
+    {
+      "series": "UNRATE",
+      "period": "2015-08-01",
+      "release": "2015-09-04",
+      "initial_release": 5.1,
+      "vintage_value": 5.1
+    },
+    {
+      "series": "UNRATE",
+      "period": "2017-05-01",
+      "release": "2017-06-02",
+      "initial_release": 4.3,
+      "vintage_value": 4.3
+    },
+    {
+      "series": "UNRATE",
+      "period": "2018-11-01",
+      "release": "2018-12-07",
+      "initial_release": 3.7,
+      "vintage_value": 3.7
+    },
+    {
+      "series": "UNRATE",
+      "period": "2020-05-01",
+      "release": "2020-06-05",
+      "initial_release": 13.3,
+      "vintage_value": 13.3
+    },
+    {
+      "series": "UNRATE",
+      "period": "2021-11-01",
+      "release": "2021-12-03",
+      "initial_release": 4.2,
+      "vintage_value": 4.2
+    },
+    {
+      "series": "UNRATE",
+      "period": "2023-08-01",
+      "release": "2023-09-01",
+      "initial_release": 3.8,
+      "vintage_value": 3.8
+    },
+    {
+      "series": "UNRATE",
+      "period": "2025-02-01",
+      "release": "2025-03-07",
+      "initial_release": 4.1,
+      "vintage_value": 4.1
+    },
+    {
+      "series": "UNRATE",
+      "period": "2026-08-01",
+      "release": "2026-09-04",
+      "initial_release": 4.1,
+      "vintage_value": 4.1
+    },
+    {
+      "series": "GS10",
+      "period": "1997-02-01",
+      "release": "1997-03-04",
+      "initial_release": 6.42,
+      "vintage_value": 6.42
+    },
+    {
+      "series": "GS10",
+      "period": "1997-05-01",
+      "release": "1997-06-03",
+      "initial_release": 6.71,
+      "vintage_value": 6.71
+    },
+    {
+      "series": "GS10",
+      "period": "1997-08-01",
+      "release": "1997-09-02",
+      "initial_release": 6.3,
+      "vintage_value": 6.3
     },
     {
       "series": "GS10",
@@ -715,10 +1074,52 @@
     },
     {
       "series": "GS10",
+      "period": "1998-02-01",
+      "release": "1998-03-03",
+      "initial_release": 5.57,
+      "vintage_value": 5.57
+    },
+    {
+      "series": "GS10",
+      "period": "1998-05-01",
+      "release": "1998-06-02",
+      "initial_release": 5.65,
+      "vintage_value": 5.65
+    },
+    {
+      "series": "GS10",
+      "period": "1998-08-01",
+      "release": "1998-09-08",
+      "initial_release": 5.34,
+      "vintage_value": 5.34
+    },
+    {
+      "series": "GS10",
       "period": "1998-11-01",
       "release": "1998-12-08",
       "initial_release": 4.83,
       "vintage_value": 4.83
+    },
+    {
+      "series": "GS10",
+      "period": "1999-02-01",
+      "release": "1999-03-02",
+      "initial_release": 5.0,
+      "vintage_value": 5.0
+    },
+    {
+      "series": "GS10",
+      "period": "1999-05-01",
+      "release": "1999-06-08",
+      "initial_release": 5.54,
+      "vintage_value": 5.54
+    },
+    {
+      "series": "GS10",
+      "period": "1999-08-01",
+      "release": "1999-09-07",
+      "initial_release": 5.94,
+      "vintage_value": 5.94
     },
     {
       "series": "GS10",
@@ -729,10 +1130,31 @@
     },
     {
       "series": "GS10",
-      "period": "2001-11-01",
-      "release": "2001-12-04",
-      "initial_release": 4.65,
-      "vintage_value": 4.65
+      "period": "2000-02-01",
+      "release": "2000-03-07",
+      "initial_release": 6.52,
+      "vintage_value": 6.52
+    },
+    {
+      "series": "GS10",
+      "period": "2001-05-01",
+      "release": "2001-06-05",
+      "initial_release": 5.39,
+      "vintage_value": 5.39
+    },
+    {
+      "series": "GS10",
+      "period": "2002-08-01",
+      "release": "2002-09-03",
+      "initial_release": 4.26,
+      "vintage_value": 4.26
+    },
+    {
+      "series": "GS10",
+      "period": "2003-08-01",
+      "release": "2003-09-02",
+      "initial_release": 4.45,
+      "vintage_value": 4.45
     },
     {
       "series": "GS10",
@@ -743,10 +1165,31 @@
     },
     {
       "series": "GS10",
-      "period": "2007-11-01",
-      "release": "2007-12-03",
-      "initial_release": 4.15,
-      "vintage_value": 4.15
+      "period": "2006-02-01",
+      "release": "2006-03-06",
+      "initial_release": 4.57,
+      "vintage_value": 4.57
+    },
+    {
+      "series": "GS10",
+      "period": "2007-05-01",
+      "release": "2007-06-04",
+      "initial_release": 4.75,
+      "vintage_value": 4.75
+    },
+    {
+      "series": "GS10",
+      "period": "2008-08-01",
+      "release": "2008-09-02",
+      "initial_release": 3.89,
+      "vintage_value": 3.89
+    },
+    {
+      "series": "GS10",
+      "period": "2009-11-01",
+      "release": "2009-12-07",
+      "initial_release": 3.4,
+      "vintage_value": 3.4
     },
     {
       "series": "GS10",
@@ -757,17 +1200,115 @@
     },
     {
       "series": "GS10",
-      "period": "2013-11-01",
-      "release": "2013-12-02",
-      "initial_release": 2.72,
-      "vintage_value": 2.72
+      "period": "2012-02-01",
+      "release": "2012-03-05",
+      "initial_release": 1.97,
+      "vintage_value": 1.97
     },
     {
       "series": "GS10",
-      "period": "2020-11-01",
-      "release": "2020-12-01",
-      "initial_release": 0.87,
-      "vintage_value": 0.87
+      "period": "2013-05-01",
+      "release": "2013-06-10",
+      "initial_release": 1.93,
+      "vintage_value": 1.93
+    },
+    {
+      "series": "GS10",
+      "period": "2014-08-01",
+      "release": "2014-09-02",
+      "initial_release": 2.42,
+      "vintage_value": 2.42
+    },
+    {
+      "series": "GS10",
+      "period": "2015-11-01",
+      "release": "2015-12-07",
+      "initial_release": 2.26,
+      "vintage_value": 2.26
+    },
+    {
+      "series": "GS10",
+      "period": "2016-11-01",
+      "release": "2016-12-01",
+      "initial_release": 2.14,
+      "vintage_value": 2.14
+    },
+    {
+      "series": "GS10",
+      "period": "2018-02-01",
+      "release": "2018-03-01",
+      "initial_release": 2.86,
+      "vintage_value": 2.86
+    },
+    {
+      "series": "GS10",
+      "period": "2019-05-01",
+      "release": "2019-06-03",
+      "initial_release": 2.4,
+      "vintage_value": 2.4
+    },
+    {
+      "series": "GS10",
+      "period": "2020-08-01",
+      "release": "2020-09-01",
+      "initial_release": 0.65,
+      "vintage_value": 0.65
+    },
+    {
+      "series": "GS10",
+      "period": "2021-11-01",
+      "release": "2021-12-01",
+      "initial_release": 1.56,
+      "vintage_value": 1.56
+    },
+    {
+      "series": "GS10",
+      "period": "2023-02-01",
+      "release": "2023-03-01",
+      "initial_release": 3.75,
+      "vintage_value": 3.75
+    },
+    {
+      "series": "GS10",
+      "period": "2024-02-01",
+      "release": "2024-03-01",
+      "initial_release": 4.21,
+      "vintage_value": 4.21
+    },
+    {
+      "series": "GS10",
+      "period": "2025-05-01",
+      "release": "2025-06-02",
+      "initial_release": 4.42,
+      "vintage_value": 4.42
+    },
+    {
+      "series": "GS10",
+      "period": "2026-08-01",
+      "release": "2026-09-01",
+      "initial_release": 4.68,
+      "vintage_value": 4.68
+    },
+    {
+      "series": "TB3MS",
+      "period": "1997-02-01",
+      "release": "1997-03-04",
+      "initial_release": 5.01,
+      "vintage_value": 5.01
+    },
+    {
+      "series": "TB3MS",
+      "period": "1997-05-01",
+      "release": "1997-06-03",
+      "initial_release": 5.05,
+      "vintage_value": 5.05
+    },
+    {
+      "series": "TB3MS",
+      "period": "1997-08-01",
+      "release": "1997-09-02",
+      "initial_release": 5.14,
+      "vintage_value": 5.14
     },
     {
       "series": "TB3MS",
@@ -778,10 +1319,52 @@
     },
     {
       "series": "TB3MS",
+      "period": "1998-02-01",
+      "release": "1998-03-03",
+      "initial_release": 5.09,
+      "vintage_value": 5.09
+    },
+    {
+      "series": "TB3MS",
+      "period": "1998-05-01",
+      "release": "1998-06-02",
+      "initial_release": 5.0,
+      "vintage_value": 5.0
+    },
+    {
+      "series": "TB3MS",
+      "period": "1998-08-01",
+      "release": "1998-09-08",
+      "initial_release": 4.9,
+      "vintage_value": 4.9
+    },
+    {
+      "series": "TB3MS",
       "period": "1998-11-01",
       "release": "1998-12-08",
       "initial_release": 4.41,
       "vintage_value": 4.41
+    },
+    {
+      "series": "TB3MS",
+      "period": "1999-02-01",
+      "release": "1999-03-02",
+      "initial_release": 4.44,
+      "vintage_value": 4.44
+    },
+    {
+      "series": "TB3MS",
+      "period": "1999-05-01",
+      "release": "1999-06-08",
+      "initial_release": 4.5,
+      "vintage_value": 4.5
+    },
+    {
+      "series": "TB3MS",
+      "period": "1999-08-01",
+      "release": "1999-09-07",
+      "initial_release": 4.72,
+      "vintage_value": 4.72
     },
     {
       "series": "TB3MS",
@@ -792,10 +1375,31 @@
     },
     {
       "series": "TB3MS",
-      "period": "2001-11-01",
-      "release": "2001-12-04",
-      "initial_release": 1.87,
-      "vintage_value": 1.87
+      "period": "2000-02-01",
+      "release": "2000-03-07",
+      "initial_release": 5.55,
+      "vintage_value": 5.55
+    },
+    {
+      "series": "TB3MS",
+      "period": "2001-05-01",
+      "release": "2001-06-05",
+      "initial_release": 3.62,
+      "vintage_value": 3.62
+    },
+    {
+      "series": "TB3MS",
+      "period": "2002-08-01",
+      "release": "2002-09-03",
+      "initial_release": 1.62,
+      "vintage_value": 1.62
+    },
+    {
+      "series": "TB3MS",
+      "period": "2003-08-01",
+      "release": "2003-09-02",
+      "initial_release": 0.95,
+      "vintage_value": 0.95
     },
     {
       "series": "TB3MS",
@@ -806,10 +1410,31 @@
     },
     {
       "series": "TB3MS",
-      "period": "2007-11-01",
-      "release": "2007-12-03",
-      "initial_release": 3.27,
-      "vintage_value": 3.27
+      "period": "2006-02-01",
+      "release": "2006-03-06",
+      "initial_release": 4.43,
+      "vintage_value": 4.43
+    },
+    {
+      "series": "TB3MS",
+      "period": "2007-05-01",
+      "release": "2007-06-04",
+      "initial_release": 4.73,
+      "vintage_value": 4.73
+    },
+    {
+      "series": "TB3MS",
+      "period": "2008-08-01",
+      "release": "2008-09-02",
+      "initial_release": 1.72,
+      "vintage_value": 1.72
+    },
+    {
+      "series": "TB3MS",
+      "period": "2009-11-01",
+      "release": "2009-12-07",
+      "initial_release": 0.05,
+      "vintage_value": 0.05
     },
     {
       "series": "TB3MS",
@@ -820,17 +1445,94 @@
     },
     {
       "series": "TB3MS",
-      "period": "2013-11-01",
-      "release": "2013-12-02",
-      "initial_release": 0.07,
-      "vintage_value": 0.07
+      "period": "2012-02-01",
+      "release": "2012-03-05",
+      "initial_release": 0.09,
+      "vintage_value": 0.09
     },
     {
       "series": "TB3MS",
-      "period": "2020-11-01",
-      "release": "2020-12-01",
-      "initial_release": 0.09,
-      "vintage_value": 0.09
+      "period": "2013-05-01",
+      "release": "2013-06-10",
+      "initial_release": 0.04,
+      "vintage_value": 0.04
+    },
+    {
+      "series": "TB3MS",
+      "period": "2014-08-01",
+      "release": "2014-09-02",
+      "initial_release": 0.03,
+      "vintage_value": 0.03
+    },
+    {
+      "series": "TB3MS",
+      "period": "2015-11-01",
+      "release": "2015-12-07",
+      "initial_release": 0.12,
+      "vintage_value": 0.12
+    },
+    {
+      "series": "TB3MS",
+      "period": "2016-11-01",
+      "release": "2016-12-01",
+      "initial_release": 0.45,
+      "vintage_value": 0.45
+    },
+    {
+      "series": "TB3MS",
+      "period": "2018-02-01",
+      "release": "2018-03-01",
+      "initial_release": 1.57,
+      "vintage_value": 1.57
+    },
+    {
+      "series": "TB3MS",
+      "period": "2019-05-01",
+      "release": "2019-06-03",
+      "initial_release": 2.35,
+      "vintage_value": 2.35
+    },
+    {
+      "series": "TB3MS",
+      "period": "2020-08-01",
+      "release": "2020-09-01",
+      "initial_release": 0.1,
+      "vintage_value": 0.1
+    },
+    {
+      "series": "TB3MS",
+      "period": "2021-11-01",
+      "release": "2021-12-01",
+      "initial_release": 0.05,
+      "vintage_value": 0.05
+    },
+    {
+      "series": "TB3MS",
+      "period": "2023-02-01",
+      "release": "2023-03-01",
+      "initial_release": 4.65,
+      "vintage_value": 4.65
+    },
+    {
+      "series": "TB3MS",
+      "period": "2024-02-01",
+      "release": "2024-03-01",
+      "initial_release": 5.24,
+      "vintage_value": 5.24
+    },
+    {
+      "series": "TB3MS",
+      "period": "2025-05-01",
+      "release": "2025-06-02",
+      "initial_release": 4.25,
+      "vintage_value": 4.25
+    },
+    {
+      "series": "TB3MS",
+      "period": "2026-08-01",
+      "release": "2026-09-01",
+      "initial_release": 3.72,
+      "vintage_value": 3.72
     }
   ],
   "excluded": [
@@ -841,8 +1543,8 @@
   ],
   "failures": [],
   "totals": {
-    "matched_pairs": 87,
-    "matched_pairs_pre_2000": 17,
+    "matched_pairs": 178,
+    "matched_pairs_pre_2000": 73,
     "failures": 0,
     "excluded": 1
   },
