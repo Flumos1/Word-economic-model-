@@ -1,0 +1,3837 @@
+{
+  "analysis_date": "2026-11-12",
+  "analysis_id": "AMFE-C4-ANALYSIS",
+  "chronology": {
+    "episodes": [
+      {
+        "first_recession_month": "1854-12",
+        "key": "?_1854-12",
+        "last_recession_month": "1854-12",
+        "month_labels": [
+          "1854-12"
+        ],
+        "months": 1,
+        "peak": null,
+        "trough": "1854-12"
+      },
+      {
+        "first_recession_month": "1857-07",
+        "key": "1857-06_1858-12",
+        "last_recession_month": "1858-12",
+        "month_labels": [
+          "1857-07",
+          "1857-08",
+          "1857-09",
+          "1857-10",
+          "1857-11",
+          "1857-12",
+          "1858-01",
+          "1858-02",
+          "1858-03",
+          "1858-04",
+          "1858-05",
+          "1858-06",
+          "1858-07",
+          "1858-08",
+          "1858-09",
+          "1858-10",
+          "1858-11",
+          "1858-12"
+        ],
+        "months": 18,
+        "peak": "1857-06",
+        "trough": "1858-12"
+      },
+      {
+        "first_recession_month": "1860-11",
+        "key": "1860-10_1861-06",
+        "last_recession_month": "1861-06",
+        "month_labels": [
+          "1860-11",
+          "1860-12",
+          "1861-01",
+          "1861-02",
+          "1861-03",
+          "1861-04",
+          "1861-05",
+          "1861-06"
+        ],
+        "months": 8,
+        "peak": "1860-10",
+        "trough": "1861-06"
+      },
+      {
+        "first_recession_month": "1865-05",
+        "key": "1865-04_1867-12",
+        "last_recession_month": "1867-12",
+        "month_labels": [
+          "1865-05",
+          "1865-06",
+          "1865-07",
+          "1865-08",
+          "1865-09",
+          "1865-10",
+          "1865-11",
+          "1865-12",
+          "1866-01",
+          "1866-02",
+          "1866-03",
+          "1866-04",
+          "1866-05",
+          "1866-06",
+          "1866-07",
+          "1866-08",
+          "1866-09",
+          "1866-10",
+          "1866-11",
+          "1866-12",
+          "1867-01",
+          "1867-02",
+          "1867-03",
+          "1867-04",
+          "1867-05",
+          "1867-06",
+          "1867-07",
+          "1867-08",
+          "1867-09",
+          "1867-10",
+          "1867-11",
+          "1867-12"
+        ],
+        "months": 32,
+        "peak": "1865-04",
+        "trough": "1867-12"
+      },
+      {
+        "first_recession_month": "1869-07",
+        "key": "1869-06_1870-12",
+        "last_recession_month": "1870-12",
+        "month_labels": [
+          "1869-07",
+          "1869-08",
+          "1869-09",
+          "1869-10",
+          "1869-11",
+          "1869-12",
+          "1870-01",
+          "1870-02",
+          "1870-03",
+          "1870-04",
+          "1870-05",
+          "1870-06",
+          "1870-07",
+          "1870-08",
+          "1870-09",
+          "1870-10",
+          "1870-11",
+          "1870-12"
+        ],
+        "months": 18,
+        "peak": "1869-06",
+        "trough": "1870-12"
+      },
+      {
+        "first_recession_month": "1873-11",
+        "key": "1873-10_1879-03",
+        "last_recession_month": "1879-03",
+        "month_labels": [
+          "1873-11",
+          "1873-12",
+          "1874-01",
+          "1874-02",
+          "1874-03",
+          "1874-04",
+          "1874-05",
+          "1874-06",
+          "1874-07",
+          "1874-08",
+          "1874-09",
+          "1874-10",
+          "1874-11",
+          "1874-12",
+          "1875-01",
+          "1875-02",
+          "1875-03",
+          "1875-04",
+          "1875-05",
+          "1875-06",
+          "1875-07",
+          "1875-08",
+          "1875-09",
+          "1875-10",
+          "1875-11",
+          "1875-12",
+          "1876-01",
+          "1876-02",
+          "1876-03",
+          "1876-04",
+          "1876-05",
+          "1876-06",
+          "1876-07",
+          "1876-08",
+          "1876-09",
+          "1876-10",
+          "1876-11",
+          "1876-12",
+          "1877-01",
+          "1877-02",
+          "1877-03",
+          "1877-04",
+          "1877-05",
+          "1877-06",
+          "1877-07",
+          "1877-08",
+          "1877-09",
+          "1877-10",
+          "1877-11",
+          "1877-12",
+          "1878-01",
+          "1878-02",
+          "1878-03",
+          "1878-04",
+          "1878-05",
+          "1878-06",
+          "1878-07",
+          "1878-08",
+          "1878-09",
+          "1878-10",
+          "1878-11",
+          "1878-12",
+          "1879-01",
+          "1879-02",
+          "1879-03"
+        ],
+        "months": 65,
+        "peak": "1873-10",
+        "trough": "1879-03"
+      },
+      {
+        "first_recession_month": "1882-04",
+        "key": "1882-03_1885-05",
+        "last_recession_month": "1885-05",
+        "month_labels": [
+          "1882-04",
+          "1882-05",
+          "1882-06",
+          "1882-07",
+          "1882-08",
+          "1882-09",
+          "1882-10",
+          "1882-11",
+          "1882-12",
+          "1883-01",
+          "1883-02",
+          "1883-03",
+          "1883-04",
+          "1883-05",
+          "1883-06",
+          "1883-07",
+          "1883-08",
+          "1883-09",
+          "1883-10",
+          "1883-11",
+          "1883-12",
+          "1884-01",
+          "1884-02",
+          "1884-03",
+          "1884-04",
+          "1884-05",
+          "1884-06",
+          "1884-07",
+          "1884-08",
+          "1884-09",
+          "1884-10",
+          "1884-11",
+          "1884-12",
+          "1885-01",
+          "1885-02",
+          "1885-03",
+          "1885-04",
+          "1885-05"
+        ],
+        "months": 38,
+        "peak": "1882-03",
+        "trough": "1885-05"
+      },
+      {
+        "first_recession_month": "1887-04",
+        "key": "1887-03_1888-04",
+        "last_recession_month": "1888-04",
+        "month_labels": [
+          "1887-04",
+          "1887-05",
+          "1887-06",
+          "1887-07",
+          "1887-08",
+          "1887-09",
+          "1887-10",
+          "1887-11",
+          "1887-12",
+          "1888-01",
+          "1888-02",
+          "1888-03",
+          "1888-04"
+        ],
+        "months": 13,
+        "peak": "1887-03",
+        "trough": "1888-04"
+      },
+      {
+        "first_recession_month": "1890-08",
+        "key": "1890-07_1891-05",
+        "last_recession_month": "1891-05",
+        "month_labels": [
+          "1890-08",
+          "1890-09",
+          "1890-10",
+          "1890-11",
+          "1890-12",
+          "1891-01",
+          "1891-02",
+          "1891-03",
+          "1891-04",
+          "1891-05"
+        ],
+        "months": 10,
+        "peak": "1890-07",
+        "trough": "1891-05"
+      },
+      {
+        "first_recession_month": "1893-02",
+        "key": "1893-01_1894-06",
+        "last_recession_month": "1894-06",
+        "month_labels": [
+          "1893-02",
+          "1893-03",
+          "1893-04",
+          "1893-05",
+          "1893-06",
+          "1893-07",
+          "1893-08",
+          "1893-09",
+          "1893-10",
+          "1893-11",
+          "1893-12",
+          "1894-01",
+          "1894-02",
+          "1894-03",
+          "1894-04",
+          "1894-05",
+          "1894-06"
+        ],
+        "months": 17,
+        "peak": "1893-01",
+        "trough": "1894-06"
+      },
+      {
+        "first_recession_month": "1896-01",
+        "key": "1895-12_1897-06",
+        "last_recession_month": "1897-06",
+        "month_labels": [
+          "1896-01",
+          "1896-02",
+          "1896-03",
+          "1896-04",
+          "1896-05",
+          "1896-06",
+          "1896-07",
+          "1896-08",
+          "1896-09",
+          "1896-10",
+          "1896-11",
+          "1896-12",
+          "1897-01",
+          "1897-02",
+          "1897-03",
+          "1897-04",
+          "1897-05",
+          "1897-06"
+        ],
+        "months": 18,
+        "peak": "1895-12",
+        "trough": "1897-06"
+      },
+      {
+        "first_recession_month": "1899-07",
+        "key": "1899-06_1900-12",
+        "last_recession_month": "1900-12",
+        "month_labels": [
+          "1899-07",
+          "1899-08",
+          "1899-09",
+          "1899-10",
+          "1899-11",
+          "1899-12",
+          "1900-01",
+          "1900-02",
+          "1900-03",
+          "1900-04",
+          "1900-05",
+          "1900-06",
+          "1900-07",
+          "1900-08",
+          "1900-09",
+          "1900-10",
+          "1900-11",
+          "1900-12"
+        ],
+        "months": 18,
+        "peak": "1899-06",
+        "trough": "1900-12"
+      },
+      {
+        "first_recession_month": "1902-10",
+        "key": "1902-09_1904-08",
+        "last_recession_month": "1904-08",
+        "month_labels": [
+          "1902-10",
+          "1902-11",
+          "1902-12",
+          "1903-01",
+          "1903-02",
+          "1903-03",
+          "1903-04",
+          "1903-05",
+          "1903-06",
+          "1903-07",
+          "1903-08",
+          "1903-09",
+          "1903-10",
+          "1903-11",
+          "1903-12",
+          "1904-01",
+          "1904-02",
+          "1904-03",
+          "1904-04",
+          "1904-05",
+          "1904-06",
+          "1904-07",
+          "1904-08"
+        ],
+        "months": 23,
+        "peak": "1902-09",
+        "trough": "1904-08"
+      },
+      {
+        "first_recession_month": "1907-06",
+        "key": "1907-05_1908-06",
+        "last_recession_month": "1908-06",
+        "month_labels": [
+          "1907-06",
+          "1907-07",
+          "1907-08",
+          "1907-09",
+          "1907-10",
+          "1907-11",
+          "1907-12",
+          "1908-01",
+          "1908-02",
+          "1908-03",
+          "1908-04",
+          "1908-05",
+          "1908-06"
+        ],
+        "months": 13,
+        "peak": "1907-05",
+        "trough": "1908-06"
+      },
+      {
+        "first_recession_month": "1910-02",
+        "key": "1910-01_1912-01",
+        "last_recession_month": "1912-01",
+        "month_labels": [
+          "1910-02",
+          "1910-03",
+          "1910-04",
+          "1910-05",
+          "1910-06",
+          "1910-07",
+          "1910-08",
+          "1910-09",
+          "1910-10",
+          "1910-11",
+          "1910-12",
+          "1911-01",
+          "1911-02",
+          "1911-03",
+          "1911-04",
+          "1911-05",
+          "1911-06",
+          "1911-07",
+          "1911-08",
+          "1911-09",
+          "1911-10",
+          "1911-11",
+          "1911-12",
+          "1912-01"
+        ],
+        "months": 24,
+        "peak": "1910-01",
+        "trough": "1912-01"
+      },
+      {
+        "first_recession_month": "1913-02",
+        "key": "1913-01_1914-12",
+        "last_recession_month": "1914-12",
+        "month_labels": [
+          "1913-02",
+          "1913-03",
+          "1913-04",
+          "1913-05",
+          "1913-06",
+          "1913-07",
+          "1913-08",
+          "1913-09",
+          "1913-10",
+          "1913-11",
+          "1913-12",
+          "1914-01",
+          "1914-02",
+          "1914-03",
+          "1914-04",
+          "1914-05",
+          "1914-06",
+          "1914-07",
+          "1914-08",
+          "1914-09",
+          "1914-10",
+          "1914-11",
+          "1914-12"
+        ],
+        "months": 23,
+        "peak": "1913-01",
+        "trough": "1914-12"
+      },
+      {
+        "first_recession_month": "1918-09",
+        "key": "1918-08_1919-03",
+        "last_recession_month": "1919-03",
+        "month_labels": [
+          "1918-09",
+          "1918-10",
+          "1918-11",
+          "1918-12",
+          "1919-01",
+          "1919-02",
+          "1919-03"
+        ],
+        "months": 7,
+        "peak": "1918-08",
+        "trough": "1919-03"
+      },
+      {
+        "first_recession_month": "1920-02",
+        "key": "1920-01_1921-07",
+        "last_recession_month": "1921-07",
+        "month_labels": [
+          "1920-02",
+          "1920-03",
+          "1920-04",
+          "1920-05",
+          "1920-06",
+          "1920-07",
+          "1920-08",
+          "1920-09",
+          "1920-10",
+          "1920-11",
+          "1920-12",
+          "1921-01",
+          "1921-02",
+          "1921-03",
+          "1921-04",
+          "1921-05",
+          "1921-06",
+          "1921-07"
+        ],
+        "months": 18,
+        "peak": "1920-01",
+        "trough": "1921-07"
+      },
+      {
+        "first_recession_month": "1923-06",
+        "key": "1923-05_1924-07",
+        "last_recession_month": "1924-07",
+        "month_labels": [
+          "1923-06",
+          "1923-07",
+          "1923-08",
+          "1923-09",
+          "1923-10",
+          "1923-11",
+          "1923-12",
+          "1924-01",
+          "1924-02",
+          "1924-03",
+          "1924-04",
+          "1924-05",
+          "1924-06",
+          "1924-07"
+        ],
+        "months": 14,
+        "peak": "1923-05",
+        "trough": "1924-07"
+      },
+      {
+        "first_recession_month": "1926-11",
+        "key": "1926-10_1927-11",
+        "last_recession_month": "1927-11",
+        "month_labels": [
+          "1926-11",
+          "1926-12",
+          "1927-01",
+          "1927-02",
+          "1927-03",
+          "1927-04",
+          "1927-05",
+          "1927-06",
+          "1927-07",
+          "1927-08",
+          "1927-09",
+          "1927-10",
+          "1927-11"
+        ],
+        "months": 13,
+        "peak": "1926-10",
+        "trough": "1927-11"
+      },
+      {
+        "first_recession_month": "1929-09",
+        "key": "1929-08_1933-03",
+        "last_recession_month": "1933-03",
+        "month_labels": [
+          "1929-09",
+          "1929-10",
+          "1929-11",
+          "1929-12",
+          "1930-01",
+          "1930-02",
+          "1930-03",
+          "1930-04",
+          "1930-05",
+          "1930-06",
+          "1930-07",
+          "1930-08",
+          "1930-09",
+          "1930-10",
+          "1930-11",
+          "1930-12",
+          "1931-01",
+          "1931-02",
+          "1931-03",
+          "1931-04",
+          "1931-05",
+          "1931-06",
+          "1931-07",
+          "1931-08",
+          "1931-09",
+          "1931-10",
+          "1931-11",
+          "1931-12",
+          "1932-01",
+          "1932-02",
+          "1932-03",
+          "1932-04",
+          "1932-05",
+          "1932-06",
+          "1932-07",
+          "1932-08",
+          "1932-09",
+          "1932-10",
+          "1932-11",
+          "1932-12",
+          "1933-01",
+          "1933-02",
+          "1933-03"
+        ],
+        "months": 43,
+        "peak": "1929-08",
+        "trough": "1933-03"
+      },
+      {
+        "first_recession_month": "1937-06",
+        "key": "1937-05_1938-06",
+        "last_recession_month": "1938-06",
+        "month_labels": [
+          "1937-06",
+          "1937-07",
+          "1937-08",
+          "1937-09",
+          "1937-10",
+          "1937-11",
+          "1937-12",
+          "1938-01",
+          "1938-02",
+          "1938-03",
+          "1938-04",
+          "1938-05",
+          "1938-06"
+        ],
+        "months": 13,
+        "peak": "1937-05",
+        "trough": "1938-06"
+      },
+      {
+        "first_recession_month": "1945-03",
+        "key": "1945-02_1945-10",
+        "last_recession_month": "1945-10",
+        "month_labels": [
+          "1945-03",
+          "1945-04",
+          "1945-05",
+          "1945-06",
+          "1945-07",
+          "1945-08",
+          "1945-09",
+          "1945-10"
+        ],
+        "months": 8,
+        "peak": "1945-02",
+        "trough": "1945-10"
+      },
+      {
+        "first_recession_month": "1948-12",
+        "key": "1948-11_1949-10",
+        "last_recession_month": "1949-10",
+        "month_labels": [
+          "1948-12",
+          "1949-01",
+          "1949-02",
+          "1949-03",
+          "1949-04",
+          "1949-05",
+          "1949-06",
+          "1949-07",
+          "1949-08",
+          "1949-09",
+          "1949-10"
+        ],
+        "months": 11,
+        "peak": "1948-11",
+        "trough": "1949-10"
+      },
+      {
+        "first_recession_month": "1953-08",
+        "key": "1953-07_1954-05",
+        "last_recession_month": "1954-05",
+        "month_labels": [
+          "1953-08",
+          "1953-09",
+          "1953-10",
+          "1953-11",
+          "1953-12",
+          "1954-01",
+          "1954-02",
+          "1954-03",
+          "1954-04",
+          "1954-05"
+        ],
+        "months": 10,
+        "peak": "1953-07",
+        "trough": "1954-05"
+      },
+      {
+        "first_recession_month": "1957-09",
+        "key": "1957-08_1958-04",
+        "last_recession_month": "1958-04",
+        "month_labels": [
+          "1957-09",
+          "1957-10",
+          "1957-11",
+          "1957-12",
+          "1958-01",
+          "1958-02",
+          "1958-03",
+          "1958-04"
+        ],
+        "months": 8,
+        "peak": "1957-08",
+        "trough": "1958-04"
+      },
+      {
+        "first_recession_month": "1960-05",
+        "key": "1960-04_1961-02",
+        "last_recession_month": "1961-02",
+        "month_labels": [
+          "1960-05",
+          "1960-06",
+          "1960-07",
+          "1960-08",
+          "1960-09",
+          "1960-10",
+          "1960-11",
+          "1960-12",
+          "1961-01",
+          "1961-02"
+        ],
+        "months": 10,
+        "peak": "1960-04",
+        "trough": "1961-02"
+      },
+      {
+        "first_recession_month": "1970-01",
+        "key": "1969-12_1970-11",
+        "last_recession_month": "1970-11",
+        "month_labels": [
+          "1970-01",
+          "1970-02",
+          "1970-03",
+          "1970-04",
+          "1970-05",
+          "1970-06",
+          "1970-07",
+          "1970-08",
+          "1970-09",
+          "1970-10",
+          "1970-11"
+        ],
+        "months": 11,
+        "peak": "1969-12",
+        "trough": "1970-11"
+      },
+      {
+        "first_recession_month": "1973-12",
+        "key": "1973-11_1975-03",
+        "last_recession_month": "1975-03",
+        "month_labels": [
+          "1973-12",
+          "1974-01",
+          "1974-02",
+          "1974-03",
+          "1974-04",
+          "1974-05",
+          "1974-06",
+          "1974-07",
+          "1974-08",
+          "1974-09",
+          "1974-10",
+          "1974-11",
+          "1974-12",
+          "1975-01",
+          "1975-02",
+          "1975-03"
+        ],
+        "months": 16,
+        "peak": "1973-11",
+        "trough": "1975-03"
+      },
+      {
+        "first_recession_month": "1980-02",
+        "key": "1980-01_1980-07",
+        "last_recession_month": "1980-07",
+        "month_labels": [
+          "1980-02",
+          "1980-03",
+          "1980-04",
+          "1980-05",
+          "1980-06",
+          "1980-07"
+        ],
+        "months": 6,
+        "peak": "1980-01",
+        "trough": "1980-07"
+      },
+      {
+        "first_recession_month": "1981-08",
+        "key": "1981-07_1982-11",
+        "last_recession_month": "1982-11",
+        "month_labels": [
+          "1981-08",
+          "1981-09",
+          "1981-10",
+          "1981-11",
+          "1981-12",
+          "1982-01",
+          "1982-02",
+          "1982-03",
+          "1982-04",
+          "1982-05",
+          "1982-06",
+          "1982-07",
+          "1982-08",
+          "1982-09",
+          "1982-10",
+          "1982-11"
+        ],
+        "months": 16,
+        "peak": "1981-07",
+        "trough": "1982-11"
+      },
+      {
+        "first_recession_month": "1990-08",
+        "key": "1990-07_1991-03",
+        "last_recession_month": "1991-03",
+        "month_labels": [
+          "1990-08",
+          "1990-09",
+          "1990-10",
+          "1990-11",
+          "1990-12",
+          "1991-01",
+          "1991-02",
+          "1991-03"
+        ],
+        "months": 8,
+        "peak": "1990-07",
+        "trough": "1991-03"
+      },
+      {
+        "first_recession_month": "2001-04",
+        "key": "2001-03_2001-11",
+        "last_recession_month": "2001-11",
+        "month_labels": [
+          "2001-04",
+          "2001-05",
+          "2001-06",
+          "2001-07",
+          "2001-08",
+          "2001-09",
+          "2001-10",
+          "2001-11"
+        ],
+        "months": 8,
+        "peak": "2001-03",
+        "trough": "2001-11"
+      },
+      {
+        "first_recession_month": "2008-01",
+        "key": "2007-12_2009-06",
+        "last_recession_month": "2009-06",
+        "month_labels": [
+          "2008-01",
+          "2008-02",
+          "2008-03",
+          "2008-04",
+          "2008-05",
+          "2008-06",
+          "2008-07",
+          "2008-08",
+          "2008-09",
+          "2008-10",
+          "2008-11",
+          "2008-12",
+          "2009-01",
+          "2009-02",
+          "2009-03",
+          "2009-04",
+          "2009-05",
+          "2009-06"
+        ],
+        "months": 18,
+        "peak": "2007-12",
+        "trough": "2009-06"
+      },
+      {
+        "first_recession_month": "2020-03",
+        "key": "2020-02_2020-04",
+        "last_recession_month": "2020-04",
+        "month_labels": [
+          "2020-03",
+          "2020-04"
+        ],
+        "months": 2,
+        "peak": "2020-02",
+        "trough": "2020-04"
+      }
+    ],
+    "fallback_note": null,
+    "sha256": "7d28698513be7460870afa883c2325d3502ddaecd6b1e781ed5f655126341b44",
+    "source": "data/raw/USREC/latest.csv"
+  },
+  "composition_source": {
+    "file": "protocols/comparator_composition_2026-11-11.json",
+    "sha256": "0dd1ce867a3a84c91333bcdb64b1d7b2773cb40fc2982fca02ffd17e36bf52ca"
+  },
+  "cross_checks": {
+    "computed": {
+      "W1_T1_h1_origins": 121,
+      "W1_T1_h1_recession_origins": 8,
+      "W2_T1_h1_recession_origins": 18
+    },
+    "docs76": {
+      "W1_T1_h1_origins": 121,
+      "W1_T1_h1_recession_origins": 8,
+      "W2_T1_h1_recession_origins": 18
+    }
+  },
+  "invariants": [
+    "frozen protocol v4, R3 specification, NF-SIM thresholds and comparator composition are read only, never modified",
+    "no raw third-party data are stored in this document; only derived counts and hashes",
+    "the analysis is deterministic: no wall clock, pinned input hashes"
+  ],
+  "lost_1990_91": {
+    "affected_series": {
+      "CPIAUCSL": {
+        "documented_first_vintage": "1990-03-20",
+        "episode_origins_blocked": 2,
+        "first_vintage": "1990-03-20",
+        "pairs": [
+          "T1_CPI_YOY/W1/h12",
+          "T1_CPI_YOY/W1/h6"
+        ]
+      },
+      "CPILFESL": {
+        "documented_first_vintage": "1996-12-12",
+        "episode_origins_blocked": 14,
+        "first_vintage": "1996-12-12",
+        "pairs": [
+          "T1_CPI_YOY/W1/h1",
+          "T1_CPI_YOY/W1/h12",
+          "T1_CPI_YOY/W1/h3",
+          "T1_CPI_YOY/W1/h6"
+        ]
+      },
+      "GDPC1": {
+        "documented_first_vintage": "1991-12-20",
+        "episode_origins_blocked": 3,
+        "first_vintage": "1991-12-20",
+        "pairs": [
+          "T2_GDP_GROWTH/W1/h1",
+          "T2_GDP_GROWTH/W1/h2",
+          "T2_GDP_GROWTH/W1/h4"
+        ]
+      },
+      "GS10": {
+        "documented_first_vintage": "1996-12-03",
+        "episode_origins_blocked": 14,
+        "first_vintage": "1996-12-03",
+        "pairs": [
+          "T1_CPI_YOY/W1/h1",
+          "T1_CPI_YOY/W1/h12",
+          "T1_CPI_YOY/W1/h3",
+          "T1_CPI_YOY/W1/h6",
+          "T2_GDP_GROWTH/W1/h1",
+          "T2_GDP_GROWTH/W1/h2",
+          "T2_GDP_GROWTH/W1/h4"
+        ]
+      },
+      "TB3MS": {
+        "documented_first_vintage": "1996-12-03",
+        "episode_origins_blocked": 14,
+        "first_vintage": "1996-12-03",
+        "pairs": [
+          "T1_CPI_YOY/W1/h1",
+          "T1_CPI_YOY/W1/h12",
+          "T1_CPI_YOY/W1/h3",
+          "T1_CPI_YOY/W1/h6",
+          "T2_GDP_GROWTH/W1/h1",
+          "T2_GDP_GROWTH/W1/h2",
+          "T2_GDP_GROWTH/W1/h4"
+        ]
+      },
+      "UNRATE": {
+        "documented_first_vintage": "1990-03-09",
+        "episode_origins_blocked": 2,
+        "first_vintage": "1990-03-09",
+        "pairs": [
+          "T1_CPI_YOY/W1/h12",
+          "T1_CPI_YOY/W1/h6"
+        ]
+      }
+    },
+    "by_target": {
+      "T1_CPI_YOY": {
+        "W1": {
+          "1": {
+            "first_origin": "1990-07-31",
+            "last_origin": "1991-02-28",
+            "origins_in_window": 8,
+            "pseudo_full": 8,
+            "real_time_full": 0,
+            "series_blockers": {
+              "CPILFESL": "1996-12-12",
+              "GS10": "1996-12-03",
+              "TB3MS": "1996-12-03"
+            }
+          },
+          "12": {
+            "first_origin": "1990-01-31",
+            "last_origin": "1991-02-28",
+            "origins_in_window": 14,
+            "pseudo_full": 14,
+            "real_time_full": 0,
+            "series_blockers": {
+              "CPIAUCSL": "1990-03-20",
+              "CPILFESL": "1996-12-12",
+              "GS10": "1996-12-03",
+              "TB3MS": "1996-12-03",
+              "UNRATE": "1990-03-09"
+            }
+          },
+          "3": {
+            "first_origin": "1990-05-31",
+            "last_origin": "1991-02-28",
+            "origins_in_window": 10,
+            "pseudo_full": 10,
+            "real_time_full": 0,
+            "series_blockers": {
+              "CPILFESL": "1996-12-12",
+              "GS10": "1996-12-03",
+              "TB3MS": "1996-12-03"
+            }
+          },
+          "6": {
+            "first_origin": "1990-02-28",
+            "last_origin": "1991-02-28",
+            "origins_in_window": 13,
+            "pseudo_full": 13,
+            "real_time_full": 0,
+            "series_blockers": {
+              "CPIAUCSL": "1990-03-20",
+              "CPILFESL": "1996-12-12",
+              "GS10": "1996-12-03",
+              "TB3MS": "1996-12-03",
+              "UNRATE": "1990-03-09"
+            }
+          }
+        }
+      },
+      "T2_GDP_GROWTH": {
+        "W1": {
+          "1": {
+            "first_origin": "1990-09-30",
+            "last_origin": "1990-12-31",
+            "origins_in_window": 2,
+            "pseudo_full": 2,
+            "real_time_full": 0,
+            "series_blockers": {
+              "GDPC1": "1991-12-20",
+              "GS10": "1996-12-03",
+              "TB3MS": "1996-12-03"
+            }
+          },
+          "2": {
+            "first_origin": "1990-06-30",
+            "last_origin": "1990-12-31",
+            "origins_in_window": 3,
+            "pseudo_full": 3,
+            "real_time_full": 0,
+            "series_blockers": {
+              "GDPC1": "1991-12-20",
+              "GS10": "1996-12-03",
+              "TB3MS": "1996-12-03"
+            }
+          },
+          "4": {
+            "first_origin": "1990-06-30",
+            "last_origin": "1990-12-31",
+            "origins_in_window": 3,
+            "pseudo_full": 3,
+            "real_time_full": 0,
+            "series_blockers": {
+              "GDPC1": "1991-12-20",
+              "GS10": "1996-12-03",
+              "TB3MS": "1996-12-03"
+            }
+          }
+        }
+      },
+      "T3_RECESSION": {}
+    },
+    "episode": {
+      "first_recession_month": "1990-08",
+      "key": "1990-07_1991-03",
+      "last_recession_month": "1991-03",
+      "month_labels": [
+        "1990-08",
+        "1990-09",
+        "1990-10",
+        "1990-11",
+        "1990-12",
+        "1991-01",
+        "1991-02",
+        "1991-03"
+      ],
+      "months": 8,
+      "peak": "1990-07",
+      "trough": "1991-03"
+    },
+    "summary": "1990-91 is lost for every pair whose REAL_TIME start is 1996-12: the ALFRED vintages of CPILFESL (1996-12-12, needed by RW/AO/AR_BIC and by the candidate) and of GS10/TB3MS (1996-12-03, needed by BVAR and PROBIT) do not exist before 1996-12, so the eight recession months 1990-08..1991-03 stay PSEUDO; T2 adds GDPC1 (first vintage 1991-12-20)."
+  },
+  "mask_anomalies": [
+    {
+      "issue": "origin-month and (t,t+h] overlap masks count different origins",
+      "origin_month_origins": 16,
+      "origin_month_real_time_full": 8,
+      "pair": "T1_CPI_YOY/W1/h3",
+      "window_overlap_origins": 20,
+      "window_overlap_real_time_full": 10
+    },
+    {
+      "issue": "origin-month and (t,t+h] overlap masks count different origins",
+      "origin_month_origins": 16,
+      "origin_month_real_time_full": 8,
+      "pair": "T1_CPI_YOY/W1/h6",
+      "window_overlap_origins": 26,
+      "window_overlap_real_time_full": 13
+    },
+    {
+      "issue": "origin-month and (t,t+h] overlap masks count different origins",
+      "origin_month_origins": 16,
+      "origin_month_real_time_full": 8,
+      "pair": "T1_CPI_YOY/W1/h12",
+      "window_overlap_origins": 33,
+      "window_overlap_real_time_full": 19
+    },
+    {
+      "issue": "origin-month and (t,t+h] overlap masks count different origins",
+      "origin_month_origins": 18,
+      "origin_month_real_time_full": 18,
+      "pair": "T1_CPI_YOY/W2/h3",
+      "window_overlap_origins": 20,
+      "window_overlap_real_time_full": 20
+    },
+    {
+      "issue": "origin-month and (t,t+h] overlap masks count different origins",
+      "origin_month_origins": 18,
+      "origin_month_real_time_full": 18,
+      "pair": "T1_CPI_YOY/W2/h6",
+      "window_overlap_origins": 23,
+      "window_overlap_real_time_full": 23
+    },
+    {
+      "issue": "origin-month and (t,t+h] overlap masks count different origins",
+      "origin_month_origins": 18,
+      "origin_month_real_time_full": 18,
+      "pair": "T1_CPI_YOY/W2/h12",
+      "window_overlap_origins": 29,
+      "window_overlap_real_time_full": 29
+    },
+    {
+      "issue": "the runner's (t, t+h] overlap mask is identically zero at horizon 0 because the interval has no months; the C4 text reading 'origin month is a recession month' gives counts",
+      "origin_month_origins": 16,
+      "origin_month_real_time_full": 8,
+      "pair": "T2_GDP_GROWTH/W1/h0",
+      "window_overlap_origins": 0
+    },
+    {
+      "issue": "origin-month and (t,t+h] overlap masks count different origins",
+      "origin_month_origins": 5,
+      "origin_month_real_time_full": 2,
+      "pair": "T2_GDP_GROWTH/W1/h2",
+      "window_overlap_origins": 6,
+      "window_overlap_real_time_full": 3
+    },
+    {
+      "issue": "origin-month and (t,t+h] overlap masks count different origins",
+      "origin_month_origins": 5,
+      "origin_month_real_time_full": 2,
+      "pair": "T2_GDP_GROWTH/W1/h4",
+      "window_overlap_origins": 7,
+      "window_overlap_real_time_full": 4
+    },
+    {
+      "issue": "the runner's (t, t+h] overlap mask is identically zero at horizon 0 because the interval has no months; the C4 text reading 'origin month is a recession month' gives counts",
+      "origin_month_origins": 18,
+      "origin_month_real_time_full": 18,
+      "pair": "T2_GDP_GROWTH/W2/h0",
+      "window_overlap_origins": 0
+    },
+    {
+      "issue": "origin-month and (t,t+h] overlap masks count different origins",
+      "origin_month_origins": 6,
+      "origin_month_real_time_full": 6,
+      "pair": "T2_GDP_GROWTH/W2/h4",
+      "window_overlap_origins": 7,
+      "window_overlap_real_time_full": 7
+    },
+    {
+      "issue": "origin-month and (t,t+h] overlap masks count different origins",
+      "origin_month_origins": 8,
+      "origin_month_real_time_full": 8,
+      "pair": "T3_RECESSION/W1/h3",
+      "window_overlap_origins": 10,
+      "window_overlap_real_time_full": 10
+    },
+    {
+      "issue": "origin-month and (t,t+h] overlap masks count different origins",
+      "origin_month_origins": 8,
+      "origin_month_real_time_full": 8,
+      "pair": "T3_RECESSION/W1/h6",
+      "window_overlap_origins": 13,
+      "window_overlap_real_time_full": 13
+    },
+    {
+      "issue": "origin-month and (t,t+h] overlap masks count different origins",
+      "origin_month_origins": 8,
+      "origin_month_real_time_full": 8,
+      "pair": "T3_RECESSION/W1/h12",
+      "window_overlap_origins": 19,
+      "window_overlap_real_time_full": 19
+    },
+    {
+      "issue": "origin-month and (t,t+h] overlap masks count different origins",
+      "origin_month_origins": 18,
+      "origin_month_real_time_full": 18,
+      "pair": "T3_RECESSION/W2/h3",
+      "window_overlap_origins": 20,
+      "window_overlap_real_time_full": 20
+    },
+    {
+      "issue": "origin-month and (t,t+h] overlap masks count different origins",
+      "origin_month_origins": 18,
+      "origin_month_real_time_full": 18,
+      "pair": "T3_RECESSION/W2/h6",
+      "window_overlap_origins": 23,
+      "window_overlap_real_time_full": 23
+    },
+    {
+      "issue": "origin-month and (t,t+h] overlap masks count different origins",
+      "origin_month_origins": 18,
+      "origin_month_real_time_full": 18,
+      "pair": "T3_RECESSION/W2/h12",
+      "window_overlap_origins": 29,
+      "window_overlap_real_time_full": 29
+    }
+  ],
+  "origins_cross_check": {
+    "mismatches": [],
+    "ok": true,
+    "pairs_checked": 33
+  },
+  "origins_source": {
+    "file": "protocols/evaluation_origins.json",
+    "sha256": "05e88c959fa82a1df8d50f1b80bc1510b99499329cace09783997a0b77bd6e57"
+  },
+  "protocol": {
+    "file": "protocols/evaluation_protocol_v4.json",
+    "sha256": "bd965f4d9f23151b4ccfd27202f0669d0a7807e642639ed18c0b864bf68dedc9",
+    "version": "4.0.0"
+  },
+  "purpose": "neutral C4/W1 data-availability analysis for the protocol v5 owner decision; does not modify the frozen protocol v4",
+  "recommendation": {
+    "draft_delta_reference": "docs/88_C4_W1_варианты_и_черновик_v5.md",
+    "not_recommended": [
+      {
+        "option": "V3_relax_min_recession_origins (8/6)",
+        "why": "still fails T2 W2 (6-7) and lowers the power of the test"
+      },
+      {
+        "option": "V4_extend_vintage_archives",
+        "why": "ALFRED cannot provide CPILFESL/GS10/TB3MS vintages before 1996-12 and RTDSM has no H.15 rates; a historical tape would be a new source with new licence and audit work"
+      },
+      {
+        "option": "V8_c4_on_W2_only",
+        "why": "protocol requires W1 and W2; W2 alone would silently drop half the evidence"
+      }
+    ],
+    "ordered_options": [
+      {
+        "option": "V2_allow_pseudo_for_c4 + V1_mask_origin_month",
+        "rank": 1,
+        "why": "the loss is a source-level data limit (ALFRED has no earlier vintages), not a forecast-quality signal; C4 is a robustness split, so a labelled PSEUDO allowance with a REAL_TIME-only sensitivity keeps the criterion informative for T1"
+      },
+      {
+        "draft": {
+          "T2_GDP_GROWTH": {
+            "mask": "origin_month",
+            "min_recession_origins": 4,
+            "pseudo_allowed": true,
+            "report_episodes": true
+          }
+        },
+        "option": "T2_specific_rule",
+        "rank": 2,
+        "why": "12 origins are unreachable for T2 even with perfect data (W2 has 6 quarters); v5 needs a target-specific minimum (e.g. 4 quarterly origins, or a per-episode rule with reporting) rather than relaxing the global 12"
+      },
+      {
+        "option": "V6_not_applicable",
+        "rank": 3,
+        "why": "if the owner rejects the PSEUDO allowance, C4 must be stated NOT_APPLICABLE for the blocked pairs; they stay CANDIDATE (no silent pass) and the data gap is reported"
+      }
+    ],
+    "requires_independent_review": true,
+    "requires_owner_decision": true,
+    "status": "DRAFT_FOR_OWNER_DECISION"
+  },
+  "rule": {
+    "applies_to": [
+      "T1_CPI_YOY",
+      "T2_GDP_GROWTH"
+    ],
+    "c4_text": "relative loss <= 1.00 in the origins whose month is an NBER recession month in the chronology as of the evaluation date (a split of the sample made after the fact), in W1 and W2, and the Giacomini-White test with instruments (constant, recession-month indicator of the origin) does not reject; reject means p < 0.10 and the estimated mean loss difference in recession months, the constant plus the indicator coefficient, favours the comparator; with fewer than 12 recession months the result is inconclusive, which counts as not passed and leaves the pair in CANDIDATE",
+    "criterion": "C4",
+    "instrument": "indicator that the origin month is an NBER recession month, from the chronology as of the evaluation date",
+    "mask_definitions": {
+      "origin_month": "the origin month itself is an NBER recession month (C4 text)",
+      "window_overlap": "(t, t+h] contains a recession month (mask used by the runner)"
+    },
+    "min_recession_months": 12
+  },
+  "structural_findings": [
+    {
+      "finding": "Under the mask actually used by the runner ((t,t+h] overlap) C4/W1 fails for T1 only at h=1 (8 origins) and h=3 (10); h=6 (13) and h=12 (19) reach the minimum, but the counts include overlapping forecasts and overstate the independent evidence",
+      "id": "F1",
+      "values": {
+        "minimum": 12,
+        "overlap_mask_real_time": {
+          "1": 8,
+          "12": 19,
+          "3": 10,
+          "6": 13
+        }
+      }
+    },
+    {
+      "finding": "Under the C4 text ('the origin month is an NBER recession month') every T1 W1 horizon has 8 REAL_TIME recession origins; the mask definition is a real protocol ambiguity that must be resolved in v5",
+      "id": "F2",
+      "values": {
+        "origin_month_mask_real_time": {
+          "1": 8,
+          "12": 8,
+          "3": 8,
+          "6": 8
+        }
+      }
+    },
+    {
+      "finding": "T2 cannot satisfy C4 under the current rule in any window: W1 has 5-7 and W2 6-7 REAL_TIME recession origins, and W2 has only 18 recession months = 6 quarters, so 12 quarterly origins never exist; the 12-origin minimum is structurally unreachable for T2 even with perfect data",
+      "id": "F3",
+      "values": {
+        "real_time_recession_origins": {
+          "W1": {
+            "0": 0,
+            "1": 3,
+            "2": 3,
+            "4": 4
+          },
+          "W2": {
+            "0": 0,
+            "1": 6,
+            "2": 6,
+            "4": 7
+          }
+        }
+      }
+    },
+    {
+      "finding": "At horizon 0 the runner's (t,t+h] overlap mask is identically zero (the interval is empty); the origin-month reading gives 16 origins in W1 and 18 in W2 (8 and 18 REAL_TIME)",
+      "id": "F4",
+      "values": {
+        "T2_W1_h0": {
+          "origin_month": {
+            "episodes": [
+              "2001-03_2001-11"
+            ],
+            "origins": 16,
+            "pseudo_full": 8,
+            "real_time_candidate": 8,
+            "real_time_full": 8,
+            "real_time_minimal": 8
+          },
+          "window_overlap": {
+            "episodes": [],
+            "origins": 0,
+            "pseudo_full": 0,
+            "real_time_candidate": 0,
+            "real_time_full": 0,
+            "real_time_minimal": 0
+          }
+        },
+        "T2_W2_h0": {
+          "origin_month": {
+            "episodes": [
+              "2007-12_2009-06"
+            ],
+            "origins": 18,
+            "pseudo_full": 0,
+            "real_time_candidate": 18,
+            "real_time_full": 18,
+            "real_time_minimal": 18
+          },
+          "window_overlap": {
+            "episodes": [],
+            "origins": 0,
+            "pseudo_full": 0,
+            "real_time_candidate": 0,
+            "real_time_full": 0,
+            "real_time_minimal": 0
+          }
+        }
+      }
+    },
+    {
+      "finding": "The 1990-91 recession is lost because ALFRED has no vintages before 1996-12 for CPILFESL (1996-12-12), GS10 and TB3MS (1996-12-03), and none before 1991-12-20 for GDPC1; table B-1 lists the blocked pairs",
+      "id": "F5",
+      "values": {
+        "affected_series": [
+          "CPIAUCSL",
+          "CPILFESL",
+          "GDPC1",
+          "GS10",
+          "TB3MS",
+          "UNRATE"
+        ]
+      }
+    },
+    {
+      "finding": "Allowing PSEUDO_REAL_TIME in the C4 split restores T1 W1 to 16 origins at every horizon and T2 W1 to 16/5/5/5; T2 W2 stays at 6-7 and remains below 12",
+      "id": "F6",
+      "values": {
+        "T1_W1_h1_pseudo_allowed": 16,
+        "T2_W1_h0_pseudo_allowed": 0
+      }
+    }
+  ],
+  "summary": {
+    "lost_episode": {
+      "first_recession_month": "1990-08",
+      "key": "1990-07_1991-03",
+      "last_recession_month": "1991-03",
+      "month_labels": [
+        "1990-08",
+        "1990-09",
+        "1990-10",
+        "1990-11",
+        "1990-12",
+        "1991-01",
+        "1991-02",
+        "1991-03"
+      ],
+      "months": 8,
+      "peak": "1990-07",
+      "trough": "1991-03"
+    },
+    "problem": "C4 on W1 cannot reach the minimum: the REAL_TIME sample starts 1996-12 while the 1990-91 recession months (1990-08..1991-03) are PSEUDO because ALFRED vintages of CPILFESL and GS10/TB3MS start in 1996-12",
+    "w1_t1_h1": {
+      "first_real_time_origin": "1996-12-31",
+      "minimum": 12,
+      "recession_origins_if_pseudo_allowed": 16,
+      "recession_origins_real_time": 8
+    },
+    "w2_t1_h1": {
+      "minimum": 12,
+      "recession_origins_real_time": 18
+    }
+  },
+  "targets": {
+    "T1_CPI_YOY": {
+      "W1": {
+        "1": {
+          "c4_v4": {
+            "applies": true,
+            "mask_definition": "window_overlap",
+            "met": false,
+            "minimum": 12,
+            "recession_origins": 8,
+            "status": "INCONCLUSIVE"
+          },
+          "counts": {
+            "first_real_time_origin": "1996-12-31",
+            "last_real_time_origin": "2006-12-31",
+            "origins": 204,
+            "pseudo_full": 83,
+            "real_time_candidate": 121,
+            "real_time_full": 121,
+            "real_time_minimal": 121
+          },
+          "horizon": 1,
+          "inputs": {
+            "candidate": [
+              "CPIAUCSL",
+              "CPILFESL",
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "full": [
+              "CPIAUCSL",
+              "CPILFESL",
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "minimal": [
+              "CPIAUCSL",
+              "CPILFESL"
+            ]
+          },
+          "recession": {
+            "origin_month": {
+              "episodes": [
+                "2001-03_2001-11"
+              ],
+              "origins": 16,
+              "pseudo_full": 8,
+              "real_time_candidate": 8,
+              "real_time_full": 8,
+              "real_time_minimal": 8
+            },
+            "window_overlap": {
+              "episodes": [
+                "2001-03_2001-11"
+              ],
+              "origins": 16,
+              "pseudo_full": 8,
+              "real_time_candidate": 8,
+              "real_time_full": 8,
+              "real_time_minimal": 8
+            }
+          },
+          "recession_blockers_under_used_mask": {
+            "CPILFESL": {
+              "episodes": [
+                "1990-07_1991-03"
+              ],
+              "first_vintage": "1996-12-12",
+              "origins_blocked": 8
+            },
+            "GS10": {
+              "episodes": [
+                "1990-07_1991-03"
+              ],
+              "first_vintage": "1996-12-03",
+              "origins_blocked": 8
+            },
+            "TB3MS": {
+              "episodes": [
+                "1990-07_1991-03"
+              ],
+              "first_vintage": "1996-12-03",
+              "origins_blocked": 8
+            }
+          },
+          "window": "W1"
+        },
+        "12": {
+          "c4_v4": {
+            "applies": true,
+            "mask_definition": "window_overlap",
+            "met": true,
+            "minimum": 12,
+            "recession_origins": 19,
+            "status": "PASS"
+          },
+          "counts": {
+            "first_real_time_origin": "1996-12-31",
+            "last_real_time_origin": "2006-01-31",
+            "origins": 193,
+            "pseudo_full": 83,
+            "real_time_candidate": 110,
+            "real_time_full": 110,
+            "real_time_minimal": 110
+          },
+          "horizon": 12,
+          "inputs": {
+            "candidate": [
+              "CPIAUCSL",
+              "CPILFESL",
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "full": [
+              "CPIAUCSL",
+              "CPILFESL",
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "minimal": [
+              "CPIAUCSL",
+              "CPILFESL"
+            ]
+          },
+          "recession": {
+            "origin_month": {
+              "episodes": [
+                "2001-03_2001-11"
+              ],
+              "origins": 16,
+              "pseudo_full": 8,
+              "real_time_candidate": 8,
+              "real_time_full": 8,
+              "real_time_minimal": 8
+            },
+            "window_overlap": {
+              "episodes": [
+                "2001-03_2001-11"
+              ],
+              "origins": 33,
+              "pseudo_full": 14,
+              "real_time_candidate": 19,
+              "real_time_full": 19,
+              "real_time_minimal": 19
+            }
+          },
+          "recession_blockers_under_used_mask": {
+            "CPIAUCSL": {
+              "episodes": [
+                "1990-07_1991-03"
+              ],
+              "first_vintage": "1990-03-20",
+              "origins_blocked": 2
+            },
+            "CPILFESL": {
+              "episodes": [
+                "1990-07_1991-03"
+              ],
+              "first_vintage": "1996-12-12",
+              "origins_blocked": 14
+            },
+            "GS10": {
+              "episodes": [
+                "1990-07_1991-03"
+              ],
+              "first_vintage": "1996-12-03",
+              "origins_blocked": 14
+            },
+            "TB3MS": {
+              "episodes": [
+                "1990-07_1991-03"
+              ],
+              "first_vintage": "1996-12-03",
+              "origins_blocked": 14
+            },
+            "UNRATE": {
+              "episodes": [
+                "1990-07_1991-03"
+              ],
+              "first_vintage": "1990-03-09",
+              "origins_blocked": 2
+            }
+          },
+          "window": "W1"
+        },
+        "3": {
+          "c4_v4": {
+            "applies": true,
+            "mask_definition": "window_overlap",
+            "met": false,
+            "minimum": 12,
+            "recession_origins": 10,
+            "status": "INCONCLUSIVE"
+          },
+          "counts": {
+            "first_real_time_origin": "1996-12-31",
+            "last_real_time_origin": "2006-10-31",
+            "origins": 202,
+            "pseudo_full": 83,
+            "real_time_candidate": 119,
+            "real_time_full": 119,
+            "real_time_minimal": 119
+          },
+          "horizon": 3,
+          "inputs": {
+            "candidate": [
+              "CPIAUCSL",
+              "CPILFESL",
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "full": [
+              "CPIAUCSL",
+              "CPILFESL",
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "minimal": [
+              "CPIAUCSL",
+              "CPILFESL"
+            ]
+          },
+          "recession": {
+            "origin_month": {
+              "episodes": [
+                "2001-03_2001-11"
+              ],
+              "origins": 16,
+              "pseudo_full": 8,
+              "real_time_candidate": 8,
+              "real_time_full": 8,
+              "real_time_minimal": 8
+            },
+            "window_overlap": {
+              "episodes": [
+                "2001-03_2001-11"
+              ],
+              "origins": 20,
+              "pseudo_full": 10,
+              "real_time_candidate": 10,
+              "real_time_full": 10,
+              "real_time_minimal": 10
+            }
+          },
+          "recession_blockers_under_used_mask": {
+            "CPILFESL": {
+              "episodes": [
+                "1990-07_1991-03"
+              ],
+              "first_vintage": "1996-12-12",
+              "origins_blocked": 10
+            },
+            "GS10": {
+              "episodes": [
+                "1990-07_1991-03"
+              ],
+              "first_vintage": "1996-12-03",
+              "origins_blocked": 10
+            },
+            "TB3MS": {
+              "episodes": [
+                "1990-07_1991-03"
+              ],
+              "first_vintage": "1996-12-03",
+              "origins_blocked": 10
+            }
+          },
+          "window": "W1"
+        },
+        "6": {
+          "c4_v4": {
+            "applies": true,
+            "mask_definition": "window_overlap",
+            "met": true,
+            "minimum": 12,
+            "recession_origins": 13,
+            "status": "PASS"
+          },
+          "counts": {
+            "first_real_time_origin": "1996-12-31",
+            "last_real_time_origin": "2006-07-31",
+            "origins": 199,
+            "pseudo_full": 83,
+            "real_time_candidate": 116,
+            "real_time_full": 116,
+            "real_time_minimal": 116
+          },
+          "horizon": 6,
+          "inputs": {
+            "candidate": [
+              "CPIAUCSL",
+              "CPILFESL",
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "full": [
+              "CPIAUCSL",
+              "CPILFESL",
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "minimal": [
+              "CPIAUCSL",
+              "CPILFESL"
+            ]
+          },
+          "recession": {
+            "origin_month": {
+              "episodes": [
+                "2001-03_2001-11"
+              ],
+              "origins": 16,
+              "pseudo_full": 8,
+              "real_time_candidate": 8,
+              "real_time_full": 8,
+              "real_time_minimal": 8
+            },
+            "window_overlap": {
+              "episodes": [
+                "2001-03_2001-11"
+              ],
+              "origins": 26,
+              "pseudo_full": 13,
+              "real_time_candidate": 13,
+              "real_time_full": 13,
+              "real_time_minimal": 13
+            }
+          },
+          "recession_blockers_under_used_mask": {
+            "CPIAUCSL": {
+              "episodes": [
+                "1990-07_1991-03"
+              ],
+              "first_vintage": "1990-03-20",
+              "origins_blocked": 1
+            },
+            "CPILFESL": {
+              "episodes": [
+                "1990-07_1991-03"
+              ],
+              "first_vintage": "1996-12-12",
+              "origins_blocked": 13
+            },
+            "GS10": {
+              "episodes": [
+                "1990-07_1991-03"
+              ],
+              "first_vintage": "1996-12-03",
+              "origins_blocked": 13
+            },
+            "TB3MS": {
+              "episodes": [
+                "1990-07_1991-03"
+              ],
+              "first_vintage": "1996-12-03",
+              "origins_blocked": 13
+            },
+            "UNRATE": {
+              "episodes": [
+                "1990-07_1991-03"
+              ],
+              "first_vintage": "1990-03-09",
+              "origins_blocked": 1
+            }
+          },
+          "window": "W1"
+        }
+      },
+      "W2": {
+        "1": {
+          "c4_v4": {
+            "applies": true,
+            "mask_definition": "window_overlap",
+            "met": true,
+            "minimum": 12,
+            "recession_origins": 18,
+            "status": "PASS"
+          },
+          "counts": {
+            "first_real_time_origin": "2007-01-31",
+            "last_real_time_origin": "2019-12-31",
+            "origins": 156,
+            "pseudo_full": 0,
+            "real_time_candidate": 156,
+            "real_time_full": 156,
+            "real_time_minimal": 156
+          },
+          "horizon": 1,
+          "inputs": {
+            "candidate": [
+              "CPIAUCSL",
+              "CPILFESL",
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "full": [
+              "CPIAUCSL",
+              "CPILFESL",
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "minimal": [
+              "CPIAUCSL",
+              "CPILFESL"
+            ]
+          },
+          "recession": {
+            "origin_month": {
+              "episodes": [
+                "2007-12_2009-06"
+              ],
+              "origins": 18,
+              "pseudo_full": 0,
+              "real_time_candidate": 18,
+              "real_time_full": 18,
+              "real_time_minimal": 18
+            },
+            "window_overlap": {
+              "episodes": [
+                "2007-12_2009-06"
+              ],
+              "origins": 18,
+              "pseudo_full": 0,
+              "real_time_candidate": 18,
+              "real_time_full": 18,
+              "real_time_minimal": 18
+            }
+          },
+          "recession_blockers_under_used_mask": {},
+          "window": "W2"
+        },
+        "12": {
+          "c4_v4": {
+            "applies": true,
+            "mask_definition": "window_overlap",
+            "met": true,
+            "minimum": 12,
+            "recession_origins": 29,
+            "status": "PASS"
+          },
+          "counts": {
+            "first_real_time_origin": "2007-01-31",
+            "last_real_time_origin": "2019-01-31",
+            "origins": 145,
+            "pseudo_full": 0,
+            "real_time_candidate": 145,
+            "real_time_full": 145,
+            "real_time_minimal": 145
+          },
+          "horizon": 12,
+          "inputs": {
+            "candidate": [
+              "CPIAUCSL",
+              "CPILFESL",
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "full": [
+              "CPIAUCSL",
+              "CPILFESL",
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "minimal": [
+              "CPIAUCSL",
+              "CPILFESL"
+            ]
+          },
+          "recession": {
+            "origin_month": {
+              "episodes": [
+                "2007-12_2009-06"
+              ],
+              "origins": 18,
+              "pseudo_full": 0,
+              "real_time_candidate": 18,
+              "real_time_full": 18,
+              "real_time_minimal": 18
+            },
+            "window_overlap": {
+              "episodes": [
+                "2007-12_2009-06"
+              ],
+              "origins": 29,
+              "pseudo_full": 0,
+              "real_time_candidate": 29,
+              "real_time_full": 29,
+              "real_time_minimal": 29
+            }
+          },
+          "recession_blockers_under_used_mask": {},
+          "window": "W2"
+        },
+        "3": {
+          "c4_v4": {
+            "applies": true,
+            "mask_definition": "window_overlap",
+            "met": true,
+            "minimum": 12,
+            "recession_origins": 20,
+            "status": "PASS"
+          },
+          "counts": {
+            "first_real_time_origin": "2007-01-31",
+            "last_real_time_origin": "2019-10-31",
+            "origins": 154,
+            "pseudo_full": 0,
+            "real_time_candidate": 154,
+            "real_time_full": 154,
+            "real_time_minimal": 154
+          },
+          "horizon": 3,
+          "inputs": {
+            "candidate": [
+              "CPIAUCSL",
+              "CPILFESL",
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "full": [
+              "CPIAUCSL",
+              "CPILFESL",
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "minimal": [
+              "CPIAUCSL",
+              "CPILFESL"
+            ]
+          },
+          "recession": {
+            "origin_month": {
+              "episodes": [
+                "2007-12_2009-06"
+              ],
+              "origins": 18,
+              "pseudo_full": 0,
+              "real_time_candidate": 18,
+              "real_time_full": 18,
+              "real_time_minimal": 18
+            },
+            "window_overlap": {
+              "episodes": [
+                "2007-12_2009-06"
+              ],
+              "origins": 20,
+              "pseudo_full": 0,
+              "real_time_candidate": 20,
+              "real_time_full": 20,
+              "real_time_minimal": 20
+            }
+          },
+          "recession_blockers_under_used_mask": {},
+          "window": "W2"
+        },
+        "6": {
+          "c4_v4": {
+            "applies": true,
+            "mask_definition": "window_overlap",
+            "met": true,
+            "minimum": 12,
+            "recession_origins": 23,
+            "status": "PASS"
+          },
+          "counts": {
+            "first_real_time_origin": "2007-01-31",
+            "last_real_time_origin": "2019-07-31",
+            "origins": 151,
+            "pseudo_full": 0,
+            "real_time_candidate": 151,
+            "real_time_full": 151,
+            "real_time_minimal": 151
+          },
+          "horizon": 6,
+          "inputs": {
+            "candidate": [
+              "CPIAUCSL",
+              "CPILFESL",
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "full": [
+              "CPIAUCSL",
+              "CPILFESL",
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "minimal": [
+              "CPIAUCSL",
+              "CPILFESL"
+            ]
+          },
+          "recession": {
+            "origin_month": {
+              "episodes": [
+                "2007-12_2009-06"
+              ],
+              "origins": 18,
+              "pseudo_full": 0,
+              "real_time_candidate": 18,
+              "real_time_full": 18,
+              "real_time_minimal": 18
+            },
+            "window_overlap": {
+              "episodes": [
+                "2007-12_2009-06"
+              ],
+              "origins": 23,
+              "pseudo_full": 0,
+              "real_time_candidate": 23,
+              "real_time_full": 23,
+              "real_time_minimal": 23
+            }
+          },
+          "recession_blockers_under_used_mask": {},
+          "window": "W2"
+        }
+      }
+    },
+    "T2_GDP_GROWTH": {
+      "W1": {
+        "0": {
+          "c4_v4": {
+            "applies": true,
+            "mask_definition": "window_overlap",
+            "met": false,
+            "minimum": 12,
+            "recession_origins": 0,
+            "status": "INCONCLUSIVE"
+          },
+          "counts": {
+            "first_real_time_origin": "1996-12-31",
+            "last_real_time_origin": "2006-12-31",
+            "origins": 204,
+            "pseudo_full": 83,
+            "real_time_candidate": 121,
+            "real_time_full": 121,
+            "real_time_minimal": 181
+          },
+          "horizon": 0,
+          "inputs": {
+            "candidate": [
+              "GDPC1",
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "full": [
+              "GDPC1",
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "minimal": [
+              "GDPC1"
+            ]
+          },
+          "recession": {
+            "origin_month": {
+              "episodes": [
+                "2001-03_2001-11"
+              ],
+              "origins": 16,
+              "pseudo_full": 8,
+              "real_time_candidate": 8,
+              "real_time_full": 8,
+              "real_time_minimal": 8
+            },
+            "window_overlap": {
+              "episodes": [],
+              "origins": 0,
+              "pseudo_full": 0,
+              "real_time_candidate": 0,
+              "real_time_full": 0,
+              "real_time_minimal": 0
+            }
+          },
+          "recession_blockers_under_used_mask": {},
+          "window": "W1"
+        },
+        "1": {
+          "c4_v4": {
+            "applies": true,
+            "mask_definition": "window_overlap",
+            "met": false,
+            "minimum": 12,
+            "recession_origins": 3,
+            "status": "INCONCLUSIVE"
+          },
+          "counts": {
+            "first_real_time_origin": "1996-12-31",
+            "last_real_time_origin": "2006-09-30",
+            "origins": 67,
+            "pseudo_full": 27,
+            "real_time_candidate": 40,
+            "real_time_full": 40,
+            "real_time_minimal": 60
+          },
+          "horizon": 1,
+          "inputs": {
+            "candidate": [
+              "GDPC1",
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "full": [
+              "GDPC1",
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "minimal": [
+              "GDPC1"
+            ]
+          },
+          "recession": {
+            "origin_month": {
+              "episodes": [
+                "2001-03_2001-11"
+              ],
+              "origins": 5,
+              "pseudo_full": 3,
+              "real_time_candidate": 2,
+              "real_time_full": 2,
+              "real_time_minimal": 2
+            },
+            "window_overlap": {
+              "episodes": [
+                "2001-03_2001-11"
+              ],
+              "origins": 5,
+              "pseudo_full": 2,
+              "real_time_candidate": 3,
+              "real_time_full": 3,
+              "real_time_minimal": 3
+            }
+          },
+          "recession_blockers_under_used_mask": {
+            "GDPC1": {
+              "episodes": [
+                "1990-07_1991-03"
+              ],
+              "first_vintage": "1991-12-20",
+              "origins_blocked": 2
+            },
+            "GS10": {
+              "episodes": [
+                "1990-07_1991-03"
+              ],
+              "first_vintage": "1996-12-03",
+              "origins_blocked": 2
+            },
+            "TB3MS": {
+              "episodes": [
+                "1990-07_1991-03"
+              ],
+              "first_vintage": "1996-12-03",
+              "origins_blocked": 2
+            }
+          },
+          "window": "W1"
+        },
+        "2": {
+          "c4_v4": {
+            "applies": true,
+            "mask_definition": "window_overlap",
+            "met": false,
+            "minimum": 12,
+            "recession_origins": 3,
+            "status": "INCONCLUSIVE"
+          },
+          "counts": {
+            "first_real_time_origin": "1996-12-31",
+            "last_real_time_origin": "2006-06-30",
+            "origins": 66,
+            "pseudo_full": 27,
+            "real_time_candidate": 39,
+            "real_time_full": 39,
+            "real_time_minimal": 59
+          },
+          "horizon": 2,
+          "inputs": {
+            "candidate": [
+              "GDPC1",
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "full": [
+              "GDPC1",
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "minimal": [
+              "GDPC1"
+            ]
+          },
+          "recession": {
+            "origin_month": {
+              "episodes": [
+                "2001-03_2001-11"
+              ],
+              "origins": 5,
+              "pseudo_full": 3,
+              "real_time_candidate": 2,
+              "real_time_full": 2,
+              "real_time_minimal": 2
+            },
+            "window_overlap": {
+              "episodes": [
+                "2001-03_2001-11"
+              ],
+              "origins": 6,
+              "pseudo_full": 3,
+              "real_time_candidate": 3,
+              "real_time_full": 3,
+              "real_time_minimal": 3
+            }
+          },
+          "recession_blockers_under_used_mask": {
+            "GDPC1": {
+              "episodes": [
+                "1990-07_1991-03"
+              ],
+              "first_vintage": "1991-12-20",
+              "origins_blocked": 3
+            },
+            "GS10": {
+              "episodes": [
+                "1990-07_1991-03"
+              ],
+              "first_vintage": "1996-12-03",
+              "origins_blocked": 3
+            },
+            "TB3MS": {
+              "episodes": [
+                "1990-07_1991-03"
+              ],
+              "first_vintage": "1996-12-03",
+              "origins_blocked": 3
+            }
+          },
+          "window": "W1"
+        },
+        "4": {
+          "c4_v4": {
+            "applies": true,
+            "mask_definition": "window_overlap",
+            "met": false,
+            "minimum": 12,
+            "recession_origins": 4,
+            "status": "INCONCLUSIVE"
+          },
+          "counts": {
+            "first_real_time_origin": "1996-12-31",
+            "last_real_time_origin": "2005-12-31",
+            "origins": 64,
+            "pseudo_full": 27,
+            "real_time_candidate": 37,
+            "real_time_full": 37,
+            "real_time_minimal": 57
+          },
+          "horizon": 4,
+          "inputs": {
+            "candidate": [
+              "GDPC1",
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "full": [
+              "GDPC1",
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "minimal": [
+              "GDPC1"
+            ]
+          },
+          "recession": {
+            "origin_month": {
+              "episodes": [
+                "2001-03_2001-11"
+              ],
+              "origins": 5,
+              "pseudo_full": 3,
+              "real_time_candidate": 2,
+              "real_time_full": 2,
+              "real_time_minimal": 2
+            },
+            "window_overlap": {
+              "episodes": [
+                "2001-03_2001-11"
+              ],
+              "origins": 7,
+              "pseudo_full": 3,
+              "real_time_candidate": 4,
+              "real_time_full": 4,
+              "real_time_minimal": 4
+            }
+          },
+          "recession_blockers_under_used_mask": {
+            "GDPC1": {
+              "episodes": [
+                "1990-07_1991-03"
+              ],
+              "first_vintage": "1991-12-20",
+              "origins_blocked": 3
+            },
+            "GS10": {
+              "episodes": [
+                "1990-07_1991-03"
+              ],
+              "first_vintage": "1996-12-03",
+              "origins_blocked": 3
+            },
+            "TB3MS": {
+              "episodes": [
+                "1990-07_1991-03"
+              ],
+              "first_vintage": "1996-12-03",
+              "origins_blocked": 3
+            }
+          },
+          "window": "W1"
+        }
+      },
+      "W2": {
+        "0": {
+          "c4_v4": {
+            "applies": true,
+            "mask_definition": "window_overlap",
+            "met": false,
+            "minimum": 12,
+            "recession_origins": 0,
+            "status": "INCONCLUSIVE"
+          },
+          "counts": {
+            "first_real_time_origin": "2007-01-31",
+            "last_real_time_origin": "2019-12-31",
+            "origins": 156,
+            "pseudo_full": 0,
+            "real_time_candidate": 156,
+            "real_time_full": 156,
+            "real_time_minimal": 156
+          },
+          "horizon": 0,
+          "inputs": {
+            "candidate": [
+              "GDPC1",
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "full": [
+              "GDPC1",
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "minimal": [
+              "GDPC1"
+            ]
+          },
+          "recession": {
+            "origin_month": {
+              "episodes": [
+                "2007-12_2009-06"
+              ],
+              "origins": 18,
+              "pseudo_full": 0,
+              "real_time_candidate": 18,
+              "real_time_full": 18,
+              "real_time_minimal": 18
+            },
+            "window_overlap": {
+              "episodes": [],
+              "origins": 0,
+              "pseudo_full": 0,
+              "real_time_candidate": 0,
+              "real_time_full": 0,
+              "real_time_minimal": 0
+            }
+          },
+          "recession_blockers_under_used_mask": {},
+          "window": "W2"
+        },
+        "1": {
+          "c4_v4": {
+            "applies": true,
+            "mask_definition": "window_overlap",
+            "met": false,
+            "minimum": 12,
+            "recession_origins": 6,
+            "status": "INCONCLUSIVE"
+          },
+          "counts": {
+            "first_real_time_origin": "2007-03-31",
+            "last_real_time_origin": "2019-09-30",
+            "origins": 51,
+            "pseudo_full": 0,
+            "real_time_candidate": 51,
+            "real_time_full": 51,
+            "real_time_minimal": 51
+          },
+          "horizon": 1,
+          "inputs": {
+            "candidate": [
+              "GDPC1",
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "full": [
+              "GDPC1",
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "minimal": [
+              "GDPC1"
+            ]
+          },
+          "recession": {
+            "origin_month": {
+              "episodes": [
+                "2007-12_2009-06"
+              ],
+              "origins": 6,
+              "pseudo_full": 0,
+              "real_time_candidate": 6,
+              "real_time_full": 6,
+              "real_time_minimal": 6
+            },
+            "window_overlap": {
+              "episodes": [
+                "2007-12_2009-06"
+              ],
+              "origins": 6,
+              "pseudo_full": 0,
+              "real_time_candidate": 6,
+              "real_time_full": 6,
+              "real_time_minimal": 6
+            }
+          },
+          "recession_blockers_under_used_mask": {},
+          "window": "W2"
+        },
+        "2": {
+          "c4_v4": {
+            "applies": true,
+            "mask_definition": "window_overlap",
+            "met": false,
+            "minimum": 12,
+            "recession_origins": 6,
+            "status": "INCONCLUSIVE"
+          },
+          "counts": {
+            "first_real_time_origin": "2007-03-31",
+            "last_real_time_origin": "2019-06-30",
+            "origins": 50,
+            "pseudo_full": 0,
+            "real_time_candidate": 50,
+            "real_time_full": 50,
+            "real_time_minimal": 50
+          },
+          "horizon": 2,
+          "inputs": {
+            "candidate": [
+              "GDPC1",
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "full": [
+              "GDPC1",
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "minimal": [
+              "GDPC1"
+            ]
+          },
+          "recession": {
+            "origin_month": {
+              "episodes": [
+                "2007-12_2009-06"
+              ],
+              "origins": 6,
+              "pseudo_full": 0,
+              "real_time_candidate": 6,
+              "real_time_full": 6,
+              "real_time_minimal": 6
+            },
+            "window_overlap": {
+              "episodes": [
+                "2007-12_2009-06"
+              ],
+              "origins": 6,
+              "pseudo_full": 0,
+              "real_time_candidate": 6,
+              "real_time_full": 6,
+              "real_time_minimal": 6
+            }
+          },
+          "recession_blockers_under_used_mask": {},
+          "window": "W2"
+        },
+        "4": {
+          "c4_v4": {
+            "applies": true,
+            "mask_definition": "window_overlap",
+            "met": false,
+            "minimum": 12,
+            "recession_origins": 7,
+            "status": "INCONCLUSIVE"
+          },
+          "counts": {
+            "first_real_time_origin": "2007-03-31",
+            "last_real_time_origin": "2018-12-31",
+            "origins": 48,
+            "pseudo_full": 0,
+            "real_time_candidate": 48,
+            "real_time_full": 48,
+            "real_time_minimal": 48
+          },
+          "horizon": 4,
+          "inputs": {
+            "candidate": [
+              "GDPC1",
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "full": [
+              "GDPC1",
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "minimal": [
+              "GDPC1"
+            ]
+          },
+          "recession": {
+            "origin_month": {
+              "episodes": [
+                "2007-12_2009-06"
+              ],
+              "origins": 6,
+              "pseudo_full": 0,
+              "real_time_candidate": 6,
+              "real_time_full": 6,
+              "real_time_minimal": 6
+            },
+            "window_overlap": {
+              "episodes": [
+                "2007-12_2009-06"
+              ],
+              "origins": 7,
+              "pseudo_full": 0,
+              "real_time_candidate": 7,
+              "real_time_full": 7,
+              "real_time_minimal": 7
+            }
+          },
+          "recession_blockers_under_used_mask": {},
+          "window": "W2"
+        }
+      }
+    },
+    "T3_RECESSION": {
+      "W1": {
+        "12": {
+          "c4_v4": {
+            "applies": false,
+            "mask_definition": "window_overlap",
+            "met": false,
+            "minimum": 12,
+            "recession_origins": 19,
+            "status": "NOT_APPLICABLE_TO_TARGET"
+          },
+          "counts": {
+            "first_real_time_origin": "1996-12-31",
+            "last_real_time_origin": "2005-12-31",
+            "origins": 109,
+            "pseudo_full": 0,
+            "real_time_candidate": 109,
+            "real_time_full": 109,
+            "real_time_minimal": 109
+          },
+          "horizon": 12,
+          "inputs": {
+            "candidate": [
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "full": [
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "minimal": []
+          },
+          "recession": {
+            "origin_month": {
+              "episodes": [
+                "2001-03_2001-11"
+              ],
+              "origins": 8,
+              "pseudo_full": 0,
+              "real_time_candidate": 8,
+              "real_time_full": 8,
+              "real_time_minimal": 8
+            },
+            "window_overlap": {
+              "episodes": [
+                "2001-03_2001-11"
+              ],
+              "origins": 19,
+              "pseudo_full": 0,
+              "real_time_candidate": 19,
+              "real_time_full": 19,
+              "real_time_minimal": 19
+            }
+          },
+          "recession_blockers_under_used_mask": {},
+          "window": "W1"
+        },
+        "3": {
+          "c4_v4": {
+            "applies": false,
+            "mask_definition": "window_overlap",
+            "met": false,
+            "minimum": 12,
+            "recession_origins": 10,
+            "status": "NOT_APPLICABLE_TO_TARGET"
+          },
+          "counts": {
+            "first_real_time_origin": "1996-12-31",
+            "last_real_time_origin": "2006-09-30",
+            "origins": 118,
+            "pseudo_full": 0,
+            "real_time_candidate": 118,
+            "real_time_full": 118,
+            "real_time_minimal": 118
+          },
+          "horizon": 3,
+          "inputs": {
+            "candidate": [
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "full": [
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "minimal": []
+          },
+          "recession": {
+            "origin_month": {
+              "episodes": [
+                "2001-03_2001-11"
+              ],
+              "origins": 8,
+              "pseudo_full": 0,
+              "real_time_candidate": 8,
+              "real_time_full": 8,
+              "real_time_minimal": 8
+            },
+            "window_overlap": {
+              "episodes": [
+                "2001-03_2001-11"
+              ],
+              "origins": 10,
+              "pseudo_full": 0,
+              "real_time_candidate": 10,
+              "real_time_full": 10,
+              "real_time_minimal": 10
+            }
+          },
+          "recession_blockers_under_used_mask": {},
+          "window": "W1"
+        },
+        "6": {
+          "c4_v4": {
+            "applies": false,
+            "mask_definition": "window_overlap",
+            "met": false,
+            "minimum": 12,
+            "recession_origins": 13,
+            "status": "NOT_APPLICABLE_TO_TARGET"
+          },
+          "counts": {
+            "first_real_time_origin": "1996-12-31",
+            "last_real_time_origin": "2006-06-30",
+            "origins": 115,
+            "pseudo_full": 0,
+            "real_time_candidate": 115,
+            "real_time_full": 115,
+            "real_time_minimal": 115
+          },
+          "horizon": 6,
+          "inputs": {
+            "candidate": [
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "full": [
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "minimal": []
+          },
+          "recession": {
+            "origin_month": {
+              "episodes": [
+                "2001-03_2001-11"
+              ],
+              "origins": 8,
+              "pseudo_full": 0,
+              "real_time_candidate": 8,
+              "real_time_full": 8,
+              "real_time_minimal": 8
+            },
+            "window_overlap": {
+              "episodes": [
+                "2001-03_2001-11"
+              ],
+              "origins": 13,
+              "pseudo_full": 0,
+              "real_time_candidate": 13,
+              "real_time_full": 13,
+              "real_time_minimal": 13
+            }
+          },
+          "recession_blockers_under_used_mask": {},
+          "window": "W1"
+        }
+      },
+      "W2": {
+        "12": {
+          "c4_v4": {
+            "applies": false,
+            "mask_definition": "window_overlap",
+            "met": false,
+            "minimum": 12,
+            "recession_origins": 29,
+            "status": "NOT_APPLICABLE_TO_TARGET"
+          },
+          "counts": {
+            "first_real_time_origin": "2007-01-31",
+            "last_real_time_origin": "2018-12-31",
+            "origins": 144,
+            "pseudo_full": 0,
+            "real_time_candidate": 144,
+            "real_time_full": 144,
+            "real_time_minimal": 144
+          },
+          "horizon": 12,
+          "inputs": {
+            "candidate": [
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "full": [
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "minimal": []
+          },
+          "recession": {
+            "origin_month": {
+              "episodes": [
+                "2007-12_2009-06"
+              ],
+              "origins": 18,
+              "pseudo_full": 0,
+              "real_time_candidate": 18,
+              "real_time_full": 18,
+              "real_time_minimal": 18
+            },
+            "window_overlap": {
+              "episodes": [
+                "2007-12_2009-06"
+              ],
+              "origins": 29,
+              "pseudo_full": 0,
+              "real_time_candidate": 29,
+              "real_time_full": 29,
+              "real_time_minimal": 29
+            }
+          },
+          "recession_blockers_under_used_mask": {},
+          "window": "W2"
+        },
+        "3": {
+          "c4_v4": {
+            "applies": false,
+            "mask_definition": "window_overlap",
+            "met": false,
+            "minimum": 12,
+            "recession_origins": 20,
+            "status": "NOT_APPLICABLE_TO_TARGET"
+          },
+          "counts": {
+            "first_real_time_origin": "2007-01-31",
+            "last_real_time_origin": "2019-09-30",
+            "origins": 153,
+            "pseudo_full": 0,
+            "real_time_candidate": 153,
+            "real_time_full": 153,
+            "real_time_minimal": 153
+          },
+          "horizon": 3,
+          "inputs": {
+            "candidate": [
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "full": [
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "minimal": []
+          },
+          "recession": {
+            "origin_month": {
+              "episodes": [
+                "2007-12_2009-06"
+              ],
+              "origins": 18,
+              "pseudo_full": 0,
+              "real_time_candidate": 18,
+              "real_time_full": 18,
+              "real_time_minimal": 18
+            },
+            "window_overlap": {
+              "episodes": [
+                "2007-12_2009-06"
+              ],
+              "origins": 20,
+              "pseudo_full": 0,
+              "real_time_candidate": 20,
+              "real_time_full": 20,
+              "real_time_minimal": 20
+            }
+          },
+          "recession_blockers_under_used_mask": {},
+          "window": "W2"
+        },
+        "6": {
+          "c4_v4": {
+            "applies": false,
+            "mask_definition": "window_overlap",
+            "met": false,
+            "minimum": 12,
+            "recession_origins": 23,
+            "status": "NOT_APPLICABLE_TO_TARGET"
+          },
+          "counts": {
+            "first_real_time_origin": "2007-01-31",
+            "last_real_time_origin": "2019-06-30",
+            "origins": 150,
+            "pseudo_full": 0,
+            "real_time_candidate": 150,
+            "real_time_full": 150,
+            "real_time_minimal": 150
+          },
+          "horizon": 6,
+          "inputs": {
+            "candidate": [
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "full": [
+              "GS10",
+              "TB3MS",
+              "UNRATE"
+            ],
+            "minimal": []
+          },
+          "recession": {
+            "origin_month": {
+              "episodes": [
+                "2007-12_2009-06"
+              ],
+              "origins": 18,
+              "pseudo_full": 0,
+              "real_time_candidate": 18,
+              "real_time_full": 18,
+              "real_time_minimal": 18
+            },
+            "window_overlap": {
+              "episodes": [
+                "2007-12_2009-06"
+              ],
+              "origins": 23,
+              "pseudo_full": 0,
+              "real_time_candidate": 23,
+              "real_time_full": 23,
+              "real_time_minimal": 23
+            }
+          },
+          "recession_blockers_under_used_mask": {},
+          "window": "W2"
+        }
+      }
+    }
+  },
+  "variants": {
+    "V0_v4_current": {
+      "description": "REAL_TIME full-comparator origins, mask = (t, t+h] overlap, minimum 12",
+      "met_origin_month": {
+        "T1_CPI_YOY/W1/1": false,
+        "T1_CPI_YOY/W1/12": false,
+        "T1_CPI_YOY/W1/3": false,
+        "T1_CPI_YOY/W1/6": false,
+        "T1_CPI_YOY/W2/1": true,
+        "T1_CPI_YOY/W2/12": true,
+        "T1_CPI_YOY/W2/3": true,
+        "T1_CPI_YOY/W2/6": true,
+        "T2_GDP_GROWTH/W1/0": false,
+        "T2_GDP_GROWTH/W1/1": false,
+        "T2_GDP_GROWTH/W1/2": false,
+        "T2_GDP_GROWTH/W1/4": false,
+        "T2_GDP_GROWTH/W2/0": true,
+        "T2_GDP_GROWTH/W2/1": false,
+        "T2_GDP_GROWTH/W2/2": false,
+        "T2_GDP_GROWTH/W2/4": false,
+        "T3_RECESSION/W1/12": false,
+        "T3_RECESSION/W1/3": false,
+        "T3_RECESSION/W1/6": false,
+        "T3_RECESSION/W2/12": true,
+        "T3_RECESSION/W2/3": true,
+        "T3_RECESSION/W2/6": true
+      },
+      "met_window_overlap": {
+        "T1_CPI_YOY/W1/1": false,
+        "T1_CPI_YOY/W1/12": true,
+        "T1_CPI_YOY/W1/3": false,
+        "T1_CPI_YOY/W1/6": true,
+        "T1_CPI_YOY/W2/1": true,
+        "T1_CPI_YOY/W2/12": true,
+        "T1_CPI_YOY/W2/3": true,
+        "T1_CPI_YOY/W2/6": true,
+        "T2_GDP_GROWTH/W1/0": false,
+        "T2_GDP_GROWTH/W1/1": false,
+        "T2_GDP_GROWTH/W1/2": false,
+        "T2_GDP_GROWTH/W1/4": false,
+        "T2_GDP_GROWTH/W2/0": false,
+        "T2_GDP_GROWTH/W2/1": false,
+        "T2_GDP_GROWTH/W2/2": false,
+        "T2_GDP_GROWTH/W2/4": false,
+        "T3_RECESSION/W1/12": true,
+        "T3_RECESSION/W1/3": false,
+        "T3_RECESSION/W1/6": true,
+        "T3_RECESSION/W2/12": true,
+        "T3_RECESSION/W2/3": true,
+        "T3_RECESSION/W2/6": true
+      },
+      "minimum": 12,
+      "origin_month_mask": {
+        "T1_CPI_YOY/W1/1": 8,
+        "T1_CPI_YOY/W1/12": 8,
+        "T1_CPI_YOY/W1/3": 8,
+        "T1_CPI_YOY/W1/6": 8,
+        "T1_CPI_YOY/W2/1": 18,
+        "T1_CPI_YOY/W2/12": 18,
+        "T1_CPI_YOY/W2/3": 18,
+        "T1_CPI_YOY/W2/6": 18,
+        "T2_GDP_GROWTH/W1/0": 8,
+        "T2_GDP_GROWTH/W1/1": 2,
+        "T2_GDP_GROWTH/W1/2": 2,
+        "T2_GDP_GROWTH/W1/4": 2,
+        "T2_GDP_GROWTH/W2/0": 18,
+        "T2_GDP_GROWTH/W2/1": 6,
+        "T2_GDP_GROWTH/W2/2": 6,
+        "T2_GDP_GROWTH/W2/4": 6,
+        "T3_RECESSION/W1/12": 8,
+        "T3_RECESSION/W1/3": 8,
+        "T3_RECESSION/W1/6": 8,
+        "T3_RECESSION/W2/12": 18,
+        "T3_RECESSION/W2/3": 18,
+        "T3_RECESSION/W2/6": 18
+      },
+      "window_overlap_mask": {
+        "T1_CPI_YOY/W1/1": 8,
+        "T1_CPI_YOY/W1/12": 19,
+        "T1_CPI_YOY/W1/3": 10,
+        "T1_CPI_YOY/W1/6": 13,
+        "T1_CPI_YOY/W2/1": 18,
+        "T1_CPI_YOY/W2/12": 29,
+        "T1_CPI_YOY/W2/3": 20,
+        "T1_CPI_YOY/W2/6": 23,
+        "T2_GDP_GROWTH/W1/0": 0,
+        "T2_GDP_GROWTH/W1/1": 3,
+        "T2_GDP_GROWTH/W1/2": 3,
+        "T2_GDP_GROWTH/W1/4": 4,
+        "T2_GDP_GROWTH/W2/0": 0,
+        "T2_GDP_GROWTH/W2/1": 6,
+        "T2_GDP_GROWTH/W2/2": 6,
+        "T2_GDP_GROWTH/W2/4": 7,
+        "T3_RECESSION/W1/12": 19,
+        "T3_RECESSION/W1/3": 10,
+        "T3_RECESSION/W1/6": 13,
+        "T3_RECESSION/W2/12": 29,
+        "T3_RECESSION/W2/3": 20,
+        "T3_RECESSION/W2/6": 23
+      }
+    },
+    "V1_mask_origin_month": {
+      "changed_pairs": {
+        "T1_CPI_YOY/W1/12": 8,
+        "T1_CPI_YOY/W1/3": 8,
+        "T1_CPI_YOY/W1/6": 8,
+        "T1_CPI_YOY/W2/12": 18,
+        "T1_CPI_YOY/W2/3": 18,
+        "T1_CPI_YOY/W2/6": 18,
+        "T2_GDP_GROWTH/W1/0": 8,
+        "T2_GDP_GROWTH/W1/1": 2,
+        "T2_GDP_GROWTH/W1/2": 2,
+        "T2_GDP_GROWTH/W1/4": 2,
+        "T2_GDP_GROWTH/W2/0": 18,
+        "T2_GDP_GROWTH/W2/4": 6,
+        "T3_RECESSION/W1/12": 8,
+        "T3_RECESSION/W1/3": 8,
+        "T3_RECESSION/W1/6": 8,
+        "T3_RECESSION/W2/12": 18,
+        "T3_RECESSION/W2/3": 18,
+        "T3_RECESSION/W2/6": 18
+      },
+      "counts": {
+        "T1_CPI_YOY/W1/1": 8,
+        "T1_CPI_YOY/W1/12": 8,
+        "T1_CPI_YOY/W1/3": 8,
+        "T1_CPI_YOY/W1/6": 8,
+        "T1_CPI_YOY/W2/1": 18,
+        "T1_CPI_YOY/W2/12": 18,
+        "T1_CPI_YOY/W2/3": 18,
+        "T1_CPI_YOY/W2/6": 18,
+        "T2_GDP_GROWTH/W1/0": 8,
+        "T2_GDP_GROWTH/W1/1": 2,
+        "T2_GDP_GROWTH/W1/2": 2,
+        "T2_GDP_GROWTH/W1/4": 2,
+        "T2_GDP_GROWTH/W2/0": 18,
+        "T2_GDP_GROWTH/W2/1": 6,
+        "T2_GDP_GROWTH/W2/2": 6,
+        "T2_GDP_GROWTH/W2/4": 6,
+        "T3_RECESSION/W1/12": 8,
+        "T3_RECESSION/W1/3": 8,
+        "T3_RECESSION/W1/6": 8,
+        "T3_RECESSION/W2/12": 18,
+        "T3_RECESSION/W2/3": 18,
+        "T3_RECESSION/W2/6": 18
+      },
+      "description": "clarify the C4 instrument as 'the origin month is a recession month' (protocol text) instead of the (t,t+h] overlap mask used by the runner",
+      "met": {
+        "T1_CPI_YOY/W1/1": false,
+        "T1_CPI_YOY/W1/12": false,
+        "T1_CPI_YOY/W1/3": false,
+        "T1_CPI_YOY/W1/6": false,
+        "T1_CPI_YOY/W2/1": true,
+        "T1_CPI_YOY/W2/12": true,
+        "T1_CPI_YOY/W2/3": true,
+        "T1_CPI_YOY/W2/6": true,
+        "T2_GDP_GROWTH/W1/0": false,
+        "T2_GDP_GROWTH/W1/1": false,
+        "T2_GDP_GROWTH/W1/2": false,
+        "T2_GDP_GROWTH/W1/4": false,
+        "T2_GDP_GROWTH/W2/0": true,
+        "T2_GDP_GROWTH/W2/1": false,
+        "T2_GDP_GROWTH/W2/2": false,
+        "T2_GDP_GROWTH/W2/4": false,
+        "T3_RECESSION/W1/12": false,
+        "T3_RECESSION/W1/3": false,
+        "T3_RECESSION/W1/6": false,
+        "T3_RECESSION/W2/12": true,
+        "T3_RECESSION/W2/3": true,
+        "T3_RECESSION/W2/6": true
+      },
+      "minimum": 12
+    },
+    "V2_allow_pseudo_for_c4": {
+      "counts_origin_month": {
+        "T1_CPI_YOY": {
+          "W1": {
+            "1": 16,
+            "12": 16,
+            "3": 16,
+            "6": 16
+          },
+          "W2": {
+            "1": 18,
+            "12": 18,
+            "3": 18,
+            "6": 18
+          }
+        },
+        "T2_GDP_GROWTH": {
+          "W1": {
+            "0": 16,
+            "1": 5,
+            "2": 5,
+            "4": 5
+          },
+          "W2": {
+            "0": 18,
+            "1": 6,
+            "2": 6,
+            "4": 6
+          }
+        },
+        "T3_RECESSION": {
+          "W1": {
+            "12": 8,
+            "3": 8,
+            "6": 8
+          },
+          "W2": {
+            "12": 18,
+            "3": 18,
+            "6": 18
+          }
+        }
+      },
+      "counts_window_overlap": {
+        "T1_CPI_YOY": {
+          "W1": {
+            "1": 16,
+            "12": 33,
+            "3": 20,
+            "6": 26
+          },
+          "W2": {
+            "1": 18,
+            "12": 29,
+            "3": 20,
+            "6": 23
+          }
+        },
+        "T2_GDP_GROWTH": {
+          "W1": {
+            "0": 0,
+            "1": 5,
+            "2": 6,
+            "4": 7
+          },
+          "W2": {
+            "0": 0,
+            "1": 6,
+            "2": 6,
+            "4": 7
+          }
+        },
+        "T3_RECESSION": {
+          "W1": {
+            "12": 19,
+            "3": 10,
+            "6": 13
+          },
+          "W2": {
+            "12": 29,
+            "3": 20,
+            "6": 23
+          }
+        }
+      },
+      "description": "allow PSEUDO_REAL_TIME origins in the C4 recession split only (C4 is a robustness split, not a forecast-quality comparison)",
+      "met_origin_month": {
+        "T1_CPI_YOY/W1/1": true,
+        "T1_CPI_YOY/W1/12": true,
+        "T1_CPI_YOY/W1/3": true,
+        "T1_CPI_YOY/W1/6": true,
+        "T1_CPI_YOY/W2/1": true,
+        "T1_CPI_YOY/W2/12": true,
+        "T1_CPI_YOY/W2/3": true,
+        "T1_CPI_YOY/W2/6": true,
+        "T2_GDP_GROWTH/W1/0": true,
+        "T2_GDP_GROWTH/W1/1": false,
+        "T2_GDP_GROWTH/W1/2": false,
+        "T2_GDP_GROWTH/W1/4": false,
+        "T2_GDP_GROWTH/W2/0": true,
+        "T2_GDP_GROWTH/W2/1": false,
+        "T2_GDP_GROWTH/W2/2": false,
+        "T2_GDP_GROWTH/W2/4": false,
+        "T3_RECESSION/W1/12": false,
+        "T3_RECESSION/W1/3": false,
+        "T3_RECESSION/W1/6": false,
+        "T3_RECESSION/W2/12": true,
+        "T3_RECESSION/W2/3": true,
+        "T3_RECESSION/W2/6": true
+      },
+      "met_window_overlap": {
+        "T1_CPI_YOY/W1/1": true,
+        "T1_CPI_YOY/W1/12": true,
+        "T1_CPI_YOY/W1/3": true,
+        "T1_CPI_YOY/W1/6": true,
+        "T1_CPI_YOY/W2/1": true,
+        "T1_CPI_YOY/W2/12": true,
+        "T1_CPI_YOY/W2/3": true,
+        "T1_CPI_YOY/W2/6": true,
+        "T2_GDP_GROWTH/W1/0": false,
+        "T2_GDP_GROWTH/W1/1": false,
+        "T2_GDP_GROWTH/W1/2": false,
+        "T2_GDP_GROWTH/W1/4": false,
+        "T2_GDP_GROWTH/W2/0": false,
+        "T2_GDP_GROWTH/W2/1": false,
+        "T2_GDP_GROWTH/W2/2": false,
+        "T2_GDP_GROWTH/W2/4": false,
+        "T3_RECESSION/W1/12": true,
+        "T3_RECESSION/W1/3": false,
+        "T3_RECESSION/W1/6": true,
+        "T3_RECESSION/W2/12": true,
+        "T3_RECESSION/W2/3": true,
+        "T3_RECESSION/W2/6": true
+      },
+      "minimum": 12
+    },
+    "V3_relax_min_recession_origins": {
+      "counts_window_overlap": {
+        "T1_CPI_YOY/W1/1": 8,
+        "T1_CPI_YOY/W1/12": 19,
+        "T1_CPI_YOY/W1/3": 10,
+        "T1_CPI_YOY/W1/6": 13,
+        "T1_CPI_YOY/W2/1": 18,
+        "T1_CPI_YOY/W2/12": 29,
+        "T1_CPI_YOY/W2/3": 20,
+        "T1_CPI_YOY/W2/6": 23,
+        "T2_GDP_GROWTH/W1/0": 0,
+        "T2_GDP_GROWTH/W1/1": 3,
+        "T2_GDP_GROWTH/W1/2": 3,
+        "T2_GDP_GROWTH/W1/4": 4,
+        "T2_GDP_GROWTH/W2/0": 0,
+        "T2_GDP_GROWTH/W2/1": 6,
+        "T2_GDP_GROWTH/W2/2": 6,
+        "T2_GDP_GROWTH/W2/4": 7,
+        "T3_RECESSION/W1/12": 19,
+        "T3_RECESSION/W1/3": 10,
+        "T3_RECESSION/W1/6": 13,
+        "T3_RECESSION/W2/12": 29,
+        "T3_RECESSION/W2/3": 20,
+        "T3_RECESSION/W2/6": 23
+      },
+      "description": "lower min_recession_months from 12 to 8 / 6 (not recommended: power)",
+      "met_at_6": {
+        "T1_CPI_YOY/W1/1": true,
+        "T1_CPI_YOY/W1/12": true,
+        "T1_CPI_YOY/W1/3": true,
+        "T1_CPI_YOY/W1/6": true,
+        "T1_CPI_YOY/W2/1": true,
+        "T1_CPI_YOY/W2/12": true,
+        "T1_CPI_YOY/W2/3": true,
+        "T1_CPI_YOY/W2/6": true,
+        "T2_GDP_GROWTH/W1/0": false,
+        "T2_GDP_GROWTH/W1/1": false,
+        "T2_GDP_GROWTH/W1/2": false,
+        "T2_GDP_GROWTH/W1/4": false,
+        "T2_GDP_GROWTH/W2/0": false,
+        "T2_GDP_GROWTH/W2/1": true,
+        "T2_GDP_GROWTH/W2/2": true,
+        "T2_GDP_GROWTH/W2/4": true,
+        "T3_RECESSION/W1/12": true,
+        "T3_RECESSION/W1/3": true,
+        "T3_RECESSION/W1/6": true,
+        "T3_RECESSION/W2/12": true,
+        "T3_RECESSION/W2/3": true,
+        "T3_RECESSION/W2/6": true
+      },
+      "met_at_8": {
+        "T1_CPI_YOY/W1/1": true,
+        "T1_CPI_YOY/W1/12": true,
+        "T1_CPI_YOY/W1/3": true,
+        "T1_CPI_YOY/W1/6": true,
+        "T1_CPI_YOY/W2/1": true,
+        "T1_CPI_YOY/W2/12": true,
+        "T1_CPI_YOY/W2/3": true,
+        "T1_CPI_YOY/W2/6": true,
+        "T2_GDP_GROWTH/W1/0": false,
+        "T2_GDP_GROWTH/W1/1": false,
+        "T2_GDP_GROWTH/W1/2": false,
+        "T2_GDP_GROWTH/W1/4": false,
+        "T2_GDP_GROWTH/W2/0": false,
+        "T2_GDP_GROWTH/W2/1": false,
+        "T2_GDP_GROWTH/W2/2": false,
+        "T2_GDP_GROWTH/W2/4": false,
+        "T3_RECESSION/W1/12": true,
+        "T3_RECESSION/W1/3": true,
+        "T3_RECESSION/W1/6": true,
+        "T3_RECESSION/W2/12": true,
+        "T3_RECESSION/W2/3": true,
+        "T3_RECESSION/W2/6": true
+      }
+    },
+    "V4_extend_vintage_archives": {
+      "description": "extend REAL_TIME availability to 1990: CPILFESL/GS10/TB3MS (and GDPC1 for T2) with first vintage 1990-03-20",
+      "feasibility": "ALFRED has no vintages before 1996-12 for CPILFESL/GS10/TB3MS; the extension needs a different real-time source (BLS CPI archive, a historical H.15 tape). Philadelphia Fed RTDSM does not include H.15 rates (protocol data_manifest). Not achievable from the current channels without new licence documents.",
+      "met_window_overlap": {
+        "V4a_extend_rates_and_core_cpi": {
+          "T1_CPI_YOY/W1/1": true,
+          "T1_CPI_YOY/W1/12": true,
+          "T1_CPI_YOY/W1/3": true,
+          "T1_CPI_YOY/W1/6": true,
+          "T1_CPI_YOY/W2/1": true,
+          "T1_CPI_YOY/W2/12": true,
+          "T1_CPI_YOY/W2/3": true,
+          "T1_CPI_YOY/W2/6": true,
+          "T2_GDP_GROWTH/W1/0": false,
+          "T2_GDP_GROWTH/W1/1": false,
+          "T2_GDP_GROWTH/W1/2": false,
+          "T2_GDP_GROWTH/W1/4": false,
+          "T2_GDP_GROWTH/W2/0": false,
+          "T2_GDP_GROWTH/W2/1": false,
+          "T2_GDP_GROWTH/W2/2": false,
+          "T2_GDP_GROWTH/W2/4": false,
+          "T3_RECESSION/W1/12": true,
+          "T3_RECESSION/W1/3": false,
+          "T3_RECESSION/W1/6": true,
+          "T3_RECESSION/W2/12": true,
+          "T3_RECESSION/W2/3": true,
+          "T3_RECESSION/W2/6": true
+        },
+        "V4b_extend_rates_core_cpi_gdp": {
+          "T1_CPI_YOY/W1/1": true,
+          "T1_CPI_YOY/W1/12": true,
+          "T1_CPI_YOY/W1/3": true,
+          "T1_CPI_YOY/W1/6": true,
+          "T1_CPI_YOY/W2/1": true,
+          "T1_CPI_YOY/W2/12": true,
+          "T1_CPI_YOY/W2/3": true,
+          "T1_CPI_YOY/W2/6": true,
+          "T2_GDP_GROWTH/W1/0": false,
+          "T2_GDP_GROWTH/W1/1": false,
+          "T2_GDP_GROWTH/W1/2": false,
+          "T2_GDP_GROWTH/W1/4": false,
+          "T2_GDP_GROWTH/W2/0": false,
+          "T2_GDP_GROWTH/W2/1": false,
+          "T2_GDP_GROWTH/W2/2": false,
+          "T2_GDP_GROWTH/W2/4": false,
+          "T3_RECESSION/W1/12": true,
+          "T3_RECESSION/W1/3": false,
+          "T3_RECESSION/W1/6": true,
+          "T3_RECESSION/W2/12": true,
+          "T3_RECESSION/W2/3": true,
+          "T3_RECESSION/W2/6": true
+        },
+        "V4c_extend_rates_only": {
+          "T1_CPI_YOY/W1/1": false,
+          "T1_CPI_YOY/W1/12": true,
+          "T1_CPI_YOY/W1/3": false,
+          "T1_CPI_YOY/W1/6": true,
+          "T1_CPI_YOY/W2/1": true,
+          "T1_CPI_YOY/W2/12": true,
+          "T1_CPI_YOY/W2/3": true,
+          "T1_CPI_YOY/W2/6": true,
+          "T2_GDP_GROWTH/W1/0": false,
+          "T2_GDP_GROWTH/W1/1": false,
+          "T2_GDP_GROWTH/W1/2": false,
+          "T2_GDP_GROWTH/W1/4": false,
+          "T2_GDP_GROWTH/W2/0": false,
+          "T2_GDP_GROWTH/W2/1": false,
+          "T2_GDP_GROWTH/W2/2": false,
+          "T2_GDP_GROWTH/W2/4": false,
+          "T3_RECESSION/W1/12": true,
+          "T3_RECESSION/W1/3": false,
+          "T3_RECESSION/W1/6": true,
+          "T3_RECESSION/W2/12": true,
+          "T3_RECESSION/W2/3": true,
+          "T3_RECESSION/W2/6": true
+        }
+      },
+      "scenarios": {
+        "V4a_extend_rates_and_core_cpi": {
+          "T1_CPI_YOY/W1/1": 16,
+          "T1_CPI_YOY/W1/12": 31,
+          "T1_CPI_YOY/W1/3": 20,
+          "T1_CPI_YOY/W1/6": 25,
+          "T1_CPI_YOY/W2/1": 18,
+          "T1_CPI_YOY/W2/12": 29,
+          "T1_CPI_YOY/W2/3": 20,
+          "T1_CPI_YOY/W2/6": 23,
+          "T2_GDP_GROWTH/W1/0": 0,
+          "T2_GDP_GROWTH/W1/1": 3,
+          "T2_GDP_GROWTH/W1/2": 3,
+          "T2_GDP_GROWTH/W1/4": 4,
+          "T2_GDP_GROWTH/W2/0": 0,
+          "T2_GDP_GROWTH/W2/1": 6,
+          "T2_GDP_GROWTH/W2/2": 6,
+          "T2_GDP_GROWTH/W2/4": 7,
+          "T3_RECESSION/W1/12": 19,
+          "T3_RECESSION/W1/3": 10,
+          "T3_RECESSION/W1/6": 13,
+          "T3_RECESSION/W2/12": 29,
+          "T3_RECESSION/W2/3": 20,
+          "T3_RECESSION/W2/6": 23
+        },
+        "V4b_extend_rates_core_cpi_gdp": {
+          "T1_CPI_YOY/W1/1": 16,
+          "T1_CPI_YOY/W1/12": 31,
+          "T1_CPI_YOY/W1/3": 20,
+          "T1_CPI_YOY/W1/6": 25,
+          "T1_CPI_YOY/W2/1": 18,
+          "T1_CPI_YOY/W2/12": 29,
+          "T1_CPI_YOY/W2/3": 20,
+          "T1_CPI_YOY/W2/6": 23,
+          "T2_GDP_GROWTH/W1/0": 0,
+          "T2_GDP_GROWTH/W1/1": 5,
+          "T2_GDP_GROWTH/W1/2": 6,
+          "T2_GDP_GROWTH/W1/4": 7,
+          "T2_GDP_GROWTH/W2/0": 0,
+          "T2_GDP_GROWTH/W2/1": 6,
+          "T2_GDP_GROWTH/W2/2": 6,
+          "T2_GDP_GROWTH/W2/4": 7,
+          "T3_RECESSION/W1/12": 19,
+          "T3_RECESSION/W1/3": 10,
+          "T3_RECESSION/W1/6": 13,
+          "T3_RECESSION/W2/12": 29,
+          "T3_RECESSION/W2/3": 20,
+          "T3_RECESSION/W2/6": 23
+        },
+        "V4c_extend_rates_only": {
+          "T1_CPI_YOY/W1/1": 8,
+          "T1_CPI_YOY/W1/12": 19,
+          "T1_CPI_YOY/W1/3": 10,
+          "T1_CPI_YOY/W1/6": 13,
+          "T1_CPI_YOY/W2/1": 18,
+          "T1_CPI_YOY/W2/12": 29,
+          "T1_CPI_YOY/W2/3": 20,
+          "T1_CPI_YOY/W2/6": 23,
+          "T2_GDP_GROWTH/W1/0": 0,
+          "T2_GDP_GROWTH/W1/1": 3,
+          "T2_GDP_GROWTH/W1/2": 3,
+          "T2_GDP_GROWTH/W1/4": 4,
+          "T2_GDP_GROWTH/W2/0": 0,
+          "T2_GDP_GROWTH/W2/1": 6,
+          "T2_GDP_GROWTH/W2/2": 6,
+          "T2_GDP_GROWTH/W2/4": 7,
+          "T3_RECESSION/W1/12": 19,
+          "T3_RECESSION/W1/3": 10,
+          "T3_RECESSION/W1/6": 13,
+          "T3_RECESSION/W2/12": 29,
+          "T3_RECESSION/W2/3": 20,
+          "T3_RECESSION/W2/6": 23
+        }
+      }
+    },
+    "V5_minimal_input_classification": {
+      "counts": {
+        "T1_CPI_YOY/W1/1": 8,
+        "T1_CPI_YOY/W1/12": 19,
+        "T1_CPI_YOY/W1/3": 10,
+        "T1_CPI_YOY/W1/6": 13,
+        "T1_CPI_YOY/W2/1": 18,
+        "T1_CPI_YOY/W2/12": 29,
+        "T1_CPI_YOY/W2/3": 20,
+        "T1_CPI_YOY/W2/6": 23,
+        "T2_GDP_GROWTH/W1/0": 0,
+        "T2_GDP_GROWTH/W1/1": 3,
+        "T2_GDP_GROWTH/W1/2": 3,
+        "T2_GDP_GROWTH/W1/4": 4,
+        "T2_GDP_GROWTH/W2/0": 0,
+        "T2_GDP_GROWTH/W2/1": 6,
+        "T2_GDP_GROWTH/W2/2": 6,
+        "T2_GDP_GROWTH/W2/4": 7,
+        "T3_RECESSION/W1/12": 19,
+        "T3_RECESSION/W1/3": 10,
+        "T3_RECESSION/W1/6": 13,
+        "T3_RECESSION/W2/12": 29,
+        "T3_RECESSION/W2/3": 20,
+        "T3_RECESSION/W2/6": 23
+      },
+      "description": "classify REAL_TIME by the target's own series only instead of the full comparator input set",
+      "minimum": 12
+    },
+    "V6_not_applicable": {
+      "applies": {
+        "T1_CPI_YOY/W1/1": true,
+        "T1_CPI_YOY/W1/12": false,
+        "T1_CPI_YOY/W1/3": true,
+        "T1_CPI_YOY/W1/6": false,
+        "T1_CPI_YOY/W2/1": false,
+        "T1_CPI_YOY/W2/12": false,
+        "T1_CPI_YOY/W2/3": false,
+        "T1_CPI_YOY/W2/6": false,
+        "T2_GDP_GROWTH/W1/0": true,
+        "T2_GDP_GROWTH/W1/1": true,
+        "T2_GDP_GROWTH/W1/2": true,
+        "T2_GDP_GROWTH/W1/4": true,
+        "T2_GDP_GROWTH/W2/0": true,
+        "T2_GDP_GROWTH/W2/1": true,
+        "T2_GDP_GROWTH/W2/2": true,
+        "T2_GDP_GROWTH/W2/4": true,
+        "T3_RECESSION/W1/12": false,
+        "T3_RECESSION/W1/3": true,
+        "T3_RECESSION/W1/6": false,
+        "T3_RECESSION/W2/12": false,
+        "T3_RECESSION/W2/3": false,
+        "T3_RECESSION/W2/6": false
+      },
+      "description": "declare C4 NOT_APPLICABLE for T1/T2 pairs that cannot collect the minimum on REAL_TIME data, instead of INCONCLUSIVE; the pair then does not pass the historical gate (it stays CANDIDATE) but the report does not pretend the criterion was tested"
+    },
+    "V7_recession_episodes_instead_of_months": {
+      "description": "count distinct recession episodes instead of months (a power-based rule); with REAL_TIME only 1 episode survives in W1 and W2, so any minimum above 1 still fails",
+      "episodes_min_2_met": {
+        "T1_CPI_YOY/W1/1": false,
+        "T1_CPI_YOY/W1/12": false,
+        "T1_CPI_YOY/W1/3": false,
+        "T1_CPI_YOY/W1/6": false,
+        "T1_CPI_YOY/W2/1": false,
+        "T1_CPI_YOY/W2/12": false,
+        "T1_CPI_YOY/W2/3": false,
+        "T1_CPI_YOY/W2/6": false,
+        "T2_GDP_GROWTH/W1/0": false,
+        "T2_GDP_GROWTH/W1/1": false,
+        "T2_GDP_GROWTH/W1/2": false,
+        "T2_GDP_GROWTH/W1/4": false,
+        "T2_GDP_GROWTH/W2/0": false,
+        "T2_GDP_GROWTH/W2/1": false,
+        "T2_GDP_GROWTH/W2/2": false,
+        "T2_GDP_GROWTH/W2/4": false,
+        "T3_RECESSION/W1/12": false,
+        "T3_RECESSION/W1/3": false,
+        "T3_RECESSION/W1/6": false,
+        "T3_RECESSION/W2/12": false,
+        "T3_RECESSION/W2/3": false,
+        "T3_RECESSION/W2/6": false
+      },
+      "episodes_window_overlap": {
+        "T1_CPI_YOY": {
+          "W1": {
+            "1": 1,
+            "12": 1,
+            "3": 1,
+            "6": 1
+          },
+          "W2": {
+            "1": 1,
+            "12": 1,
+            "3": 1,
+            "6": 1
+          }
+        },
+        "T2_GDP_GROWTH": {
+          "W1": {
+            "0": 0,
+            "1": 1,
+            "2": 1,
+            "4": 1
+          },
+          "W2": {
+            "0": 0,
+            "1": 1,
+            "2": 1,
+            "4": 1
+          }
+        },
+        "T3_RECESSION": {
+          "W1": {
+            "12": 1,
+            "3": 1,
+            "6": 1
+          },
+          "W2": {
+            "12": 1,
+            "3": 1,
+            "6": 1
+          }
+        }
+      }
+    },
+    "V8_c4_on_W2_only": {
+      "W2_counts_masked_by_definition": {
+        "T1_CPI_YOY": {
+          "W2": {
+            "12": 29
+          }
+        },
+        "T2_GDP_GROWTH": {
+          "W2": {
+            "4": 7
+          }
+        },
+        "T3_RECESSION": {
+          "W2": {
+            "12": 29
+          }
+        }
+      },
+      "W2_counts_window_overlap": {
+        "T1_CPI_YOY/W2/1": 18,
+        "T1_CPI_YOY/W2/12": 29,
+        "T1_CPI_YOY/W2/3": 20,
+        "T1_CPI_YOY/W2/6": 23,
+        "T2_GDP_GROWTH/W2/0": 0,
+        "T2_GDP_GROWTH/W2/1": 6,
+        "T2_GDP_GROWTH/W2/2": 6,
+        "T2_GDP_GROWTH/W2/4": 7,
+        "T3_RECESSION/W2/12": 29,
+        "T3_RECESSION/W2/3": 20,
+        "T3_RECESSION/W2/6": 23
+      },
+      "description": "restrict the gating C4 to W2 (18 recession origins) and report W1 as a data-limited diagnostic; W2 alone is not enough for the protocol ('W1 and W2' requirement)"
+    }
+  },
+  "vintages": {
+    "all_archives_available": true,
+    "archives": {
+      "CPIAUCSL": {
+        "available": true,
+        "file": "vintages_starting_1990-03-20.csv",
+        "first_vintage": "1990-03-20",
+        "last_vintage": "2026-09-11",
+        "path": "data/raw/CPIAUCSL/vintages.zip",
+        "series": "CPIAUCSL",
+        "sha256": "f63abf2bda6d9206dd112ff84a8807b2d3467f0b79240f34dc5ffe295842faf2",
+        "vintages": 147
+      },
+      "CPILFESL": {
+        "available": true,
+        "file": "vintages_starting_1996-12-12.csv",
+        "first_vintage": "1996-12-12",
+        "last_vintage": "2026-09-11",
+        "path": "data/raw/CPILFESL/vintages.zip",
+        "series": "CPILFESL",
+        "sha256": "417d1be2f5af5ddafd641d3bb890e88d846d630aafeb50aefa5fb0309662eb3f",
+        "vintages": 120
+      },
+      "GDPC1": {
+        "available": true,
+        "file": "vintages_starting_1991-12-20.csv",
+        "first_vintage": "1991-12-20",
+        "last_vintage": "2026-09-30",
+        "path": "data/raw/GDPC1/vintages.zip",
+        "series": "GDPC1",
+        "sha256": "585c90872924bb76e3339407d8f974cdc22dcfb1ac17b02f4355d570070727b3",
+        "vintages": 140
+      },
+      "GS10": {
+        "available": true,
+        "file": "vintages_starting_1996-12-03.csv",
+        "first_vintage": "1996-12-03",
+        "last_vintage": "2026-09-01",
+        "path": "data/raw/GS10/vintages.zip",
+        "series": "GS10",
+        "sha256": "12e8c66fcbb3ff8af576c23ce7052110a1d48b52021c8fbdeef81a5e878eaa1b",
+        "vintages": 120
+      },
+      "TB3MS": {
+        "available": true,
+        "file": "vintages_starting_1996-12-03.csv",
+        "first_vintage": "1996-12-03",
+        "last_vintage": "2026-09-01",
+        "path": "data/raw/TB3MS/vintages.zip",
+        "series": "TB3MS",
+        "sha256": "48df2c47c91a869c0cecbd3485a45267af863b8874d862d9b0d32178b19fea0e",
+        "vintages": 120
+      },
+      "UNRATE": {
+        "available": true,
+        "file": "vintages_starting_1990-03-09.csv",
+        "first_vintage": "1990-03-09",
+        "last_vintage": "2026-09-04",
+        "path": "data/raw/UNRATE/vintages.zip",
+        "series": "UNRATE",
+        "sha256": "ef832d5b8e1d18b735d2d356a1042a0e3c6331cb04b9cc60294c16ae6b49a387",
+        "vintages": 147
+      }
+    },
+    "first_vintages": {
+      "CPIAUCSL": {
+        "documented_first_vintage": "1990-03-20",
+        "first_vintage": "1990-03-20",
+        "source": "archive"
+      },
+      "CPILFESL": {
+        "documented_first_vintage": "1996-12-12",
+        "first_vintage": "1996-12-12",
+        "source": "archive"
+      },
+      "GDPC1": {
+        "documented_first_vintage": "1991-12-20",
+        "first_vintage": "1991-12-20",
+        "source": "archive"
+      },
+      "GS10": {
+        "documented_first_vintage": "1996-12-03",
+        "first_vintage": "1996-12-03",
+        "source": "archive"
+      },
+      "TB3MS": {
+        "documented_first_vintage": "1996-12-03",
+        "first_vintage": "1996-12-03",
+        "source": "archive"
+      },
+      "UNRATE": {
+        "documented_first_vintage": "1990-03-09",
+        "first_vintage": "1990-03-09",
+        "source": "archive"
+      }
+    }
+  }
+}
