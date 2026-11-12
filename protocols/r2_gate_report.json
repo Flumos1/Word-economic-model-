@@ -1,7 +1,7 @@
 {
   "gate": "R2",
   "protocol": "protocols/evaluation_protocol_v4.json",
-  "generated_at": "2026-11-12T07:50:11Z",
+  "generated_at": "2026-11-12T09:17:58Z",
   "tolerance": 0.05,
   "series": [
     {
@@ -49,7 +49,7 @@
       "checked": 36,
       "matched": 36,
       "mismatches": [],
-      "initial_release_sha256": "1e018a0814436d6ae4e7e6349c0acf7383f94938ab59d602b2deebcf12aeae95"
+      "initial_release_sha256": "a49f279776417eeebba4b330d197e67bcebb6868d75d92f98d1b72b8d8d9fb80"
     },
     {
       "series": "CPILFESL",
@@ -96,7 +96,7 @@
       "checked": 35,
       "matched": 35,
       "mismatches": [],
-      "initial_release_sha256": "b7b6699bf82b570486ecc7f231a8e67b654731e3b8d8b539b2228ddd9ea56fa9"
+      "initial_release_sha256": "f3cee61ee2ea7f979fff29169e1a70bb4bb5ec28779e7382de4d2221fa3bab09"
     },
     {
       "series": "GDPC1",
@@ -143,7 +143,7 @@
       "checked": 1,
       "matched": 1,
       "mismatches": [],
-      "initial_release_sha256": "985599ded1678860170ca72ed5efd1a29d34df52a1ab4576302c6a163eb7e154"
+      "initial_release_sha256": "7dbd273386f80e6f04ca6f3713cbacc2a0ba6dceb7cc3823bb1313b9b367c7b9"
     },
     {
       "series": "UNRATE",
@@ -190,7 +190,7 @@
       "checked": 36,
       "matched": 36,
       "mismatches": [],
-      "initial_release_sha256": "1bf2aaeba1f307ff7983afa14f910a8b6ff9a05534c1d3c3277debd977ba0129"
+      "initial_release_sha256": "8147a629fef3962fdb12c3861cc87ef15321c9a787582ae63fdebb7589c375bf"
     },
     {
       "series": "GS10",
@@ -237,7 +237,7 @@
       "checked": 35,
       "matched": 35,
       "mismatches": [],
-      "initial_release_sha256": "48a62788d6ea409d40e95f0acdb1c50390fb9e180f9177bd18184365f5a67bb5"
+      "initial_release_sha256": "14eabc4fe471f308370b830e6b14abb3e5e8be282e6caa771fe92448c012849f"
     },
     {
       "series": "TB3MS",
@@ -284,7 +284,571 @@
       "checked": 35,
       "matched": 35,
       "mismatches": [],
-      "initial_release_sha256": "b849a202e9ccd5ac39f0ad0bdd4ff6db214e77821a86e686be4ca291df43be84"
+      "initial_release_sha256": "c9ce7bdd4fcc7ea42170391eb49f9ae571b0e349d1b3621df4281d79c10caa85"
+    },
+    {
+      "series": "GCE",
+      "vintage_dates": [
+        "1990-03-28",
+        "1990-09-25",
+        "1991-06-26",
+        "1991-12-20",
+        "1992-06-25",
+        "1992-12-22",
+        "1993-09-29",
+        "1994-03-31",
+        "1994-09-29",
+        "1995-06-30",
+        "1995-10-27",
+        "1996-06-28",
+        "1997-03-28",
+        "1997-09-26",
+        "1998-02-27",
+        "1998-09-24",
+        "1999-06-25",
+        "1999-12-22",
+        "2000-03-30",
+        "2001-09-28",
+        "2003-03-27",
+        "2004-12-22",
+        "2006-06-29",
+        "2007-12-20",
+        "2009-06-25",
+        "2011-03-25",
+        "2012-09-27",
+        "2014-03-27",
+        "2015-08-27",
+        "2017-06-29",
+        "2018-12-21",
+        "2020-06-25",
+        "2021-12-22",
+        "2023-09-28",
+        "2025-03-27",
+        "2026-09-30"
+      ],
+      "channel": "retrieved vintages",
+      "initial_release_rows": 1,
+      "checked": 1,
+      "matched": 1,
+      "mismatches": [],
+      "initial_release_sha256": "89847ac2dd185393b0e0571c11b5b36cafa24aa9062e8be183d67a0196d91ab2"
+    },
+    {
+      "series": "GCEC1",
+      "vintage_dates": [
+        "1990-03-28",
+        "1990-09-25",
+        "1991-06-26",
+        "1991-12-20",
+        "1992-06-25",
+        "1992-12-22",
+        "1993-08-31",
+        "1994-03-31",
+        "1994-09-29",
+        "1995-06-30",
+        "1995-10-27",
+        "1996-06-28",
+        "1997-03-28",
+        "1997-09-26",
+        "1998-03-26",
+        "1998-09-24",
+        "1999-06-25",
+        "1999-12-22",
+        "2000-03-30",
+        "2001-09-28",
+        "2003-03-27",
+        "2004-12-22",
+        "2006-06-29",
+        "2007-12-20",
+        "2009-06-25",
+        "2011-03-25",
+        "2012-09-27",
+        "2014-03-27",
+        "2015-09-25",
+        "2017-06-29",
+        "2018-12-21",
+        "2020-06-25",
+        "2021-12-22",
+        "2023-09-28",
+        "2025-03-27",
+        "2026-09-30"
+      ],
+      "channel": "retrieved vintages",
+      "initial_release_rows": 1,
+      "checked": 1,
+      "matched": 1,
+      "mismatches": [],
+      "initial_release_sha256": "ebf7f9c93b1765d85bcf7673105694732db751af0130e7f4c39e88ea34ee822f"
+    },
+    {
+      "series": "GPDIC1",
+      "vintage_dates": [
+        "1990-03-28",
+        "1990-09-25",
+        "1991-06-26",
+        "1991-12-20",
+        "1992-06-25",
+        "1992-12-22",
+        "1993-09-29",
+        "1994-03-31",
+        "1994-09-29",
+        "1995-06-30",
+        "1995-10-27",
+        "1996-06-28",
+        "1997-03-28",
+        "1997-09-26",
+        "1998-03-26",
+        "1998-09-24",
+        "1999-06-25",
+        "1999-12-22",
+        "2000-03-30",
+        "2001-09-28",
+        "2003-03-27",
+        "2004-12-22",
+        "2006-06-29",
+        "2007-12-20",
+        "2009-06-25",
+        "2011-03-25",
+        "2012-09-27",
+        "2014-03-27",
+        "2015-09-25",
+        "2017-06-29",
+        "2018-12-21",
+        "2020-06-25",
+        "2021-12-22",
+        "2023-09-28",
+        "2025-03-27",
+        "2026-09-30"
+      ],
+      "channel": "retrieved vintages",
+      "initial_release_rows": 1,
+      "checked": 1,
+      "matched": 1,
+      "mismatches": [],
+      "initial_release_sha256": "808514ec69018328b9f2861d07c4f1de7ec5ec4f004cd831360a211f58c5b66a"
+    },
+    {
+      "series": "EXPGSC1",
+      "vintage_dates": [
+        "1991-12-04",
+        "1992-06-25",
+        "1992-12-22",
+        "1993-06-23",
+        "1993-12-22",
+        "1994-03-31",
+        "1994-09-29",
+        "1995-03-31",
+        "1995-09-29",
+        "1996-02-23",
+        "1996-09-27",
+        "1997-03-28",
+        "1997-09-26",
+        "1997-12-23",
+        "1998-06-25",
+        "1998-12-23",
+        "1999-06-25",
+        "1999-12-22",
+        "2000-03-30",
+        "2001-09-28",
+        "2003-03-27",
+        "2004-12-22",
+        "2006-05-25",
+        "2007-12-20",
+        "2009-06-25",
+        "2011-03-25",
+        "2012-09-27",
+        "2014-03-27",
+        "2015-09-25",
+        "2017-06-29",
+        "2018-12-21",
+        "2020-06-25",
+        "2021-12-22",
+        "2023-09-28",
+        "2025-03-27",
+        "2026-09-30"
+      ],
+      "channel": "retrieved vintages",
+      "initial_release_rows": 1,
+      "checked": 1,
+      "matched": 1,
+      "mismatches": [],
+      "initial_release_sha256": "e4408e7f3fe4f2cddfc1b65f20cbe80292d0f3eaa0b85abb0dfbc8b18da0c5a2"
+    },
+    {
+      "series": "IMPGSC1",
+      "vintage_dates": [
+        "1991-12-04",
+        "1992-06-25",
+        "1992-12-22",
+        "1993-06-23",
+        "1993-12-22",
+        "1994-03-31",
+        "1994-08-26",
+        "1995-03-31",
+        "1995-09-29",
+        "1996-02-23",
+        "1996-09-27",
+        "1997-03-28",
+        "1997-09-26",
+        "1997-12-23",
+        "1998-06-25",
+        "1998-12-23",
+        "1999-06-25",
+        "1999-12-22",
+        "2000-03-30",
+        "2001-09-28",
+        "2003-03-27",
+        "2004-12-22",
+        "2006-06-29",
+        "2007-12-20",
+        "2009-06-25",
+        "2011-03-25",
+        "2012-09-27",
+        "2014-03-27",
+        "2015-09-25",
+        "2017-06-29",
+        "2018-12-21",
+        "2020-06-25",
+        "2021-12-22",
+        "2023-09-28",
+        "2025-03-27",
+        "2026-09-30"
+      ],
+      "channel": "retrieved vintages",
+      "initial_release_rows": 1,
+      "checked": 1,
+      "matched": 1,
+      "mismatches": [],
+      "initial_release_sha256": "1aec6a5f101c9f478c45311ab904510f4fba57b8203deaeb622c6dd02a2cd275"
+    },
+    {
+      "series": "GDPDEF",
+      "vintage_dates": [
+        "1991-12-04",
+        "1992-04-28",
+        "1992-12-22",
+        "1993-04-29",
+        "1993-10-28",
+        "1994-01-28",
+        "1994-07-29",
+        "1995-03-01",
+        "1995-08-30",
+        "1996-02-23",
+        "1996-08-01",
+        "1997-01-31",
+        "1997-09-26",
+        "1997-11-26",
+        "1998-06-25",
+        "1998-12-23",
+        "1999-06-25",
+        "1999-12-22",
+        "2000-03-30",
+        "2001-09-28",
+        "2003-03-27",
+        "2004-12-22",
+        "2006-06-29",
+        "2007-12-20",
+        "2009-06-25",
+        "2011-03-25",
+        "2012-09-27",
+        "2014-03-27",
+        "2015-09-25",
+        "2017-06-29",
+        "2018-12-21",
+        "2020-06-25",
+        "2021-12-22",
+        "2023-09-28",
+        "2025-03-27",
+        "2026-09-30"
+      ],
+      "channel": "retrieved vintages",
+      "initial_release_rows": 8,
+      "checked": 8,
+      "matched": 8,
+      "mismatches": [],
+      "initial_release_sha256": "d0568e71ebde6dbe5e62f48d3a8df4fc19998ed66a103f7b05e8a799e2ab7a33"
+    },
+    {
+      "series": "A191RL1Q225SBEA",
+      "vintage_dates": [
+        "2014-09-26",
+        "2014-12-23",
+        "2015-06-24",
+        "2015-09-25",
+        "2015-12-22",
+        "2016-06-28",
+        "2016-09-29",
+        "2017-03-30",
+        "2017-06-29",
+        "2017-09-28",
+        "2018-03-28",
+        "2018-06-28",
+        "2018-08-29",
+        "2019-03-28",
+        "2019-05-30",
+        "2019-11-27",
+        "2020-01-30",
+        "2020-05-28",
+        "2020-12-22",
+        "2021-03-25",
+        "2021-04-29",
+        "2021-12-22",
+        "2022-03-30",
+        "2022-09-29",
+        "2022-12-22",
+        "2023-03-30",
+        "2023-09-28",
+        "2023-12-21",
+        "2024-03-28",
+        "2024-09-26",
+        "2024-12-19",
+        "2025-06-26",
+        "2025-09-25",
+        "2025-12-23",
+        "2026-06-25",
+        "2026-09-30"
+      ],
+      "channel": "retrieved vintages",
+      "initial_release_rows": 3,
+      "checked": 3,
+      "matched": 3,
+      "mismatches": [],
+      "initial_release_sha256": "d9a294b54e380c61e5059870b7472636562fb5209467c1418d3810e9a76dd9e5"
+    },
+    {
+      "series": "PCEPILFE",
+      "vintage_dates": [
+        "2000-09-29",
+        "2001-05-29",
+        "2002-03-29",
+        "2002-12-23",
+        "2003-09-29",
+        "2004-06-28",
+        "2005-03-31",
+        "2005-12-22",
+        "2006-09-29",
+        "2007-06-29",
+        "2008-03-28",
+        "2008-12-24",
+        "2009-08-28",
+        "2010-06-28",
+        "2011-03-28",
+        "2011-12-23",
+        "2012-09-28",
+        "2013-06-27",
+        "2013-12-23",
+        "2014-09-29",
+        "2015-06-25",
+        "2016-03-28",
+        "2016-12-22",
+        "2017-09-29",
+        "2018-06-29",
+        "2019-03-29",
+        "2019-12-20",
+        "2020-08-28",
+        "2021-06-25",
+        "2022-03-31",
+        "2022-12-23",
+        "2023-09-29",
+        "2024-06-28",
+        "2025-03-28",
+        "2025-12-23",
+        "2026-09-30"
+      ],
+      "channel": "retrieved vintages",
+      "initial_release_rows": 35,
+      "checked": 35,
+      "matched": 35,
+      "mismatches": [],
+      "initial_release_sha256": "3e40ba407c573473b577c0d89ef57a4a8abb8d9d4fdf15b49d260d1fe4c08d8c"
+    },
+    {
+      "series": "PAYEMS",
+      "vintage_dates": [
+        "1990-03-09",
+        "1990-09-07",
+        "1991-06-07",
+        "1991-12-06",
+        "1992-06-05",
+        "1992-12-04",
+        "1993-09-03",
+        "1994-03-04",
+        "1994-09-02",
+        "1995-06-02",
+        "1995-12-08",
+        "1996-06-07",
+        "1997-03-07",
+        "1997-09-05",
+        "1998-03-06",
+        "1998-09-04",
+        "1999-06-04",
+        "1999-12-03",
+        "2000-03-03",
+        "2001-09-07",
+        "2003-03-07",
+        "2004-12-03",
+        "2006-06-02",
+        "2007-12-07",
+        "2009-06-05",
+        "2011-03-04",
+        "2012-09-07",
+        "2014-03-07",
+        "2015-09-04",
+        "2017-06-02",
+        "2018-12-07",
+        "2020-06-05",
+        "2021-12-03",
+        "2023-09-01",
+        "2025-03-07",
+        "2026-09-04"
+      ],
+      "channel": "retrieved vintages",
+      "initial_release_rows": 36,
+      "checked": 36,
+      "matched": 36,
+      "mismatches": [],
+      "initial_release_sha256": "32bf5ef847c3e215e1436b28b9ca711e09b4f6b0793d9d872655a15bbc094676"
+    },
+    {
+      "series": "INDPRO",
+      "vintage_dates": [
+        "1990-03-16",
+        "1990-09-14",
+        "1991-06-14",
+        "1991-12-16",
+        "1992-06-16",
+        "1992-12-16",
+        "1993-09-16",
+        "1994-03-15",
+        "1994-09-16",
+        "1995-06-15",
+        "1995-12-14",
+        "1996-06-14",
+        "1997-03-14",
+        "1997-09-16",
+        "1998-03-17",
+        "1998-09-16",
+        "1999-06-16",
+        "1999-12-15",
+        "2000-03-15",
+        "2001-09-14",
+        "2003-03-14",
+        "2004-12-22",
+        "2006-06-15",
+        "2007-12-14",
+        "2009-06-16",
+        "2011-03-25",
+        "2012-09-14",
+        "2014-03-17",
+        "2015-09-15",
+        "2017-06-15",
+        "2018-12-14",
+        "2020-06-16",
+        "2021-12-16",
+        "2023-09-15",
+        "2025-03-18",
+        "2026-09-18"
+      ],
+      "channel": "retrieved vintages",
+      "initial_release_rows": 34,
+      "checked": 34,
+      "matched": 34,
+      "mismatches": [],
+      "initial_release_sha256": "40d0cdfb10555312f0d985570eb1b635ff0db82f9d8deb57fc83b061e54fd9f9"
+    },
+    {
+      "series": "RSAFS",
+      "vintage_dates": [
+        "2001-06-13",
+        "2002-03-13",
+        "2002-12-12",
+        "2003-09-12",
+        "2004-06-14",
+        "2004-12-13",
+        "2005-09-14",
+        "2006-06-13",
+        "2007-03-29",
+        "2007-12-13",
+        "2008-09-12",
+        "2009-06-11",
+        "2010-03-12",
+        "2010-12-14",
+        "2011-06-14",
+        "2012-03-13",
+        "2012-12-13",
+        "2013-09-13",
+        "2014-06-12",
+        "2015-03-12",
+        "2015-12-11",
+        "2016-09-15",
+        "2017-03-15",
+        "2017-12-14",
+        "2018-09-14",
+        "2019-06-14",
+        "2020-03-17",
+        "2020-12-16",
+        "2021-09-16",
+        "2022-06-15",
+        "2023-03-15",
+        "2023-09-14",
+        "2024-06-18",
+        "2025-03-17",
+        "2025-12-16",
+        "2026-09-28"
+      ],
+      "channel": "retrieved vintages",
+      "initial_release_rows": 33,
+      "checked": 33,
+      "matched": 33,
+      "mismatches": [],
+      "initial_release_sha256": "c5961f90fb15cc603d63794b14edf0ba48c28264f143d78231876f9bc5d60099"
+    },
+    {
+      "series": "PCECC96",
+      "vintage_dates": [
+        "1990-03-28",
+        "1990-09-25",
+        "1991-06-26",
+        "1991-12-20",
+        "1992-06-25",
+        "1992-12-22",
+        "1993-09-29",
+        "1994-03-31",
+        "1994-09-29",
+        "1995-06-30",
+        "1995-10-27",
+        "1996-06-28",
+        "1997-03-28",
+        "1997-09-26",
+        "1998-03-26",
+        "1998-09-24",
+        "1999-06-25",
+        "1999-12-22",
+        "2000-03-30",
+        "2001-09-28",
+        "2003-03-27",
+        "2004-12-22",
+        "2006-06-29",
+        "2007-12-20",
+        "2009-06-25",
+        "2011-03-25",
+        "2012-09-27",
+        "2014-03-27",
+        "2015-09-25",
+        "2017-06-29",
+        "2018-12-21",
+        "2020-06-25",
+        "2021-12-22",
+        "2023-09-28",
+        "2025-03-27",
+        "2026-09-30"
+      ],
+      "channel": "retrieved vintages",
+      "initial_release_rows": 1,
+      "checked": 1,
+      "matched": 1,
+      "mismatches": [],
+      "initial_release_sha256": "9f37e45ff8304ad9823bb9258c4f695eca2a820b0f97b993f78c1884943165de"
     }
   ],
   "pairs": [
@@ -1711,6 +2275,1246 @@
       "initial_release_sha256": "7c4cc6b2f91b7ed3ae67e56997d70292946a1d99ec44e0d100ae9787f8f43afe",
       "vintage_value_sha256": "7c4cc6b2f91b7ed3ae67e56997d70292946a1d99ec44e0d100ae9787f8f43afe",
       "equal_within_tolerance": true
+    },
+    {
+      "series": "GCE",
+      "period": "1995-07-01",
+      "release": "1995-10-27",
+      "initial_release_sha256": "f310eeae43e1e629ca894985fe418fffbcc8d0f6e461fc132721d1a655ef3650",
+      "vintage_value_sha256": "f310eeae43e1e629ca894985fe418fffbcc8d0f6e461fc132721d1a655ef3650",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "GCEC1",
+      "period": "1995-07-01",
+      "release": "1995-10-27",
+      "initial_release_sha256": "cd742ba5354ebf178cd77cd9637264feff7e951a7e9716e57235a6fa8ad0dc29",
+      "vintage_value_sha256": "cd742ba5354ebf178cd77cd9637264feff7e951a7e9716e57235a6fa8ad0dc29",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "GPDIC1",
+      "period": "1995-07-01",
+      "release": "1995-10-27",
+      "initial_release_sha256": "77e19bdce09ea6e44e8218c94c182bd3e3eb49fce41268b433a3c84e32e7d57c",
+      "vintage_value_sha256": "77e19bdce09ea6e44e8218c94c182bd3e3eb49fce41268b433a3c84e32e7d57c",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "EXPGSC1",
+      "period": "1995-10-01",
+      "release": "1996-02-23",
+      "initial_release_sha256": "e4f8db63296baaaf2cb93e35d8aad2c4c99d66e3aa8ebe52fe94072857b47fa4",
+      "vintage_value_sha256": "e4f8db63296baaaf2cb93e35d8aad2c4c99d66e3aa8ebe52fe94072857b47fa4",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "IMPGSC1",
+      "period": "1995-10-01",
+      "release": "1996-02-23",
+      "initial_release_sha256": "9d7a51c6eaaf7f0cf2e6c0f598602547fc6fd8463c29a40b9e21a852798ef5a0",
+      "vintage_value_sha256": "9d7a51c6eaaf7f0cf2e6c0f598602547fc6fd8463c29a40b9e21a852798ef5a0",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "GDPDEF",
+      "period": "1992-01-01",
+      "release": "1992-04-28",
+      "initial_release_sha256": "4ab524291aea9e65f68453a5471b0073c39c7a212be0e3ccd7e3b94545f9ab57",
+      "vintage_value_sha256": "4ab524291aea9e65f68453a5471b0073c39c7a212be0e3ccd7e3b94545f9ab57",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "GDPDEF",
+      "period": "1993-01-01",
+      "release": "1993-04-29",
+      "initial_release_sha256": "ec37db20adfd78ef40e0b6fdd703210acf5bf37f9e58c89a259b6d5dcb5acbc5",
+      "vintage_value_sha256": "ec37db20adfd78ef40e0b6fdd703210acf5bf37f9e58c89a259b6d5dcb5acbc5",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "GDPDEF",
+      "period": "1993-07-01",
+      "release": "1993-10-28",
+      "initial_release_sha256": "0d8ac2c69237c406b00698c3b8550556fafe7bb086fb8d636f065cbfb1e1ddf6",
+      "vintage_value_sha256": "0d8ac2c69237c406b00698c3b8550556fafe7bb086fb8d636f065cbfb1e1ddf6",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "GDPDEF",
+      "period": "1993-10-01",
+      "release": "1994-01-28",
+      "initial_release_sha256": "93f2db762758c4bb30c3f5e6d4b87ba7f815890f414d490e173d8d96b1f15c33",
+      "vintage_value_sha256": "93f2db762758c4bb30c3f5e6d4b87ba7f815890f414d490e173d8d96b1f15c33",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "GDPDEF",
+      "period": "1994-04-01",
+      "release": "1994-07-29",
+      "initial_release_sha256": "324d3a69a9732b38e905684b1eb8e36bfa02b64f86e6a90298b66b25113d4abb",
+      "vintage_value_sha256": "324d3a69a9732b38e905684b1eb8e36bfa02b64f86e6a90298b66b25113d4abb",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "GDPDEF",
+      "period": "1995-10-01",
+      "release": "1996-02-23",
+      "initial_release_sha256": "06d211897d97c5e01a417776af6be2dcec8eeb67eac482d2eb897c64cd404f88",
+      "vintage_value_sha256": "06d211897d97c5e01a417776af6be2dcec8eeb67eac482d2eb897c64cd404f88",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "GDPDEF",
+      "period": "1996-04-01",
+      "release": "1996-08-01",
+      "initial_release_sha256": "450631cfcd1db85c4bf8487afc1568dafdb5247ac32d43d425eebcbd89575758",
+      "vintage_value_sha256": "450631cfcd1db85c4bf8487afc1568dafdb5247ac32d43d425eebcbd89575758",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "GDPDEF",
+      "period": "1996-10-01",
+      "release": "1997-01-31",
+      "initial_release_sha256": "9f42868ecfcc675165505dab479c9eb1f6289800ffad8bb31c5583e2b2cfebeb",
+      "vintage_value_sha256": "9f42868ecfcc675165505dab479c9eb1f6289800ffad8bb31c5583e2b2cfebeb",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "A191RL1Q225SBEA",
+      "period": "2019-10-01",
+      "release": "2020-01-30",
+      "initial_release_sha256": "ad78cfa0ead35ff9d0d6de11ae996a470b257a7342d2a53073df0ce8cda04c4d",
+      "vintage_value_sha256": "ad78cfa0ead35ff9d0d6de11ae996a470b257a7342d2a53073df0ce8cda04c4d",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "A191RL1Q225SBEA",
+      "period": "2021-01-01",
+      "release": "2021-04-29",
+      "initial_release_sha256": "4f6c844184d2bd6520b6b140175aced1422c81aa383e34a79bebf242c1e1cc26",
+      "vintage_value_sha256": "4f6c844184d2bd6520b6b140175aced1422c81aa383e34a79bebf242c1e1cc26",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "A191RL1Q225SBEA",
+      "period": "2025-07-01",
+      "release": "2025-12-23",
+      "initial_release_sha256": "cf0cdaad3303f6f430f548897210bf2b1e58b4ba51475c5236a16cbf145b2723",
+      "vintage_value_sha256": "cf0cdaad3303f6f430f548897210bf2b1e58b4ba51475c5236a16cbf145b2723",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2000-08-01",
+      "release": "2000-09-29",
+      "initial_release_sha256": "10b1d97397622ea4ecff7ee7bad5c46403f65d0a8db0866763834ce2bf8042a2",
+      "vintage_value_sha256": "10b1d97397622ea4ecff7ee7bad5c46403f65d0a8db0866763834ce2bf8042a2",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2001-04-01",
+      "release": "2001-05-29",
+      "initial_release_sha256": "5f73777c028d9fdb44fbb43981323608d03f9ac19414e229c1a9664bfb878306",
+      "vintage_value_sha256": "5f73777c028d9fdb44fbb43981323608d03f9ac19414e229c1a9664bfb878306",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2002-02-01",
+      "release": "2002-03-29",
+      "initial_release_sha256": "b321caf26c7ff5e4b401b5bede23fb2040cd8cfb484d32b945d29166784314c0",
+      "vintage_value_sha256": "b321caf26c7ff5e4b401b5bede23fb2040cd8cfb484d32b945d29166784314c0",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2002-11-01",
+      "release": "2002-12-23",
+      "initial_release_sha256": "a2ce467800e31830aa7acf5632f37b22b3c01c27c2322e69f55c45ce7f187b4d",
+      "vintage_value_sha256": "a2ce467800e31830aa7acf5632f37b22b3c01c27c2322e69f55c45ce7f187b4d",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2003-08-01",
+      "release": "2003-09-29",
+      "initial_release_sha256": "b91982d224fcc33ad592f0386de2a23cad6ad7ddd46912b975762ccc5185931d",
+      "vintage_value_sha256": "b91982d224fcc33ad592f0386de2a23cad6ad7ddd46912b975762ccc5185931d",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2004-05-01",
+      "release": "2004-06-28",
+      "initial_release_sha256": "158e79af66441f7452f0c1ee62f3d1707e940ba1ea947f27225d2dd65bc0948f",
+      "vintage_value_sha256": "158e79af66441f7452f0c1ee62f3d1707e940ba1ea947f27225d2dd65bc0948f",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2005-02-01",
+      "release": "2005-03-31",
+      "initial_release_sha256": "925d044fb20351a905fcddd6c932c81be0fbe4e041e70496d00facd8cf883ea2",
+      "vintage_value_sha256": "925d044fb20351a905fcddd6c932c81be0fbe4e041e70496d00facd8cf883ea2",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2005-11-01",
+      "release": "2005-12-22",
+      "initial_release_sha256": "4002d75425cc5af36b11fe72e50418e8683c1c107e53d964c8258c7d94c3a519",
+      "vintage_value_sha256": "4002d75425cc5af36b11fe72e50418e8683c1c107e53d964c8258c7d94c3a519",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2006-08-01",
+      "release": "2006-09-29",
+      "initial_release_sha256": "611aae54d71f6dee4613b727b2428c765b4c7fda082869bafeefe7d84915fdd6",
+      "vintage_value_sha256": "611aae54d71f6dee4613b727b2428c765b4c7fda082869bafeefe7d84915fdd6",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2007-05-01",
+      "release": "2007-06-29",
+      "initial_release_sha256": "db6c665e2d21d5c14aec06df04e1265c35e282a14e096294b0ccbcabaf0719cc",
+      "vintage_value_sha256": "db6c665e2d21d5c14aec06df04e1265c35e282a14e096294b0ccbcabaf0719cc",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2008-02-01",
+      "release": "2008-03-28",
+      "initial_release_sha256": "431e73f1bdf9c293ef2209e8044a7a9e486f9b5b1b70f66c7b6de163f27848b3",
+      "vintage_value_sha256": "431e73f1bdf9c293ef2209e8044a7a9e486f9b5b1b70f66c7b6de163f27848b3",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2008-11-01",
+      "release": "2008-12-24",
+      "initial_release_sha256": "c1ad086fd20be700e0882bfad4331481a8a5ea0ccab5f39c9b931172e13c94f8",
+      "vintage_value_sha256": "c1ad086fd20be700e0882bfad4331481a8a5ea0ccab5f39c9b931172e13c94f8",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2009-07-01",
+      "release": "2009-08-28",
+      "initial_release_sha256": "a2e97bfaae0a6731d792030abf485e47885f4eb13195a8fb699c41a4c270bda7",
+      "vintage_value_sha256": "a2e97bfaae0a6731d792030abf485e47885f4eb13195a8fb699c41a4c270bda7",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2010-05-01",
+      "release": "2010-06-28",
+      "initial_release_sha256": "a80f749d8f8890c9fa8222d663a443594d2a10cdae5f5e342398b33047956f5a",
+      "vintage_value_sha256": "a80f749d8f8890c9fa8222d663a443594d2a10cdae5f5e342398b33047956f5a",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2011-02-01",
+      "release": "2011-03-28",
+      "initial_release_sha256": "f88fd45e8bfba67fb8c47be38099353caccf07b284fac6cc6cd201a26f90074f",
+      "vintage_value_sha256": "f88fd45e8bfba67fb8c47be38099353caccf07b284fac6cc6cd201a26f90074f",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2011-11-01",
+      "release": "2011-12-23",
+      "initial_release_sha256": "9c12be2ddeb99d79236246c23563eccf688e1cfed6e4e7e2ce3234f1199942c9",
+      "vintage_value_sha256": "9c12be2ddeb99d79236246c23563eccf688e1cfed6e4e7e2ce3234f1199942c9",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2012-08-01",
+      "release": "2012-09-28",
+      "initial_release_sha256": "dffa1e138a6a1914b0a8cd6da1b64d6fb34f6205a198233127923075ec446e59",
+      "vintage_value_sha256": "dffa1e138a6a1914b0a8cd6da1b64d6fb34f6205a198233127923075ec446e59",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2013-05-01",
+      "release": "2013-06-27",
+      "initial_release_sha256": "e1be8b04054ff3753c87ab5fd7b86b34456d93d4793da00b379b497c3f5e77b9",
+      "vintage_value_sha256": "e1be8b04054ff3753c87ab5fd7b86b34456d93d4793da00b379b497c3f5e77b9",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2013-11-01",
+      "release": "2013-12-23",
+      "initial_release_sha256": "79f16345909c838710a557bcaaa6bc550880a5d08ddb5288fb592d5924a0ca70",
+      "vintage_value_sha256": "79f16345909c838710a557bcaaa6bc550880a5d08ddb5288fb592d5924a0ca70",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2014-08-01",
+      "release": "2014-09-29",
+      "initial_release_sha256": "ec98b69fd79bc8cd926c73b22a2c866654205af321bb95b95e4eb6c03f0736fe",
+      "vintage_value_sha256": "ec98b69fd79bc8cd926c73b22a2c866654205af321bb95b95e4eb6c03f0736fe",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2015-05-01",
+      "release": "2015-06-25",
+      "initial_release_sha256": "6b6a8cb1d377ee3870448c43aaf6b5c6427cd6a179f1c2675c52437cb578aa4d",
+      "vintage_value_sha256": "6b6a8cb1d377ee3870448c43aaf6b5c6427cd6a179f1c2675c52437cb578aa4d",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2016-02-01",
+      "release": "2016-03-28",
+      "initial_release_sha256": "4524d7acf3f49af292e7ba7142bfec1c362f312d573413e38b0aa6ded71acd88",
+      "vintage_value_sha256": "4524d7acf3f49af292e7ba7142bfec1c362f312d573413e38b0aa6ded71acd88",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2016-11-01",
+      "release": "2016-12-22",
+      "initial_release_sha256": "7bac665ae8b4292894a011865d9d51a9d329847d83387e19526d613b3ea57050",
+      "vintage_value_sha256": "7bac665ae8b4292894a011865d9d51a9d329847d83387e19526d613b3ea57050",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2017-08-01",
+      "release": "2017-09-29",
+      "initial_release_sha256": "491667686ad0822a760d513b92e48a3b5828e3919336f393412f0176242297f1",
+      "vintage_value_sha256": "491667686ad0822a760d513b92e48a3b5828e3919336f393412f0176242297f1",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2018-05-01",
+      "release": "2018-06-29",
+      "initial_release_sha256": "1010376b48360948fb46723b127cd9efd5aa19f54700dfd17b5a972d651c2921",
+      "vintage_value_sha256": "1010376b48360948fb46723b127cd9efd5aa19f54700dfd17b5a972d651c2921",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2019-01-01",
+      "release": "2019-03-29",
+      "initial_release_sha256": "344d2bcfc9d6bf765c19c7547edc0ffe1621ee9d9104d6f378204f76a1c3be2f",
+      "vintage_value_sha256": "344d2bcfc9d6bf765c19c7547edc0ffe1621ee9d9104d6f378204f76a1c3be2f",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2019-11-01",
+      "release": "2019-12-20",
+      "initial_release_sha256": "dfecc1aeabb45126f7c8d051d9747325e8b3dedd07139eac9a0ca295038e1242",
+      "vintage_value_sha256": "dfecc1aeabb45126f7c8d051d9747325e8b3dedd07139eac9a0ca295038e1242",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2020-07-01",
+      "release": "2020-08-28",
+      "initial_release_sha256": "276063efefdc8bcb1f44940c1cfd769d9f89c51e51556e56be330005682e5913",
+      "vintage_value_sha256": "276063efefdc8bcb1f44940c1cfd769d9f89c51e51556e56be330005682e5913",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2021-05-01",
+      "release": "2021-06-25",
+      "initial_release_sha256": "9249f4829a8accf87eb5b683b823f5cc253ef5608068d71c30ffd83c2321c1b8",
+      "vintage_value_sha256": "9249f4829a8accf87eb5b683b823f5cc253ef5608068d71c30ffd83c2321c1b8",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2022-02-01",
+      "release": "2022-03-31",
+      "initial_release_sha256": "f567ca4c2e091cccc8339c72d50afa3007741f5711e3ff41c192c834611d7fb0",
+      "vintage_value_sha256": "f567ca4c2e091cccc8339c72d50afa3007741f5711e3ff41c192c834611d7fb0",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2022-11-01",
+      "release": "2022-12-23",
+      "initial_release_sha256": "7484c0d366dba283c0d60620f1271bcaf9b3ad689335c2b55a3600a5c1a1d02c",
+      "vintage_value_sha256": "7484c0d366dba283c0d60620f1271bcaf9b3ad689335c2b55a3600a5c1a1d02c",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2023-08-01",
+      "release": "2023-09-29",
+      "initial_release_sha256": "f6ff98d87ada5a71fb1423159d4380940aa8d1ed8681e95a69def00b69ca5c6f",
+      "vintage_value_sha256": "f6ff98d87ada5a71fb1423159d4380940aa8d1ed8681e95a69def00b69ca5c6f",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2024-05-01",
+      "release": "2024-06-28",
+      "initial_release_sha256": "d5b3ae3dbd7a7a34f907f14dc992149f8a2d5f608ecf11669a3d8162a22b549b",
+      "vintage_value_sha256": "d5b3ae3dbd7a7a34f907f14dc992149f8a2d5f608ecf11669a3d8162a22b549b",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2025-02-01",
+      "release": "2025-03-28",
+      "initial_release_sha256": "abeba919391243b4a4e944d687a35471d8645d0c754a89c6ac8190bde84243b4",
+      "vintage_value_sha256": "abeba919391243b4a4e944d687a35471d8645d0c754a89c6ac8190bde84243b4",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCEPILFE",
+      "period": "2026-08-01",
+      "release": "2026-09-30",
+      "initial_release_sha256": "c703c91e28aba47027d19c3837cf5deaa79efdb0bc24ab81e463ffec8969a608",
+      "vintage_value_sha256": "c703c91e28aba47027d19c3837cf5deaa79efdb0bc24ab81e463ffec8969a608",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "1990-02-01",
+      "release": "1990-03-09",
+      "initial_release_sha256": "b9d2ce55a9b448cb588a56b57ba7b21b81f519ee8dffbd0f4ee6d3bf459e85f1",
+      "vintage_value_sha256": "b9d2ce55a9b448cb588a56b57ba7b21b81f519ee8dffbd0f4ee6d3bf459e85f1",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "1990-08-01",
+      "release": "1990-09-07",
+      "initial_release_sha256": "83528afe77640fb04ef3ea51b71df829c90324458515ac79cb26161bbdeb6b80",
+      "vintage_value_sha256": "83528afe77640fb04ef3ea51b71df829c90324458515ac79cb26161bbdeb6b80",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "1991-05-01",
+      "release": "1991-06-07",
+      "initial_release_sha256": "a84bf2dd1a19fd2390f59f6322d4038ba502b867c7c46f46d5d776349b6fa5ff",
+      "vintage_value_sha256": "a84bf2dd1a19fd2390f59f6322d4038ba502b867c7c46f46d5d776349b6fa5ff",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "1991-11-01",
+      "release": "1991-12-06",
+      "initial_release_sha256": "9888659cffecec16417abd170525a0794203535064231f86faaed05274e62765",
+      "vintage_value_sha256": "9888659cffecec16417abd170525a0794203535064231f86faaed05274e62765",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "1992-05-01",
+      "release": "1992-06-05",
+      "initial_release_sha256": "5f7affc662969ae983f3fb1c0df5b1fdde02ee1af3b55e1909a52f2ecc42e7de",
+      "vintage_value_sha256": "5f7affc662969ae983f3fb1c0df5b1fdde02ee1af3b55e1909a52f2ecc42e7de",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "1992-11-01",
+      "release": "1992-12-04",
+      "initial_release_sha256": "c5bf6310b55ca81ac6d1095fd9fc029e215009787a435a889e654a777783189b",
+      "vintage_value_sha256": "c5bf6310b55ca81ac6d1095fd9fc029e215009787a435a889e654a777783189b",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "1993-08-01",
+      "release": "1993-09-03",
+      "initial_release_sha256": "97a8a83adb36cf743f3ab6bed50e5a9e1a8d1aad06955500fdd21049f6b76785",
+      "vintage_value_sha256": "97a8a83adb36cf743f3ab6bed50e5a9e1a8d1aad06955500fdd21049f6b76785",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "1994-02-01",
+      "release": "1994-03-04",
+      "initial_release_sha256": "3e4d7499a4281e71d5accef5786215defaba15716dcd815def602b76b26f4bf4",
+      "vintage_value_sha256": "3e4d7499a4281e71d5accef5786215defaba15716dcd815def602b76b26f4bf4",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "1994-08-01",
+      "release": "1994-09-02",
+      "initial_release_sha256": "3a7aabfc06d21e828298a0490d027f3d91cba6ec29efdc25357621cd7dcdd0f9",
+      "vintage_value_sha256": "3a7aabfc06d21e828298a0490d027f3d91cba6ec29efdc25357621cd7dcdd0f9",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "1995-05-01",
+      "release": "1995-06-02",
+      "initial_release_sha256": "cb61dc367cc10a11578383a0bd3a0be876c2312f62fa0aed1cfce20c4a1d7597",
+      "vintage_value_sha256": "cb61dc367cc10a11578383a0bd3a0be876c2312f62fa0aed1cfce20c4a1d7597",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "1995-11-01",
+      "release": "1995-12-08",
+      "initial_release_sha256": "6bbc0f04db297c04a4e9defef9506ee9742d6c7f5580ec52eeda1e006bfb03f0",
+      "vintage_value_sha256": "6bbc0f04db297c04a4e9defef9506ee9742d6c7f5580ec52eeda1e006bfb03f0",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "1996-05-01",
+      "release": "1996-06-07",
+      "initial_release_sha256": "7d63a29f27f70157a4972ee27eaf81ba45353f24958942726bda8e16316b9be2",
+      "vintage_value_sha256": "7d63a29f27f70157a4972ee27eaf81ba45353f24958942726bda8e16316b9be2",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "1997-02-01",
+      "release": "1997-03-07",
+      "initial_release_sha256": "0ac77b6dc22b59b8bbf0b5888d7c6d04575d6bf590a064cb0819c2a31e159c2f",
+      "vintage_value_sha256": "0ac77b6dc22b59b8bbf0b5888d7c6d04575d6bf590a064cb0819c2a31e159c2f",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "1997-08-01",
+      "release": "1997-09-05",
+      "initial_release_sha256": "cf91d60531050a5d9f6c788fb7581eb93df13c9f272dfa723f3e23ce1f0e437d",
+      "vintage_value_sha256": "cf91d60531050a5d9f6c788fb7581eb93df13c9f272dfa723f3e23ce1f0e437d",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "1998-02-01",
+      "release": "1998-03-06",
+      "initial_release_sha256": "6a78cbd5b4e996550cfd8e341d408e3ed5c4ffe80af84a6b2b75e2128bb3b693",
+      "vintage_value_sha256": "6a78cbd5b4e996550cfd8e341d408e3ed5c4ffe80af84a6b2b75e2128bb3b693",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "1998-08-01",
+      "release": "1998-09-04",
+      "initial_release_sha256": "4d1c517221e415ba1eb5cd03838946f0a3cc26a46e28a0257b9db8595030c8de",
+      "vintage_value_sha256": "4d1c517221e415ba1eb5cd03838946f0a3cc26a46e28a0257b9db8595030c8de",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "1999-05-01",
+      "release": "1999-06-04",
+      "initial_release_sha256": "a740a68f2b5abdd0d7054872b71ff984ef745b5f76518048ff945b2cdcb2406b",
+      "vintage_value_sha256": "a740a68f2b5abdd0d7054872b71ff984ef745b5f76518048ff945b2cdcb2406b",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "1999-11-01",
+      "release": "1999-12-03",
+      "initial_release_sha256": "6d6d0202d8fff267a655a6b7e103c72dda4d5b95e2eba5ef40c72461e6fc106a",
+      "vintage_value_sha256": "6d6d0202d8fff267a655a6b7e103c72dda4d5b95e2eba5ef40c72461e6fc106a",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "2000-02-01",
+      "release": "2000-03-03",
+      "initial_release_sha256": "ed5b938f14a3ec157b39895c09d9ae49335de0dc63b23a86e53f5b1921fe7af3",
+      "vintage_value_sha256": "ed5b938f14a3ec157b39895c09d9ae49335de0dc63b23a86e53f5b1921fe7af3",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "2001-08-01",
+      "release": "2001-09-07",
+      "initial_release_sha256": "b03e9a58ced96a8b86b81d8214a3c697c514e51ef82f0b5516c0760d02ed283c",
+      "vintage_value_sha256": "b03e9a58ced96a8b86b81d8214a3c697c514e51ef82f0b5516c0760d02ed283c",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "2003-02-01",
+      "release": "2003-03-07",
+      "initial_release_sha256": "19ccb4fdc692fcc2c30ea722b239f35142ff85c9e279c3d91d000d039a86ea92",
+      "vintage_value_sha256": "19ccb4fdc692fcc2c30ea722b239f35142ff85c9e279c3d91d000d039a86ea92",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "2004-11-01",
+      "release": "2004-12-03",
+      "initial_release_sha256": "887c0e1d0e09c0c3d119ef589f5dcbd5219e77e9af70207b16df433b308de5db",
+      "vintage_value_sha256": "887c0e1d0e09c0c3d119ef589f5dcbd5219e77e9af70207b16df433b308de5db",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "2006-05-01",
+      "release": "2006-06-02",
+      "initial_release_sha256": "79558722421389de434b3b84304b23008dfe4a4383fbb738a5be669c3bb0ec4f",
+      "vintage_value_sha256": "79558722421389de434b3b84304b23008dfe4a4383fbb738a5be669c3bb0ec4f",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "2007-11-01",
+      "release": "2007-12-07",
+      "initial_release_sha256": "1a9b81b2cbad7593324aa79c440540902d852984699ec16f22adb7efac378b5b",
+      "vintage_value_sha256": "1a9b81b2cbad7593324aa79c440540902d852984699ec16f22adb7efac378b5b",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "2009-05-01",
+      "release": "2009-06-05",
+      "initial_release_sha256": "e46134c88d6e77b6133e4ff16ca9a207a96c55f3acc54c700b5456139aa625bd",
+      "vintage_value_sha256": "e46134c88d6e77b6133e4ff16ca9a207a96c55f3acc54c700b5456139aa625bd",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "2011-02-01",
+      "release": "2011-03-04",
+      "initial_release_sha256": "18b9f76f45412e75f81a85b3f034250696abdd418c583c1ff51fd57517ae459d",
+      "vintage_value_sha256": "18b9f76f45412e75f81a85b3f034250696abdd418c583c1ff51fd57517ae459d",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "2012-08-01",
+      "release": "2012-09-07",
+      "initial_release_sha256": "f78ed42c54dd40d9293d9034209fee70308fa18ebe7b74e126f37016db0622d6",
+      "vintage_value_sha256": "f78ed42c54dd40d9293d9034209fee70308fa18ebe7b74e126f37016db0622d6",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "2014-02-01",
+      "release": "2014-03-07",
+      "initial_release_sha256": "3e5e95d19537a748fb7f0a343f52d64a9709c1ae291303126751a063230d260c",
+      "vintage_value_sha256": "3e5e95d19537a748fb7f0a343f52d64a9709c1ae291303126751a063230d260c",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "2015-08-01",
+      "release": "2015-09-04",
+      "initial_release_sha256": "7da19451f5a9f4d27d82f22f3d19d40ed0e427183d77ec252b4ee9928ad9a18f",
+      "vintage_value_sha256": "7da19451f5a9f4d27d82f22f3d19d40ed0e427183d77ec252b4ee9928ad9a18f",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "2017-05-01",
+      "release": "2017-06-02",
+      "initial_release_sha256": "6754b560ed3d64f46a67726862420464bb7b0e3e1ebcbed52ee1722243435841",
+      "vintage_value_sha256": "6754b560ed3d64f46a67726862420464bb7b0e3e1ebcbed52ee1722243435841",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "2018-11-01",
+      "release": "2018-12-07",
+      "initial_release_sha256": "a52f5187354d49d990fba231c72a7b1a490fa72a739015b7691e6a0fac225966",
+      "vintage_value_sha256": "a52f5187354d49d990fba231c72a7b1a490fa72a739015b7691e6a0fac225966",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "2020-05-01",
+      "release": "2020-06-05",
+      "initial_release_sha256": "fc85a64c73ac6a44140d45f768740a8c4eb6b481be1313c1ed5d023d03d6e942",
+      "vintage_value_sha256": "fc85a64c73ac6a44140d45f768740a8c4eb6b481be1313c1ed5d023d03d6e942",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "2021-11-01",
+      "release": "2021-12-03",
+      "initial_release_sha256": "2559aa1b1a58ffd952f24f3ca49bcc964af2b28742322c6ea4ab3955544f2917",
+      "vintage_value_sha256": "2559aa1b1a58ffd952f24f3ca49bcc964af2b28742322c6ea4ab3955544f2917",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "2023-08-01",
+      "release": "2023-09-01",
+      "initial_release_sha256": "22286a442da81acc47b87a8d9339beaef6dfc6cf8b0b7a7ee6f83e8917d48585",
+      "vintage_value_sha256": "22286a442da81acc47b87a8d9339beaef6dfc6cf8b0b7a7ee6f83e8917d48585",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "2025-02-01",
+      "release": "2025-03-07",
+      "initial_release_sha256": "d20b9165958a8ba233f587dc4c88240e84a9e23320322dfef8f1ef47189c4eb7",
+      "vintage_value_sha256": "d20b9165958a8ba233f587dc4c88240e84a9e23320322dfef8f1ef47189c4eb7",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PAYEMS",
+      "period": "2026-08-01",
+      "release": "2026-09-04",
+      "initial_release_sha256": "9b2cf886e73eca0105ad6b7ce0aa634bf62e11f9dd85ef784967f4de19fad331",
+      "vintage_value_sha256": "9b2cf886e73eca0105ad6b7ce0aa634bf62e11f9dd85ef784967f4de19fad331",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "INDPRO",
+      "period": "1990-02-01",
+      "release": "1990-03-16",
+      "initial_release_sha256": "678627c8f2ec081e89d846c20d94d299bd392a8311eacd5db66fde81dc983636",
+      "vintage_value_sha256": "678627c8f2ec081e89d846c20d94d299bd392a8311eacd5db66fde81dc983636",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "INDPRO",
+      "period": "1990-08-01",
+      "release": "1990-09-14",
+      "initial_release_sha256": "7b50eb1b41bb25cfaf3e029d768e687c06f7102cad5fb4413a2096047121a030",
+      "vintage_value_sha256": "7b50eb1b41bb25cfaf3e029d768e687c06f7102cad5fb4413a2096047121a030",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "INDPRO",
+      "period": "1991-05-01",
+      "release": "1991-06-14",
+      "initial_release_sha256": "8ada4432b43f340817306184795d9afcbfbca532561d409fc66162e5a4a98658",
+      "vintage_value_sha256": "8ada4432b43f340817306184795d9afcbfbca532561d409fc66162e5a4a98658",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "INDPRO",
+      "period": "1991-11-01",
+      "release": "1991-12-16",
+      "initial_release_sha256": "e5a15f065095f254257a992f08dd609a54f8963205895de6f20e63263b6302b2",
+      "vintage_value_sha256": "e5a15f065095f254257a992f08dd609a54f8963205895de6f20e63263b6302b2",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "INDPRO",
+      "period": "1992-05-01",
+      "release": "1992-06-16",
+      "initial_release_sha256": "3d8cbf471f09be407051fa8cfc95ad099dd4fd39ff7b9e33ddb604051f7ab6c0",
+      "vintage_value_sha256": "3d8cbf471f09be407051fa8cfc95ad099dd4fd39ff7b9e33ddb604051f7ab6c0",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "INDPRO",
+      "period": "1992-11-01",
+      "release": "1992-12-16",
+      "initial_release_sha256": "b34d0ac42384a7d4938a21dfc3ba19a329b0973219a061dd20786648224b2f18",
+      "vintage_value_sha256": "b34d0ac42384a7d4938a21dfc3ba19a329b0973219a061dd20786648224b2f18",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "INDPRO",
+      "period": "1993-08-01",
+      "release": "1993-09-16",
+      "initial_release_sha256": "948a7d98433629cc126cb450b3f074d4e0d343dd616e0d0648bb0b2de1225342",
+      "vintage_value_sha256": "948a7d98433629cc126cb450b3f074d4e0d343dd616e0d0648bb0b2de1225342",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "INDPRO",
+      "period": "1994-02-01",
+      "release": "1994-03-15",
+      "initial_release_sha256": "f486b97485c7f4a8c7fd54a9767ef559b506b8550d182f25ddbe3a9cd393939d",
+      "vintage_value_sha256": "f486b97485c7f4a8c7fd54a9767ef559b506b8550d182f25ddbe3a9cd393939d",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "INDPRO",
+      "period": "1994-08-01",
+      "release": "1994-09-16",
+      "initial_release_sha256": "c313dd88eeac5855a279336c81aaa9088359f6fb18e0694d04853113507efa12",
+      "vintage_value_sha256": "c313dd88eeac5855a279336c81aaa9088359f6fb18e0694d04853113507efa12",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "INDPRO",
+      "period": "1995-05-01",
+      "release": "1995-06-15",
+      "initial_release_sha256": "d4244d10740888aaeee30df3b77e015197511e6cd58d1ee3bfa16ed8e5cda81e",
+      "vintage_value_sha256": "d4244d10740888aaeee30df3b77e015197511e6cd58d1ee3bfa16ed8e5cda81e",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "INDPRO",
+      "period": "1995-11-01",
+      "release": "1995-12-14",
+      "initial_release_sha256": "ec87e5f7b515236c8c0f4da095579b19dcd0ab3438fd071ad96085a8c0b9eea5",
+      "vintage_value_sha256": "ec87e5f7b515236c8c0f4da095579b19dcd0ab3438fd071ad96085a8c0b9eea5",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "INDPRO",
+      "period": "1996-05-01",
+      "release": "1996-06-14",
+      "initial_release_sha256": "85ff993c24d85fee5a9caeba7ead512294aa2a655d9ce8e4be7b641c81a3b4ad",
+      "vintage_value_sha256": "85ff993c24d85fee5a9caeba7ead512294aa2a655d9ce8e4be7b641c81a3b4ad",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "INDPRO",
+      "period": "1997-02-01",
+      "release": "1997-03-14",
+      "initial_release_sha256": "dfa8fec7eb0c531074482f67826c949387c3509d6ec3d8e8e6df04e2ce860901",
+      "vintage_value_sha256": "dfa8fec7eb0c531074482f67826c949387c3509d6ec3d8e8e6df04e2ce860901",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "INDPRO",
+      "period": "1997-08-01",
+      "release": "1997-09-16",
+      "initial_release_sha256": "9d04df24f783306087090aa4da4e9c1e6a703680125d12e06b16af2e3dde8275",
+      "vintage_value_sha256": "9d04df24f783306087090aa4da4e9c1e6a703680125d12e06b16af2e3dde8275",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "INDPRO",
+      "period": "1998-02-01",
+      "release": "1998-03-17",
+      "initial_release_sha256": "88440cc4f425825bb7a0f38f89f896af7ad2702b679b9a6598b94a970801fd70",
+      "vintage_value_sha256": "88440cc4f425825bb7a0f38f89f896af7ad2702b679b9a6598b94a970801fd70",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "INDPRO",
+      "period": "1998-08-01",
+      "release": "1998-09-16",
+      "initial_release_sha256": "20a15b315528aa82cb4794200d5e191202dd1a58de1ef3911625d6afd4d95ab5",
+      "vintage_value_sha256": "20a15b315528aa82cb4794200d5e191202dd1a58de1ef3911625d6afd4d95ab5",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "INDPRO",
+      "period": "1999-05-01",
+      "release": "1999-06-16",
+      "initial_release_sha256": "c9853ed7b90d779c76341dbc557d93e5e9d63088c5b6eacce7585ffad41e1dc2",
+      "vintage_value_sha256": "c9853ed7b90d779c76341dbc557d93e5e9d63088c5b6eacce7585ffad41e1dc2",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "INDPRO",
+      "period": "1999-11-01",
+      "release": "1999-12-15",
+      "initial_release_sha256": "1f9df45f981569ed925bbe653e4542adb67f96685b6ffa37d5b5cc595ffe444b",
+      "vintage_value_sha256": "1f9df45f981569ed925bbe653e4542adb67f96685b6ffa37d5b5cc595ffe444b",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "INDPRO",
+      "period": "2000-02-01",
+      "release": "2000-03-15",
+      "initial_release_sha256": "192cab9b41e4a52bd7fcbdb4faaf5f0926d7f10530e572f8ff5aebda236a9f7e",
+      "vintage_value_sha256": "192cab9b41e4a52bd7fcbdb4faaf5f0926d7f10530e572f8ff5aebda236a9f7e",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "INDPRO",
+      "period": "2001-08-01",
+      "release": "2001-09-14",
+      "initial_release_sha256": "b140c45de87d4eb5f36ae773f2006885ecb5f1c7346f7e818f648e66637e1945",
+      "vintage_value_sha256": "b140c45de87d4eb5f36ae773f2006885ecb5f1c7346f7e818f648e66637e1945",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "INDPRO",
+      "period": "2003-02-01",
+      "release": "2003-03-14",
+      "initial_release_sha256": "2966bbc366606904b1d44798185c935604e399071e556ab5db583b4cfec20318",
+      "vintage_value_sha256": "2966bbc366606904b1d44798185c935604e399071e556ab5db583b4cfec20318",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "INDPRO",
+      "period": "2006-05-01",
+      "release": "2006-06-15",
+      "initial_release_sha256": "cdffaece6049a01db4a87fb58959ea2dd3fba117299d8a8bfcfe1ed3ac156795",
+      "vintage_value_sha256": "cdffaece6049a01db4a87fb58959ea2dd3fba117299d8a8bfcfe1ed3ac156795",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "INDPRO",
+      "period": "2007-11-01",
+      "release": "2007-12-14",
+      "initial_release_sha256": "952b0dbe687b97df2b1e2f6907bb350f8604f4d4d44d417cd6e6c6e25fcbf1ae",
+      "vintage_value_sha256": "952b0dbe687b97df2b1e2f6907bb350f8604f4d4d44d417cd6e6c6e25fcbf1ae",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "INDPRO",
+      "period": "2009-05-01",
+      "release": "2009-06-16",
+      "initial_release_sha256": "3ce21e03df11117d4c765b71421edb6c2c1f9f139aa94b05e9351ba7a06bf995",
+      "vintage_value_sha256": "3ce21e03df11117d4c765b71421edb6c2c1f9f139aa94b05e9351ba7a06bf995",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "INDPRO",
+      "period": "2012-08-01",
+      "release": "2012-09-14",
+      "initial_release_sha256": "ecfdf91acd80be3042ecfc50d14cb6d21a22a939db476f8be78d3ae000fc8c1d",
+      "vintage_value_sha256": "ecfdf91acd80be3042ecfc50d14cb6d21a22a939db476f8be78d3ae000fc8c1d",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "INDPRO",
+      "period": "2014-02-01",
+      "release": "2014-03-17",
+      "initial_release_sha256": "eb8852e5f0f7ef902a38b45469a6e1254a493fbf100bfbb8195f9b24c4e3869e",
+      "vintage_value_sha256": "eb8852e5f0f7ef902a38b45469a6e1254a493fbf100bfbb8195f9b24c4e3869e",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "INDPRO",
+      "period": "2015-08-01",
+      "release": "2015-09-15",
+      "initial_release_sha256": "c9a3fc1536c9ef4c4629a297e9290aa3e3eadc202f762957c2bd989e5a2c2205",
+      "vintage_value_sha256": "c9a3fc1536c9ef4c4629a297e9290aa3e3eadc202f762957c2bd989e5a2c2205",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "INDPRO",
+      "period": "2017-05-01",
+      "release": "2017-06-15",
+      "initial_release_sha256": "611a9fa77a89b2f405f96b038d8297c0600badbeeca5faf945fc47ab7042af4f",
+      "vintage_value_sha256": "611a9fa77a89b2f405f96b038d8297c0600badbeeca5faf945fc47ab7042af4f",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "INDPRO",
+      "period": "2018-11-01",
+      "release": "2018-12-14",
+      "initial_release_sha256": "524614a34d29971c99dffaf2a9cc299eb118ced7ff2fd71c1a50d910eb888283",
+      "vintage_value_sha256": "524614a34d29971c99dffaf2a9cc299eb118ced7ff2fd71c1a50d910eb888283",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "INDPRO",
+      "period": "2020-05-01",
+      "release": "2020-06-16",
+      "initial_release_sha256": "30470b7c6e6c1807f1a4af2e5aa1d31910758450f9909ae7fd57935811c2fdc2",
+      "vintage_value_sha256": "30470b7c6e6c1807f1a4af2e5aa1d31910758450f9909ae7fd57935811c2fdc2",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "INDPRO",
+      "period": "2021-11-01",
+      "release": "2021-12-16",
+      "initial_release_sha256": "7cb7654152dd45ed6d75e2bc3d6448f2203c087390e24c81fa5c4df4d922eb9e",
+      "vintage_value_sha256": "7cb7654152dd45ed6d75e2bc3d6448f2203c087390e24c81fa5c4df4d922eb9e",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "INDPRO",
+      "period": "2023-08-01",
+      "release": "2023-09-15",
+      "initial_release_sha256": "0c72bd60c1219b076b898804b958ba51b20c5e2e73a6c041a9b0bf86a2b164fd",
+      "vintage_value_sha256": "0c72bd60c1219b076b898804b958ba51b20c5e2e73a6c041a9b0bf86a2b164fd",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "INDPRO",
+      "period": "2025-02-01",
+      "release": "2025-03-18",
+      "initial_release_sha256": "3d56978a524bccd0dd1358d6f318f97300e5a6db23c0db3a348bc4ae55110a0d",
+      "vintage_value_sha256": "3d56978a524bccd0dd1358d6f318f97300e5a6db23c0db3a348bc4ae55110a0d",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "INDPRO",
+      "period": "2026-08-01",
+      "release": "2026-09-18",
+      "initial_release_sha256": "78964fac119fb528d185868c5bbadd90864bd5ca7e103cd7cebebeab84a0a0f9",
+      "vintage_value_sha256": "78964fac119fb528d185868c5bbadd90864bd5ca7e103cd7cebebeab84a0a0f9",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "RSAFS",
+      "period": "2002-02-01",
+      "release": "2002-03-13",
+      "initial_release_sha256": "43fdd661b0acf92db5c12d30ff6c46049e8f96d57d4dd1f7374b0daa8c3bde19",
+      "vintage_value_sha256": "43fdd661b0acf92db5c12d30ff6c46049e8f96d57d4dd1f7374b0daa8c3bde19",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "RSAFS",
+      "period": "2002-11-01",
+      "release": "2002-12-12",
+      "initial_release_sha256": "1a67772f38c5fa842f16ef3ed2371dd41e7a43e7dfdf4afe178f9426d9a0ef0b",
+      "vintage_value_sha256": "1a67772f38c5fa842f16ef3ed2371dd41e7a43e7dfdf4afe178f9426d9a0ef0b",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "RSAFS",
+      "period": "2003-08-01",
+      "release": "2003-09-12",
+      "initial_release_sha256": "2e627eed4e8f2c566bcbc022461624aa7abe034a59ae4c3dd6213cdff2259cc8",
+      "vintage_value_sha256": "2e627eed4e8f2c566bcbc022461624aa7abe034a59ae4c3dd6213cdff2259cc8",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "RSAFS",
+      "period": "2004-05-01",
+      "release": "2004-06-14",
+      "initial_release_sha256": "2938ff516ada6dca1f171fca770f115548f4886cc4102215bc800c9d1c338e2b",
+      "vintage_value_sha256": "2938ff516ada6dca1f171fca770f115548f4886cc4102215bc800c9d1c338e2b",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "RSAFS",
+      "period": "2004-11-01",
+      "release": "2004-12-13",
+      "initial_release_sha256": "89a95fcd8fb5a34eca0bdb28c8fb7a9e69252b59dec90fce1c9ac921a3f0f3b5",
+      "vintage_value_sha256": "89a95fcd8fb5a34eca0bdb28c8fb7a9e69252b59dec90fce1c9ac921a3f0f3b5",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "RSAFS",
+      "period": "2005-08-01",
+      "release": "2005-09-14",
+      "initial_release_sha256": "bbf239a6a725b5c9b13769b8a0797b950490971dbed5866df631de92b41d6340",
+      "vintage_value_sha256": "bbf239a6a725b5c9b13769b8a0797b950490971dbed5866df631de92b41d6340",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "RSAFS",
+      "period": "2006-05-01",
+      "release": "2006-06-13",
+      "initial_release_sha256": "f89ff0f6c27bde55fe0596497ef7b892aa93c77f7ca6d5a36c8fc26ce2aabc78",
+      "vintage_value_sha256": "f89ff0f6c27bde55fe0596497ef7b892aa93c77f7ca6d5a36c8fc26ce2aabc78",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "RSAFS",
+      "period": "2007-11-01",
+      "release": "2007-12-13",
+      "initial_release_sha256": "34d2e43b65bb705a32c0db8c9f6b12cbf9a459522a02914e4f415aee99c3aee2",
+      "vintage_value_sha256": "34d2e43b65bb705a32c0db8c9f6b12cbf9a459522a02914e4f415aee99c3aee2",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "RSAFS",
+      "period": "2008-08-01",
+      "release": "2008-09-12",
+      "initial_release_sha256": "1a77cf2709e81e7ee77f8291cdd6ba40e358d5c1fb1a115d0c5d7f157c8560d1",
+      "vintage_value_sha256": "1a77cf2709e81e7ee77f8291cdd6ba40e358d5c1fb1a115d0c5d7f157c8560d1",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "RSAFS",
+      "period": "2009-05-01",
+      "release": "2009-06-11",
+      "initial_release_sha256": "c45be59d859bc57578d9a890306a2b68abc95af4f411f7bc57f3d459008769c4",
+      "vintage_value_sha256": "c45be59d859bc57578d9a890306a2b68abc95af4f411f7bc57f3d459008769c4",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "RSAFS",
+      "period": "2010-02-01",
+      "release": "2010-03-12",
+      "initial_release_sha256": "3e5d8d1613224c808d12aa9a84531b8dea03c90136dde6b5875683e88dddfd97",
+      "vintage_value_sha256": "3e5d8d1613224c808d12aa9a84531b8dea03c90136dde6b5875683e88dddfd97",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "RSAFS",
+      "period": "2010-11-01",
+      "release": "2010-12-14",
+      "initial_release_sha256": "73c1c88b341649acf3cfd98b4f785e919014d4a7fd39d2fbc27ad14c569e906d",
+      "vintage_value_sha256": "73c1c88b341649acf3cfd98b4f785e919014d4a7fd39d2fbc27ad14c569e906d",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "RSAFS",
+      "period": "2011-05-01",
+      "release": "2011-06-14",
+      "initial_release_sha256": "093f23567f19ab8f5b21c7db99e7be740634eb740828e48a1c0bae2913444094",
+      "vintage_value_sha256": "093f23567f19ab8f5b21c7db99e7be740634eb740828e48a1c0bae2913444094",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "RSAFS",
+      "period": "2012-02-01",
+      "release": "2012-03-13",
+      "initial_release_sha256": "f0d96ebeb7addadba70af0b2e99ab1d24c7c9a04847ff8a9b9f3da000b3c4ab8",
+      "vintage_value_sha256": "f0d96ebeb7addadba70af0b2e99ab1d24c7c9a04847ff8a9b9f3da000b3c4ab8",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "RSAFS",
+      "period": "2012-11-01",
+      "release": "2012-12-13",
+      "initial_release_sha256": "d39e8556786ad47c5543c4c363569d477985572f33fb6060f0d1415947458543",
+      "vintage_value_sha256": "d39e8556786ad47c5543c4c363569d477985572f33fb6060f0d1415947458543",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "RSAFS",
+      "period": "2013-08-01",
+      "release": "2013-09-13",
+      "initial_release_sha256": "b4d8fdb9c16d61fe3af483e42eda44e4f543880f71271144de4be8e24cf0497e",
+      "vintage_value_sha256": "b4d8fdb9c16d61fe3af483e42eda44e4f543880f71271144de4be8e24cf0497e",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "RSAFS",
+      "period": "2014-05-01",
+      "release": "2014-06-12",
+      "initial_release_sha256": "27fa8634a0bbfa098e1587a161b0844c9ba9d4e61e8a52c2bc64a484de01f9fc",
+      "vintage_value_sha256": "27fa8634a0bbfa098e1587a161b0844c9ba9d4e61e8a52c2bc64a484de01f9fc",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "RSAFS",
+      "period": "2015-02-01",
+      "release": "2015-03-12",
+      "initial_release_sha256": "255a069d8f56c8e0fc7fe5299cf5cf237ecfca7438849418c1afa6a3b73ee110",
+      "vintage_value_sha256": "255a069d8f56c8e0fc7fe5299cf5cf237ecfca7438849418c1afa6a3b73ee110",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "RSAFS",
+      "period": "2015-11-01",
+      "release": "2015-12-11",
+      "initial_release_sha256": "63f5e18cd6dae3b70fc68df87aa095a9b4595a4bac07e25db603ae417f97917d",
+      "vintage_value_sha256": "63f5e18cd6dae3b70fc68df87aa095a9b4595a4bac07e25db603ae417f97917d",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "RSAFS",
+      "period": "2016-08-01",
+      "release": "2016-09-15",
+      "initial_release_sha256": "6537792588ef9802d4255dd2d2e40e50928a8413fb23a4e4d5e9653aaac527a3",
+      "vintage_value_sha256": "6537792588ef9802d4255dd2d2e40e50928a8413fb23a4e4d5e9653aaac527a3",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "RSAFS",
+      "period": "2017-02-01",
+      "release": "2017-03-15",
+      "initial_release_sha256": "4c54e91cac4cc07c0d3099a349c67dfd2a0dae20be8c48e727dd791c9823b47e",
+      "vintage_value_sha256": "4c54e91cac4cc07c0d3099a349c67dfd2a0dae20be8c48e727dd791c9823b47e",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "RSAFS",
+      "period": "2017-11-01",
+      "release": "2017-12-14",
+      "initial_release_sha256": "742cc5ead71f06ee61377a3e3e706b73f07e8b06f809afef536cbabaf9a2181b",
+      "vintage_value_sha256": "742cc5ead71f06ee61377a3e3e706b73f07e8b06f809afef536cbabaf9a2181b",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "RSAFS",
+      "period": "2018-08-01",
+      "release": "2018-09-14",
+      "initial_release_sha256": "18d8c3ceb576a11725fee1a41d7c7446e85816db3ad5c2ccdde0241062de69ca",
+      "vintage_value_sha256": "18d8c3ceb576a11725fee1a41d7c7446e85816db3ad5c2ccdde0241062de69ca",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "RSAFS",
+      "period": "2019-05-01",
+      "release": "2019-06-14",
+      "initial_release_sha256": "c0125edd5702663f80f554a291e22e3bb2cabe16c090f69a715e021f1a9df610",
+      "vintage_value_sha256": "c0125edd5702663f80f554a291e22e3bb2cabe16c090f69a715e021f1a9df610",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "RSAFS",
+      "period": "2020-02-01",
+      "release": "2020-03-17",
+      "initial_release_sha256": "e9296b68852670a28f2e9f4c3530a4e774d7865bc208cf697a93b207d1d3eec2",
+      "vintage_value_sha256": "e9296b68852670a28f2e9f4c3530a4e774d7865bc208cf697a93b207d1d3eec2",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "RSAFS",
+      "period": "2020-11-01",
+      "release": "2020-12-16",
+      "initial_release_sha256": "fe33dc6999ade6aa626648c986fd4209a79f488cb6a0ca9b58639426b9f896a2",
+      "vintage_value_sha256": "fe33dc6999ade6aa626648c986fd4209a79f488cb6a0ca9b58639426b9f896a2",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "RSAFS",
+      "period": "2021-08-01",
+      "release": "2021-09-16",
+      "initial_release_sha256": "227d18a6283df3cedb23f622eed3f1ec1aa727bcefa2c28defd4a971774a0648",
+      "vintage_value_sha256": "227d18a6283df3cedb23f622eed3f1ec1aa727bcefa2c28defd4a971774a0648",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "RSAFS",
+      "period": "2022-05-01",
+      "release": "2022-06-15",
+      "initial_release_sha256": "b17b6fcc34807be2ee1f3655b7af2903889b1001904f9b2834455cc27dc5d3d3",
+      "vintage_value_sha256": "b17b6fcc34807be2ee1f3655b7af2903889b1001904f9b2834455cc27dc5d3d3",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "RSAFS",
+      "period": "2023-02-01",
+      "release": "2023-03-15",
+      "initial_release_sha256": "71707968d30770bd1fc1d5aeff28af26b79dc92efd565f32981fd1e5c646cafa",
+      "vintage_value_sha256": "71707968d30770bd1fc1d5aeff28af26b79dc92efd565f32981fd1e5c646cafa",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "RSAFS",
+      "period": "2023-08-01",
+      "release": "2023-09-14",
+      "initial_release_sha256": "d9be311895ef451892add2b8c18f8bfd2456bb0b516f6bf8263ca67339ec08a0",
+      "vintage_value_sha256": "d9be311895ef451892add2b8c18f8bfd2456bb0b516f6bf8263ca67339ec08a0",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "RSAFS",
+      "period": "2024-05-01",
+      "release": "2024-06-18",
+      "initial_release_sha256": "e6c65b9205d200e4349f005e7c98c9782bceb759e95982f4bedc96ef8b8e16cf",
+      "vintage_value_sha256": "e6c65b9205d200e4349f005e7c98c9782bceb759e95982f4bedc96ef8b8e16cf",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "RSAFS",
+      "period": "2025-02-01",
+      "release": "2025-03-17",
+      "initial_release_sha256": "e3c34872202e94e068384242ed6da24b1800447e3dbe3516a6cd93d52550c208",
+      "vintage_value_sha256": "e3c34872202e94e068384242ed6da24b1800447e3dbe3516a6cd93d52550c208",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "RSAFS",
+      "period": "2025-10-01",
+      "release": "2025-12-16",
+      "initial_release_sha256": "c77197241b0f71d63c93b70928b4f4a60a100df5dd14b36a89f8e193b8e71e6f",
+      "vintage_value_sha256": "c77197241b0f71d63c93b70928b4f4a60a100df5dd14b36a89f8e193b8e71e6f",
+      "equal_within_tolerance": true
+    },
+    {
+      "series": "PCECC96",
+      "period": "1995-07-01",
+      "release": "1995-10-27",
+      "initial_release_sha256": "637fd0eff53d8eafda8bc5a4ed2ecf44f1157d5b838bbe6a3c98419f709fc599",
+      "vintage_value_sha256": "637fd0eff53d8eafda8bc5a4ed2ecf44f1157d5b838bbe6a3c98419f709fc599",
+      "equal_within_tolerance": true
     }
   ],
   "excluded": [
@@ -1721,8 +3525,8 @@
   ],
   "failures": [],
   "totals": {
-    "matched_pairs": 178,
-    "matched_pairs_pre_2000": 73,
+    "matched_pairs": 333,
+    "matched_pairs_pre_2000": 123,
     "failures": 0,
     "excluded": 1
   },
@@ -1731,6 +3535,5 @@
     "min_pairs": 30,
     "min_pairs_pre_2000": 10,
     "mismatches_allowed": 0
-  },
-  "licence_note": "values are not stored: each compared pair carries SHA-256 digests and an equality flag; the underlying values stay in the private CI artifact (docs/84)"
+  }
 }
