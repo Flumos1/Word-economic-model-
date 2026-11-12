@@ -259,7 +259,17 @@ def main(argv=None) -> int:
         report["admission"] = evaluate.evaluate_admission(
             args.target, args.horizon, windows_with_mask, data_class=data_class,
             family=family, candidate_id=args.candidate)
-    Path(args.out).write_text(json.dumps(report, ensure_ascii=False, indent=1) + "\n",
+    def _json_default(obj):
+        import numpy as _np
+
+        if isinstance(obj, _np.ndarray):
+            return obj.tolist()
+        if isinstance(obj, (_np.floating, _np.integer)):
+            return obj.item()
+        raise TypeError(f"not JSON serializable: {type(obj)!r}")
+
+    Path(args.out).write_text(json.dumps(report, ensure_ascii=False, indent=1,
+                                         default=_json_default) + "\n",
                               encoding="utf-8", newline="\n")
     adm = report["admission"]
     print(json.dumps({"candidate": args.candidate, "target": args.target, "horizon": args.horizon,
