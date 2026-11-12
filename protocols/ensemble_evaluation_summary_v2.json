@@ -1,9 +1,9 @@
 {
   "summary_id": "AMFE-ENSEMBLE-EVALUATION-SUMMARY-V2",
-  "generated_at": "2026-11-12T12:30:01Z",
+  "generated_at": "2026-11-12T13:32:14Z",
   "report": {
     "file": "protocols/ensemble_evaluation_report_v2.json",
-    "sha256": "0ec9b63592f013f0269f414caaf3e72076a0d5b4c8ce2050371a3871bbaacc2d"
+    "sha256": "ebfcae1a0f9923b305e45b00c2e3d9edb100b95a6c466f0e79bc48d8410d9f31"
   },
   "supersedes": {
     "status": "INVALID",
@@ -48,11 +48,11 @@
   },
   "composition": {
     "file": "comparator_composition_2026-11-11.json",
-    "sha256": "5b42b61e183d7272508060a2d37b25516e26f7c6894c9b3e663628fecd29d9ee"
+    "sha256": "50da8670ebf5ad548beb3bd136b041e37714b612b4462982645aee942bbb6579"
   },
   "candidates_document": {
     "file": "protocols/candidates_2026-11-11.json",
-    "sha256": "4177e575c1bf18f930dd8c6fb16e8bd21fdb199d7d054c574f25d6353f917ec4"
+    "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
   },
   "mixture_fix": {
     "track": "D-148 track R (docs/94)",
@@ -63,36 +63,33 @@
     "T1_CPI_YOY_h1": {
       "evaluated": [
         "ENSEMBLE_ADAPTIVE",
-        "ENSEMBLE_EQUAL"
+        "ENSEMBLE_BAYES",
+        "ENSEMBLE_EQUAL",
+        "ENSEMBLE_INVERSE_MSE"
       ],
       "registered": [
-        "ENSEMBLE_EQUAL",
-        "ENSEMBLE_INVERSE_MSE",
+        "ENSEMBLE_ADAPTIVE",
         "ENSEMBLE_BAYES",
-        "ENSEMBLE_ADAPTIVE"
+        "ENSEMBLE_EQUAL",
+        "ENSEMBLE_INVERSE_MSE"
       ],
-      "not_evaluated": [
-        "ENSEMBLE_INVERSE_MSE",
-        "ENSEMBLE_BAYES"
-      ]
+      "not_evaluated": []
     },
     "T2_GDP_GROWTH_h0": {
       "evaluated": [
         "ENSEMBLE_ADAPTIVE",
-        "ENSEMBLE_EQUAL"
+        "ENSEMBLE_BAYES",
+        "ENSEMBLE_EQUAL",
+        "ENSEMBLE_INVERSE_MSE"
       ],
       "registered": [
-        "ENSEMBLE_EQUAL",
-        "ENSEMBLE_INVERSE_MSE",
+        "ENSEMBLE_ADAPTIVE",
         "ENSEMBLE_BAYES",
-        "ENSEMBLE_ADAPTIVE"
+        "ENSEMBLE_EQUAL",
+        "ENSEMBLE_INVERSE_MSE"
       ],
-      "not_evaluated": [
-        "ENSEMBLE_INVERSE_MSE",
-        "ENSEMBLE_BAYES"
-      ]
-    },
-    "reduced_run_note": "v2 was run under a time limit: only the candidates listed as evaluated were scored in this pass; registered but not evaluated candidates are explicitly listed and are the next step (they are NOT rejected)"
+      "not_evaluated": []
+    }
   },
   "adaptive_vs_corrected_report": {
     "corrected_report": "ensemble_evaluation_adaptive_T1_h1_corrected.json",
@@ -100,7 +97,7 @@
     "matches": true,
     "matches_rmse": true,
     "matches_all_losses": false,
-    "max_crps_delta": 0.000364431921239472,
+    "max_crps_delta": 0.0002912671118137089,
     "corrected_relative_losses": {
       "W1": {
         "RMSE": 0.948935035186428,
@@ -114,21 +111,53 @@
     "v2_relative_losses": {
       "W1": {
         "RMSE": 0.948935035186428,
-        "CRPS": 0.9744873165683339
+        "CRPS": 0.974484737561337
       },
       "W2": {
         "RMSE": 0.9692691247472539,
-        "CRPS": 0.978389931753698
+        "CRPS": 0.9783167669442723
       }
     },
-    "note": "RMSE reproduces the corrected single-candidate report exactly. CRPS differs by at most ~4e-4 because the corrected report predates the docs/94 mixture-robustness fix (robust tails now used in the evaluation layer); the difference is reported, not hidden. Only the multiplicity family (1 vs 2 candidates) also differs."
+    "note": "RMSE reproduces the corrected single-candidate report exactly; CRPS differs by at most ~4e-4 because the corrected report predates the docs/94 mixture-robustness fix."
   },
-  "reduced_run_note": "v2 was run under a time limit: only the candidates listed as evaluated were scored in this pass; registered but not evaluated candidates are explicitly listed and are the next step (they are NOT rejected)",
+  "code_hash_check": {
+    "candidate": "ENSEMBLE_ADAPTIVE (same code_files block for all ENSEMBLE_* candidates)",
+    "registered_in": "protocols/candidates_2026-11-11.json",
+    "current_code_sha256": {
+      "src/amfe/ensemble/__init__.py": "74a7e7d356fbbe7183a1619341e9d107194d4e09f6957920eef807a240daab10",
+      "src/amfe/ensemble/ensemble.py": "795871c86e840db6a78ff6946e2ce370bf39c4cd28f62110a5e248b370f9ab51",
+      "src/amfe/ensemble/weights.py": "a07926b85492aa8044134f93bc99b2056451485198170423373aea44c45be2f0",
+      "src/amfe/ensemble/mixture.py": "14971818a677758ac62a4c71c9205cbdf38029e8b0288de9cf6b295fce64f2cb",
+      "src/amfe/ensemble/sources.py": "882c25c71d5611dbc27965771485dcad6bd3f8160c702ae60acb94cf06e7c9be",
+      "src/amfe/ensemble/history.py": "3d1bff946952c0e3b998bfaefccae76498f335e3dbe333b47aa4a38c31d354ba"
+    },
+    "registered_code_sha256": {
+      "src/amfe/ensemble/__init__.py": "74a7e7d356fbbe7183a1619341e9d107194d4e09f6957920eef807a240daab10",
+      "src/amfe/ensemble/ensemble.py": "795871c86e840db6a78ff6946e2ce370bf39c4cd28f62110a5e248b370f9ab51",
+      "src/amfe/ensemble/weights.py": "a07926b85492aa8044134f93bc99b2056451485198170423373aea44c45be2f0",
+      "src/amfe/ensemble/mixture.py": "697792a77810a4c75179778c6aaac028f77db73c444d328eacc2f8150811690a",
+      "src/amfe/ensemble/sources.py": "882c25c71d5611dbc27965771485dcad6bd3f8160c702ae60acb94cf06e7c9be",
+      "src/amfe/ensemble/history.py": "3d1bff946952c0e3b998bfaefccae76498f335e3dbe333b47aa4a38c31d354ba"
+    },
+    "mismatches": [
+      "src/amfe/ensemble/mixture.py"
+    ],
+    "matches": false,
+    "note": "the evaluated ensemble code matches the registered snapshot except the files listed in mismatches. src/amfe/ensemble/mixture.py gained the weighted-mixture robust path in commit 571891d after the extended-pass evidence was produced; the joint official run uses the current code. Lead must re-pin the candidate code hashes before the results are used for admission."
+  },
   "per_candidate_reports": {
     "T1_h1": {
       "ENSEMBLE_EQUAL": {
         "file": "ensemble_eval_ENSEMBLE_EQUAL_T1_h1_v2.json",
         "sha256": "2f94893fbf38e7e07483bfc1dd086617938bce48d6121fa9ca34d3b7bdef9269"
+      },
+      "ENSEMBLE_INVERSE_MSE": {
+        "file": "extended_pass/ensemble_eval_ENSEMBLE_INVERSE_MSE_T1_h1_v2.json",
+        "sha256": "92340167cad95fc22c9e97adb5bb81c64439a04b4160ce5abc940ca60fadbc0b"
+      },
+      "ENSEMBLE_BAYES": {
+        "file": "extended_pass/ensemble_eval_ENSEMBLE_BAYES_T1_h1_v2.json",
+        "sha256": "45ecbbb1931452973f187c61e359fae608ec3fb39a2dfab6e054876b98e4a3cc"
       },
       "ENSEMBLE_ADAPTIVE": {
         "file": "ensemble_eval_ENSEMBLE_ADAPTIVE_T1_h1_v2.json",
@@ -139,6 +168,14 @@
       "ENSEMBLE_EQUAL": {
         "file": "ensemble_eval_ENSEMBLE_EQUAL_T2_h0_v2.json",
         "sha256": "6e1613e3b4bfee3b6c4be46b25c62b3aa71f4885432719749a8332fc83b3fdf0"
+      },
+      "ENSEMBLE_INVERSE_MSE": {
+        "file": "extended_pass/ensemble_eval_ENSEMBLE_INVERSE_MSE_T2_h0_v2.json",
+        "sha256": "03efa398d8603e298de61097b4d97c6199d8d8ad19738fb6d72bf99cb83fd6b6"
+      },
+      "ENSEMBLE_BAYES": {
+        "file": "extended_pass/ensemble_eval_ENSEMBLE_BAYES_T2_h0_v2.json",
+        "sha256": "07df98e1ac30f0bfb12cae0986795f6cc817d09ffe2fedb6c6839bd173fabb13"
       },
       "ENSEMBLE_ADAPTIVE": {
         "file": "ensemble_eval_ENSEMBLE_ADAPTIVE_T2_h0_v2.json",
@@ -155,11 +192,13 @@
         "W1": 121,
         "W2": 156
       },
-      "runtime_seconds": 364.5,
-      "family_size": 2,
+      "runtime_seconds": 761.8,
+      "family_size": 4,
       "family": [
         "ENSEMBLE_ADAPTIVE",
-        "ENSEMBLE_EQUAL"
+        "ENSEMBLE_BAYES",
+        "ENSEMBLE_EQUAL",
+        "ENSEMBLE_INVERSE_MSE"
       ],
       "multiplicity_method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
       "multiplicity": {
@@ -170,27 +209,46 @@
         "adjusted_p_values": {
           "ENSEMBLE_ADAPTIVE": {
             "W1": {
-              "RMSE": 0.0281,
-              "CRPS": 0.0997
+              "RMSE": 0.0325,
+              "CRPS": 0.1257
             },
             "W2": {
-              "RMSE": 0.1807,
-              "CRPS": 0.1528
+              "RMSE": 0.2144,
+              "CRPS": 0.1803
+            }
+          },
+          "ENSEMBLE_BAYES": {
+            "W1": {
+              "RMSE": 0.2153,
+              "CRPS": 0.1295
+            },
+            "W2": {
+              "RMSE": 0.9631,
+              "CRPS": 0.8282
             }
           },
           "ENSEMBLE_EQUAL": {
             "W1": {
               "RMSE": 0.6354,
-              "CRPS": 0.0611
+              "CRPS": 0.0715
             },
             "W2": {
-              "RMSE": 0.7727,
-              "CRPS": 0.4007
+              "RMSE": 0.9631,
+              "CRPS": 0.6284
+            }
+          },
+          "ENSEMBLE_INVERSE_MSE": {
+            "W1": {
+              "RMSE": 0.0995,
+              "CRPS": 0.1214
+            },
+            "W2": {
+              "RMSE": 0.1285,
+              "CRPS": 0.0191
             }
           }
         }
       },
-      "skipped_candidates": {},
       "candidates": [
         {
           "candidate_id": "ENSEMBLE_ADAPTIVE",
@@ -199,7 +257,7 @@
           "data_class": "REAL_TIME",
           "C1": false,
           "C2": false,
-          "C2_romano_wolf_adjusted_p": 0.1807,
+          "C2_romano_wolf_adjusted_p": 0.2144,
           "C3": "NOT_IMPLEMENTED",
           "C4": false,
           "C5": true,
@@ -207,11 +265,11 @@
           "relative_losses": {
             "W1": {
               "RMSE": 0.948935035186428,
-              "CRPS": 0.9744873165683339
+              "CRPS": 0.974484737561337
             },
             "W2": {
               "RMSE": 0.9692691247472539,
-              "CRPS": 0.978389931753698
+              "CRPS": 0.9783167669442723
             }
           },
           "loss_details": {
@@ -223,18 +281,18 @@
                 "threshold": 0.97,
                 "pass": true,
                 "c2_raw_p": 0.008627263483249326,
-                "c2_adjusted_p": 0.0281,
+                "c2_adjusted_p": 0.0325,
                 "c5_p": 0.9933607882779143
               },
               "CRPS": {
-                "candidate_loss": 0.2968012808901232,
+                "candidate_loss": 0.29680049539751896,
                 "comparator_loss": 0.3045717228371034,
-                "relative_loss": 0.9744873165683339,
+                "relative_loss": 0.974484737561337,
                 "threshold": 0.97,
                 "pass": false,
-                "c2_raw_p": 0.10007904508540794,
-                "c2_adjusted_p": 0.0997,
-                "c5_p": 0.9200192339439353
+                "c2_raw_p": 0.10005768198025555,
+                "c2_adjusted_p": 0.1257,
+                "c5_p": 0.9200353265011134
               }
             },
             "W2": {
@@ -245,18 +303,18 @@
                 "threshold": 0.97,
                 "pass": true,
                 "c2_raw_p": 0.0865212245120014,
-                "c2_adjusted_p": 0.1807,
+                "c2_adjusted_p": 0.2144,
                 "c5_p": 0.922879311797643
               },
               "CRPS": {
-                "candidate_loss": 0.3813859262016788,
+                "candidate_loss": 0.3813574058462432,
                 "comparator_loss": 0.38980974131455975,
-                "relative_loss": 0.978389931753698,
+                "relative_loss": 0.9783167669442723,
                 "threshold": 0.97,
                 "pass": false,
-                "c2_raw_p": 0.09140081820763368,
-                "c2_adjusted_p": 0.1528,
-                "c5_p": 0.9133595104030285
+                "c2_raw_p": 0.09081272239398741,
+                "c2_adjusted_p": 0.1803,
+                "c5_p": 0.9138970485766651
               }
             }
           },
@@ -272,12 +330,12 @@
           },
           "c2_adjusted_p": {
             "W1": {
-              "RMSE": 0.0281,
-              "CRPS": 0.0997
+              "RMSE": 0.0325,
+              "CRPS": 0.1257
             },
             "W2": {
-              "RMSE": 0.1807,
-              "CRPS": 0.1528
+              "RMSE": 0.2144,
+              "CRPS": 0.1803
             }
           },
           "c4_window_status": {
@@ -297,7 +355,7 @@
               },
               "conditional_gw_p": {
                 "RMSE": 0.38956154769744344,
-                "CRPS": 0.5016996482718197
+                "CRPS": 0.5017293417680428
               }
             },
             "W2": {
@@ -316,10 +374,155 @@
               },
               "conditional_gw_p": {
                 "RMSE": 0.09433017143641333,
-                "CRPS": 0.004157849191643884
+                "CRPS": 0.004147959117057774
               }
             }
           },
+          "family_size": 4,
+          "windows": {
+            "W1": {
+              "origins": 121,
+              "first_origin": "1996-12-31",
+              "last_origin": "2006-12-31",
+              "data_class": "REAL_TIME"
+            },
+            "W2": {
+              "origins": 156,
+              "first_origin": "2007-01-31",
+              "last_origin": "2019-12-31",
+              "data_class": "REAL_TIME"
+            }
+          }
+        },
+        {
+          "candidate_id": "ENSEMBLE_BAYES",
+          "role": "control",
+          "status": "CANDIDATE",
+          "data_class": "REAL_TIME",
+          "C1": false,
+          "C2": false,
+          "C2_romano_wolf_adjusted_p": 0.9631,
+          "C3": "NOT_IMPLEMENTED",
+          "C4": false,
+          "C5": true,
+          "C6": "NO_RESOLVED_FORECASTS",
+          "relative_losses": {
+            "W1": {
+              "RMSE": 0.9589271962181094,
+              "CRPS": 0.9684834559454771
+            },
+            "W2": {
+              "RMSE": 1.0117936013079452,
+              "CRPS": 1.0189759640588674
+            }
+          },
+          "loss_details": {
+            "W1": {
+              "RMSE": {
+                "candidate_loss": 0.5528708015301057,
+                "comparator_loss": 0.5765513833694152,
+                "relative_loss": 0.9589271962181094,
+                "threshold": 0.97,
+                "pass": true,
+                "c2_raw_p": 0.10788284301677692,
+                "c2_adjusted_p": 0.2153,
+                "c5_p": 0.90183089901379
+              },
+              "CRPS": {
+                "candidate_loss": 0.29497267471654587,
+                "comparator_loss": 0.3045717228371034,
+                "relative_loss": 0.9684834559454771,
+                "threshold": 0.97,
+                "pass": true,
+                "c2_raw_p": 0.12744464316954002,
+                "c2_adjusted_p": 0.1295,
+                "c5_p": 0.8807969930953448
+              }
+            },
+            "W2": {
+              "RMSE": {
+                "candidate_loss": 0.7517944318711697,
+                "comparator_loss": 0.7430314155963482,
+                "relative_loss": 1.0117936013079452,
+                "threshold": 0.97,
+                "pass": false,
+                "c2_raw_p": 0.6933672538344238,
+                "c2_adjusted_p": 0.9631,
+                "c5_p": 0.3341154533550038
+              },
+              "CRPS": {
+                "candidate_loss": 0.3972067569555412,
+                "comparator_loss": 0.38980974131455975,
+                "relative_loss": 1.0189759640588674,
+                "threshold": 0.97,
+                "pass": false,
+                "c2_raw_p": 0.8318743807652957,
+                "c2_adjusted_p": 0.8282,
+                "c5_p": 0.17244758401063054
+              }
+            }
+          },
+          "c1_loss_pass": {
+            "W1": {
+              "RMSE": true,
+              "CRPS": true
+            },
+            "W2": {
+              "RMSE": false,
+              "CRPS": false
+            }
+          },
+          "c2_adjusted_p": {
+            "W1": {
+              "RMSE": 0.2153,
+              "CRPS": 0.1295
+            },
+            "W2": {
+              "RMSE": 0.9631,
+              "CRPS": 0.8282
+            }
+          },
+          "c4_window_status": {
+            "W1": {
+              "statuses": {
+                "RMSE": "INCONCLUSIVE",
+                "CRPS": "INCONCLUSIVE"
+              },
+              "recession_origins": {
+                "RMSE": 8,
+                "CRPS": 8
+              },
+              "min_recession_origins": 12,
+              "relative_loss_met": {
+                "RMSE": false,
+                "CRPS": true
+              },
+              "conditional_gw_p": {
+                "RMSE": 0.29141558284031555,
+                "CRPS": 0.7779800247365538
+              }
+            },
+            "W2": {
+              "statuses": {
+                "RMSE": "FAIL",
+                "CRPS": "FAIL"
+              },
+              "recession_origins": {
+                "RMSE": 18,
+                "CRPS": 18
+              },
+              "min_recession_origins": 12,
+              "relative_loss_met": {
+                "RMSE": false,
+                "CRPS": false
+              },
+              "conditional_gw_p": {
+                "RMSE": 0.00018293532258497879,
+                "CRPS": 1.3685654147468552e-06
+              }
+            }
+          },
+          "family_size": 4,
           "windows": {
             "W1": {
               "origins": 121,
@@ -342,7 +545,7 @@
           "data_class": "REAL_TIME",
           "C1": false,
           "C2": false,
-          "C2_romano_wolf_adjusted_p": 0.7727,
+          "C2_romano_wolf_adjusted_p": 0.9631,
           "C3": "NOT_IMPLEMENTED",
           "C4": false,
           "C5": true,
@@ -376,7 +579,7 @@
                 "threshold": 0.97,
                 "pass": false,
                 "c2_raw_p": 0.03319679346275378,
-                "c2_adjusted_p": 0.0611,
+                "c2_adjusted_p": 0.0715,
                 "c5_p": 0.8427477675508629
               }
             },
@@ -388,7 +591,7 @@
                 "threshold": 0.97,
                 "pass": false,
                 "c2_raw_p": 0.767483358337313,
-                "c2_adjusted_p": 0.7727,
+                "c2_adjusted_p": 0.9631,
                 "c5_p": 0.2275660248473197
               },
               "CRPS": {
@@ -398,7 +601,7 @@
                 "threshold": 0.97,
                 "pass": false,
                 "c2_raw_p": 0.40109897586789445,
-                "c2_adjusted_p": 0.4007,
+                "c2_adjusted_p": 0.6284,
                 "c5_p": 0.8087137471447197
               }
             }
@@ -416,11 +619,11 @@
           "c2_adjusted_p": {
             "W1": {
               "RMSE": 0.6354,
-              "CRPS": 0.0611
+              "CRPS": 0.0715
             },
             "W2": {
-              "RMSE": 0.7727,
-              "CRPS": 0.4007
+              "RMSE": 0.9631,
+              "CRPS": 0.6284
             }
           },
           "c4_window_status": {
@@ -463,6 +666,151 @@
               }
             }
           },
+          "family_size": 4,
+          "windows": {
+            "W1": {
+              "origins": 121,
+              "first_origin": "1996-12-31",
+              "last_origin": "2006-12-31",
+              "data_class": "REAL_TIME"
+            },
+            "W2": {
+              "origins": 156,
+              "first_origin": "2007-01-31",
+              "last_origin": "2019-12-31",
+              "data_class": "REAL_TIME"
+            }
+          }
+        },
+        {
+          "candidate_id": "ENSEMBLE_INVERSE_MSE",
+          "role": "control",
+          "status": "CANDIDATE",
+          "data_class": "REAL_TIME",
+          "C1": true,
+          "C2": false,
+          "C2_romano_wolf_adjusted_p": 0.1285,
+          "C3": "NOT_IMPLEMENTED",
+          "C4": false,
+          "C5": true,
+          "C6": "NO_RESOLVED_FORECASTS",
+          "relative_losses": {
+            "W1": {
+              "RMSE": 0.9472727740198152,
+              "CRPS": 0.9676638152027961
+            },
+            "W2": {
+              "RMSE": 0.9479640424288297,
+              "CRPS": 0.9535929521404131
+            }
+          },
+          "loss_details": {
+            "W1": {
+              "RMSE": {
+                "candidate_loss": 0.546151428289308,
+                "comparator_loss": 0.5765513833694152,
+                "relative_loss": 0.9472727740198152,
+                "threshold": 0.97,
+                "pass": true,
+                "c2_raw_p": 0.03877270239988562,
+                "c2_adjusted_p": 0.0995,
+                "c5_p": 0.9681948439238585
+              },
+              "CRPS": {
+                "candidate_loss": 0.29472303532344,
+                "comparator_loss": 0.3045717228371034,
+                "relative_loss": 0.9676638152027961,
+                "threshold": 0.97,
+                "pass": true,
+                "c2_raw_p": 0.09175961191301846,
+                "c2_adjusted_p": 0.1214,
+                "c5_p": 0.9205113396465471
+              }
+            },
+            "W2": {
+              "RMSE": {
+                "candidate_loss": 0.70436706438033,
+                "comparator_loss": 0.7430314155963482,
+                "relative_loss": 0.9479640424288297,
+                "threshold": 0.97,
+                "pass": true,
+                "c2_raw_p": 0.04191238012243648,
+                "c2_adjusted_p": 0.1285,
+                "c5_p": 0.962328058266219
+              },
+              "CRPS": {
+                "candidate_loss": 0.3717198219932418,
+                "comparator_loss": 0.38980974131455975,
+                "relative_loss": 0.9535929521404131,
+                "threshold": 0.97,
+                "pass": true,
+                "c2_raw_p": 0.006647252561589045,
+                "c2_adjusted_p": 0.0191,
+                "c5_p": 0.9943277418535253
+              }
+            }
+          },
+          "c1_loss_pass": {
+            "W1": {
+              "RMSE": true,
+              "CRPS": true
+            },
+            "W2": {
+              "RMSE": true,
+              "CRPS": true
+            }
+          },
+          "c2_adjusted_p": {
+            "W1": {
+              "RMSE": 0.0995,
+              "CRPS": 0.1214
+            },
+            "W2": {
+              "RMSE": 0.1285,
+              "CRPS": 0.0191
+            }
+          },
+          "c4_window_status": {
+            "W1": {
+              "statuses": {
+                "RMSE": "INCONCLUSIVE",
+                "CRPS": "INCONCLUSIVE"
+              },
+              "recession_origins": {
+                "RMSE": 8,
+                "CRPS": 8
+              },
+              "min_recession_origins": 12,
+              "relative_loss_met": {
+                "RMSE": false,
+                "CRPS": true
+              },
+              "conditional_gw_p": {
+                "RMSE": 0.02459146489858234,
+                "CRPS": 0.3150953328587432
+              }
+            },
+            "W2": {
+              "statuses": {
+                "RMSE": "PASS",
+                "CRPS": "PASS"
+              },
+              "recession_origins": {
+                "RMSE": 18,
+                "CRPS": 18
+              },
+              "min_recession_origins": 12,
+              "relative_loss_met": {
+                "RMSE": true,
+                "CRPS": true
+              },
+              "conditional_gw_p": {
+                "RMSE": 0.9531365428651809,
+                "CRPS": 0.574010641485355
+              }
+            }
+          },
+          "family_size": 4,
           "windows": {
             "W1": {
               "origins": 121,
@@ -486,12 +834,12 @@
           "W1_RMSE_relative_loss": 1.0,
           "W1_RMSE_c2_adjusted_p": 0.6354,
           "W1_CRPS_relative_loss": 1.0,
-          "W1_CRPS_c2_adjusted_p": 0.0611,
+          "W1_CRPS_c2_adjusted_p": 0.0715,
           "W2_RMSE_relative_loss": 1.0,
-          "W2_RMSE_c2_adjusted_p": 0.7727,
+          "W2_RMSE_c2_adjusted_p": 0.9631,
           "W2_CRPS_relative_loss": 1.0,
-          "W2_CRPS_c2_adjusted_p": 0.4007,
-          "romano_wolf_adjusted_p": 0.7727,
+          "W2_CRPS_c2_adjusted_p": 0.6284,
+          "romano_wolf_adjusted_p": 0.9631,
           "C4_W1": {
             "RMSE": "INCONCLUSIVE",
             "CRPS": "INCONCLUSIVE"
@@ -503,17 +851,61 @@
           "C6": "NO_RESOLVED_FORECASTS"
         },
         {
+          "candidate_id": "ENSEMBLE_INVERSE_MSE",
+          "status": "CANDIDATE",
+          "W1_RMSE_relative_loss": 0.9472727740198152,
+          "W1_RMSE_c2_adjusted_p": 0.0995,
+          "W1_CRPS_relative_loss": 0.9676638152027961,
+          "W1_CRPS_c2_adjusted_p": 0.1214,
+          "W2_RMSE_relative_loss": 0.9479640424288297,
+          "W2_RMSE_c2_adjusted_p": 0.1285,
+          "W2_CRPS_relative_loss": 0.9535929521404131,
+          "W2_CRPS_c2_adjusted_p": 0.0191,
+          "romano_wolf_adjusted_p": 0.1285,
+          "C4_W1": {
+            "RMSE": "INCONCLUSIVE",
+            "CRPS": "INCONCLUSIVE"
+          },
+          "C4_W2": {
+            "RMSE": "PASS",
+            "CRPS": "PASS"
+          },
+          "C6": "NO_RESOLVED_FORECASTS"
+        },
+        {
+          "candidate_id": "ENSEMBLE_BAYES",
+          "status": "CANDIDATE",
+          "W1_RMSE_relative_loss": 0.9589271962181094,
+          "W1_RMSE_c2_adjusted_p": 0.2153,
+          "W1_CRPS_relative_loss": 0.9684834559454771,
+          "W1_CRPS_c2_adjusted_p": 0.1295,
+          "W2_RMSE_relative_loss": 1.0117936013079452,
+          "W2_RMSE_c2_adjusted_p": 0.9631,
+          "W2_CRPS_relative_loss": 1.0189759640588674,
+          "W2_CRPS_c2_adjusted_p": 0.8282,
+          "romano_wolf_adjusted_p": 0.9631,
+          "C4_W1": {
+            "RMSE": "INCONCLUSIVE",
+            "CRPS": "INCONCLUSIVE"
+          },
+          "C4_W2": {
+            "RMSE": "FAIL",
+            "CRPS": "FAIL"
+          },
+          "C6": "NO_RESOLVED_FORECASTS"
+        },
+        {
           "candidate_id": "ENSEMBLE_ADAPTIVE",
           "status": "CANDIDATE",
           "W1_RMSE_relative_loss": 0.948935035186428,
-          "W1_RMSE_c2_adjusted_p": 0.0281,
-          "W1_CRPS_relative_loss": 0.9744873165683339,
-          "W1_CRPS_c2_adjusted_p": 0.0997,
+          "W1_RMSE_c2_adjusted_p": 0.0325,
+          "W1_CRPS_relative_loss": 0.974484737561337,
+          "W1_CRPS_c2_adjusted_p": 0.1257,
           "W2_RMSE_relative_loss": 0.9692691247472539,
-          "W2_RMSE_c2_adjusted_p": 0.1807,
-          "W2_CRPS_relative_loss": 0.978389931753698,
-          "W2_CRPS_c2_adjusted_p": 0.1528,
-          "romano_wolf_adjusted_p": 0.1807,
+          "W2_RMSE_c2_adjusted_p": 0.2144,
+          "W2_CRPS_relative_loss": 0.9783167669442723,
+          "W2_CRPS_c2_adjusted_p": 0.1803,
+          "romano_wolf_adjusted_p": 0.2144,
           "C4_W1": {
             "RMSE": "INCONCLUSIVE",
             "CRPS": "INCONCLUSIVE"
@@ -530,6 +922,14 @@
           "file": "ensemble_eval_ENSEMBLE_EQUAL_T1_h1_v2.json",
           "sha256": "2f94893fbf38e7e07483bfc1dd086617938bce48d6121fa9ca34d3b7bdef9269"
         },
+        "ENSEMBLE_INVERSE_MSE": {
+          "file": "extended_pass/ensemble_eval_ENSEMBLE_INVERSE_MSE_T1_h1_v2.json",
+          "sha256": "92340167cad95fc22c9e97adb5bb81c64439a04b4160ce5abc940ca60fadbc0b"
+        },
+        "ENSEMBLE_BAYES": {
+          "file": "extended_pass/ensemble_eval_ENSEMBLE_BAYES_T1_h1_v2.json",
+          "sha256": "45ecbbb1931452973f187c61e359fae608ec3fb39a2dfab6e054876b98e4a3cc"
+        },
         "ENSEMBLE_ADAPTIVE": {
           "file": "ensemble_eval_ENSEMBLE_ADAPTIVE_T1_h1_v2.json",
           "sha256": "1f72553299b3eb565a1c576ed67ac920f7d435d3315e20badf7c02be8546455a"
@@ -538,18 +938,71 @@
       "candidate_coverage": {
         "evaluated": [
           "ENSEMBLE_ADAPTIVE",
-          "ENSEMBLE_EQUAL"
+          "ENSEMBLE_BAYES",
+          "ENSEMBLE_EQUAL",
+          "ENSEMBLE_INVERSE_MSE"
         ],
         "registered": [
-          "ENSEMBLE_EQUAL",
-          "ENSEMBLE_INVERSE_MSE",
+          "ENSEMBLE_ADAPTIVE",
           "ENSEMBLE_BAYES",
-          "ENSEMBLE_ADAPTIVE"
+          "ENSEMBLE_EQUAL",
+          "ENSEMBLE_INVERSE_MSE"
         ],
-        "not_evaluated": [
-          "ENSEMBLE_INVERSE_MSE",
-          "ENSEMBLE_BAYES"
-        ]
+        "not_evaluated": []
+      },
+      "evidence_consistency": {
+        "ENSEMBLE_EQUAL": {
+          "file": "ensemble_eval_ENSEMBLE_EQUAL_T1_h1_v2.json",
+          "matches_joint_losses": true,
+          "status_matches": true,
+          "rmse_matches": true,
+          "rmse_mismatches": [],
+          "max_crps_relative_delta": 0.0,
+          "crps_within_tolerance": true,
+          "crps_tolerance": 0.001,
+          "per_candidate_report_family_size": 2,
+          "joint_family_size": 4,
+          "note": "the evidence file is the per-candidate artefact from the extended/reduced pass; the official multiplicity table is recomputed in the joint family of 4, so the adjusted p-values in the evidence file are superseded. Statuses and RMSE match exactly; CRPS can differ by <=1e-3 relative because the weighted-mixture robust path (commit 571891d) landed after the evidence files were produced -- the official CRPS is the joint run on the current code"
+        },
+        "ENSEMBLE_INVERSE_MSE": {
+          "file": "extended_pass/ensemble_eval_ENSEMBLE_INVERSE_MSE_T1_h1_v2.json",
+          "matches_joint_losses": true,
+          "status_matches": true,
+          "rmse_matches": true,
+          "rmse_mismatches": [],
+          "max_crps_relative_delta": 2.61298664694376e-05,
+          "crps_within_tolerance": true,
+          "crps_tolerance": 0.001,
+          "per_candidate_report_family_size": 1,
+          "joint_family_size": 4,
+          "note": "the evidence file is the per-candidate artefact from the extended/reduced pass; the official multiplicity table is recomputed in the joint family of 4, so the adjusted p-values in the evidence file are superseded. Statuses and RMSE match exactly; CRPS can differ by <=1e-3 relative because the weighted-mixture robust path (commit 571891d) landed after the evidence files were produced -- the official CRPS is the joint run on the current code"
+        },
+        "ENSEMBLE_BAYES": {
+          "file": "extended_pass/ensemble_eval_ENSEMBLE_BAYES_T1_h1_v2.json",
+          "matches_joint_losses": true,
+          "status_matches": true,
+          "rmse_matches": true,
+          "rmse_mismatches": [],
+          "max_crps_relative_delta": 0.00012374885761423648,
+          "crps_within_tolerance": true,
+          "crps_tolerance": 0.001,
+          "per_candidate_report_family_size": 1,
+          "joint_family_size": 4,
+          "note": "the evidence file is the per-candidate artefact from the extended/reduced pass; the official multiplicity table is recomputed in the joint family of 4, so the adjusted p-values in the evidence file are superseded. Statuses and RMSE match exactly; CRPS can differ by <=1e-3 relative because the weighted-mixture robust path (commit 571891d) landed after the evidence files were produced -- the official CRPS is the joint run on the current code"
+        },
+        "ENSEMBLE_ADAPTIVE": {
+          "file": "ensemble_eval_ENSEMBLE_ADAPTIVE_T1_h1_v2.json",
+          "matches_joint_losses": true,
+          "status_matches": true,
+          "rmse_matches": true,
+          "rmse_mismatches": [],
+          "max_crps_relative_delta": 7.316480942576309e-05,
+          "crps_within_tolerance": true,
+          "crps_tolerance": 0.001,
+          "per_candidate_report_family_size": 2,
+          "joint_family_size": 4,
+          "note": "the evidence file is the per-candidate artefact from the extended/reduced pass; the official multiplicity table is recomputed in the joint family of 4, so the adjusted p-values in the evidence file are superseded. Statuses and RMSE match exactly; CRPS can differ by <=1e-3 relative because the weighted-mixture robust path (commit 571891d) landed after the evidence files were produced -- the official CRPS is the joint run on the current code"
+        }
       }
     },
     "T2_GDP_GROWTH_h0": {
@@ -560,11 +1013,13 @@
         "W1": 121,
         "W2": 156
       },
-      "runtime_seconds": 366.3,
-      "family_size": 2,
+      "runtime_seconds": 776.7,
+      "family_size": 4,
       "family": [
         "ENSEMBLE_ADAPTIVE",
-        "ENSEMBLE_EQUAL"
+        "ENSEMBLE_BAYES",
+        "ENSEMBLE_EQUAL",
+        "ENSEMBLE_INVERSE_MSE"
       ],
       "multiplicity_method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
       "multiplicity": {
@@ -575,27 +1030,46 @@
         "adjusted_p_values": {
           "ENSEMBLE_ADAPTIVE": {
             "W1": {
-              "RMSE": 0.4414,
-              "CRPS": 0.3156
+              "RMSE": 0.5855,
+              "CRPS": 0.4227
             },
             "W2": {
-              "RMSE": 0.0269,
-              "CRPS": 0.0177
+              "RMSE": 0.0378,
+              "CRPS": 0.0285
+            }
+          },
+          "ENSEMBLE_BAYES": {
+            "W1": {
+              "RMSE": 0.9474,
+              "CRPS": 0.9307
+            },
+            "W2": {
+              "RMSE": 0.1894,
+              "CRPS": 0.1635
             }
           },
           "ENSEMBLE_EQUAL": {
             "W1": {
-              "RMSE": 0.0073,
-              "CRPS": 0.0032
+              "RMSE": 0.009,
+              "CRPS": 0.0037
             },
             "W2": {
-              "RMSE": 0.0269,
-              "CRPS": 0.0112
+              "RMSE": 0.0363,
+              "CRPS": 0.0169
+            }
+          },
+          "ENSEMBLE_INVERSE_MSE": {
+            "W1": {
+              "RMSE": 0.2572,
+              "CRPS": 0.0753
+            },
+            "W2": {
+              "RMSE": 0.0363,
+              "CRPS": 0.0214
             }
           }
         }
       },
-      "skipped_candidates": {},
       "candidates": [
         {
           "candidate_id": "ENSEMBLE_ADAPTIVE",
@@ -604,7 +1078,7 @@
           "data_class": "REAL_TIME",
           "C1": false,
           "C2": false,
-          "C2_romano_wolf_adjusted_p": 0.4414,
+          "C2_romano_wolf_adjusted_p": 0.5855,
           "C3": "NOT_IMPLEMENTED",
           "C4": false,
           "C5": true,
@@ -628,7 +1102,7 @@
                 "threshold": 0.97,
                 "pass": false,
                 "c2_raw_p": 0.4310590924505468,
-                "c2_adjusted_p": 0.4414,
+                "c2_adjusted_p": 0.5855,
                 "c5_p": 0.4624456698799646
               },
               "CRPS": {
@@ -638,7 +1112,7 @@
                 "threshold": 0.97,
                 "pass": false,
                 "c2_raw_p": 0.3045873495066606,
-                "c2_adjusted_p": 0.3156,
+                "c2_adjusted_p": 0.4227,
                 "c5_p": 0.5655220038253549
               }
             },
@@ -650,7 +1124,7 @@
                 "threshold": 0.97,
                 "pass": true,
                 "c2_raw_p": 0.012251566292976968,
-                "c2_adjusted_p": 0.0269,
+                "c2_adjusted_p": 0.0378,
                 "c5_p": 0.9881715778897653
               },
               "CRPS": {
@@ -660,7 +1134,7 @@
                 "threshold": 0.97,
                 "pass": true,
                 "c2_raw_p": 0.006462280718463387,
-                "c2_adjusted_p": 0.0177,
+                "c2_adjusted_p": 0.0285,
                 "c5_p": 0.9931691102766043
               }
             }
@@ -677,12 +1151,12 @@
           },
           "c2_adjusted_p": {
             "W1": {
-              "RMSE": 0.4414,
-              "CRPS": 0.3156
+              "RMSE": 0.5855,
+              "CRPS": 0.4227
             },
             "W2": {
-              "RMSE": 0.0269,
-              "CRPS": 0.0177
+              "RMSE": 0.0378,
+              "CRPS": 0.0285
             }
           },
           "c4_window_status": {
@@ -725,6 +1199,151 @@
               }
             }
           },
+          "family_size": 4,
+          "windows": {
+            "W1": {
+              "origins": 121,
+              "first_origin": "1996-12-31",
+              "last_origin": "2006-12-31",
+              "data_class": "REAL_TIME"
+            },
+            "W2": {
+              "origins": 156,
+              "first_origin": "2007-01-31",
+              "last_origin": "2019-12-31",
+              "data_class": "REAL_TIME"
+            }
+          }
+        },
+        {
+          "candidate_id": "ENSEMBLE_BAYES",
+          "role": "control",
+          "status": "CANDIDATE",
+          "data_class": "REAL_TIME",
+          "C1": false,
+          "C2": false,
+          "C2_romano_wolf_adjusted_p": 0.9474,
+          "C3": "NOT_IMPLEMENTED",
+          "C4": false,
+          "C5": false,
+          "C6": "NO_RESOLVED_FORECASTS",
+          "relative_losses": {
+            "W1": {
+              "RMSE": 1.0347279877452407,
+              "CRPS": 1.0309462555938185
+            },
+            "W2": {
+              "RMSE": 0.9820552703476885,
+              "CRPS": 0.981118119156924
+            }
+          },
+          "loss_details": {
+            "W1": {
+              "RMSE": {
+                "candidate_loss": 2.1004155714330515,
+                "comparator_loss": 2.02992051660846,
+                "relative_loss": 1.0347279877452407,
+                "threshold": 0.97,
+                "pass": false,
+                "c2_raw_p": 0.9668164392036039,
+                "c2_adjusted_p": 0.9474,
+                "c5_p": 0.042870028743064226
+              },
+              "CRPS": {
+                "candidate_loss": 1.2396319141123735,
+                "comparator_loss": 1.2024214719111166,
+                "relative_loss": 1.0309462555938185,
+                "threshold": 0.97,
+                "pass": false,
+                "c2_raw_p": 0.9462140009966422,
+                "c2_adjusted_p": 0.9307,
+                "c5_p": 0.05607615108462172
+              }
+            },
+            "W2": {
+              "RMSE": {
+                "candidate_loss": 2.398704242843259,
+                "comparator_loss": 2.4425348707654893,
+                "relative_loss": 0.9820552703476885,
+                "threshold": 0.97,
+                "pass": false,
+                "c2_raw_p": 0.2001583797621861,
+                "c2_adjusted_p": 0.1894,
+                "c5_p": 0.8114494255125771
+              },
+              "CRPS": {
+                "candidate_loss": 1.2748220398798062,
+                "comparator_loss": 1.2993563313001113,
+                "relative_loss": 0.981118119156924,
+                "threshold": 0.97,
+                "pass": false,
+                "c2_raw_p": 0.1602977196855661,
+                "c2_adjusted_p": 0.1635,
+                "c5_p": 0.8282011086045185
+              }
+            }
+          },
+          "c1_loss_pass": {
+            "W1": {
+              "RMSE": false,
+              "CRPS": false
+            },
+            "W2": {
+              "RMSE": false,
+              "CRPS": false
+            }
+          },
+          "c2_adjusted_p": {
+            "W1": {
+              "RMSE": 0.9474,
+              "CRPS": 0.9307
+            },
+            "W2": {
+              "RMSE": 0.1894,
+              "CRPS": 0.1635
+            }
+          },
+          "c4_window_status": {
+            "W1": {
+              "statuses": {
+                "RMSE": "INCONCLUSIVE",
+                "CRPS": "INCONCLUSIVE"
+              },
+              "recession_origins": {
+                "RMSE": 8,
+                "CRPS": 8
+              },
+              "min_recession_origins": 12,
+              "relative_loss_met": {
+                "RMSE": true,
+                "CRPS": true
+              },
+              "conditional_gw_p": {
+                "RMSE": 0.2594536462812792,
+                "CRPS": 0.21153268037712164
+              }
+            },
+            "W2": {
+              "statuses": {
+                "RMSE": "PASS",
+                "CRPS": "PASS"
+              },
+              "recession_origins": {
+                "RMSE": 18,
+                "CRPS": 18
+              },
+              "min_recession_origins": 12,
+              "relative_loss_met": {
+                "RMSE": true,
+                "CRPS": true
+              },
+              "conditional_gw_p": {
+                "RMSE": 0.04356558801543704,
+                "CRPS": 0.04318662922412932
+              }
+            }
+          },
+          "family_size": 4,
           "windows": {
             "W1": {
               "origins": 121,
@@ -747,7 +1366,7 @@
           "data_class": "REAL_TIME",
           "C1": false,
           "C2": true,
-          "C2_romano_wolf_adjusted_p": 0.0269,
+          "C2_romano_wolf_adjusted_p": 0.0363,
           "C3": "NOT_IMPLEMENTED",
           "C4": false,
           "C5": true,
@@ -771,7 +1390,7 @@
                 "threshold": 0.97,
                 "pass": false,
                 "c2_raw_p": 0.0017651663025353148,
-                "c2_adjusted_p": 0.0073,
+                "c2_adjusted_p": 0.009,
                 "c5_p": 0.9940113390712302
               },
               "CRPS": {
@@ -781,7 +1400,7 @@
                 "threshold": 0.97,
                 "pass": false,
                 "c2_raw_p": 0.0013386334986969506,
-                "c2_adjusted_p": 0.0032,
+                "c2_adjusted_p": 0.0037,
                 "c5_p": 0.9942864252084678
               }
             },
@@ -793,7 +1412,7 @@
                 "threshold": 0.97,
                 "pass": true,
                 "c2_raw_p": 0.010837158551633141,
-                "c2_adjusted_p": 0.0269,
+                "c2_adjusted_p": 0.0363,
                 "c5_p": 0.9877956508733181
               },
               "CRPS": {
@@ -803,7 +1422,7 @@
                 "threshold": 0.97,
                 "pass": true,
                 "c2_raw_p": 0.0021484677311308653,
-                "c2_adjusted_p": 0.0112,
+                "c2_adjusted_p": 0.0169,
                 "c5_p": 0.9969269705865036
               }
             }
@@ -820,12 +1439,12 @@
           },
           "c2_adjusted_p": {
             "W1": {
-              "RMSE": 0.0073,
-              "CRPS": 0.0032
+              "RMSE": 0.009,
+              "CRPS": 0.0037
             },
             "W2": {
-              "RMSE": 0.0269,
-              "CRPS": 0.0112
+              "RMSE": 0.0363,
+              "CRPS": 0.0169
             }
           },
           "c4_window_status": {
@@ -868,6 +1487,151 @@
               }
             }
           },
+          "family_size": 4,
+          "windows": {
+            "W1": {
+              "origins": 121,
+              "first_origin": "1996-12-31",
+              "last_origin": "2006-12-31",
+              "data_class": "REAL_TIME"
+            },
+            "W2": {
+              "origins": 156,
+              "first_origin": "2007-01-31",
+              "last_origin": "2019-12-31",
+              "data_class": "REAL_TIME"
+            }
+          }
+        },
+        {
+          "candidate_id": "ENSEMBLE_INVERSE_MSE",
+          "role": "control",
+          "status": "CANDIDATE",
+          "data_class": "REAL_TIME",
+          "C1": false,
+          "C2": false,
+          "C2_romano_wolf_adjusted_p": 0.2572,
+          "C3": "NOT_IMPLEMENTED",
+          "C4": false,
+          "C5": true,
+          "C6": "NO_RESOLVED_FORECASTS",
+          "relative_losses": {
+            "W1": {
+              "RMSE": 0.99029211093519,
+              "CRPS": 0.9860733112499144
+            },
+            "W2": {
+              "RMSE": 0.9411760620581469,
+              "CRPS": 0.9388719840306091
+            }
+          },
+          "loss_details": {
+            "W1": {
+              "RMSE": {
+                "candidate_loss": 2.0102142734228434,
+                "comparator_loss": 2.02992051660846,
+                "relative_loss": 0.99029211093519,
+                "threshold": 0.97,
+                "pass": false,
+                "c2_raw_p": 0.1384101697804861,
+                "c2_adjusted_p": 0.2572,
+                "c5_p": 0.809023671722902
+              },
+              "CRPS": {
+                "candidate_loss": 1.1856757223253906,
+                "comparator_loss": 1.2024214719111166,
+                "relative_loss": 0.9860733112499144,
+                "threshold": 0.97,
+                "pass": false,
+                "c2_raw_p": 0.05813246879127598,
+                "c2_adjusted_p": 0.0753,
+                "c5_p": 0.8976759341148046
+              }
+            },
+            "W2": {
+              "RMSE": {
+                "candidate_loss": 2.2988553511067678,
+                "comparator_loss": 2.4425348707654893,
+                "relative_loss": 0.9411760620581469,
+                "threshold": 0.97,
+                "pass": true,
+                "c2_raw_p": 0.00982600365007813,
+                "c2_adjusted_p": 0.0363,
+                "c5_p": 0.9911317061190483
+              },
+              "CRPS": {
+                "candidate_loss": 1.219929256730469,
+                "comparator_loss": 1.2993563313001113,
+                "relative_loss": 0.9388719840306091,
+                "threshold": 0.97,
+                "pass": true,
+                "c2_raw_p": 0.0038208211653220636,
+                "c2_adjusted_p": 0.0214,
+                "c5_p": 0.9962498226130853
+              }
+            }
+          },
+          "c1_loss_pass": {
+            "W1": {
+              "RMSE": false,
+              "CRPS": false
+            },
+            "W2": {
+              "RMSE": true,
+              "CRPS": true
+            }
+          },
+          "c2_adjusted_p": {
+            "W1": {
+              "RMSE": 0.2572,
+              "CRPS": 0.0753
+            },
+            "W2": {
+              "RMSE": 0.0363,
+              "CRPS": 0.0214
+            }
+          },
+          "c4_window_status": {
+            "W1": {
+              "statuses": {
+                "RMSE": "INCONCLUSIVE",
+                "CRPS": "INCONCLUSIVE"
+              },
+              "recession_origins": {
+                "RMSE": 8,
+                "CRPS": 8
+              },
+              "min_recession_origins": 12,
+              "relative_loss_met": {
+                "RMSE": true,
+                "CRPS": true
+              },
+              "conditional_gw_p": {
+                "RMSE": 0.16088967053942407,
+                "CRPS": 0.5094022739121462
+              }
+            },
+            "W2": {
+              "statuses": {
+                "RMSE": "PASS",
+                "CRPS": "PASS"
+              },
+              "recession_origins": {
+                "RMSE": 18,
+                "CRPS": 18
+              },
+              "min_recession_origins": 12,
+              "relative_loss_met": {
+                "RMSE": true,
+                "CRPS": true
+              },
+              "conditional_gw_p": {
+                "RMSE": 0.08116117582148503,
+                "CRPS": 0.08904497415408225
+              }
+            }
+          },
+          "family_size": 4,
           "windows": {
             "W1": {
               "origins": 121,
@@ -889,14 +1653,58 @@
           "candidate_id": "ENSEMBLE_EQUAL",
           "status": "CANDIDATE",
           "W1_RMSE_relative_loss": 0.9854013906701806,
-          "W1_RMSE_c2_adjusted_p": 0.0073,
+          "W1_RMSE_c2_adjusted_p": 0.009,
           "W1_CRPS_relative_loss": 0.9842533835934226,
-          "W1_CRPS_c2_adjusted_p": 0.0032,
+          "W1_CRPS_c2_adjusted_p": 0.0037,
           "W2_RMSE_relative_loss": 0.9617138617472383,
-          "W2_RMSE_c2_adjusted_p": 0.0269,
+          "W2_RMSE_c2_adjusted_p": 0.0363,
           "W2_CRPS_relative_loss": 0.9596406665840708,
-          "W2_CRPS_c2_adjusted_p": 0.0112,
-          "romano_wolf_adjusted_p": 0.0269,
+          "W2_CRPS_c2_adjusted_p": 0.0169,
+          "romano_wolf_adjusted_p": 0.0363,
+          "C4_W1": {
+            "RMSE": "INCONCLUSIVE",
+            "CRPS": "INCONCLUSIVE"
+          },
+          "C4_W2": {
+            "RMSE": "PASS",
+            "CRPS": "PASS"
+          },
+          "C6": "NO_RESOLVED_FORECASTS"
+        },
+        {
+          "candidate_id": "ENSEMBLE_INVERSE_MSE",
+          "status": "CANDIDATE",
+          "W1_RMSE_relative_loss": 0.99029211093519,
+          "W1_RMSE_c2_adjusted_p": 0.2572,
+          "W1_CRPS_relative_loss": 0.9860733112499144,
+          "W1_CRPS_c2_adjusted_p": 0.0753,
+          "W2_RMSE_relative_loss": 0.9411760620581469,
+          "W2_RMSE_c2_adjusted_p": 0.0363,
+          "W2_CRPS_relative_loss": 0.9388719840306091,
+          "W2_CRPS_c2_adjusted_p": 0.0214,
+          "romano_wolf_adjusted_p": 0.2572,
+          "C4_W1": {
+            "RMSE": "INCONCLUSIVE",
+            "CRPS": "INCONCLUSIVE"
+          },
+          "C4_W2": {
+            "RMSE": "PASS",
+            "CRPS": "PASS"
+          },
+          "C6": "NO_RESOLVED_FORECASTS"
+        },
+        {
+          "candidate_id": "ENSEMBLE_BAYES",
+          "status": "CANDIDATE",
+          "W1_RMSE_relative_loss": 1.0347279877452407,
+          "W1_RMSE_c2_adjusted_p": 0.9474,
+          "W1_CRPS_relative_loss": 1.0309462555938185,
+          "W1_CRPS_c2_adjusted_p": 0.9307,
+          "W2_RMSE_relative_loss": 0.9820552703476885,
+          "W2_RMSE_c2_adjusted_p": 0.1894,
+          "W2_CRPS_relative_loss": 0.981118119156924,
+          "W2_CRPS_c2_adjusted_p": 0.1635,
+          "romano_wolf_adjusted_p": 0.9474,
           "C4_W1": {
             "RMSE": "INCONCLUSIVE",
             "CRPS": "INCONCLUSIVE"
@@ -911,14 +1719,14 @@
           "candidate_id": "ENSEMBLE_ADAPTIVE",
           "status": "CANDIDATE",
           "W1_RMSE_relative_loss": 0.9984746287376136,
-          "W1_RMSE_c2_adjusted_p": 0.4414,
+          "W1_RMSE_c2_adjusted_p": 0.5855,
           "W1_CRPS_relative_loss": 0.995137156383591,
-          "W1_CRPS_c2_adjusted_p": 0.3156,
+          "W1_CRPS_c2_adjusted_p": 0.4227,
           "W2_RMSE_relative_loss": 0.9468797589316467,
-          "W2_RMSE_c2_adjusted_p": 0.0269,
+          "W2_RMSE_c2_adjusted_p": 0.0378,
           "W2_CRPS_relative_loss": 0.9465917017556079,
-          "W2_CRPS_c2_adjusted_p": 0.0177,
-          "romano_wolf_adjusted_p": 0.4414,
+          "W2_CRPS_c2_adjusted_p": 0.0285,
+          "romano_wolf_adjusted_p": 0.5855,
           "C4_W1": {
             "RMSE": "INCONCLUSIVE",
             "CRPS": "INCONCLUSIVE"
@@ -935,6 +1743,14 @@
           "file": "ensemble_eval_ENSEMBLE_EQUAL_T2_h0_v2.json",
           "sha256": "6e1613e3b4bfee3b6c4be46b25c62b3aa71f4885432719749a8332fc83b3fdf0"
         },
+        "ENSEMBLE_INVERSE_MSE": {
+          "file": "extended_pass/ensemble_eval_ENSEMBLE_INVERSE_MSE_T2_h0_v2.json",
+          "sha256": "03efa398d8603e298de61097b4d97c6199d8d8ad19738fb6d72bf99cb83fd6b6"
+        },
+        "ENSEMBLE_BAYES": {
+          "file": "extended_pass/ensemble_eval_ENSEMBLE_BAYES_T2_h0_v2.json",
+          "sha256": "07df98e1ac30f0bfb12cae0986795f6cc817d09ffe2fedb6c6839bd173fabb13"
+        },
         "ENSEMBLE_ADAPTIVE": {
           "file": "ensemble_eval_ENSEMBLE_ADAPTIVE_T2_h0_v2.json",
           "sha256": "f447828d7ebcb0e34ba75dce578a174217d7f8823bb404e5e161c6a8fe74847b"
@@ -943,18 +1759,71 @@
       "candidate_coverage": {
         "evaluated": [
           "ENSEMBLE_ADAPTIVE",
-          "ENSEMBLE_EQUAL"
+          "ENSEMBLE_BAYES",
+          "ENSEMBLE_EQUAL",
+          "ENSEMBLE_INVERSE_MSE"
         ],
         "registered": [
-          "ENSEMBLE_EQUAL",
-          "ENSEMBLE_INVERSE_MSE",
+          "ENSEMBLE_ADAPTIVE",
           "ENSEMBLE_BAYES",
-          "ENSEMBLE_ADAPTIVE"
+          "ENSEMBLE_EQUAL",
+          "ENSEMBLE_INVERSE_MSE"
         ],
-        "not_evaluated": [
-          "ENSEMBLE_INVERSE_MSE",
-          "ENSEMBLE_BAYES"
-        ]
+        "not_evaluated": []
+      },
+      "evidence_consistency": {
+        "ENSEMBLE_EQUAL": {
+          "file": "ensemble_eval_ENSEMBLE_EQUAL_T2_h0_v2.json",
+          "matches_joint_losses": true,
+          "status_matches": true,
+          "rmse_matches": true,
+          "rmse_mismatches": [],
+          "max_crps_relative_delta": 0.0,
+          "crps_within_tolerance": true,
+          "crps_tolerance": 0.001,
+          "per_candidate_report_family_size": 2,
+          "joint_family_size": 4,
+          "note": "the evidence file is the per-candidate artefact from the extended/reduced pass; the official multiplicity table is recomputed in the joint family of 4, so the adjusted p-values in the evidence file are superseded. Statuses and RMSE match exactly; CRPS can differ by <=1e-3 relative because the weighted-mixture robust path (commit 571891d) landed after the evidence files were produced -- the official CRPS is the joint run on the current code"
+        },
+        "ENSEMBLE_INVERSE_MSE": {
+          "file": "extended_pass/ensemble_eval_ENSEMBLE_INVERSE_MSE_T2_h0_v2.json",
+          "matches_joint_losses": true,
+          "status_matches": true,
+          "rmse_matches": true,
+          "rmse_mismatches": [],
+          "max_crps_relative_delta": 0.0,
+          "crps_within_tolerance": true,
+          "crps_tolerance": 0.001,
+          "per_candidate_report_family_size": 1,
+          "joint_family_size": 4,
+          "note": "the evidence file is the per-candidate artefact from the extended/reduced pass; the official multiplicity table is recomputed in the joint family of 4, so the adjusted p-values in the evidence file are superseded. Statuses and RMSE match exactly; CRPS can differ by <=1e-3 relative because the weighted-mixture robust path (commit 571891d) landed after the evidence files were produced -- the official CRPS is the joint run on the current code"
+        },
+        "ENSEMBLE_BAYES": {
+          "file": "extended_pass/ensemble_eval_ENSEMBLE_BAYES_T2_h0_v2.json",
+          "matches_joint_losses": true,
+          "status_matches": true,
+          "rmse_matches": true,
+          "rmse_mismatches": [],
+          "max_crps_relative_delta": 0.0,
+          "crps_within_tolerance": true,
+          "crps_tolerance": 0.001,
+          "per_candidate_report_family_size": 1,
+          "joint_family_size": 4,
+          "note": "the evidence file is the per-candidate artefact from the extended/reduced pass; the official multiplicity table is recomputed in the joint family of 4, so the adjusted p-values in the evidence file are superseded. Statuses and RMSE match exactly; CRPS can differ by <=1e-3 relative because the weighted-mixture robust path (commit 571891d) landed after the evidence files were produced -- the official CRPS is the joint run on the current code"
+        },
+        "ENSEMBLE_ADAPTIVE": {
+          "file": "ensemble_eval_ENSEMBLE_ADAPTIVE_T2_h0_v2.json",
+          "matches_joint_losses": true,
+          "status_matches": true,
+          "rmse_matches": true,
+          "rmse_mismatches": [],
+          "max_crps_relative_delta": 0.0,
+          "crps_within_tolerance": true,
+          "crps_tolerance": 0.001,
+          "per_candidate_report_family_size": 2,
+          "joint_family_size": 4,
+          "note": "the evidence file is the per-candidate artefact from the extended/reduced pass; the official multiplicity table is recomputed in the joint family of 4, so the adjusted p-values in the evidence file are superseded. Statuses and RMSE match exactly; CRPS can differ by <=1e-3 relative because the weighted-mixture robust path (commit 571891d) landed after the evidence files were produced -- the official CRPS is the joint run on the current code"
+        }
       }
     }
   },
@@ -970,14 +1839,46 @@
       "C6 has no resolved forecasts; C3 is not implemented (non-gating)",
       "the first ~12 origins of W1 use calibration history where models needing the yield-curve inputs (BVAR) can be PSEUDO_REAL_TIME because GS10/TB3MS vintages start 1996-12",
       "T1/T2 candidates use the same members as the comparator (plus SPF only at T2 survey-deadline origins); the SPF inclusion requires the separate sensitivity (docs/95)",
-      "runtimes are dominated by dense-vintage DataContext construction per member/origin"
-    ]
+      "runtimes are dominated by dense-vintage DataContext construction per member/origin",
+      "the official v2 pass now covers all four registered candidates: INVERSE_MSE/BAYES evidence comes from the extended pass (protocols/extended_pass/), and the multiplicity table is recomputed jointly over the family of 4 (the per-candidate files retain their own family-1/2 adjusted p-values as raw evidence and are superseded only for the official multiplicity table)",
+      "the official v2 pass now covers all four registered candidates: INVERSE_MSE/BAYES evidence comes from the extended pass (protocols/extended_pass/), and the multiplicity table is recomputed jointly over the family of 4 (the per-candidate files retain their own family-1/2 adjusted p-values as raw evidence and are superseded only for the official multiplicity table)"
+    ],
+    "extended_pass": {
+      "date": "2026-11-12",
+      "files": {
+        "T1_h1": {
+          "ENSEMBLE_INVERSE_MSE": {
+            "file": "extended_pass/ensemble_eval_ENSEMBLE_INVERSE_MSE_T1_h1_v2.json",
+            "sha256": "92340167cad95fc22c9e97adb5bb81c64439a04b4160ce5abc940ca60fadbc0b"
+          },
+          "ENSEMBLE_BAYES": {
+            "file": "extended_pass/ensemble_eval_ENSEMBLE_BAYES_T1_h1_v2.json",
+            "sha256": "45ecbbb1931452973f187c61e359fae608ec3fb39a2dfab6e054876b98e4a3cc"
+          }
+        },
+        "T2_h0": {
+          "ENSEMBLE_INVERSE_MSE": {
+            "file": "extended_pass/ensemble_eval_ENSEMBLE_INVERSE_MSE_T2_h0_v2.json",
+            "sha256": "03efa398d8603e298de61097b4d97c6199d8d8ad19738fb6d72bf99cb83fd6b6"
+          },
+          "ENSEMBLE_BAYES": {
+            "file": "extended_pass/ensemble_eval_ENSEMBLE_BAYES_T2_h0_v2.json",
+            "sha256": "07df98e1ac30f0bfb12cae0986795f6cc817d09ffe2fedb6c6839bd173fabb13"
+          }
+        }
+      },
+      "family_note": "the per-candidate extended-pass reports were produced as single-candidate reports (family_size=1); the official v2 multiplicity table is recomputed jointly over all four candidates in this merged pass"
+    }
   },
   "files": {
-    "protocols/ensemble_evaluation_report_v2.json": "73d7f502ab6993066b658f1fc19d7a0f9f9aa4598e7a6c039f0277a292cbc0e4",
-    "protocols/ensemble_eval_ENSEMBLE_EQUAL_T1_h1_v2.json": "bbe737c412796fe8626965493a095652b997e7aa3a9cb4412f7fb705358c0b89",
-    "protocols/ensemble_eval_ENSEMBLE_ADAPTIVE_T1_h1_v2.json": "d8e11379c4b221362065faa7e54d29d818d8c366bf6341aab717bef3e889a41f",
-    "protocols/ensemble_eval_ENSEMBLE_EQUAL_T2_h0_v2.json": "ed3dc6e99bfb46f2066904b671d056b40958b6cb15acf72da0d10f545afb1581",
-    "protocols/ensemble_eval_ENSEMBLE_ADAPTIVE_T2_h0_v2.json": "0d55b15aa1fccbb1e9eab46321e6d618e908e5c01683dfd2bedf94f34ff2ccf3"
+    "protocols/ensemble_evaluation_report_v2.json": "3ac5bcb4a25e1c22bd9a493075522dd1e77744a0325321d66a8c3e91f7757450",
+    "protocols/ensemble_eval_ENSEMBLE_EQUAL_T1_h1_v2.json": "2f94893fbf38e7e07483bfc1dd086617938bce48d6121fa9ca34d3b7bdef9269",
+    "protocols/extended_pass/ensemble_eval_ENSEMBLE_INVERSE_MSE_T1_h1_v2.json": "92340167cad95fc22c9e97adb5bb81c64439a04b4160ce5abc940ca60fadbc0b",
+    "protocols/extended_pass/ensemble_eval_ENSEMBLE_BAYES_T1_h1_v2.json": "45ecbbb1931452973f187c61e359fae608ec3fb39a2dfab6e054876b98e4a3cc",
+    "protocols/ensemble_eval_ENSEMBLE_ADAPTIVE_T1_h1_v2.json": "1f72553299b3eb565a1c576ed67ac920f7d435d3315e20badf7c02be8546455a",
+    "protocols/ensemble_eval_ENSEMBLE_EQUAL_T2_h0_v2.json": "6e1613e3b4bfee3b6c4be46b25c62b3aa71f4885432719749a8332fc83b3fdf0",
+    "protocols/extended_pass/ensemble_eval_ENSEMBLE_INVERSE_MSE_T2_h0_v2.json": "03efa398d8603e298de61097b4d97c6199d8d8ad19738fb6d72bf99cb83fd6b6",
+    "protocols/extended_pass/ensemble_eval_ENSEMBLE_BAYES_T2_h0_v2.json": "07df98e1ac30f0bfb12cae0986795f6cc817d09ffe2fedb6c6839bd173fabb13",
+    "protocols/ensemble_eval_ENSEMBLE_ADAPTIVE_T2_h0_v2.json": "f447828d7ebcb0e34ba75dce578a174217d7f8823bb404e5e161c6a8fe74847b"
   }
 }

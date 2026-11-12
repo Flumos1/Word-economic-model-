@@ -1,0 +1,555 @@
+{
+ "report_id": "AMFE-ENSEMBLE-EVAL-V2",
+ "generated_at": "2026-11-12T13:40:09Z",
+ "candidate": "ENSEMBLE_ADAPTIVE",
+ "candidate_role": "candidate",
+ "candidate_registration": {
+  "code_sha256": "795871c86e840db6a78ff6946e2ce370bf39c4cd28f62110a5e248b370f9ab51",
+  "code_files": {
+   "src/amfe/ensemble/__init__.py": "74a7e7d356fbbe7183a1619341e9d107194d4e09f6957920eef807a240daab10",
+   "src/amfe/ensemble/ensemble.py": "795871c86e840db6a78ff6946e2ce370bf39c4cd28f62110a5e248b370f9ab51",
+   "src/amfe/ensemble/weights.py": "a07926b85492aa8044134f93bc99b2056451485198170423373aea44c45be2f0",
+   "src/amfe/ensemble/mixture.py": "14971818a677758ac62a4c71c9205cbdf38029e8b0288de9cf6b295fce64f2cb",
+   "src/amfe/ensemble/sources.py": "882c25c71d5611dbc27965771485dcad6bd3f8160c702ae60acb94cf06e7c9be",
+   "src/amfe/ensemble/history.py": "3d1bff946952c0e3b998bfaefccae76498f335e3dbe333b47aa4a38c31d354ba"
+  },
+  "targets": [
+   "T1_CPI_YOY",
+   "T2_GDP_GROWTH",
+   "T3_RECESSION"
+  ],
+  "registered_batch": {
+   "date": "2026-11-12",
+   "ids": [
+    "ENSEMBLE_EQUAL",
+    "ENSEMBLE_INVERSE_MSE",
+    "ENSEMBLE_BAYES",
+    "ENSEMBLE_ADAPTIVE"
+   ],
+   "source": "docs/81"
+  },
+  "registered_before_evaluation": true
+ },
+ "target": "T2_GDP_GROWTH",
+ "horizon": 4,
+ "mode": "auto",
+ "data_class": "REAL_TIME",
+ "protocol": {
+  "file": "evaluation_protocol_v4.json",
+  "version": "4.0.0",
+  "sha256": "bd965f4d9f23151b4ccfd27202f0669d0a7807e642639ed18c0b864bf68dedc9"
+ },
+ "r3_specification": {
+  "file": "r3_specification.json",
+  "version": "1.0.1",
+  "sha256": "5191b0626e7567bcbca657cd904fdfe8d2661c55c629c0dfe555fd7f2f305275"
+ },
+ "composition": {
+  "file": "comparator_composition_2026-11-11.json",
+  "sha256": "50da8670ebf5ad548beb3bd136b041e37714b612b4462982645aee942bbb6579"
+ },
+ "candidates": {
+  "file": "candidates_2026-11-11.json",
+  "sha256": "13a2ed77d6b2e9c8e7b5f392df08b1a918288f8e956dce3203dafa60e8345f08"
+ },
+ "real_time_origin_rule": {
+  "start": "1996-12-31",
+  "rule": "origins with month >= 1996-12: ALFRED vintages of GS10/TB3MS start 1996-12-03; the runner's REAL_TIME guard would skip earlier origins as PSEUDO_REAL_TIME",
+  "origins": {
+   "W1": 37,
+   "W2": 48
+  }
+ },
+ "windows": {
+  "W1": {
+   "window": "W1",
+   "origins": 37,
+   "first_origin": "1996-12-31",
+   "last_origin": "2005-12-31",
+   "data_class": "REAL_TIME",
+   "vintage_dates": [
+    "1996-12-20",
+    "1997-03-28",
+    "1997-06-27",
+    "1997-09-26",
+    "1997-12-23",
+    "1998-03-26",
+    "1998-06-25",
+    "1998-09-24",
+    "1998-12-23",
+    "1999-03-31",
+    "1999-06-25",
+    "1999-09-30",
+    "1999-12-22",
+    "2000-03-30",
+    "2000-06-29",
+    "2000-09-28",
+    "2000-12-21",
+    "2001-03-29",
+    "2001-06-29",
+    "2001-09-28",
+    "2001-12-21",
+    "2002-03-28",
+    "2002-06-27",
+    "2002-09-27",
+    "2002-12-20",
+    "2003-03-27",
+    "2003-06-26",
+    "2003-09-26",
+    "2003-12-23",
+    "2004-03-25",
+    "2004-06-25",
+    "2004-09-29",
+    "2004-12-22",
+    "2005-03-30",
+    "2005-06-29",
+    "2005-09-29",
+    "2005-12-21"
+   ],
+   "member_failures": 0,
+   "pseudo_origins_skipped": 0,
+   "actual_primary_sha256": "8cb233538b6e8dcfe5e559ffd2d3305855657757fc861f833db8e2fdf3d96847",
+   "actual_primary_n": 37,
+   "actual_secondary_sha256": "c2e7461f426fb9d60871c9b747b5544d3f95d6767c7a619c2e145c21ba04a86b",
+   "actual_secondary_n": 37,
+   "recession_mask_sha256": "0ae2135cd4e20644e1dddbc54bc4895b8719601592973ed658ef694d1d4b4733",
+   "candidate": {
+    "point_sha256": "9302bc0035415cc586478cba0c133ae190e7b9e538541e1a4d5c774847f07ec3",
+    "point_n": 37,
+    "quantiles_sha256": "207502f3f563602340b4b3f15476aad899ed51e9ddcfc9ca4624710508823466",
+    "quantiles_n": 703
+   },
+   "comparator": {
+    "point_sha256": "62bfc07f91a443bef4588a85460b50b857ea53b7f419f0ecbcb777bfff9c18fd",
+    "point_n": 37,
+    "quantiles_sha256": "a9e0757b2da6f12dd3bed24d916c6f9431172f61ef0d8448d99befd20ecfa050",
+    "quantiles_n": 703
+   },
+   "licence_note": "forecasts and actual values are not stored: only digests and derived metrics (docs/84, D-147)"
+  },
+  "W2": {
+   "window": "W2",
+   "origins": 48,
+   "first_origin": "2007-03-31",
+   "last_origin": "2018-12-31",
+   "data_class": "REAL_TIME",
+   "vintage_dates": [
+    "2007-03-29",
+    "2007-06-28",
+    "2007-09-27",
+    "2007-12-20",
+    "2008-03-27",
+    "2008-06-26",
+    "2008-09-26",
+    "2008-12-23",
+    "2009-03-26",
+    "2009-06-25",
+    "2009-09-30",
+    "2009-12-22",
+    "2010-03-26",
+    "2010-06-25",
+    "2010-09-30",
+    "2010-12-22",
+    "2011-03-25",
+    "2011-06-24",
+    "2011-09-29",
+    "2011-12-22",
+    "2012-03-29",
+    "2012-06-28",
+    "2012-09-27",
+    "2012-12-20",
+    "2013-03-28",
+    "2013-06-26",
+    "2013-09-26",
+    "2013-12-20",
+    "2014-03-27",
+    "2014-06-25",
+    "2014-09-26",
+    "2014-12-23",
+    "2015-03-27",
+    "2015-06-24",
+    "2015-09-25",
+    "2015-12-22",
+    "2016-03-25",
+    "2016-06-28",
+    "2016-09-29",
+    "2016-12-22",
+    "2017-03-30",
+    "2017-06-29",
+    "2017-09-28",
+    "2017-12-21",
+    "2018-03-28",
+    "2018-06-28",
+    "2018-09-27",
+    "2018-12-21"
+   ],
+   "member_failures": 0,
+   "pseudo_origins_skipped": 0,
+   "actual_primary_sha256": "115ecf948e3e3ad67f80e5345b8bcc574893ad13f79d30e6ad6ed0ad7dac4122",
+   "actual_primary_n": 48,
+   "actual_secondary_sha256": "3ff6cd8ccad38407aa4d8603ecf3981e91247f4c191d5e603d82a8b22736bf32",
+   "actual_secondary_n": 48,
+   "recession_mask_sha256": "9fcf34076dcc2c2b8fbe71d24557e170d7da16721aa3b75a96e194ac9092e7d5",
+   "candidate": {
+    "point_sha256": "9163a21642093f7e2cad9527215ca9979bdb84919ab71945fd8eab56594c5367",
+    "point_n": 48,
+    "quantiles_sha256": "925ace76fdd6fbe07f3dafc3cfd8e890975bd85fb3f9bfc5018c924383c79fd4",
+    "quantiles_n": 912
+   },
+   "comparator": {
+    "point_sha256": "4da72a493d139507cc3d6b88e4e74aab8e548dfcfbfd374289d15f9ed54dadf6",
+    "point_n": 48,
+    "quantiles_sha256": "278294d0f2bcbff3a14d0ece7b7c295f8990dce08b309480a2a4dd0ce68dffa6",
+    "quantiles_n": 912
+   },
+   "licence_note": "forecasts and actual values are not stored: only digests and derived metrics (docs/84, D-147)"
+  }
+ },
+ "c6": "NO_RESOLVED_FORECASTS: the forward registry has no resolved forecast for this pair",
+ "admission": {
+  "protocol": "protocols/evaluation_protocol_v4.json",
+  "target": "T2_GDP_GROWTH",
+  "horizon": 4,
+  "min_comparator_members": null,
+  "multiplicity_method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+  "criteria": {
+   "C1": {
+    "gating": true,
+    "pass": false,
+    "threshold_rule": "min(0.97, q05_equal_methods) from protocols/nf_sim_thresholds.json",
+    "windows": {
+     "W1": {
+      "RMSE": {
+       "candidate_loss": 2.160673139223013,
+       "comparator_loss": 2.110185882896294,
+       "relative_loss": 1.0239255018886886,
+       "threshold": 0.97,
+       "pass": false
+      },
+      "CRPS": {
+       "candidate_loss": 1.2926757719094937,
+       "comparator_loss": 1.2724737442330227,
+       "relative_loss": 1.015876184296948,
+       "threshold": 0.97,
+       "pass": false
+      }
+     },
+     "W2": {
+      "RMSE": {
+       "candidate_loss": 2.5236262931920312,
+       "comparator_loss": 2.4908083388387268,
+       "relative_loss": 1.0131756240902121,
+       "threshold": 0.97,
+       "pass": false
+      },
+      "CRPS": {
+       "candidate_loss": 1.3457078574893677,
+       "comparator_loss": 1.3239630643722542,
+       "relative_loss": 1.0164240179369533,
+       "threshold": 0.97,
+       "pass": false
+      }
+     }
+    }
+   },
+   "C2": {
+    "gating": true,
+    "pass": false,
+    "multiplicity_method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+    "windows": {
+     "W1": {
+      "RMSE": {
+       "p_value": 0.8593240175613158,
+       "raw_p_value": 0.8593240175613158,
+       "statistic": 1.0772872313996997,
+       "hac_lags": 3,
+       "hln_factor": 0.9053045526726609,
+       "adjusted_p_value": 0.8469,
+       "family_size": 2,
+       "replications": 10000,
+       "bootstrap_block_length": 4
+      },
+      "CRPS": {
+       "p_value": 0.8034176422739623,
+       "raw_p_value": 0.8034176422739624,
+       "statistic": 0.8538922114014192,
+       "hac_lags": 3,
+       "hln_factor": 0.9053045526726609,
+       "adjusted_p_value": 1.0,
+       "family_size": 2,
+       "replications": 10000,
+       "bootstrap_block_length": 4
+      }
+     },
+     "W2": {
+      "RMSE": {
+       "p_value": 0.9051938222257874,
+       "raw_p_value": 0.9051938222257875,
+       "statistic": 1.3117267268297501,
+       "hac_lags": 3,
+       "hln_factor": 0.9270248108869579,
+       "adjusted_p_value": 0.8877,
+       "family_size": 2,
+       "replications": 10000,
+       "bootstrap_block_length": 4
+      },
+      "CRPS": {
+       "p_value": 0.870773888478799,
+       "raw_p_value": 0.870773888478799,
+       "statistic": 1.1300569621644923,
+       "hac_lags": 3,
+       "hln_factor": 0.9270248108869579,
+       "adjusted_p_value": 1.0,
+       "family_size": 2,
+       "replications": 10000,
+       "bootstrap_block_length": 4
+      }
+     }
+    },
+    "romano_wolf_adjusted_p": 1.0,
+    "romano_wolf_pass": false,
+    "family_size": 2,
+    "family": {
+     "ENSEMBLE_ADAPTIVE": {
+      "W1": {
+       "RMSE": 0.8469,
+       "CRPS": 1.0
+      },
+      "W2": {
+       "RMSE": 0.8877,
+       "CRPS": 1.0
+      }
+     },
+     "ENSEMBLE_EQUAL": {
+      "W1": {
+       "RMSE": 0.6926,
+       "CRPS": 1.0
+      },
+      "W2": {
+       "RMSE": 0.7767,
+       "CRPS": 1.0
+      }
+     }
+    },
+    "multiplicity": {
+     "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+     "fwer": 0.1,
+     "family": [
+      "ENSEMBLE_ADAPTIVE",
+      "ENSEMBLE_EQUAL"
+     ],
+     "family_size": 2,
+     "replications": 10000,
+     "seed": 20261111,
+     "block_length": null,
+     "adjusted_p_values": {
+      "ENSEMBLE_ADAPTIVE": {
+       "W1": {
+        "RMSE": 0.8469,
+        "CRPS": 1.0
+       },
+       "W2": {
+        "RMSE": 0.8877,
+        "CRPS": 1.0
+       }
+      },
+      "ENSEMBLE_EQUAL": {
+       "W1": {
+        "RMSE": 0.6926,
+        "CRPS": 1.0
+       },
+       "W2": {
+        "RMSE": 0.7767,
+        "CRPS": 1.0
+       }
+      }
+     },
+     "romano_wolf_adjusted_p": 1.0,
+     "romano_wolf_pass": false,
+     "rule": "adjusted p < fwer on W1 and on W2 for every applicable loss"
+    }
+   },
+   "C3": {
+    "status": "NOT_IMPLEMENTED",
+    "gating": false,
+    "pass": null,
+    "reason": "Model Confidence Set is not implemented by this harness; protocol admission.criteria C3 makes it non-gating (membership and set size only)"
+   },
+   "C4": {
+    "applies": true,
+    "per_window": {
+     "W1": {
+      "RMSE": {
+       "status": "INCONCLUSIVE",
+       "recession_origins": 4,
+       "min_recession_origins": 12,
+       "relative_loss_recession": 1.0425771571054296,
+       "relative_loss_met": false,
+       "conditional_gw_p": 0.8605297221822286,
+       "conditional_gw_rejected": false,
+       "mean_differential_recession": 0.18456960286910132,
+       "favours_comparator_in_recession": true,
+       "pass": false,
+       "note": "C4 pass requires >= 12 recession origins, relative loss <= 1.00 and no conditional rejection that favours the comparator"
+      },
+      "CRPS": {
+       "status": "INCONCLUSIVE",
+       "recession_origins": 4,
+       "min_recession_origins": 12,
+       "relative_loss_recession": 1.0250853637760893,
+       "relative_loss_met": false,
+       "conditional_gw_p": 0.6353374759257286,
+       "conditional_gw_rejected": false,
+       "mean_differential_recession": 0.03261140690383761,
+       "favours_comparator_in_recession": true,
+       "pass": false,
+       "note": "C4 pass requires >= 12 recession origins, relative loss <= 1.00 and no conditional rejection that favours the comparator"
+      }
+     },
+     "W2": {
+      "RMSE": {
+       "status": "INCONCLUSIVE",
+       "recession_origins": 7,
+       "min_recession_origins": 12,
+       "relative_loss_recession": 1.0032650611008154,
+       "relative_loss_met": false,
+       "conditional_gw_p": 0.7165028757694973,
+       "conditional_gw_rejected": false,
+       "mean_differential_recession": 0.09182056182982443,
+       "favours_comparator_in_recession": true,
+       "pass": false,
+       "note": "C4 pass requires >= 12 recession origins, relative loss <= 1.00 and no conditional rejection that favours the comparator"
+      },
+      "CRPS": {
+       "status": "INCONCLUSIVE",
+       "recession_origins": 7,
+       "min_recession_origins": 12,
+       "relative_loss_recession": 1.0065484941486174,
+       "relative_loss_met": false,
+       "conditional_gw_p": 0.9665428237949848,
+       "conditional_gw_rejected": false,
+       "mean_differential_recession": 0.02288985878950621,
+       "favours_comparator_in_recession": true,
+       "pass": false,
+       "note": "C4 pass requires >= 12 recession origins, relative loss <= 1.00 and no conditional rejection that favours the comparator"
+      }
+     }
+    },
+    "pass": false,
+    "gating": true
+   },
+   "C5": {
+    "gating": true,
+    "pass": false,
+    "alternative": "greater (candidate worse); p >= 0.10 required",
+    "windows": {
+     "W1": {
+      "RMSE": {
+       "mean_differential": 0.16662994699867784,
+       "statistic": 0.985655563885505,
+       "p_value": 0.16215108096738584,
+       "hac_lags": 3,
+       "hln_factor": 0.9053045526726609,
+       "n": 37,
+       "alternative": "greater",
+       "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+      },
+      "CRPS": {
+       "mean_differential": 0.015938340535863172,
+       "statistic": 0.7206962087260137,
+       "p_value": 0.23554822277204346,
+       "hac_lags": 3,
+       "hln_factor": 0.9053045526726609,
+       "n": 37,
+       "alternative": "greater",
+       "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+      }
+     },
+     "W2": {
+      "RMSE": {
+       "mean_differential": 0.15840866277291324,
+       "statistic": 1.325099347250557,
+       "p_value": 0.09256910130981422,
+       "hac_lags": 3,
+       "hln_factor": 0.9270248108869579,
+       "n": 48,
+       "alternative": "greater",
+       "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+      },
+      "CRPS": {
+       "mean_differential": 0.02224174087246855,
+       "statistic": 1.2124431892598158,
+       "p_value": 0.11267138843182978,
+       "hac_lags": 3,
+       "hln_factor": 0.9270248108869579,
+       "n": 48,
+       "alternative": "greater",
+       "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+      }
+     }
+    }
+   },
+   "C6": {
+    "status": "NO_RESOLVED_FORECASTS",
+    "pass": false,
+    "reason": "the forward registry has no resolved forecast for the pair",
+    "gating": true
+   }
+  },
+  "multiplicity": {
+   "primary": "Romano-Wolf stepdown FWER 0.10 (stationary bootstrap) on W1 and W2",
+   "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+   "family": [
+    "ENSEMBLE_ADAPTIVE",
+    "ENSEMBLE_EQUAL"
+   ],
+   "family_size": 2,
+   "replications": 10000,
+   "seed": 20261111,
+   "block_length": null,
+   "block_length_rule": "max(ceil(n**(1/3)), horizon)",
+   "adjusted_p_values": {
+    "ENSEMBLE_ADAPTIVE": {
+     "W1": {
+      "RMSE": 0.8469,
+      "CRPS": 1.0
+     },
+     "W2": {
+      "RMSE": 0.8877,
+      "CRPS": 1.0
+     }
+    },
+    "ENSEMBLE_EQUAL": {
+     "W1": {
+      "RMSE": 0.6926,
+      "CRPS": 1.0
+     },
+     "W2": {
+      "RMSE": 0.7767,
+      "CRPS": 1.0
+     }
+    }
+   },
+   "secondary": "Benjamini-Hochberg FDR q=0.10, reported only",
+   "note": "family = all candidates evaluated for this (target, horizon, loss) up to the decision date; later candidates do not retract earlier decisions but the adjusted p-values are republished; the error accumulates over (target, horizon, loss) pairs and over W1/W2"
+  },
+  "stages": {
+   "CANDIDATE_to_SHADOW_TEST": false,
+   "SHADOW_TEST_to_LIMITED_DEPLOYMENT": false,
+   "LIMITED_DEPLOYMENT_to_ACTIVE": false
+  },
+  "status": "CANDIDATE",
+  "data_class": "REAL_TIME",
+  "admission_allowed": true,
+  "data_class_note": "admission allowed: REAL_TIME data",
+  "notes": [
+   "C3 not implemented (non-gating)",
+   "C4/C5/C6 simplifications in docs/72",
+   "W1 for T3 starts 1996-12 (windows.target_overrides.T3_RECESSION.W1_start)",
+   "admission allowed: REAL_TIME data",
+   "multiplicity: full Romano-Wolf stepdown over 2 candidates, 10000 stationary-bootstrap replications, seed 20261111; C2 requires adjusted p < 0.10 on W1 and W2; a later candidate does not retract an earlier decision but the adjusted p-values are republished"
+  ]
+ },
+ "licence_note": "forecasts and actual values are not stored: only digests and derived metrics (docs/84, D-147)",
+ "reporting_only": "harness statuses only; no admission is assigned by this report"
+}

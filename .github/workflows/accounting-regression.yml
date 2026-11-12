@@ -126,3 +126,9 @@ jobs:
         run: python tests/test_world_calibration.py
       - name: Ensemble evaluation v2 report contract
         run: python tests/test_ensemble_evaluation_v2.py
+      - name: SPF-augmented T2 candidates (definitions, fallback, format)
+        run: python tests/test_spf_augmented_candidate.py
+      - name: Forecast cache (PIT-safe identity, invalidation, CLI)
+        run: python tests/test_eval_cache.py
+      - name: Terms-change checker (offline hash recomputation)
+        run: python tests/test_check_terms.py

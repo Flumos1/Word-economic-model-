@@ -108,7 +108,7 @@
       "file": "protocols/comparator_composition_2026-11-11.json",
       "document_id": "AMFE-COMPARATOR-COMPOSITION",
       "evaluation_date": "2026-11-11",
-      "sha256": "5b42b61e183d7272508060a2d37b25516e26f7c6894c9b3e663628fecd29d9ee",
+      "sha256": "50da8670ebf5ad548beb3bd136b041e37714b612b4462982645aee942bbb6579",
       "pin_file": "protocols/comparator_composition_2026-11-11.sha256",
       "pin": "5b42b61e183d7272508060a2d37b25516e26f7c6894c9b3e663628fecd29d9ee"
     }
@@ -168,7 +168,7 @@
         "ENSEMBLE_ADAPTIVE"
       ],
       "registered_on": "2026-11-11",
-      "sha256": "4177e575c1bf18f930dd8c6fb16e8bd21fdb199d7d054c574f25d6353f917ec4"
+      "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
     },
     "licence_register": {
       "file": "protocols/licence_register.json",

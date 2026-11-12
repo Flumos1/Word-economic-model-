@@ -67,8 +67,27 @@ def assert_no_raw_arrays(testcase: unittest.TestCase, node, path: str = "") -> N
             assert_no_raw_arrays(testcase, value, f"{path}[{index}]")
 
 
+REGISTERED = ("ENSEMBLE_EQUAL", "ENSEMBLE_INVERSE_MSE", "ENSEMBLE_BAYES",
+              "ENSEMBLE_ADAPTIVE")
+EXTENDED_DIR = ROOT / "protocols" / "extended_pass"
+
+
+def candidate_report_path(candidate_id: str, tag: str) -> Path | None:
+    for directory in (ROOT / "protocols", EXTENDED_DIR):
+        path = directory / f"ensemble_eval_{candidate_id}_{tag}_v2.json"
+        if path.exists():
+            return path
+    return None
+
+
 def per_candidate_files(tag: str) -> dict[str, Path]:
-    return {path.stem: path for path in (ROOT / "protocols").glob(f"ensemble_eval_*_{tag}_v2.json")}
+    found: dict[str, Path] = {}
+    for directory in (ROOT / "protocols", EXTENDED_DIR):
+        for path in directory.glob(f"ensemble_eval_*_{tag}_v2.json"):
+            candidate_id = path.stem.split(f"_{tag}")[0].replace("ensemble_eval_", "")
+            if candidate_id in REGISTERED:
+                found.setdefault(path.stem, path)
+    return found
 
 
 @unittest.skipUnless(REPORT.exists() and SUMMARY.exists(), "v2 report/summary not generated yet")
@@ -119,9 +138,12 @@ class ReportStructure(unittest.TestCase):
         self.assertTrue(OLD_SUMMARY.exists())
         old = load(OLD_REPORT)
         self.assertEqual(old["report_id"], "AMFE-ENSEMBLE-REAL-EVALUATION")
-        self.assertIn("недействительн", DOCS87.read_text(encoding="utf-8").lower())
-        self.assertIn("protocols/ensemble_evaluation_report_v2.json",
-                      DOCS87.read_text(encoding="utf-8"))
+        docs = DOCS87.read_text(encoding="utf-8")
+        self.assertIn("недействительн", docs.lower())
+        self.assertIn("protocols/ensemble_evaluation_report_v2.json", docs)
+        for candidate_id in REGISTERED:
+            self.assertIn(candidate_id, docs)
+        self.assertIn("семейство", docs.lower())
 
     def test_all_reported_candidates_are_candidate_and_gates_reported(self):
         for key in (T1_KEY, T2_KEY):
@@ -129,6 +151,8 @@ class ReportStructure(unittest.TestCase):
             if not evaluation or "candidates" not in evaluation:
                 continue
             self.assertEqual(evaluation["data_class"], "REAL_TIME")
+            self.assertEqual(len(evaluation["candidates"]), 4)
+            self.assertEqual(sorted(evaluation["candidates"]), sorted(REGISTERED))
             for candidate in evaluation["candidates"].values():
                 self.assertEqual(candidate["status"], "CANDIDATE")
                 self.assertEqual(candidate["data_class"], "REAL_TIME")
@@ -148,14 +172,28 @@ class ReportStructure(unittest.TestCase):
 
     def test_report_candidate_coverage_is_explicit(self):
         coverage = self.report["candidate_coverage"]
-        self.assertIn(T1_KEY, coverage)
-        self.assertEqual(coverage[T1_KEY]["registered"],
-                         ["ENSEMBLE_EQUAL", "ENSEMBLE_INVERSE_MSE", "ENSEMBLE_BAYES",
-                          "ENSEMBLE_ADAPTIVE"])
-        self.assertIn("reduced_run_note", coverage)
-        union = set(coverage[T1_KEY]["evaluated"]) | set(coverage[T1_KEY]["not_evaluated"])
-        self.assertEqual(union, set(coverage[T1_KEY]["registered"]))
-        self.assertFalse(set(coverage[T1_KEY]["evaluated"]) & set(coverage[T1_KEY]["not_evaluated"]))
+        for key in (T1_KEY, T2_KEY):
+            self.assertEqual(sorted(coverage[key]["registered"]), sorted(REGISTERED))
+            self.assertEqual(sorted(coverage[key]["evaluated"]), sorted(REGISTERED),
+                             "all four registered candidates must be evaluated")
+            self.assertEqual(coverage[key]["not_evaluated"], [])
+            self.assertIn("extended_pass_note", coverage[key])
+            self.assertNotIn("reduced_run_note", coverage)
+
+    def test_multiplicity_family_of_four(self):
+        for key in (T1_KEY, T2_KEY):
+            evaluation = self.report["evaluations"][key]
+            self.assertEqual(evaluation["family"]["family_size"], 4)
+            self.assertEqual(sorted(evaluation["family"]["members"]), sorted(REGISTERED))
+            adjusted_tables = []
+            for candidate in evaluation["candidates"].values():
+                self.assertEqual(candidate["criteria"]["C2_family_size"], 4)
+                self.assertEqual(candidate["multiplicity"]["family_size"], 4)
+                self.assertEqual(sorted(candidate["multiplicity"]["adjusted_p_values"]),
+                                 sorted(REGISTERED))
+                adjusted_tables.append(candidate["multiplicity"]["adjusted_p_values"])
+            self.assertTrue(all(table == adjusted_tables[0] for table in adjusted_tables),
+                            "the adjusted p-value table must be identical across candidates")
 
 
 @unittest.skipUnless(REPORT.exists() and SUMMARY.exists(), "v2 report/summary not generated yet")
@@ -172,8 +210,8 @@ class PerCandidateReports(unittest.TestCase):
         self.assertTrue(evaluated <= set(self.summary["evaluations"][T1_KEY]["candidates"][i]["candidate_id"]
                                          for i in range(len(self.summary["evaluations"][T1_KEY]["candidates"]))))
         for candidate_id in evaluated:
-            path = ROOT / "protocols" / f"ensemble_eval_{candidate_id}_T1_h1_v2.json"
-            self.assertTrue(path.exists(), candidate_id)
+            path = candidate_report_path(candidate_id, "T1_h1")
+            self.assertTrue(path is not None and path.exists(), candidate_id)
             report = load(path)
             self.assertEqual(report["report_id"], "AMFE-ENSEMBLE-EVAL-V2")
             self.assertEqual(report["candidate"], candidate_id)
@@ -205,33 +243,55 @@ class PerCandidateReports(unittest.TestCase):
             self.assertEqual(check["current_code_sha256"][rel], sha_path(ROOT / rel), rel)
         self.assertEqual(check["matches"], not check["mismatches"])
         if check["mismatches"]:
-            self.assertIn("sources.py", " ".join(check["mismatches"]))
+            for rel in check["mismatches"]:
+                self.assertIn(rel, ENSEMBLE_REGISTRATION_FILES)
             self.assertIn("re-pin", check["note"])
+            self.assertIn("571891d", check["note"])
+        candidates_doc = load(ROOT / "protocols" / "candidates_2026-11-11.json")
+        current_registration = next(c for c in candidates_doc["candidates"]
+                                    if c["id"] == "ENSEMBLE_ADAPTIVE")["code_files"]
+        self.assertEqual(current_registration, check["registered_code_sha256"])
         for path in self.t1_files.values():
             registration = load(path)["candidate_registration"]
-            self.assertEqual(registration["code_files"], check["registered_code_sha256"])
             for rel in ENSEMBLE_REGISTRATION_FILES:
                 self.assertIn(rel, registration["code_files"])
 
     def test_summary_candidates_match_per_candidate_reports(self):
         rows = {row["candidate_id"]: row for row in self.summary["evaluations"][T1_KEY]["candidates"]}
         for candidate_id, row in rows.items():
-            path = ROOT / "protocols" / f"ensemble_eval_{candidate_id}_T1_h1_v2.json"
+            path = candidate_report_path(candidate_id, "T1_h1")
+            self.assertIsNotNone(path, candidate_id)
             report = load(path)
             self.assertEqual(row["status"], report["admission"]["status"])
             for window in ("W1", "W2"):
                 for loss in ("RMSE", "CRPS"):
-                    self.assertAlmostEqual(
-                        row["relative_losses"][window][loss],
-                        report["admission"]["criteria"]["C1"]["windows"][window][loss]["relative_loss"],
-                        places=12,
-                    )
+                    official = row["relative_losses"][window][loss]
+                    evidence = report["admission"]["criteria"]["C1"]["windows"][window][loss]["relative_loss"]
+                    if loss == "RMSE":
+                        self.assertAlmostEqual(official, evidence, places=12)
+                    else:
+                        # the evidence predates the weighted-mixture robust path (571891d)
+                        self.assertLessEqual(abs(official - evidence), 1e-3,
+                                             (candidate_id, window, loss))
 
     def test_per_candidate_hashes_match_summary(self):
         files = self.summary["per_candidate_reports"]["T1_h1"]
         self.assertTrue(files)
         for candidate_id, info in files.items():
             self.assertEqual(info["sha256"], sha_path(ROOT / "protocols" / info["file"]), candidate_id)
+
+    def test_evidence_consistency_of_extended_and_reduced_reports(self):
+        for key in (T1_KEY, T2_KEY):
+            consistency = self.report["evaluations"][key]["candidates"]
+            tag = "T1_h1" if key.endswith("_h1") else "T2_h0"
+            checked = self.report["cross_cutting"]["extended_pass"]["evidence_consistency"][tag]
+            self.assertEqual(set(checked), set(REGISTERED))
+            for candidate_id, info in checked.items():
+                self.assertTrue(info["status_matches"], (tag, candidate_id))
+                self.assertTrue(info["rmse_matches"], (tag, candidate_id, info["rmse_mismatches"]))
+                self.assertTrue(info["crps_within_tolerance"], (tag, candidate_id))
+                self.assertLessEqual(info["max_crps_relative_delta"], 1e-3)
+                self.assertIn("571891d", info["note"])
 
     def test_t1_adaptive_matches_corrected_single_candidate_report(self):
         check = self.report["adaptive_vs_corrected_report"]
@@ -258,11 +318,12 @@ class SummaryConsistency(unittest.TestCase):
         evaluation = self.summary["evaluations"][T1_KEY]
         self.assertEqual(evaluation["multiplicity_method"],
                          "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP")
-        self.assertGreaterEqual(evaluation["family_size"], 1)
+        self.assertEqual(evaluation["family_size"], 4)
         self.assertIn("adjusted_p_values", evaluation["multiplicity"])
         for row in evaluation["candidates"]:
             for flag in ("C1", "C2", "C3", "C4", "C5", "C6"):
                 self.assertIn(flag, row)
+            self.assertEqual(row["family_size"], 4)
             for window in ("W1", "W2"):
                 for loss in ("RMSE", "CRPS"):
                     self.assertIn(loss, row["relative_losses"][window])
@@ -304,7 +365,9 @@ class T2Evaluation(unittest.TestCase):
                 self.assertEqual(report["windows"][window]["origins"], 121 if window == "W1" else 156)
                 self.assertIn("CRPS", report["admission"]["criteria"]["C1"]["windows"][window])
         rows = self.summary["evaluations"][T2_KEY]["candidates"]
-        self.assertEqual({row["candidate_id"] for row in rows}, set(self.report["evaluations"][T2_KEY]["candidates"]))
+        self.assertEqual({row["candidate_id"] for row in rows}, set(REGISTERED))
+        self.assertEqual({row["candidate_id"] for row in rows},
+                         set(self.report["evaluations"][T2_KEY]["candidates"]))
 
     @unittest.skipUnless(per_candidate_files("T2_h0"), "T2 h=0 was not evaluated in this run")
     def test_t2_candidate_reports_cover_only_evaluated(self):
@@ -312,6 +375,7 @@ class T2Evaluation(unittest.TestCase):
         files = {key.split("_T2_h0")[0].replace("ensemble_eval_", "")
                  for key in self.t2_files}
         self.assertEqual(evaluated, files)
+        self.assertEqual(evaluated, set(REGISTERED))
 
 
 if __name__ == "__main__":

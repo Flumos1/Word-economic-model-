@@ -1,0 +1,875 @@
+{
+ "report_id": "AMFE-ENSEMBLE-HORIZONS",
+ "generated_at": "2026-11-12T13:40:15Z",
+ "kind": "REAL_TIME horizon pass for ENSEMBLE_ADAPTIVE (candidate) and ENSEMBLE_EQUAL (control); reporting only, no admission is assigned",
+ "protocol": {
+  "file": "evaluation_protocol_v4.json",
+  "version": "4.0.0",
+  "sha256": "bd965f4d9f23151b4ccfd27202f0669d0a7807e642639ed18c0b864bf68dedc9"
+ },
+ "r3_specification": {
+  "file": "r3_specification.json",
+  "sha256": "5191b0626e7567bcbca657cd904fdfe8d2661c55c629c0dfe555fd7f2f305275"
+ },
+ "composition": {
+  "file": "comparator_composition_2026-11-11.json",
+  "sha256": "50da8670ebf5ad548beb3bd136b041e37714b612b4462982645aee942bbb6579"
+ },
+ "candidates": {
+  "file": "candidates_2026-11-11.json",
+  "sha256": "13a2ed77d6b2e9c8e7b5f392df08b1a918288f8e956dce3203dafa60e8345f08"
+ },
+ "real_time_origin_rule": {
+  "start": "1996-12-31",
+  "rule": "origins with month >= 1996-12: ALFRED vintages of GS10/TB3MS start 1996-12-03; earlier origins would be PSEUDO_REAL_TIME"
+ },
+ "horizon_table": [
+  {
+   "pair": "T1_CPI_YOY_h3",
+   "candidate": "ENSEMBLE_ADAPTIVE",
+   "role": "candidate",
+   "status": "CANDIDATE",
+   "C1": false,
+   "C2": false,
+   "C4": false,
+   "C5": false,
+   "rel_rmse_W1": 0.9778682365717128,
+   "rel_crps_W1": 0.9995532044420891,
+   "rel_rmse_W2": 1.011853475316683,
+   "rel_crps_W2": 1.0200601634898272,
+   "c2_adj_RMSE_W1": 0.155,
+   "c2_adj_RMSE_W2": 0.8405
+  },
+  {
+   "pair": "T1_CPI_YOY_h3",
+   "candidate": "ENSEMBLE_EQUAL",
+   "role": "control",
+   "status": "CANDIDATE",
+   "C1": false,
+   "C2": false,
+   "C4": false,
+   "C5": false,
+   "rel_rmse_W1": 1.0000000000000002,
+   "rel_crps_W1": 1.0,
+   "rel_rmse_W2": 1.0,
+   "rel_crps_W2": 1.0,
+   "c2_adj_RMSE_W1": 0.9208,
+   "c2_adj_RMSE_W2": 0.3417
+  },
+  {
+   "pair": "T1_CPI_YOY_h6",
+   "candidate": "ENSEMBLE_ADAPTIVE",
+   "role": "candidate",
+   "status": "CANDIDATE",
+   "C1": false,
+   "C2": false,
+   "C4": false,
+   "C5": true,
+   "rel_rmse_W1": 0.9731143104829114,
+   "rel_crps_W1": 0.9960735700133823,
+   "rel_rmse_W2": 0.9944271986361114,
+   "rel_crps_W2": 1.0008648118691545,
+   "c2_adj_RMSE_W1": 0.1443,
+   "c2_adj_RMSE_W2": 0.4919
+  },
+  {
+   "pair": "T1_CPI_YOY_h6",
+   "candidate": "ENSEMBLE_EQUAL",
+   "role": "control",
+   "status": "CANDIDATE",
+   "C1": false,
+   "C2": false,
+   "C4": false,
+   "C5": false,
+   "rel_rmse_W1": 1.0000000000000002,
+   "rel_crps_W1": 1.0,
+   "rel_rmse_W2": 1.0,
+   "rel_crps_W2": 1.0,
+   "c2_adj_RMSE_W1": 0.965,
+   "c2_adj_RMSE_W2": 0.4919
+  },
+  {
+   "pair": "T2_GDP_GROWTH_h1",
+   "candidate": "ENSEMBLE_ADAPTIVE",
+   "role": "candidate",
+   "status": "CANDIDATE",
+   "C1": false,
+   "C2": false,
+   "C4": false,
+   "C5": false,
+   "rel_rmse_W1": 1.0121695204997325,
+   "rel_crps_W1": 1.0088351953609236,
+   "rel_rmse_W2": 1.0181947941758929,
+   "rel_crps_W2": 1.020995889250382,
+   "c2_adj_RMSE_W1": 0.9787,
+   "c2_adj_RMSE_W2": 0.885
+  },
+  {
+   "pair": "T2_GDP_GROWTH_h1",
+   "candidate": "ENSEMBLE_EQUAL",
+   "role": "control",
+   "status": "CANDIDATE",
+   "C1": false,
+   "C2": false,
+   "C4": false,
+   "C5": true,
+   "rel_rmse_W1": 1.0,
+   "rel_crps_W1": 1.0,
+   "rel_rmse_W2": 1.0,
+   "rel_crps_W2": 1.0,
+   "c2_adj_RMSE_W1": 0.9787,
+   "c2_adj_RMSE_W2": 0.461
+  },
+  {
+   "pair": "T2_GDP_GROWTH_h2",
+   "candidate": "ENSEMBLE_ADAPTIVE",
+   "role": "candidate",
+   "status": "CANDIDATE",
+   "C1": false,
+   "C2": false,
+   "C4": false,
+   "C5": true,
+   "rel_rmse_W1": 1.0170740832718803,
+   "rel_crps_W1": 1.0143533206986726,
+   "rel_rmse_W2": 1.0120832113869829,
+   "rel_crps_W2": 1.017382438443729,
+   "c2_adj_RMSE_W1": 0.9704,
+   "c2_adj_RMSE_W2": 0.7742
+  },
+  {
+   "pair": "T2_GDP_GROWTH_h2",
+   "candidate": "ENSEMBLE_EQUAL",
+   "role": "control",
+   "status": "CANDIDATE",
+   "C1": false,
+   "C2": false,
+   "C4": false,
+   "C5": true,
+   "rel_rmse_W1": 1.0,
+   "rel_crps_W1": 1.0,
+   "rel_rmse_W2": 1.0,
+   "rel_crps_W2": 1.0,
+   "c2_adj_RMSE_W1": 0.9704,
+   "c2_adj_RMSE_W2": 0.287
+  },
+  {
+   "pair": "T2_GDP_GROWTH_h4",
+   "candidate": "ENSEMBLE_ADAPTIVE",
+   "role": "candidate",
+   "status": "CANDIDATE",
+   "C1": false,
+   "C2": false,
+   "C4": false,
+   "C5": false,
+   "rel_rmse_W1": 1.0239255018886886,
+   "rel_crps_W1": 1.015876184296948,
+   "rel_rmse_W2": 1.0131756240902121,
+   "rel_crps_W2": 1.0164240179369533,
+   "c2_adj_RMSE_W1": 0.8469,
+   "c2_adj_RMSE_W2": 0.8877
+  },
+  {
+   "pair": "T2_GDP_GROWTH_h4",
+   "candidate": "ENSEMBLE_EQUAL",
+   "role": "control",
+   "status": "CANDIDATE",
+   "C1": false,
+   "C2": false,
+   "C4": false,
+   "C5": true,
+   "rel_rmse_W1": 1.0,
+   "rel_crps_W1": 1.0,
+   "rel_rmse_W2": 1.0,
+   "rel_crps_W2": 1.0,
+   "c2_adj_RMSE_W1": 0.6926,
+   "c2_adj_RMSE_W2": 0.7767
+  }
+ ],
+ "evaluations": {
+  "T1_CPI_YOY_h3": {
+   "target": "T1_CPI_YOY",
+   "horizon": 3,
+   "windows": {
+    "W1": {
+     "origins": 119,
+     "first_origin": "1996-12-31",
+     "last_origin": "2006-10-31",
+     "data_class": "REAL_TIME"
+    },
+    "W2": {
+     "origins": 154,
+     "first_origin": "2007-01-31",
+     "last_origin": "2019-10-31",
+     "data_class": "REAL_TIME"
+    }
+   },
+   "candidates": {
+    "ENSEMBLE_ADAPTIVE": {
+     "role": "candidate",
+     "status": "CANDIDATE",
+     "C1": false,
+     "C2": false,
+     "C4": false,
+     "C5": false,
+     "C6": "NO_RESOLVED_FORECASTS",
+     "c4_applies": true,
+     "c4_window_statuses": {
+      "W1": {
+       "RMSE": "INCONCLUSIVE",
+       "CRPS": "INCONCLUSIVE"
+      },
+      "W2": {
+       "RMSE": "FAIL",
+       "CRPS": "FAIL"
+      }
+     },
+     "relative_losses": {
+      "W1": {
+       "RMSE": 0.9778682365717128,
+       "CRPS": 0.9995532044420891
+      },
+      "W2": {
+       "RMSE": 1.011853475316683,
+       "CRPS": 1.0200601634898272
+      }
+     },
+     "c2_adjusted_p": {
+      "W1": {
+       "RMSE": 0.155,
+       "CRPS": 0.6812
+      },
+      "W2": {
+       "RMSE": 0.8405,
+       "CRPS": 0.9179
+      }
+     },
+     "report_file": "ensemble_eval_ENSEMBLE_ADAPTIVE_T1_h3_v2.json",
+     "report_sha256": "95c765783c67823e09da0fd37a5ffa3b8b1430ce21b85d188902c8b67b63c2f2",
+     "origins": {
+      "W1": 119,
+      "W2": 154
+     }
+    },
+    "ENSEMBLE_EQUAL": {
+     "role": "control",
+     "status": "CANDIDATE",
+     "C1": false,
+     "C2": false,
+     "C4": false,
+     "C5": false,
+     "C6": "NO_RESOLVED_FORECASTS",
+     "c4_applies": true,
+     "c4_window_statuses": {
+      "W1": {
+       "RMSE": "INCONCLUSIVE",
+       "CRPS": "INCONCLUSIVE"
+      },
+      "W2": {
+       "RMSE": "PASS",
+       "CRPS": "PASS"
+      }
+     },
+     "relative_losses": {
+      "W1": {
+       "RMSE": 1.0000000000000002,
+       "CRPS": 1.0
+      },
+      "W2": {
+       "RMSE": 1.0,
+       "CRPS": 1.0
+      }
+     },
+     "c2_adjusted_p": {
+      "W1": {
+       "RMSE": 0.9208,
+       "CRPS": 0.9829
+      },
+      "W2": {
+       "RMSE": 0.3417,
+       "CRPS": 0.5483
+      }
+     },
+     "report_file": "ensemble_eval_ENSEMBLE_EQUAL_T1_h3_v2.json",
+     "report_sha256": "036b8b633224c8c5892e5c7b2d5a3f551289bc1f033b7104b6c87e8bc0983eb4",
+     "origins": {
+      "W1": 119,
+      "W2": 154
+     }
+    }
+   },
+   "report_files": {
+    "ENSEMBLE_ADAPTIVE": {
+     "file": "ensemble_eval_ENSEMBLE_ADAPTIVE_T1_h3_v2.json",
+     "sha256": "95c765783c67823e09da0fd37a5ffa3b8b1430ce21b85d188902c8b67b63c2f2"
+    },
+    "ENSEMBLE_EQUAL": {
+     "file": "ensemble_eval_ENSEMBLE_EQUAL_T1_h3_v2.json",
+     "sha256": "036b8b633224c8c5892e5c7b2d5a3f551289bc1f033b7104b6c87e8bc0983eb4"
+    }
+   }
+  },
+  "T1_CPI_YOY_h6": {
+   "target": "T1_CPI_YOY",
+   "horizon": 6,
+   "windows": {
+    "W1": {
+     "origins": 116,
+     "first_origin": "1996-12-31",
+     "last_origin": "2006-07-31",
+     "data_class": "REAL_TIME"
+    },
+    "W2": {
+     "origins": 151,
+     "first_origin": "2007-01-31",
+     "last_origin": "2019-07-31",
+     "data_class": "REAL_TIME"
+    }
+   },
+   "candidates": {
+    "ENSEMBLE_ADAPTIVE": {
+     "role": "candidate",
+     "status": "CANDIDATE",
+     "C1": false,
+     "C2": false,
+     "C4": false,
+     "C5": true,
+     "C6": "NO_RESOLVED_FORECASTS",
+     "c4_applies": true,
+     "c4_window_statuses": {
+      "W1": {
+       "RMSE": "PASS",
+       "CRPS": "PASS"
+      },
+      "W2": {
+       "RMSE": "FAIL",
+       "CRPS": "FAIL"
+      }
+     },
+     "relative_losses": {
+      "W1": {
+       "RMSE": 0.9731143104829114,
+       "CRPS": 0.9960735700133823
+      },
+      "W2": {
+       "RMSE": 0.9944271986361114,
+       "CRPS": 1.0008648118691545
+      }
+     },
+     "c2_adjusted_p": {
+      "W1": {
+       "RMSE": 0.1443,
+       "CRPS": 0.6844
+      },
+      "W2": {
+       "RMSE": 0.4919,
+       "CRPS": 0.7925
+      }
+     },
+     "report_file": "ensemble_eval_ENSEMBLE_ADAPTIVE_T1_h6_v2.json",
+     "report_sha256": "f42a195cdb8d9fbc99f6d1af1ea92362d9e9efb69d38d2071f41f104b35f40bd",
+     "origins": {
+      "W1": 116,
+      "W2": 151
+     }
+    },
+    "ENSEMBLE_EQUAL": {
+     "role": "control",
+     "status": "CANDIDATE",
+     "C1": false,
+     "C2": false,
+     "C4": false,
+     "C5": false,
+     "C6": "NO_RESOLVED_FORECASTS",
+     "c4_applies": true,
+     "c4_window_statuses": {
+      "W1": {
+       "RMSE": "FAIL",
+       "CRPS": "PASS"
+      },
+      "W2": {
+       "RMSE": "PASS",
+       "CRPS": "PASS"
+      }
+     },
+     "relative_losses": {
+      "W1": {
+       "RMSE": 1.0000000000000002,
+       "CRPS": 1.0
+      },
+      "W2": {
+       "RMSE": 1.0,
+       "CRPS": 1.0
+      }
+     },
+     "c2_adjusted_p": {
+      "W1": {
+       "RMSE": 0.965,
+       "CRPS": 0.6844
+      },
+      "W2": {
+       "RMSE": 0.4919,
+       "CRPS": 0.7925
+      }
+     },
+     "report_file": "ensemble_eval_ENSEMBLE_EQUAL_T1_h6_v2.json",
+     "report_sha256": "4db0967137f5faa4eecc9a851c1508c7e790c2113cf2361cb3b613e1b9930d57",
+     "origins": {
+      "W1": 116,
+      "W2": 151
+     }
+    }
+   },
+   "report_files": {
+    "ENSEMBLE_ADAPTIVE": {
+     "file": "ensemble_eval_ENSEMBLE_ADAPTIVE_T1_h6_v2.json",
+     "sha256": "f42a195cdb8d9fbc99f6d1af1ea92362d9e9efb69d38d2071f41f104b35f40bd"
+    },
+    "ENSEMBLE_EQUAL": {
+     "file": "ensemble_eval_ENSEMBLE_EQUAL_T1_h6_v2.json",
+     "sha256": "4db0967137f5faa4eecc9a851c1508c7e790c2113cf2361cb3b613e1b9930d57"
+    }
+   }
+  },
+  "T2_GDP_GROWTH_h1": {
+   "target": "T2_GDP_GROWTH",
+   "horizon": 1,
+   "windows": {
+    "W1": {
+     "origins": 40,
+     "first_origin": "1996-12-31",
+     "last_origin": "2006-09-30",
+     "data_class": "REAL_TIME"
+    },
+    "W2": {
+     "origins": 51,
+     "first_origin": "2007-03-31",
+     "last_origin": "2019-09-30",
+     "data_class": "REAL_TIME"
+    }
+   },
+   "candidates": {
+    "ENSEMBLE_ADAPTIVE": {
+     "role": "candidate",
+     "status": "CANDIDATE",
+     "C1": false,
+     "C2": false,
+     "C4": false,
+     "C5": false,
+     "C6": "NO_RESOLVED_FORECASTS",
+     "c4_applies": true,
+     "c4_window_statuses": {
+      "W1": {
+       "RMSE": "INCONCLUSIVE",
+       "CRPS": "INCONCLUSIVE"
+      },
+      "W2": {
+       "RMSE": "INCONCLUSIVE",
+       "CRPS": "INCONCLUSIVE"
+      }
+     },
+     "relative_losses": {
+      "W1": {
+       "RMSE": 1.0121695204997325,
+       "CRPS": 1.0088351953609236
+      },
+      "W2": {
+       "RMSE": 1.0181947941758929,
+       "CRPS": 1.020995889250382
+      }
+     },
+     "c2_adjusted_p": {
+      "W1": {
+       "RMSE": 0.9787,
+       "CRPS": 1.0
+      },
+      "W2": {
+       "RMSE": 0.885,
+       "CRPS": 1.0
+      }
+     },
+     "report_file": "ensemble_eval_ENSEMBLE_ADAPTIVE_T2_h1_v2.json",
+     "report_sha256": "7cedf5584da1a19204d0014086c9a42c096bf72ab9c31c05255862c6ba3fe3c2",
+     "origins": {
+      "W1": 40,
+      "W2": 51
+     }
+    },
+    "ENSEMBLE_EQUAL": {
+     "role": "control",
+     "status": "CANDIDATE",
+     "C1": false,
+     "C2": false,
+     "C4": false,
+     "C5": true,
+     "C6": "NO_RESOLVED_FORECASTS",
+     "c4_applies": true,
+     "c4_window_statuses": {
+      "W1": {
+       "RMSE": "INCONCLUSIVE",
+       "CRPS": "INCONCLUSIVE"
+      },
+      "W2": {
+       "RMSE": "INCONCLUSIVE",
+       "CRPS": "INCONCLUSIVE"
+      }
+     },
+     "relative_losses": {
+      "W1": {
+       "RMSE": 1.0,
+       "CRPS": 1.0
+      },
+      "W2": {
+       "RMSE": 1.0,
+       "CRPS": 1.0
+      }
+     },
+     "c2_adjusted_p": {
+      "W1": {
+       "RMSE": 0.9787,
+       "CRPS": 1.0
+      },
+      "W2": {
+       "RMSE": 0.461,
+       "CRPS": 1.0
+      }
+     },
+     "report_file": "ensemble_eval_ENSEMBLE_EQUAL_T2_h1_v2.json",
+     "report_sha256": "1f1df2c95d5ed33962308871cf77136d3144e1455b302a36873da840ba82cf2e",
+     "origins": {
+      "W1": 40,
+      "W2": 51
+     }
+    }
+   },
+   "report_files": {
+    "ENSEMBLE_ADAPTIVE": {
+     "file": "ensemble_eval_ENSEMBLE_ADAPTIVE_T2_h1_v2.json",
+     "sha256": "7cedf5584da1a19204d0014086c9a42c096bf72ab9c31c05255862c6ba3fe3c2"
+    },
+    "ENSEMBLE_EQUAL": {
+     "file": "ensemble_eval_ENSEMBLE_EQUAL_T2_h1_v2.json",
+     "sha256": "1f1df2c95d5ed33962308871cf77136d3144e1455b302a36873da840ba82cf2e"
+    }
+   }
+  },
+  "T2_GDP_GROWTH_h2": {
+   "target": "T2_GDP_GROWTH",
+   "horizon": 2,
+   "windows": {
+    "W1": {
+     "origins": 39,
+     "first_origin": "1996-12-31",
+     "last_origin": "2006-06-30",
+     "data_class": "REAL_TIME"
+    },
+    "W2": {
+     "origins": 50,
+     "first_origin": "2007-03-31",
+     "last_origin": "2019-06-30",
+     "data_class": "REAL_TIME"
+    }
+   },
+   "candidates": {
+    "ENSEMBLE_ADAPTIVE": {
+     "role": "candidate",
+     "status": "CANDIDATE",
+     "C1": false,
+     "C2": false,
+     "C4": false,
+     "C5": true,
+     "C6": "NO_RESOLVED_FORECASTS",
+     "c4_applies": true,
+     "c4_window_statuses": {
+      "W1": {
+       "RMSE": "INCONCLUSIVE",
+       "CRPS": "INCONCLUSIVE"
+      },
+      "W2": {
+       "RMSE": "INCONCLUSIVE",
+       "CRPS": "INCONCLUSIVE"
+      }
+     },
+     "relative_losses": {
+      "W1": {
+       "RMSE": 1.0170740832718803,
+       "CRPS": 1.0143533206986726
+      },
+      "W2": {
+       "RMSE": 1.0120832113869829,
+       "CRPS": 1.017382438443729
+      }
+     },
+     "c2_adjusted_p": {
+      "W1": {
+       "RMSE": 0.9704,
+       "CRPS": 1.0
+      },
+      "W2": {
+       "RMSE": 0.7742,
+       "CRPS": 1.0
+      }
+     },
+     "report_file": "ensemble_eval_ENSEMBLE_ADAPTIVE_T2_h2_v2.json",
+     "report_sha256": "aee128630e301e024474a76994e1695612cebfd04a22f67b4ee7601b014ea11d",
+     "origins": {
+      "W1": 39,
+      "W2": 50
+     }
+    },
+    "ENSEMBLE_EQUAL": {
+     "role": "control",
+     "status": "CANDIDATE",
+     "C1": false,
+     "C2": false,
+     "C4": false,
+     "C5": true,
+     "C6": "NO_RESOLVED_FORECASTS",
+     "c4_applies": true,
+     "c4_window_statuses": {
+      "W1": {
+       "RMSE": "INCONCLUSIVE",
+       "CRPS": "INCONCLUSIVE"
+      },
+      "W2": {
+       "RMSE": "INCONCLUSIVE",
+       "CRPS": "INCONCLUSIVE"
+      }
+     },
+     "relative_losses": {
+      "W1": {
+       "RMSE": 1.0,
+       "CRPS": 1.0
+      },
+      "W2": {
+       "RMSE": 1.0,
+       "CRPS": 1.0
+      }
+     },
+     "c2_adjusted_p": {
+      "W1": {
+       "RMSE": 0.9704,
+       "CRPS": 1.0
+      },
+      "W2": {
+       "RMSE": 0.287,
+       "CRPS": 1.0
+      }
+     },
+     "report_file": "ensemble_eval_ENSEMBLE_EQUAL_T2_h2_v2.json",
+     "report_sha256": "23e08601ee9144731e2b76e1fb740c10b8096497c7d2e6ac1829b9dca941a15a",
+     "origins": {
+      "W1": 39,
+      "W2": 50
+     }
+    }
+   },
+   "report_files": {
+    "ENSEMBLE_ADAPTIVE": {
+     "file": "ensemble_eval_ENSEMBLE_ADAPTIVE_T2_h2_v2.json",
+     "sha256": "aee128630e301e024474a76994e1695612cebfd04a22f67b4ee7601b014ea11d"
+    },
+    "ENSEMBLE_EQUAL": {
+     "file": "ensemble_eval_ENSEMBLE_EQUAL_T2_h2_v2.json",
+     "sha256": "23e08601ee9144731e2b76e1fb740c10b8096497c7d2e6ac1829b9dca941a15a"
+    }
+   }
+  },
+  "T2_GDP_GROWTH_h4": {
+   "target": "T2_GDP_GROWTH",
+   "horizon": 4,
+   "windows": {
+    "W1": {
+     "origins": 37,
+     "first_origin": "1996-12-31",
+     "last_origin": "2005-12-31",
+     "data_class": "REAL_TIME"
+    },
+    "W2": {
+     "origins": 48,
+     "first_origin": "2007-03-31",
+     "last_origin": "2018-12-31",
+     "data_class": "REAL_TIME"
+    }
+   },
+   "candidates": {
+    "ENSEMBLE_ADAPTIVE": {
+     "role": "candidate",
+     "status": "CANDIDATE",
+     "C1": false,
+     "C2": false,
+     "C4": false,
+     "C5": false,
+     "C6": "NO_RESOLVED_FORECASTS",
+     "c4_applies": true,
+     "c4_window_statuses": {
+      "W1": {
+       "RMSE": "INCONCLUSIVE",
+       "CRPS": "INCONCLUSIVE"
+      },
+      "W2": {
+       "RMSE": "INCONCLUSIVE",
+       "CRPS": "INCONCLUSIVE"
+      }
+     },
+     "relative_losses": {
+      "W1": {
+       "RMSE": 1.0239255018886886,
+       "CRPS": 1.015876184296948
+      },
+      "W2": {
+       "RMSE": 1.0131756240902121,
+       "CRPS": 1.0164240179369533
+      }
+     },
+     "c2_adjusted_p": {
+      "W1": {
+       "RMSE": 0.8469,
+       "CRPS": 1.0
+      },
+      "W2": {
+       "RMSE": 0.8877,
+       "CRPS": 1.0
+      }
+     },
+     "report_file": "ensemble_eval_ENSEMBLE_ADAPTIVE_T2_h4_v2.json",
+     "report_sha256": "787f2c63f8490cb02ccda8ba85f4ea79dcb8326b60862bd48b5f3ea219e0f426",
+     "origins": {
+      "W1": 37,
+      "W2": 48
+     }
+    },
+    "ENSEMBLE_EQUAL": {
+     "role": "control",
+     "status": "CANDIDATE",
+     "C1": false,
+     "C2": false,
+     "C4": false,
+     "C5": true,
+     "C6": "NO_RESOLVED_FORECASTS",
+     "c4_applies": true,
+     "c4_window_statuses": {
+      "W1": {
+       "RMSE": "INCONCLUSIVE",
+       "CRPS": "INCONCLUSIVE"
+      },
+      "W2": {
+       "RMSE": "INCONCLUSIVE",
+       "CRPS": "INCONCLUSIVE"
+      }
+     },
+     "relative_losses": {
+      "W1": {
+       "RMSE": 1.0,
+       "CRPS": 1.0
+      },
+      "W2": {
+       "RMSE": 1.0,
+       "CRPS": 1.0
+      }
+     },
+     "c2_adjusted_p": {
+      "W1": {
+       "RMSE": 0.6926,
+       "CRPS": 1.0
+      },
+      "W2": {
+       "RMSE": 0.7767,
+       "CRPS": 1.0
+      }
+     },
+     "report_file": "ensemble_eval_ENSEMBLE_EQUAL_T2_h4_v2.json",
+     "report_sha256": "171279d1555cdfe947ad629638de50dd292639613696e67dc1a6462560b899ed",
+     "origins": {
+      "W1": 37,
+      "W2": 48
+     }
+    }
+   },
+   "report_files": {
+    "ENSEMBLE_ADAPTIVE": {
+     "file": "ensemble_eval_ENSEMBLE_ADAPTIVE_T2_h4_v2.json",
+     "sha256": "787f2c63f8490cb02ccda8ba85f4ea79dcb8326b60862bd48b5f3ea219e0f426"
+    },
+    "ENSEMBLE_EQUAL": {
+     "file": "ensemble_eval_ENSEMBLE_EQUAL_T2_h4_v2.json",
+     "sha256": "171279d1555cdfe947ad629638de50dd292639613696e67dc1a6462560b899ed"
+    }
+   }
+  }
+ },
+ "per_candidate_reports": {
+  "T1_CPI_YOY_h3": {
+   "ENSEMBLE_ADAPTIVE": {
+    "file": "ensemble_eval_ENSEMBLE_ADAPTIVE_T1_h3_v2.json",
+    "sha256": "95c765783c67823e09da0fd37a5ffa3b8b1430ce21b85d188902c8b67b63c2f2"
+   },
+   "ENSEMBLE_EQUAL": {
+    "file": "ensemble_eval_ENSEMBLE_EQUAL_T1_h3_v2.json",
+    "sha256": "036b8b633224c8c5892e5c7b2d5a3f551289bc1f033b7104b6c87e8bc0983eb4"
+   }
+  },
+  "T1_CPI_YOY_h6": {
+   "ENSEMBLE_ADAPTIVE": {
+    "file": "ensemble_eval_ENSEMBLE_ADAPTIVE_T1_h6_v2.json",
+    "sha256": "f42a195cdb8d9fbc99f6d1af1ea92362d9e9efb69d38d2071f41f104b35f40bd"
+   },
+   "ENSEMBLE_EQUAL": {
+    "file": "ensemble_eval_ENSEMBLE_EQUAL_T1_h6_v2.json",
+    "sha256": "4db0967137f5faa4eecc9a851c1508c7e790c2113cf2361cb3b613e1b9930d57"
+   }
+  },
+  "T2_GDP_GROWTH_h1": {
+   "ENSEMBLE_ADAPTIVE": {
+    "file": "ensemble_eval_ENSEMBLE_ADAPTIVE_T2_h1_v2.json",
+    "sha256": "7cedf5584da1a19204d0014086c9a42c096bf72ab9c31c05255862c6ba3fe3c2"
+   },
+   "ENSEMBLE_EQUAL": {
+    "file": "ensemble_eval_ENSEMBLE_EQUAL_T2_h1_v2.json",
+    "sha256": "1f1df2c95d5ed33962308871cf77136d3144e1455b302a36873da840ba82cf2e"
+   }
+  },
+  "T2_GDP_GROWTH_h2": {
+   "ENSEMBLE_ADAPTIVE": {
+    "file": "ensemble_eval_ENSEMBLE_ADAPTIVE_T2_h2_v2.json",
+    "sha256": "aee128630e301e024474a76994e1695612cebfd04a22f67b4ee7601b014ea11d"
+   },
+   "ENSEMBLE_EQUAL": {
+    "file": "ensemble_eval_ENSEMBLE_EQUAL_T2_h2_v2.json",
+    "sha256": "23e08601ee9144731e2b76e1fb740c10b8096497c7d2e6ac1829b9dca941a15a"
+   }
+  },
+  "T2_GDP_GROWTH_h4": {
+   "ENSEMBLE_ADAPTIVE": {
+    "file": "ensemble_eval_ENSEMBLE_ADAPTIVE_T2_h4_v2.json",
+    "sha256": "787f2c63f8490cb02ccda8ba85f4ea79dcb8326b60862bd48b5f3ea219e0f426"
+   },
+   "ENSEMBLE_EQUAL": {
+    "file": "ensemble_eval_ENSEMBLE_EQUAL_T2_h4_v2.json",
+    "sha256": "171279d1555cdfe947ad629638de50dd292639613696e67dc1a6462560b899ed"
+   }
+  }
+ },
+ "not_evaluated": [
+  {
+   "pair": "T1_CPI_YOY_h12",
+   "target": "T1_CPI_YOY",
+   "horizon": 12,
+   "reason": "time-boxed reduced pass: not evaluated in this run"
+  }
+ ],
+ "reduced_pass_note": "Time-boxed reduced pass: T1 h=3 and h=6 plus T2 h=1,2,4 are evaluated on the full REAL_TIME windows; T1 h=12 was not evaluated (the two T1 pairs take ~9 minutes each because every horizon needs new member forecasts). The omission is explicit in not_evaluated and docs/102; no admission is assigned.",
+ "cross_cutting": {
+  "C6": "NO_RESOLVED_FORECASTS for every pair: the forward registry is still empty",
+  "C4": "T1/T2 C4 uses the USREC latest-tape recession mask exactly as the v2 T1 h=1 passes; the early-1990s origins are excluded by the REAL_TIME rule",
+  "limitations": [
+   "the REAL_TIME rule starts at 1996-12-31 (GS10/TB3MS vintages), so W1 loses its 1990-1996 origins; the W1 counts are smaller than the window definition",
+   "T1 h=12 is not evaluated in this reduced pass (explicitly marked not_evaluated)",
+   "C6 is NO_RESOLVED_FORECASTS: no forward-registry row is resolved yet",
+   "harness statuses only; no admission is assigned by these reports",
+   "the comparator distribution is the protocol mixture of member CDFs; the Romano-Wolf family is the two ensemble ids (ENSEMBLE_ADAPTIVE, ENSEMBLE_EQUAL)",
+   "T1 h=1 and T2 h=0 are in the separate v2 reports and are not re-run here"
+  ]
+ },
+ "licence_note": "forecasts and actual values are not stored: only digests and derived metrics (docs/84, D-147)",
+ "reporting_only": true
+}
