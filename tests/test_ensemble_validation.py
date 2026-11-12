@@ -352,6 +352,22 @@ class CommittedReport(unittest.TestCase):
                 self.assertIn("multiplicity", block["overall"])
         self.assertGreaterEqual(len(report["limitations"]), 5)
 
+    def test_committed_report_crps_is_usable_after_the_unit_bug_fix(self):
+        """The T2 CRPS artifact (raw GDPC1 level in the SPF member, D-147/docs/94) is gone."""
+        report = json.loads(REPORT_PATH.read_text(encoding="utf-8"))
+        quality = report.get("data_quality")
+        self.assertIsNotNone(quality, "the report must carry the post-run data_quality block")
+        for pair in ("T1_CPI_YOY/h1", "T2_GDP_GROWTH/h0"):
+            self.assertIn(pair, quality)
+            self.assertTrue(quality[pair]["crps_usable"], pair)
+            self.assertTrue(quality[pair]["rmse_usable"], pair)
+        t2_control = report["pairs"]["T2_GDP_GROWTH/h0"]["overall"]["per_ensemble"]["ENSEMBLE_EQUAL"]
+        self.assertLess(t2_control["mean_crps"], 10.0,
+                        "T2 CRPS must be of order one, not the old 158.5 artifact")
+        self.assertGreater(
+            float(quality["T2_GDP_GROWTH/h0"]["evidence"]["previous_buggy_control_mean_crps"]),
+            t2_control["mean_crps"])
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
