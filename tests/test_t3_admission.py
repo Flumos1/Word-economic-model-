@@ -298,6 +298,23 @@ class CriteriaConsistency(unittest.TestCase):
                              historical and forward)
             self.assertFalse(admission["stages"]["LIMITED_DEPLOYMENT_to_ACTIVE"])
 
+    def test_status_label_and_conditional_data_class_follow_the_regrade_rule(self):
+        """Wave-5 harness fields: T3 is an unconditional REAL_TIME evaluation.
+
+        ``status_label`` and ``conditional_data_class`` were added to ``evaluate_admission``
+        (C4/W1 rework for T1/T2); for T3 they must stay degenerate: the flag is false and the
+        label is the plain status, and reloading the stored admission block through
+        ``evaluate._regrade_status`` must reproduce the status, the label and the stages.
+        """
+        for (candidate, horizon), report in self.reports.items():
+            admission = report["admission"]
+            self.assertFalse(admission["conditional_data_class"])
+            self.assertEqual(admission["status_label"], admission["status"])
+            reloaded = evaluate._regrade_status(json.loads(json.dumps(admission)))
+            self.assertEqual(reloaded["status"], admission["status"], (candidate, horizon))
+            self.assertEqual(reloaded["status_label"], admission["status_label"])
+            self.assertEqual(reloaded["stages"], admission["stages"])
+
     def test_no_status_above_the_factual_criteria(self):
         for (candidate, horizon), report in self.reports.items():
             admission = report["admission"]

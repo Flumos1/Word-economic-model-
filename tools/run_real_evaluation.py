@@ -46,6 +46,12 @@ try:
 except Exception:  # pragma: no cover - tool not importable
     SPF_CANDIDATE_IDS = ()
     spf_candidate_forecast = None
+try:
+    from amfe.ensemble import regime as regime_candidate  # noqa: E402
+    REGIME_IDS = regime_candidate.CANDIDATE_IDS
+except Exception:  # pragma: no cover - module not importable
+    regime_candidate = None
+    REGIME_IDS = ()
 
 
 
@@ -53,6 +59,9 @@ def candidate_forecast(candidate_id, target, origin, horizon, series_id=None, mo
     """Dispatcher: ensemble candidates come from amfe.ensemble, the rest from amfe.candidates."""
     if candidate_id in ENSEMBLE_IDS:
         return ensemble_candidate(candidate_id, target, origin, horizon, series_id=series_id, mode=mode)
+    if REGIME_IDS and candidate_id in REGIME_IDS:
+        return regime_candidate.candidate_forecast(candidate_id, target, origin, horizon,
+                                                   series_id=series_id, mode=mode)
     if SPF_CANDIDATE_IDS and candidate_id in SPF_CANDIDATE_IDS:
         return spf_candidate_forecast(candidate_id, target, origin, horizon,
                                       series_id=series_id, mode=mode)
@@ -154,8 +163,13 @@ def build_window(target: str, horizon: int, window: str, candidate_id: str, seri
 
     for origin in origins:
         try:
-            cand = predict("candidate", candidate_id, lambda: candidate_forecast(
-                candidate_id, target, origin, horizon, series_id=series_id, mode=mode))
+            if candidate_id in REGIME_IDS:
+                compose = regime_candidate.compose(predict)
+                cand = predict("candidate", candidate_id,
+                               lambda: compose(origin, horizon, series_id, mode))
+            else:
+                cand = predict("candidate", candidate_id, lambda: candidate_forecast(
+                    candidate_id, target, origin, horizon, series_id=series_id, mode=mode))
         except Exception:
             continue
         actual = actual_pair(target, origin, horizon, series_id=series_id)
@@ -335,6 +349,8 @@ def main(argv=None) -> int:
                     help="override the protocol's minimum recession origins for C4")
     ap.add_argument("--skip-candidate-registration", action="store_true",
                     help="do not rewrite protocols/candidates_2026-11-11.json")
+    ap.add_argument("--candidates-doc", default=None,
+                    help="candidate registration document used for the report hash")
     args = ap.parse_args(argv)
     if args.max_origins is not None and args.max_origins < 1:
         raise SystemExit("--max-origins must be a positive integer")
@@ -345,7 +361,8 @@ def main(argv=None) -> int:
     protocol_label = f"protocols/{protocol_path.name}"
     cache = eval_cache.ForecastCache(Path(args.cache_dir)) if args.cache_dir else None
     if (args.candidate not in CANDIDATE_IDS and args.candidate not in ENSEMBLE_IDS
-            and args.candidate not in (SPF_CANDIDATE_IDS or ())):
+            and args.candidate not in (SPF_CANDIDATE_IDS or ())
+            and args.candidate not in REGIME_IDS):
         raise SystemExit(f"unknown candidate {args.candidate}")
     if not args.skip_candidate_registration:
         candidate_doc = {
@@ -447,6 +464,7 @@ def main(argv=None) -> int:
         reconstruction["dossier_pin"] = {
             "file": f"protocols/{RECONSTRUCTION_DOSSIER.stem}.sha256",
             "sha256": sha(RECONSTRUCTION_DOSSIER.with_suffix(".sha256"))}
+    candidates_doc = Path(args.candidates_doc) if args.candidates_doc else CANDIDATES
     report = {
         "report_id": "AMFE-FIRST-REAL-EVALUATION",
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -463,7 +481,8 @@ def main(argv=None) -> int:
                              "version": json.loads(R3.read_text(encoding="utf-8"))["version"],
                              "sha256": sha(R3)},
         "composition": {"file": COMPOSITION.name, "sha256": sha(COMPOSITION)},
-        "candidates": {"file": CANDIDATES.name, "sha256": sha(CANDIDATES)},
+        "candidates": {"file": f"protocols/{candidates_doc.name}",
+                       "sha256": sha(candidates_doc)},
         "reconstruction": reconstruction,
         "windows": {w["window"]: _sanitized_window(w) for w in ([w1_full] if args.extended_c4 else [])
                     + [w1, w2]},

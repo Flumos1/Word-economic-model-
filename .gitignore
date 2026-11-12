@@ -17,3 +17,5 @@ GDPNowcastDataReleaseDates*.xlsx
 
 # local scratch (Lead runs)
 .tmp-test/
+# generated artefacts
+build/

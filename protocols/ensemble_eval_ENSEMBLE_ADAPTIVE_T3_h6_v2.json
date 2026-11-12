@@ -1,6 +1,6 @@
 {
  "report_id": "AMFE-ENSEMBLE-EVAL-V2",
- "generated_at": "2026-11-12T17:51:41Z",
+ "generated_at": "2026-11-12T18:26:53Z",
  "candidate": "ENSEMBLE_ADAPTIVE",
  "candidate_role": "candidate",
  "candidate_registration": {
@@ -609,6 +609,7 @@
    "LIMITED_DEPLOYMENT_to_ACTIVE": false
   },
   "status": "CANDIDATE",
+  "conditional_data_class": false,
   "data_class": "REAL_TIME",
   "admission_allowed": true,
   "data_class_note": "admission allowed: data class REAL_TIME is in ['REAL_TIME', 'REAL_TIME_TAPE']",
@@ -618,7 +619,8 @@
    "W1 for T3 starts 1996-12 (windows.target_overrides.T3_RECESSION.W1_start)",
    "admission allowed: data class REAL_TIME is in ['REAL_TIME', 'REAL_TIME_TAPE']",
    "multiplicity: full Romano-Wolf stepdown over 2 candidates, 10000 stationary-bootstrap replications, seed 20261111; C2 requires adjusted p < 0.10 on W1 and W2; a later candidate does not retract an earlier decision but the adjusted p-values are republished"
-  ]
+  ],
+  "status_label": "CANDIDATE"
  },
  "licence_note": "forecasts and actual values are not stored: only digests and derived metrics (docs/84, D-147)",
  "reporting_only": "harness statuses only; no admission is assigned by this report"
