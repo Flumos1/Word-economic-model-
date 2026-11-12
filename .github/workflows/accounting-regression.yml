@@ -82,7 +82,7 @@ jobs:
         run: python tests/test_forecast_models.py
       - name: Admission harness, composition and registry (39 tests)
         run: python tests/test_evaluate_harness.py && python tests/test_composition.py && python tests/test_registry.py
-      - name: Evaluation layer: actuals, mixtures, candidates (10 tests)
+      - name: Evaluation layer - actuals, mixtures, candidates (10 tests)
         run: python tests/test_evaluation_layer.py
       - name: Windows and origins (6 tests)
         run: python tests/test_windows.py
