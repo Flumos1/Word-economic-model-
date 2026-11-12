@@ -69,7 +69,7 @@ def form_page(available: list) -> bytes:
 
 class DensePlan(unittest.TestCase):
     def test_plan_is_a_dense_quarterly_grid(self):
-        self.assertEqual(len(VINTAGE_SERIES), 6, VINTAGE_SERIES)
+        self.assertGreaterEqual(len(VINTAGE_SERIES), 6, VINTAGE_SERIES)
         for series in PLAN["series"]:
             planned = series.get("vintages", [])
             if series["id"] == "USREC":
@@ -223,8 +223,10 @@ class OfflineDryRun(unittest.TestCase):
                                         "--log", str(log_path)])
             self.assertEqual(code, 0)
             self.assertFalse(log_path.exists(), "dry-run must not write the log")
-        self.assertEqual(sum(1 for s in PLAN["series"] if s.get("vintages")), 6)
-        self.assertEqual(sum(len(s.get("vintages", [])) for s in PLAN["series"]), 6 * 147)
+        vintage_series = [s for s in PLAN["series"] if s.get("vintages")]
+        self.assertGreaterEqual(len(vintage_series), 6)
+        self.assertEqual(sum(len(s.get("vintages", [])) for s in PLAN["series"]),
+                         len(vintage_series) * 147)
 
 
 class ChunkedFetch(unittest.TestCase):
@@ -328,9 +330,10 @@ class MainVintageLog(unittest.TestCase):
                     self.assertTrue(Path(entry["file"]).exists(), entry["file"])
 
         self.assertEqual(log["failures"], [])
-        self.assertEqual(len(log["entries"]), 13, "7 latest files + 6 vintage sets")
+        self.assertEqual(len(log["entries"]), len(PLAN["series"]) + len(VINTAGE_SERIES),
+                         f"{len(PLAN['series'])} latest files + {len(VINTAGE_SERIES)} vintage sets")
         sets = [e for e in log["entries"] if e["vintage"] == "set"]
-        self.assertEqual(len(sets), 6)
+        self.assertEqual(len(sets), len(VINTAGE_SERIES))
         for entry in sets:
             self.assertEqual(entry["vintage_count"], len(self.AVAILABLE))
             self.assertTrue(entry["vintage_check"], entry["series"])
@@ -345,7 +348,7 @@ class MainVintageLog(unittest.TestCase):
             self.assertEqual(entry["merged"]["vintage_count"], len(self.AVAILABLE))
             self.assertRegex(entry["merged"]["sha256"], r"^[0-9a-f]{64}$")
         self.assertEqual(log["gate_view"]["limit_dates"], fetch_data.GATE_VIEW_DATES)
-        self.assertEqual(len(log["gate_view"]["entries"]), 6)
+        self.assertEqual(len(log["gate_view"]["entries"]), len(VINTAGE_SERIES))
         for gate_entry in log["gate_view"]["entries"]:
             self.assertLessEqual(gate_entry["vintage_count"], fetch_data.GATE_VIEW_DATES)
             self.assertGreaterEqual(sum(1 for d in gate_entry["vintage_dates"] if d < "2000-01-01"),

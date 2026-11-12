@@ -1,0 +1,592 @@
+{
+  "calibration_id": "AMFE-CORE-CALIBRATION",
+  "version": "0.1.0",
+  "tool": "tools/calibrate_core.py",
+  "protocol": "protocols/evaluation_protocol_v4.json",
+  "plan": "protocols/data_plan.json (version 0.4.0)",
+  "generated_at": "2026-11-12T09:09:20Z",
+  "status": "COMPLETE",
+  "purpose": "starting values for the world core (docs/79, docs/80): expenditure shares, an openness share, a NAIRU proxy and a productivity trend, plus V2 identity checks on the real series. Derived statistics only - raw series are not published.",
+  "raw_data_committed": false,
+  "reproduce": "download the private amfe-data-<run> artifact of the data-refresh workflow into data/raw and run: python tools/calibrate_core.py",
+  "windows": {
+    "baseline": [
+      "1990Q1",
+      "2019Q4"
+    ],
+    "recent_from": "2020Q1"
+  },
+  "sources": [
+    {
+      "series": "GDPC1",
+      "file": "data/raw/GDPC1/latest.csv",
+      "rows": 319,
+      "first_observation": "1947-01-01",
+      "last_observation": "2026-07-01",
+      "file_sha256": "1c6c6e9f59e383e20c849dd299175c7a307526c09abdc18f18da9754fc5b3343",
+      "register": "ALFRED:GDPC1"
+    },
+    {
+      "series": "GCEC1",
+      "file": "data/raw/GCEC1/latest.csv",
+      "rows": 319,
+      "first_observation": "1947-01-01",
+      "last_observation": "2026-07-01",
+      "file_sha256": "5cfda8c6b010d1e1915cfba6490cb6fc6879b929bf7e964a96ec9b801defbb94",
+      "register": "BEA_PRIMARY"
+    },
+    {
+      "series": "GPDIC1",
+      "file": "data/raw/GPDIC1/latest.csv",
+      "rows": 319,
+      "first_observation": "1947-01-01",
+      "last_observation": "2026-07-01",
+      "file_sha256": "74739900ecdd754bc2e3d2530953c9c37e92b4af11ed3f07679ab695ce7fb424",
+      "register": "BEA_PRIMARY"
+    },
+    {
+      "series": "EXPGSC1",
+      "file": "data/raw/EXPGSC1/latest.csv",
+      "rows": 319,
+      "first_observation": "1947-01-01",
+      "last_observation": "2026-07-01",
+      "file_sha256": "eb6cdd1dc01743dbfafd3619a38194142e1d0eb09ce32e5dc99f576c3f47163f",
+      "register": "BEA_PRIMARY"
+    },
+    {
+      "series": "IMPGSC1",
+      "file": "data/raw/IMPGSC1/latest.csv",
+      "rows": 319,
+      "first_observation": "1947-01-01",
+      "last_observation": "2026-07-01",
+      "file_sha256": "f98e053b23756e8b33127aa25d5cc87c4d1261fb50dd4fa435b34d8593f017d1",
+      "register": "BEA_PRIMARY"
+    },
+    {
+      "series": "PCECC96",
+      "file": "data/raw/PCECC96/latest.csv",
+      "rows": 319,
+      "first_observation": "1947-01-01",
+      "last_observation": "2026-07-01",
+      "file_sha256": "361ddbb2d04c18d51f5ab9f5d6dd90625e92ecbe70563ac476cf6552d6e11980",
+      "register": "BEA_PRIMARY"
+    },
+    {
+      "series": "PAYEMS",
+      "file": "data/raw/PAYEMS/latest.csv",
+      "rows": 1054,
+      "first_observation": "1939-01-01",
+      "last_observation": "2026-10-01",
+      "file_sha256": "968f9252d00246e2b6cf40307e01eef7a413ec936fcc45c7498347a509a2dc32",
+      "register": "BLS_PRIMARY"
+    },
+    {
+      "series": "UNRATE",
+      "file": "data/raw/UNRATE/latest.csv",
+      "rows": 945,
+      "first_observation": "1948-01-01",
+      "last_observation": "2026-10-01",
+      "file_sha256": "fb669461abc34e00324b940be6bad1c7f89117652f28587196a7b8bf4a9f56a1",
+      "register": "ALFRED:UNRATE"
+    },
+    {
+      "series": "A191RL1Q225SBEA",
+      "file": "data/raw/A191RL1Q225SBEA/latest.csv",
+      "rows": 318,
+      "first_observation": "1947-04-01",
+      "last_observation": "2026-07-01",
+      "file_sha256": "1af2590d79adb8d3c6fad4328d306c96bb6ed9980120eae58bb9471fffbb0562",
+      "register": "BEA_PRIMARY"
+    },
+    {
+      "series": "INDPRO",
+      "file": "data/raw/INDPRO/latest.csv",
+      "rows": 1293,
+      "first_observation": "1919-01-01",
+      "last_observation": "2026-09-01",
+      "file_sha256": "0fc53a503386efaf83f17cf0cc6d77b3980830a91c9dfa9ebab97b4cf1aa5feb",
+      "register": "FRED_ALFRED_SERVICES"
+    },
+    {
+      "series": "CPIAUCSL",
+      "file": "data/raw/CPIAUCSL/latest.csv",
+      "rows": 957,
+      "first_observation": "1947-01-01",
+      "last_observation": "2026-10-01",
+      "file_sha256": "c9be2d4909ffd28d91f07df5d113151b0fe7ba602144ee6fd453d3bc8426efde",
+      "register": "ALFRED:CPIAUCSL"
+    },
+    {
+      "series": "PCEPILFE",
+      "file": "data/raw/PCEPILFE/latest.csv",
+      "rows": 813,
+      "first_observation": "1959-01-01",
+      "last_observation": "2026-09-01",
+      "file_sha256": "8aa0635d4a3e066a0365551faeabc030547a7a313c58c3b18f87b7f0ff1d5f18",
+      "register": "BEA_PRIMARY"
+    },
+    {
+      "series": "GDPDEF",
+      "file": "data/raw/GDPDEF/latest.csv",
+      "rows": 319,
+      "first_observation": "1947-01-01",
+      "last_observation": "2026-07-01",
+      "file_sha256": "30bb0472781765e94efbbeaf63f0056106c5ff3786f6713485d3daff182b6010",
+      "register": "BEA_PRIMARY"
+    },
+    {
+      "series": "RSAFS",
+      "file": "data/raw/RSAFS/latest.csv",
+      "rows": 417,
+      "first_observation": "1992-01-01",
+      "last_observation": "2026-09-01",
+      "file_sha256": "627d8bb386ac80f4aede3a9496b63040df584875fb766d455b08ebd84311468f",
+      "register": "FRED_ALFRED_SERVICES"
+    },
+    {
+      "series": "GCE",
+      "file": "data/raw/GCE/latest.csv",
+      "rows": 319,
+      "first_observation": "1947-01-01",
+      "last_observation": "2026-07-01",
+      "file_sha256": "665600d2c5bb3f4862e4260d8c4b92ae7017f4cf56b968328cde026d9711b75a",
+      "register": "BEA_PRIMARY"
+    }
+  ],
+  "parameters": [
+    {
+      "id": "gov_share",
+      "status": "CALIBRATED",
+      "value": 0.206905,
+      "unit": "share of real GDP",
+      "description": "real government consumption expenditures and gross investment (BEA) as a share of real GDP",
+      "sources": [
+        "GCEC1",
+        "GDPC1"
+      ],
+      "windows": {
+        "baseline": {
+          "quarters": 120,
+          "mean": 0.206905,
+          "stdev": 0.023206,
+          "min": 0.171208,
+          "max": 0.258766
+        },
+        "recent": {
+          "quarters": 27,
+          "mean": 0.171709,
+          "stdev": 0.006615,
+          "min": 0.16568,
+          "max": 0.197809
+        },
+        "latest_20_quarters": {
+          "quarters": 20,
+          "mean": 0.168864,
+          "stdev": 0.001973,
+          "min": 0.16568,
+          "max": 0.172019
+        }
+      },
+      "quarters_used": 167,
+      "uncertainty": {
+        "stdev_baseline": 0.023206,
+        "range_baseline": [
+          0.171208,
+          0.258766
+        ]
+      }
+    },
+    {
+      "id": "investment_share",
+      "status": "CALIBRATED",
+      "value": 0.15635,
+      "unit": "share of real GDP",
+      "description": "real gross private domestic investment (BEA) as a share of real GDP",
+      "sources": [
+        "GPDIC1",
+        "GDPC1"
+      ],
+      "windows": {
+        "baseline": {
+          "quarters": 120,
+          "mean": 0.15635,
+          "stdev": 0.019178,
+          "min": 0.116447,
+          "max": 0.183963
+        },
+        "recent": {
+          "quarters": 27,
+          "mean": 0.185899,
+          "stdev": 0.005959,
+          "min": 0.16582,
+          "max": 0.19603
+        },
+        "latest_20_quarters": {
+          "quarters": 20,
+          "mean": 0.188261,
+          "stdev": 0.003417,
+          "min": 0.182924,
+          "max": 0.19603
+        }
+      },
+      "quarters_used": 167,
+      "uncertainty": {
+        "stdev_baseline": 0.019178,
+        "range_baseline": [
+          0.116447,
+          0.183963
+        ]
+      }
+    },
+    {
+      "id": "import_share",
+      "status": "CALIBRATED",
+      "value": 0.120622,
+      "unit": "share of real GDP",
+      "description": "real imports of goods and services (BEA) as a share of real GDP (openness starting value)",
+      "sources": [
+        "IMPGSC1",
+        "GDPC1"
+      ],
+      "windows": {
+        "baseline": {
+          "quarters": 120,
+          "mean": 0.120622,
+          "stdev": 0.02644,
+          "min": 0.069024,
+          "max": 0.152485
+        },
+        "recent": {
+          "quarters": 27,
+          "mean": 0.15293,
+          "stdev": 0.00842,
+          "min": 0.127679,
+          "max": 0.170222
+        },
+        "latest_20_quarters": {
+          "quarters": 20,
+          "mean": 0.156623,
+          "stdev": 0.004885,
+          "min": 0.151424,
+          "max": 0.170222
+        }
+      },
+      "quarters_used": 167,
+      "uncertainty": {
+        "stdev_baseline": 0.02644,
+        "range_baseline": [
+          0.069024,
+          0.152485
+        ]
+      }
+    },
+    {
+      "id": "export_share",
+      "status": "CALIBRATED",
+      "value": 0.098403,
+      "unit": "share of real GDP",
+      "description": "real exports of goods and services (BEA) as a share of real GDP (reported, not an independent parameter - it supports the net-export aggregate)",
+      "sources": [
+        "EXPGSC1",
+        "GDPC1"
+      ],
+      "windows": {
+        "baseline": {
+          "quarters": 120,
+          "mean": 0.098403,
+          "stdev": 0.01849,
+          "min": 0.065135,
+          "max": 0.125283
+        },
+        "recent": {
+          "quarters": 27,
+          "mean": 0.110627,
+          "stdev": 0.003955,
+          "min": 0.098879,
+          "max": 0.115312
+        },
+        "latest_20_quarters": {
+          "quarters": 20,
+          "mean": 0.112244,
+          "stdev": 0.001691,
+          "min": 0.1083,
+          "max": 0.115312
+        }
+      },
+      "quarters_used": 167,
+      "uncertainty": {
+        "stdev_baseline": 0.01849,
+        "range_baseline": [
+          0.065135,
+          0.125283
+        ]
+      }
+    },
+    {
+      "id": "consumption_share",
+      "status": "CALIBRATED",
+      "value": 0.659832,
+      "unit": "share of real GDP",
+      "description": "real personal consumption expenditures (BEA) as a share of real GDP; the level shares add up to one only up to the chain-linking residual measured by V2_additivity_levels",
+      "sources": [
+        "PCECC96",
+        "GDPC1"
+      ],
+      "windows": {
+        "baseline": {
+          "quarters": 120,
+          "mean": 0.659832,
+          "stdev": 0.016014,
+          "min": 0.63186,
+          "max": 0.682962
+        },
+        "recent": {
+          "quarters": 27,
+          "mean": 0.684382,
+          "stdev": 0.006806,
+          "min": 0.664919,
+          "max": 0.693049
+        },
+        "latest_20_quarters": {
+          "quarters": 20,
+          "mean": 0.686877,
+          "stdev": 0.002535,
+          "min": 0.682993,
+          "max": 0.693049
+        }
+      },
+      "quarters_used": 167,
+      "uncertainty": {
+        "stdev_baseline": 0.016014,
+        "range_baseline": [
+          0.63186,
+          0.682962
+        ]
+      }
+    },
+    {
+      "id": "nairu_proxy",
+      "status": "CALIBRATED",
+      "value": 4.415,
+      "unit": "percent (unemployment rate)",
+      "description": "NAIRU proxy: mean UNRATE over 2015-01..2019-12 (low inflation, sustained expansion). This is a proxy for the unemployment rate consistent with stable inflation, not an estimate of the natural rate.",
+      "sources": [
+        "UNRATE"
+      ],
+      "windows": {
+        "proxy": {
+          "months": 60,
+          "mean": 4.415,
+          "stdev": 0.6219,
+          "min": 3.5,
+          "max": 5.7
+        },
+        "baseline": {
+          "months": 360,
+          "mean": 5.8417
+        }
+      },
+      "uncertainty": {
+        "stdev_proxy_window": 0.6219
+      }
+    },
+    {
+      "id": "productivity_trend",
+      "status": "CALIBRATED",
+      "value": 1.4966,
+      "unit": "percent per year (real output per employee)",
+      "description": "annualised OLS trend of log(real GDP / total nonfarm payrolls), i.e. real output per employee. It is a descriptive trend for the production block, not a claim that output is proportional to labour (docs/35).",
+      "sources": [
+        "GDPC1",
+        "PAYEMS"
+      ],
+      "windows": {
+        "baseline": {
+          "quarters": 120,
+          "annual_growth_percent": 1.4966
+        },
+        "pre_2008": {
+          "quarters": 72,
+          "annual_growth_percent": 1.7432
+        },
+        "post_2010": {
+          "quarters": 40,
+          "annual_growth_percent": 0.6745
+        },
+        "latest_20_quarters": {
+          "quarters": 20,
+          "annual_growth_percent": 1.4165
+        }
+      },
+      "uncertainty": {
+        "subperiod_spread": 1.0687
+      }
+    }
+  ],
+  "derived_aggregates": {
+    "net_export_share_baseline": -0.022219,
+    "implied_consumption_share_baseline": 0.658964,
+    "baseline_window": [
+      "1990Q1",
+      "2019Q4"
+    ],
+    "recent_window": [
+      "2020Q1",
+      "2026Q3"
+    ],
+    "baseline_quarters": 120
+  },
+  "v2_checks": [
+    {
+      "id": "V2_additivity_levels",
+      "name": "Y = C + I + G + NX in chained 2017$ (level residual relative to GDP)",
+      "status": "CONDITIONAL",
+      "statistic": {
+        "mean_abs_residual": 0.001907,
+        "max_abs_residual": 0.011166,
+        "quarters": 120
+      },
+      "threshold": {
+        "max_abs_residual": 0.01,
+        "mean_abs_residual": 0.003
+      },
+      "note": "chain-linked components are not additive; a small non-zero residual is expected and is measured here rather than assumed away",
+      "window": [
+        "1990Q1",
+        "2019Q4"
+      ]
+    },
+    {
+      "id": "V2_additivity_growth",
+      "name": "Y = C + I + G + NX in first differences scaled by lagged GDP",
+      "status": "PASS",
+      "statistic": {
+        "median_abs_residual": 0.000221,
+        "max_abs_residual": 0.001503,
+        "quarters": 119
+      },
+      "threshold": {
+        "median_abs_residual": 0.002,
+        "max_abs_residual": 0.02
+      },
+      "note": "the growth approximation ignores the chain-linking residual and the changing weights; the residual statistics are reported, not hidden",
+      "window": [
+        "1990Q1",
+        "2019Q4"
+      ]
+    },
+    {
+      "id": "V2_gdp_growth_series",
+      "name": "annualised q/q real GDP growth from GDPC1 vs the published A191RL1Q225SBEA",
+      "status": "PASS",
+      "statistic": {
+        "mean_abs_difference_pp": 0.025264,
+        "max_abs_difference_pp": 0.053427,
+        "quarters": 120
+      },
+      "threshold": {
+        "mean_abs_difference_pp": 0.05
+      },
+      "note": "the published growth series is rounded to 0.1 percentage points; agreement at the rounding level confirms the deflator/real alignment",
+      "window": [
+        "1990Q1",
+        "2019Q4"
+      ]
+    },
+    {
+      "id": "V2_nairu_sanity",
+      "name": "NAIRU proxy lies inside the observed UNRATE range and above its sample minimum",
+      "status": "PASS",
+      "statistic": {
+        "proxy_percent": 4.415,
+        "sample_min_percent": 2.5,
+        "sample_max_percent": 14.8,
+        "sample_months": 945
+      },
+      "threshold": "sample_min < proxy_mean <= sample_max",
+      "note": "a range check only: the natural rate is not identified by a window mean"
+    },
+    {
+      "id": "V2_productivity_xcheck",
+      "name": "per-worker real GDP growth vs per-worker industrial production growth",
+      "status": "CONDITIONAL",
+      "statistic": {
+        "correlation_yoy": 0.4249,
+        "observations": 120
+      },
+      "threshold": {
+        "correlation_yoy": 0.5
+      },
+      "note": "two activity measures, not two estimates of the same quantity: a positive association is expected, exact agreement is not",
+      "window": [
+        "1990Q1",
+        "2019Q4"
+      ]
+    },
+    {
+      "id": "V2_inflation_measures",
+      "name": "CPI vs core PCE vs GDP deflator year-over-year growth",
+      "status": "PASS",
+      "statistic": {
+        "corr_cpi_core_pce": 0.7897,
+        "corr_cpi_gdp_deflator": 0.8032,
+        "quarters": 120
+      },
+      "threshold": {
+        "corr_min": 0.5
+      },
+      "note": "CONDITIONAL by construction: the three measures have different baskets, scopes and weights, so a high but imperfect association is the expected result; this is not an identity and must not be reported as one",
+      "window": [
+        "1990Q1",
+        "2019Q4"
+      ]
+    },
+    {
+      "id": "V2_structural_parameters",
+      "name": "behavioural elasticities and factor-income shares",
+      "status": "NOT_APPLICABLE",
+      "reason": "not identifiable from these aggregates: no income-side data (compensation of employees, gross operating surplus), no hours/participation series and no structural estimation in this protocol run"
+    },
+    {
+      "id": "V2_world_aggregation",
+      "name": "cross-country / world aggregation of the calibrated parameters",
+      "status": "NOT_APPLICABLE",
+      "reason": "the plan retrieves US series only; country blocks and a world aggregation require non-US data whose licence register entries are not verified"
+    },
+    {
+      "id": "V2_nominal_identity",
+      "name": "nominal GDP = real GDP x deflator / 100 as independent evidence",
+      "status": "NOT_APPLICABLE",
+      "reason": "the implicit GDP deflator is defined as nominal/real, so the identity is tautological; the plan has no independent nominal GDP level series. The growth consistency check V2_gdp_growth_series is used instead"
+    }
+  ],
+  "criteria": {
+    "v2_thresholds": {
+      "additivity_levels_max": 0.01,
+      "additivity_levels_mean": 0.003,
+      "additivity_growth_median": 0.002,
+      "additivity_growth_max": 0.02,
+      "gdp_growth_mean_abs": 0.05,
+      "productivity_corr": 0.5,
+      "inflation_corr": 0.5
+    },
+    "window_rule": "baseline = 1990Q1..2019Q4 (pre-pandemic, 30 years); recent = from 2020Q1",
+    "derived_only": "no raw observations are written to this report"
+  },
+  "missing_series": [],
+  "limitations": [
+    "single-country (US) aggregates: the world core needs country blocks; the plan retrieves US series only, so cross-country aggregation is NOT_APPLICABLE here (see v2_checks)",
+    "the shares are ratios of chain-linked real series; they are shares of a 2017-dollar aggregate, not of nominal GDP, and are not additive across components",
+    "the NAIRU proxy is a window mean, not an estimate; the natural rate is unidentified from these aggregates",
+    "the productivity trend is output per employee, not total factor productivity: capital, hours, composition and utilisation are not in the plan",
+    "no structural parameters (elasticities, factor-income shares, behavioural coefficients) are identified by this calibration",
+    "the calibration uses the *latest* tape (data/raw/<series>/latest.csv), not a point-in-time vintage: it is a starting value, not a REAL_TIME estimate"
+  ],
+  "next_steps": [
+    "add the labour-side series (hours, participation, compensation) and income-side data for factor shares and a TFP decomposition",
+    "repeat the calibration on ALFRED vintages for a PSEUDO_REAL_TIME / REAL_TIME comparison of the world-core starting values",
+    "add non-US country blocks or the cross-country dataset once its licence register entry is verified",
+    "integrate the aggregates into the world-core configuration (docs/79, docs/80) behind an explicit parameter hash"
+  ],
+  "content_sha256": "4ddd84767e9f07255493b51df83abf56dca0d618140390c6e8ee51c0fbae337e"
+}
