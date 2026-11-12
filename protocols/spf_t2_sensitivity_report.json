@@ -1,0 +1,1279 @@
+{
+ "report_id": "AMFE-SPF-T2-SENSITIVITY",
+ "version": "0.1.0",
+ "tool": "tools/spf_t2_sensitivity.py",
+ "generated_at": "2026-11-12T10:39:30Z",
+ "purpose": "does the third-party SPF median improve the T2 (real GDP growth) ensemble scoring, and how much of the result is the SPF rather than the weights or the origin sample? The report is diagnostic: no admission is assigned",
+ "protocol": {
+  "file": "protocols/evaluation_protocol_v4.json",
+  "version": "4.0.0",
+  "sha256": "bd965f4d9f23151b4ccfd27202f0669d0a7807e642639ed18c0b864bf68dedc9"
+ },
+ "r3_specification": {
+  "file": "protocols/r3_specification.json",
+  "version": "1.0.1",
+  "sha256": "5191b0626e7567bcbca657cd904fdfe8d2661c55c629c0dfe555fd7f2f305275"
+ },
+ "target": "T2_GDP_GROWTH",
+ "horizons": [
+  0,
+  1
+ ],
+ "ensemble": "ENSEMBLE_EQUAL",
+ "ensemble_scheme_note": "declared control scheme; adding the external member refits the weights over the enlarged member set, it is not a fixed-weight plug-in",
+ "calendar_rule": "SPF median is public at the origin iff the survey is real time (>= 1990Q3), the origin is a middle-month month-end (h=0) or a quarter-end origin whose quarter survey was already released (h>0), and origin >= the official news release date (src/amfe/ensemble/spf_calendar.py, docs/86 §5)",
+ "spf_mapping": {
+  "T2_GDP_GROWTH": {
+   "0": "drgdp2",
+   "1": "drgdp3",
+   "2": "drgdp4",
+   "4": "drgdp6"
+  },
+  "source": "protocols/../docs/86 §2-3; official SPF documentation PDF §3",
+  "not_used": {
+   "h": 3,
+   "reason": "drgdp5 exists but h=3 is not on the T2 grid"
+  }
+ },
+ "spf_attribution": "Source: Federal Reserve Bank of Philadelphia, Survey of Professional Forecasters, median forecasts (https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/survey-of-professional-forecasters); values used under research use terms, attribution required",
+ "spf_licence_note": "SPF medians are third-party data (PHILADELPHIA_FED, research use): values stay in the git-ignored data directory, only derived statistics are published; no SPF value is written to this report",
+ "spf_values_present": true,
+ "spf_values_location": "data/raw/spf/spf_median.json",
+ "weights_diagnostics": {
+  "spf_weight_share_mean": 0.2,
+  "spf_weight_share_min": 0.2,
+  "spf_weight_share_max": 0.2,
+  "mean_members_no_spf": 4.0,
+  "mean_members_with_spf": 4.3285198556,
+  "internal_members": [
+   "AO",
+   "AR_BIC",
+   "BVAR_MINNESOTA",
+   "OWN_NOWCAST_BRIDGE"
+  ],
+  "external_members": [
+   "SPF_GDP_MEDIAN"
+  ]
+ },
+ "results": {
+  "0": {
+   "hac_horizon": 3,
+   "crps": {
+    "available": true,
+    "status": "AVAILABLE",
+    "reason": null
+   },
+   "completeness": {
+    "W1": {
+     "origins_scored": 121,
+     "spf_available": 40
+    },
+    "W2": {
+     "origins_scored": 156,
+     "spf_available": 51
+    }
+   },
+   "windows": {
+    "W1": {
+     "meta": {
+      "window": "W1",
+      "horizon": 0,
+      "origins_in_protocol": 204,
+      "origins_scored": 121,
+      "skipped_no_actual": 0,
+      "skipped_forecast": 0,
+      "pseudo_origins_skipped": 83,
+      "spf_available": 40,
+      "spf_unavailable_reasons": {
+       "ORIGIN_IS_NOT_AN_SPF_DEADLINE_MONTH": 81
+      },
+      "crps_checked": 121,
+      "crps_rejected": 0,
+      "crps_reject_reasons": {},
+      "crps_max_deviation": 4.822637098108933,
+      "crps_max_abs": 8.697961335742935,
+      "data_classes": {
+       "PSEUDO_REAL_TIME": 83,
+       "REAL_TIME": 121
+      },
+      "first_origin": "1996-12-31",
+      "last_origin": "2006-12-31",
+      "internal_members": [
+       "AO",
+       "AR_BIC",
+       "BVAR_MINNESOTA",
+       "OWN_NOWCAST_BRIDGE"
+      ],
+      "enlarged_members": [
+       "AO",
+       "AR_BIC",
+       "BVAR_MINNESOTA",
+       "OWN_NOWCAST_BRIDGE",
+       "SPF_GDP_MEDIAN"
+      ]
+     },
+     "full_sample": {
+      "subset": "W1_ALL_ORIGINS",
+      "origins": 121,
+      "first_origin": "1996-12-31",
+      "last_origin": "2006-12-31",
+      "losses": {
+       "RMSE": {
+        "no_spf": 1.4247527914022347,
+        "with_spf": 1.4143148517978266,
+        "relative_with_spf": 0.9926738591653257,
+        "n": 121,
+        "mean_differential": -0.1194312216,
+        "digest": "f8eb80c434793b02080bb99d07df239c0d6d5386d4d7b7d89dcdd8e96762b37c",
+        "rmse_improvement_percent": 0.7326140835,
+        "no_spf_digest": "220c9f20d3ab82f5292918ae13de8dd17e677bbd8800aaf846d1c15648ca2064",
+        "with_spf_digest": "ba0b4d50bb8d5368f1c664ad7ebdaf5d89d698aa8e15e9c2c7b837c2a0602169"
+       },
+       "CRPS": {
+        "no_spf": 1.2024214719111166,
+        "with_spf": 1.1834874022339001,
+        "relative_with_spf": 0.9842533835934226,
+        "n": 121,
+        "mean_differential": -0.0189340697,
+        "digest": "07a15b106b740c0f78c3f57b948c98ec27f4e0997ebfb92250786a642a8745f0",
+        "no_spf_digest": "32064a3aae14c3229e923150cc1b8483d31171a28a31b4b9a2d24157d58acf1d",
+        "with_spf_digest": "e1e38c803e6490afee8351cc8b2c98504501d80dd4381f56c20583084b0c6643"
+       }
+      },
+      "dm": {
+       "RMSE": {
+        "mean_differential": -0.11943122160206485,
+        "statistic": -3.083899849070457,
+        "p_value": 0.001021531798488684,
+        "hac_lags": 2,
+        "hln_factor": 0.9793301251486305,
+        "n": 121,
+        "alternative": "less",
+        "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+       },
+       "CRPS": {
+        "mean_differential": -0.018934069677216617,
+        "statistic": -3.185290276910845,
+        "p_value": 0.0007230443842869416,
+        "hac_lags": 2,
+        "hln_factor": 0.9793301251486305,
+        "n": 121,
+        "alternative": "less",
+        "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+       }
+      },
+      "romano_wolf": {
+       "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+       "fwer": 0.1,
+       "replications": 2000,
+       "seed": 20261112,
+       "block_length": 5,
+       "block_length_rule": "max(ceil(n**(1/3)), horizon)",
+       "null_calibration": "t_variance",
+       "target_null_variance": 1.0169491525423728,
+       "horizon": 3,
+       "n": 121,
+       "family_size": 2,
+       "family": [
+        "CRPS",
+        "RMSE"
+       ],
+       "statistics": {
+        "CRPS": 3.185290276910845,
+        "RMSE": 3.0838998490704577
+       },
+       "mean_differentials": {
+        "CRPS": -0.018934069677216617,
+        "RMSE": -0.11943122160206485
+       },
+       "raw_p_values": {
+        "CRPS": 0.0007230443842869416,
+        "RMSE": 0.001021531798488684
+       },
+       "bootstrap_sd": {
+        "CRPS": 0.9664874639896075,
+        "RMSE": 1.2710375989420044
+       },
+       "calibration_factor": {
+        "CRPS": 1.043406154505554,
+        "RMSE": 0.793398219705407
+       },
+       "adjusted_p_values": {
+        "CRPS": 0.006,
+        "RMSE": 0.006
+       },
+       "rejected": [
+        "CRPS",
+        "RMSE"
+       ],
+       "sign_convention": "positive statistic = candidate better (mean differential < 0)",
+       "note": "one-sided Romano-Wolf stepdown with the stationary bootstrap; the HAC/HLN studentization uses the observed sample as scale (fixed-scale studentization), one shared bootstrap index matrix keeps the joint dependence of the family, and the bootstrap null distribution is variance-calibrated to the t(n-1) reference"
+      },
+      "status": "OK"
+     },
+     "paired_spf_subsample": {
+      "subset": "W1_SPF_AVAILABLE",
+      "origins": 40,
+      "first_origin": "1997-02-28",
+      "last_origin": "2006-11-30",
+      "losses": {
+       "RMSE": {
+        "no_spf": 1.441894267692328,
+        "with_spf": 1.410772190643431,
+        "relative_with_spf": 0.9784158396726923,
+        "n": 40,
+        "mean_differential": -0.3612794453,
+        "digest": "02af5badf48d68fca5bc14f737c8f91d334727cdbfaab021c58891ae1888166b",
+        "rmse_improvement_percent": 2.1584160327,
+        "no_spf_digest": "3a0bb22caad4ec173058271861df65693bab26ad9ea88b1bfdf9a019da6c14f4",
+        "with_spf_digest": "8f41f2361cdaef53576a10b8d134e24ca64e0686aafb5fa9c2e3e5612dff048a"
+       },
+       "CRPS": {
+        "no_spf": 1.2307298507052977,
+        "with_spf": 1.1734542899317175,
+        "relative_with_spf": 0.9534621178313363,
+        "n": 40,
+        "mean_differential": -0.0572755608,
+        "digest": "75d1766bff0f49c5c556f6c7e217e71a0d8c6d32a68d6ae6a0da45d3e6c32b65",
+        "no_spf_digest": "1fd75e5599ef5b6f060b0f02e16474864e1e61942a4a072134e5a5fdb39bd9fb",
+        "with_spf_digest": "163969c7243d40547a39f77f907504ca3d4d3a3ef0eed16658d8083a30e69daa"
+       }
+      },
+      "dm": {
+       "RMSE": {
+        "mean_differential": -0.3612794453462461,
+        "statistic": -2.2173858265846467,
+        "p_value": 0.013298368707483299,
+        "hac_lags": 2,
+        "hln_factor": 0.9374166629626337,
+        "n": 40,
+        "alternative": "less",
+        "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+       },
+       "CRPS": {
+        "mean_differential": -0.05727556077358027,
+        "statistic": -3.140276721422746,
+        "p_value": 0.0008439415843065068,
+        "hac_lags": 2,
+        "hln_factor": 0.9374166629626337,
+        "n": 40,
+        "alternative": "less",
+        "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+       }
+      },
+      "romano_wolf": {
+       "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+       "fwer": 0.1,
+       "replications": 2000,
+       "seed": 20261112,
+       "block_length": 4,
+       "block_length_rule": "max(ceil(n**(1/3)), horizon)",
+       "null_calibration": "t_variance",
+       "target_null_variance": 1.054054054054054,
+       "horizon": 3,
+       "n": 40,
+       "family_size": 2,
+       "family": [
+        "CRPS",
+        "RMSE"
+       ],
+       "statistics": {
+        "CRPS": 3.1402767214227456,
+        "RMSE": 2.2173858265846467
+       },
+       "mean_differentials": {
+        "CRPS": -0.05727556077358027,
+        "RMSE": -0.3612794453462461
+       },
+       "raw_p_values": {
+        "CRPS": 0.0008439415843065068,
+        "RMSE": 0.013298368707483299
+       },
+       "bootstrap_sd": {
+        "CRPS": 0.816642075042179,
+        "RMSE": 0.9321427532066348
+       },
+       "calibration_factor": {
+        "CRPS": 1.2571864443889362,
+        "RMSE": 1.1014099966221487
+       },
+       "adjusted_p_values": {
+        "CRPS": 0.0065,
+        "RMSE": 0.0245
+       },
+       "rejected": [
+        "CRPS",
+        "RMSE"
+       ],
+       "sign_convention": "positive statistic = candidate better (mean differential < 0)",
+       "note": "one-sided Romano-Wolf stepdown with the stationary bootstrap; the HAC/HLN studentization uses the observed sample as scale (fixed-scale studentization), one shared bootstrap index matrix keeps the joint dependence of the family, and the bootstrap null distribution is variance-calibrated to the t(n-1) reference"
+      },
+      "status": "OK",
+      "spf_only": {
+       "rmse": 1.8821606935,
+       "n": 40,
+       "digest": "5bb640e731ffbeac19cdc374eca9570e123d86f11bd1fdb120c10a12a015d824"
+      }
+     }
+    },
+    "W2": {
+     "meta": {
+      "window": "W2",
+      "horizon": 0,
+      "origins_in_protocol": 156,
+      "origins_scored": 156,
+      "skipped_no_actual": 0,
+      "skipped_forecast": 0,
+      "pseudo_origins_skipped": 0,
+      "spf_available": 51,
+      "spf_unavailable_reasons": {
+       "ORIGIN_IS_NOT_AN_SPF_DEADLINE_MONTH": 104,
+       "SPF_NEWS_RELEASE_NOT_PUBLISHED_AT_ORIGIN": 1
+      },
+      "crps_checked": 156,
+      "crps_rejected": 0,
+      "crps_reject_reasons": {},
+      "crps_max_deviation": 6.796922470381017,
+      "crps_max_abs": 7.17284516429713,
+      "data_classes": {
+       "REAL_TIME": 156
+      },
+      "first_origin": "2007-01-31",
+      "last_origin": "2019-12-31",
+      "internal_members": [
+       "AO",
+       "AR_BIC",
+       "BVAR_MINNESOTA",
+       "OWN_NOWCAST_BRIDGE"
+      ],
+      "enlarged_members": [
+       "AO",
+       "AR_BIC",
+       "BVAR_MINNESOTA",
+       "OWN_NOWCAST_BRIDGE",
+       "SPF_GDP_MEDIAN"
+      ]
+     },
+     "full_sample": {
+      "subset": "W2_ALL_ORIGINS",
+      "origins": 156,
+      "first_origin": "2007-01-31",
+      "last_origin": "2019-12-31",
+      "losses": {
+       "RMSE": {
+        "no_spf": 1.56286111691522,
+        "with_spf": 1.5326511811290169,
+        "relative_with_spf": 0.9806701085213306,
+        "n": 156,
+        "mean_differential": -0.4480833116,
+        "digest": "140309c81d9316d4fe2eb9f5a32c5ea52fca529011774cffb23f3bf1b8aba018",
+        "rmse_improvement_percent": 1.9329891479,
+        "no_spf_digest": "a95dca6454321029eb3d8288d12502dd782882fd0ed895c8884b7173ee89fa77",
+        "with_spf_digest": "282f9bec2f2d0e62822b330198d178596203a69f38e1ee8c89ca27cee03deb8a"
+       },
+       "CRPS": {
+        "no_spf": 1.2993563313001113,
+        "with_spf": 1.2469151758990715,
+        "relative_with_spf": 0.9596406665840708,
+        "n": 156,
+        "mean_differential": -0.0524411554,
+        "digest": "1bc0428eb3d456bb897400f3f1485007d6b5ac521f2cb17da7636eb1634d162f",
+        "no_spf_digest": "0cb08805b793c73a6fd386b8dd8f70124379a830d43bef0f57173792cbefc4db",
+        "with_spf_digest": "6bdc8a8bc609dccfc3c64b5b1484c0b9969b310e21356134084a61c7c04e6b2a"
+       }
+      },
+      "dm": {
+       "RMSE": {
+        "mean_differential": -0.4480833116295705,
+        "statistic": -2.3402594145869573,
+        "p_value": 0.009635174781459532,
+        "hac_lags": 2,
+        "hln_factor": 0.9839691388820024,
+        "n": 156,
+        "alternative": "less",
+        "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+       },
+       "CRPS": {
+        "mean_differential": -0.05244115540103986,
+        "statistic": -2.9694308515580268,
+        "p_value": 0.0014917597592264964,
+        "hac_lags": 2,
+        "hln_factor": 0.9839691388820024,
+        "n": 156,
+        "alternative": "less",
+        "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+       }
+      },
+      "romano_wolf": {
+       "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+       "fwer": 0.1,
+       "replications": 2000,
+       "seed": 20261112,
+       "block_length": 6,
+       "block_length_rule": "max(ceil(n**(1/3)), horizon)",
+       "null_calibration": "t_variance",
+       "target_null_variance": 1.0130718954248366,
+       "horizon": 3,
+       "n": 156,
+       "family_size": 2,
+       "family": [
+        "CRPS",
+        "RMSE"
+       ],
+       "statistics": {
+        "CRPS": 2.9694308515580268,
+        "RMSE": 2.3402594145869573
+       },
+       "mean_differentials": {
+        "CRPS": -0.05244115540103986,
+        "RMSE": -0.4480833116295705
+       },
+       "raw_p_values": {
+        "CRPS": 0.0014917597592264964,
+        "RMSE": 0.009635174781459532
+       },
+       "bootstrap_sd": {
+        "CRPS": 1.3304922114036455,
+        "RMSE": 1.310525944566658
+       },
+       "calibration_factor": {
+        "CRPS": 0.7564980225005659,
+        "RMSE": 0.7680235031226943
+       },
+       "adjusted_p_values": {
+        "CRPS": 0.005,
+        "RMSE": 0.0225
+       },
+       "rejected": [
+        "CRPS",
+        "RMSE"
+       ],
+       "sign_convention": "positive statistic = candidate better (mean differential < 0)",
+       "note": "one-sided Romano-Wolf stepdown with the stationary bootstrap; the HAC/HLN studentization uses the observed sample as scale (fixed-scale studentization), one shared bootstrap index matrix keeps the joint dependence of the family, and the bootstrap null distribution is variance-calibrated to the t(n-1) reference"
+      },
+      "status": "OK"
+     },
+     "paired_spf_subsample": {
+      "subset": "W2_SPF_AVAILABLE",
+      "origins": 51,
+      "first_origin": "2007-02-28",
+      "last_origin": "2019-11-30",
+      "losses": {
+       "RMSE": {
+        "no_spf": 1.59764634710668,
+        "with_spf": 1.5060386208235965,
+        "relative_with_spf": 0.9426608232485343,
+        "n": 51,
+        "mean_differential": -1.3706077767,
+        "digest": "2ae45d8bfac2fb956f4be3615a97f2f63c3a120bf934377cf5ca0419e575775a",
+        "rmse_improvement_percent": 5.7339176751,
+        "no_spf_digest": "4167cd3aa1531aa69baebcb629e18d42c790ff845700076fb098ff409b98e033",
+        "with_spf_digest": "70697921e28a4006dea63ec8f5365cc5e93a8ca59803e508c6647f23d1759f1a"
+       },
+       "CRPS": {
+        "no_spf": 1.3518228175242635,
+        "with_spf": 1.191414577474024,
+        "relative_with_spf": 0.8813393012968873,
+        "n": 51,
+        "mean_differential": -0.1604082401,
+        "digest": "7c81f55b066e48a9be616cd2b51a99d860b9efb7285fba0f95d88f21495ebbf8",
+        "no_spf_digest": "edaeb0160b8fb6411721dad1767bc124f8bb810eaa15ce167975036787f2d424",
+        "with_spf_digest": "6317867d1fd774a435bf066ff0d106c611fdd56a8c67434ac981e1722398ccf7"
+       }
+      },
+      "dm": {
+       "RMSE": {
+        "mean_differential": -1.3706077767492746,
+        "statistic": -1.7097824052062132,
+        "p_value": 0.04365305889334309,
+        "hac_lags": 2,
+        "hln_factor": 0.9509298551358543,
+        "n": 51,
+        "alternative": "less",
+        "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+       },
+       "CRPS": {
+        "mean_differential": -0.1604082400502396,
+        "statistic": -2.146263988250216,
+        "p_value": 0.015925961490711626,
+        "hac_lags": 2,
+        "hln_factor": 0.9509298551358543,
+        "n": 51,
+        "alternative": "less",
+        "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+       }
+      },
+      "romano_wolf": {
+       "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+       "fwer": 0.1,
+       "replications": 2000,
+       "seed": 20261112,
+       "block_length": 4,
+       "block_length_rule": "max(ceil(n**(1/3)), horizon)",
+       "null_calibration": "t_variance",
+       "target_null_variance": 1.0416666666666667,
+       "horizon": 3,
+       "n": 51,
+       "family_size": 2,
+       "family": [
+        "CRPS",
+        "RMSE"
+       ],
+       "statistics": {
+        "CRPS": 2.1462639882502166,
+        "RMSE": 1.7097824052062132
+       },
+       "mean_differentials": {
+        "CRPS": -0.1604082400502396,
+        "RMSE": -1.3706077767492746
+       },
+       "raw_p_values": {
+        "CRPS": 0.015925961490711682,
+        "RMSE": 0.04365305889334309
+       },
+       "bootstrap_sd": {
+        "CRPS": 1.0545822821829731,
+        "RMSE": 1.042394531328062
+       },
+       "calibration_factor": {
+        "CRPS": 0.9677962008303274,
+        "RMSE": 0.9791117427096787
+       },
+       "adjusted_p_values": {
+        "CRPS": 0.035,
+        "RMSE": 0.057
+       },
+       "rejected": [
+        "CRPS",
+        "RMSE"
+       ],
+       "sign_convention": "positive statistic = candidate better (mean differential < 0)",
+       "note": "one-sided Romano-Wolf stepdown with the stationary bootstrap; the HAC/HLN studentization uses the observed sample as scale (fixed-scale studentization), one shared bootstrap index matrix keeps the joint dependence of the family, and the bootstrap null distribution is variance-calibrated to the t(n-1) reference"
+      },
+      "status": "OK",
+      "spf_only": {
+       "rmse": 1.4693558696,
+       "n": 51,
+       "digest": "652127da9b645f2052e1e45caf8e9e2c2ce314a8684d7f5c46b98d9e5797a2a8"
+      }
+     }
+    },
+    "ALL": {
+     "meta": {
+      "origins_scored": 277,
+      "spf_available": 91,
+      "crps_checked": 277,
+      "crps_rejected": 0,
+      "crps_max_deviation": 6.796922470381017,
+      "crps_max_abs": 8.697961335742935
+     },
+     "full_sample": {
+      "subset": "ALL_ORIGINS",
+      "origins": 277,
+      "first_origin": "1996-12-31",
+      "last_origin": "2019-12-31",
+      "losses": {
+       "RMSE": {
+        "no_spf": 1.5071606759437572,
+        "with_spf": 1.484413790133909,
+        "relative_with_spf": 0.9849074579950776,
+        "n": 277,
+        "mean_differential": -0.3045204853,
+        "digest": "1da4c146e7d823c6feb5fe560445ed10e1fdadd298ae433b7348e2ae18cae173",
+        "rmse_improvement_percent": 1.5092542005,
+        "no_spf_digest": "4683e56b93713aa230affb897f357afb4e5d58db46b0238da23892d067e20129",
+        "with_spf_digest": "0886a70f9d29897709c771553919a84b9432451afcc5585c094cb5a27e39e64d"
+       },
+       "CRPS": {
+        "no_spf": 1.2570129450688177,
+        "with_spf": 1.2192084588828773,
+        "relative_with_spf": 0.9699251417145345,
+        "n": 277,
+        "mean_differential": -0.0378044862,
+        "digest": "3ebb8e5b1517de7a686a3fea7dfcd55352edf6e62f08a6e93bfd934b13e04184",
+        "no_spf_digest": "9484b71152af33c702e04e0c854fb5cfacc0f2af92b2faf5d82b86b89b3472ff",
+        "with_spf_digest": "63223799da35d64939c73d2f325cc99d2d8cbaf2468849aba36bcb4e710d5dfb"
+       }
+      },
+      "dm": {
+       "RMSE": {
+        "mean_differential": -0.3045204852998659,
+        "statistic": -2.7753835746652413,
+        "p_value": 0.0027568318270514425,
+        "hac_lags": 2,
+        "hln_factor": 0.9909730852931988,
+        "n": 277,
+        "alternative": "less",
+        "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+       },
+       "CRPS": {
+        "mean_differential": -0.03780448618594018,
+        "statistic": -3.652302865943713,
+        "p_value": 0.0001299495496805969,
+        "hac_lags": 2,
+        "hln_factor": 0.9909730852931988,
+        "n": 277,
+        "alternative": "less",
+        "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+       }
+      },
+      "romano_wolf": {
+       "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+       "fwer": 0.1,
+       "replications": 2000,
+       "seed": 20261112,
+       "block_length": 7,
+       "block_length_rule": "max(ceil(n**(1/3)), horizon)",
+       "null_calibration": "t_variance",
+       "target_null_variance": 1.0072992700729928,
+       "horizon": 3,
+       "n": 277,
+       "family_size": 2,
+       "family": [
+        "CRPS",
+        "RMSE"
+       ],
+       "statistics": {
+        "CRPS": 3.652302865943713,
+        "RMSE": 2.7753835746652413
+       },
+       "mean_differentials": {
+        "CRPS": -0.03780448618594018,
+        "RMSE": -0.3045204852998659
+       },
+       "raw_p_values": {
+        "CRPS": 0.0001299495496805969,
+        "RMSE": 0.0027568318270514425
+       },
+       "bootstrap_sd": {
+        "CRPS": 1.3928584338232748,
+        "RMSE": 1.3822014150320074
+       },
+       "calibration_factor": {
+        "CRPS": 0.720563536783549,
+        "RMSE": 0.7261192098340113
+       },
+       "adjusted_p_values": {
+        "CRPS": 0.0015,
+        "RMSE": 0.011
+       },
+       "rejected": [
+        "CRPS",
+        "RMSE"
+       ],
+       "sign_convention": "positive statistic = candidate better (mean differential < 0)",
+       "note": "one-sided Romano-Wolf stepdown with the stationary bootstrap; the HAC/HLN studentization uses the observed sample as scale (fixed-scale studentization), one shared bootstrap index matrix keeps the joint dependence of the family, and the bootstrap null distribution is variance-calibrated to the t(n-1) reference"
+      },
+      "status": "OK"
+     },
+     "paired_spf_subsample": {
+      "subset": "SPF_AVAILABLE",
+      "origins": 91,
+      "first_origin": "1997-02-28",
+      "last_origin": "2019-11-30",
+      "losses": {
+       "RMSE": {
+        "no_spf": 1.534967540599485,
+        "with_spf": 1.466436870198591,
+        "relative_with_spf": 0.9553536680168956,
+        "n": 91,
+        "mean_differential": -0.9269469717,
+        "digest": "af514a261b0ffd691a16ed5f039eafc4ee137de307555a6014353886f4821baa",
+        "rmse_improvement_percent": 4.4646331983,
+        "no_spf_digest": "62e3dd7740a197417579882adabd6f6840abf4a74c2be634bc5a3ba00af28e29",
+        "with_spf_digest": "65a3a28c58aef76ea56db8544ed2c988b7bf5046b48b6b33eeec98f49a6e5237"
+       },
+       "CRPS": {
+        "no_spf": 1.2985951398016415,
+        "with_spf": 1.1835199455872958,
+        "relative_with_spf": 0.9113848568446642,
+        "n": 91,
+        "mean_differential": -0.1150751942,
+        "digest": "2e5c1fe76142298c567ada4e9791e628815f0e84b99ef5322c6af967165673c6",
+        "no_spf_digest": "1ca411b97ae22d98b103e20ef67b58737c85c7b39487ba4de27aedd7f97d9c41",
+        "with_spf_digest": "c774d93d4bd74be1acdbd76783ab670805b406025e7726a108c1a790e225dec5"
+       }
+      },
+      "dm": {
+       "RMSE": {
+        "mean_differential": -0.9269469717369544,
+        "statistic": -2.038520826773073,
+        "p_value": 0.02074893704697489,
+        "hac_lags": 2,
+        "hln_factor": 0.9725119512016522,
+        "n": 91,
+        "alternative": "less",
+        "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+       },
+       "CRPS": {
+        "mean_differential": -0.11507519421434537,
+        "statistic": -2.6902634714023854,
+        "p_value": 0.0035697813329206296,
+        "hac_lags": 2,
+        "hln_factor": 0.9725119512016522,
+        "n": 91,
+        "alternative": "less",
+        "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
+       }
+      },
+      "romano_wolf": {
+       "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+       "fwer": 0.1,
+       "replications": 2000,
+       "seed": 20261112,
+       "block_length": 5,
+       "block_length_rule": "max(ceil(n**(1/3)), horizon)",
+       "null_calibration": "t_variance",
+       "target_null_variance": 1.0227272727272727,
+       "horizon": 3,
+       "n": 91,
+       "family_size": 2,
+       "family": [
+        "CRPS",
+        "RMSE"
+       ],
+       "statistics": {
+        "CRPS": 2.6902634714023854,
+        "RMSE": 2.0385208267730732
+       },
+       "mean_differentials": {
+        "CRPS": -0.11507519421434537,
+        "RMSE": -0.9269469717369544
+       },
+       "raw_p_values": {
+        "CRPS": 0.0035697813329206296,
+        "RMSE": 0.020748937046974836
+       },
+       "bootstrap_sd": {
+        "CRPS": 1.1256622440048534,
+        "RMSE": 1.1093730011492458
+       },
+       "calibration_factor": {
+        "CRPS": 0.8984042940774896,
+        "RMSE": 0.9115958227279873
+       },
+       "adjusted_p_values": {
+        "CRPS": 0.014,
+        "RMSE": 0.0425
+       },
+       "rejected": [
+        "CRPS",
+        "RMSE"
+       ],
+       "sign_convention": "positive statistic = candidate better (mean differential < 0)",
+       "note": "one-sided Romano-Wolf stepdown with the stationary bootstrap; the HAC/HLN studentization uses the observed sample as scale (fixed-scale studentization), one shared bootstrap index matrix keeps the joint dependence of the family, and the bootstrap null distribution is variance-calibrated to the t(n-1) reference"
+      },
+      "status": "OK",
+      "spf_only": {
+       "rmse": 1.6634747669,
+       "n": 91,
+       "digest": "7d7d463f99c6ff9838470b5539fee2899427c884000258446760299ef589a70a"
+      }
+     }
+    }
+   }
+  },
+  "1": {
+   "hac_horizon": 1,
+   "crps": {
+    "available": true,
+    "status": "AVAILABLE",
+    "reason": null
+   },
+   "completeness": {
+    "W1": {
+     "origins_scored": 40,
+     "spf_available": 0
+    },
+    "W2": {
+     "origins_scored": 51,
+     "spf_available": 0
+    }
+   },
+   "windows": {
+    "W1": {
+     "meta": {
+      "window": "W1",
+      "horizon": 1,
+      "origins_in_protocol": 67,
+      "origins_scored": 40,
+      "skipped_no_actual": 0,
+      "skipped_forecast": 0,
+      "pseudo_origins_skipped": 27,
+      "spf_available": 0,
+      "spf_unavailable_reasons": {
+       "SPF_MEMBER_EXCLUDED_BY_ENSEMBLE": 40
+      },
+      "crps_checked": 40,
+      "crps_rejected": 0,
+      "crps_reject_reasons": {},
+      "crps_max_deviation": 4.969765867142987,
+      "crps_max_abs": 8.804534565092007,
+      "data_classes": {
+       "PSEUDO_REAL_TIME": 27,
+       "REAL_TIME": 40
+      },
+      "first_origin": "1996-12-31",
+      "last_origin": "2006-09-30",
+      "internal_members": [
+       "AO",
+       "AR_BIC",
+       "BVAR_MINNESOTA"
+      ],
+      "enlarged_members": [
+       "AO",
+       "AR_BIC",
+       "BVAR_MINNESOTA",
+       "SPF_GDP_MEDIAN"
+      ]
+     },
+     "full_sample": {
+      "subset": "W1_ALL_ORIGINS",
+      "origins": 40,
+      "first_origin": "1996-12-31",
+      "last_origin": "2006-09-30",
+      "losses": {
+       "RMSE": {
+        "no_spf": 1.4280670397860096,
+        "with_spf": 1.4280670397860096,
+        "relative_with_spf": 1.0,
+        "n": 40,
+        "mean_differential": 0.0,
+        "digest": "7b6436b0c98f62380866d9432c2af0ee08ce16a171bda6951aecd95ee1307d61",
+        "rmse_improvement_percent": 0.0,
+        "no_spf_digest": "b1a40169f16bf0f8634b6d3da724cc8de3a0f6ae7f9f1e791f5ac7bf151e6ef8",
+        "with_spf_digest": "b1a40169f16bf0f8634b6d3da724cc8de3a0f6ae7f9f1e791f5ac7bf151e6ef8"
+       },
+       "CRPS": {
+        "no_spf": 1.2087981151280673,
+        "with_spf": 1.2087981151280673,
+        "relative_with_spf": 1.0,
+        "n": 40,
+        "mean_differential": 0.0,
+        "digest": "7b6436b0c98f62380866d9432c2af0ee08ce16a171bda6951aecd95ee1307d61",
+        "no_spf_digest": "fbc6bbdcf23f0a3185dda1683119594b7c9187aa76119f9c784e13e142f2507d",
+        "with_spf_digest": "fbc6bbdcf23f0a3185dda1683119594b7c9187aa76119f9c784e13e142f2507d"
+       }
+      },
+      "dm": {
+       "RMSE": {
+        "mean_differential": 0.0,
+        "statistic": 0.0,
+        "p_value": 0.5,
+        "hac_lags": 0,
+        "hln_factor": 1.0,
+        "n": 40,
+        "alternative": "less",
+        "note": "degenerate differential (zero HAC variance); p-value is the limit"
+       },
+       "CRPS": {
+        "mean_differential": 0.0,
+        "statistic": 0.0,
+        "p_value": 0.5,
+        "hac_lags": 0,
+        "hln_factor": 1.0,
+        "n": 40,
+        "alternative": "less",
+        "note": "degenerate differential (zero HAC variance); p-value is the limit"
+       }
+      },
+      "romano_wolf": {
+       "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+       "fwer": 0.1,
+       "replications": 2000,
+       "seed": 20261112,
+       "block_length": 4,
+       "block_length_rule": "max(ceil(n**(1/3)), horizon)",
+       "null_calibration": "t_variance",
+       "target_null_variance": 1.054054054054054,
+       "horizon": 1,
+       "n": 40,
+       "family_size": 2,
+       "family": [
+        "CRPS",
+        "RMSE"
+       ],
+       "statistics": {
+        "CRPS": 0.0,
+        "RMSE": 0.0
+       },
+       "mean_differentials": {
+        "CRPS": 0.0,
+        "RMSE": 0.0
+       },
+       "raw_p_values": {
+        "CRPS": 0.5,
+        "RMSE": 0.5
+       },
+       "bootstrap_sd": {
+        "CRPS": 0.0,
+        "RMSE": 0.0
+       },
+       "calibration_factor": {
+        "CRPS": 1.0,
+        "RMSE": 1.0
+       },
+       "adjusted_p_values": {
+        "CRPS": 1.0,
+        "RMSE": 1.0
+       },
+       "rejected": [],
+       "sign_convention": "positive statistic = candidate better (mean differential < 0)",
+       "note": "one-sided Romano-Wolf stepdown with the stationary bootstrap; the HAC/HLN studentization uses the observed sample as scale (fixed-scale studentization), one shared bootstrap index matrix keeps the joint dependence of the family, and the bootstrap null distribution is variance-calibrated to the t(n-1) reference"
+      },
+      "status": "OK"
+     },
+     "paired_spf_subsample": {
+      "subset": "W1_SPF_AVAILABLE",
+      "origins": 0,
+      "first_origin": null,
+      "last_origin": null,
+      "losses": {},
+      "dm": {},
+      "romano_wolf": null,
+      "status": "NOT_AVAILABLE",
+      "reason": "NO_ORIGINS"
+     }
+    },
+    "W2": {
+     "meta": {
+      "window": "W2",
+      "horizon": 1,
+      "origins_in_protocol": 51,
+      "origins_scored": 51,
+      "skipped_no_actual": 0,
+      "skipped_forecast": 0,
+      "pseudo_origins_skipped": 0,
+      "spf_available": 0,
+      "spf_unavailable_reasons": {
+       "SPF_MEMBER_EXCLUDED_BY_ENSEMBLE": 51
+      },
+      "crps_checked": 51,
+      "crps_rejected": 0,
+      "crps_reject_reasons": {},
+      "crps_max_deviation": 6.2905180662756575,
+      "crps_max_abs": 7.437741842087887,
+      "data_classes": {
+       "REAL_TIME": 51
+      },
+      "first_origin": "2007-03-31",
+      "last_origin": "2019-09-30",
+      "internal_members": [
+       "AO",
+       "AR_BIC",
+       "BVAR_MINNESOTA"
+      ],
+      "enlarged_members": [
+       "AO",
+       "AR_BIC",
+       "BVAR_MINNESOTA",
+       "SPF_GDP_MEDIAN"
+      ]
+     },
+     "full_sample": {
+      "subset": "W2_ALL_ORIGINS",
+      "origins": 51,
+      "first_origin": "2007-03-31",
+      "last_origin": "2019-09-30",
+      "losses": {
+       "RMSE": {
+        "no_spf": 1.5813894584118862,
+        "with_spf": 1.5813894584118862,
+        "relative_with_spf": 1.0,
+        "n": 51,
+        "mean_differential": 0.0,
+        "digest": "c76903cde8580d1c809ac5352aab33af5a310ad05126294d66e06db880c463ed",
+        "rmse_improvement_percent": 0.0,
+        "no_spf_digest": "052094001244416e7931cff703955a05a04d8bbf651595eeb689841c40befa81",
+        "with_spf_digest": "052094001244416e7931cff703955a05a04d8bbf651595eeb689841c40befa81"
+       },
+       "CRPS": {
+        "no_spf": 1.3146622683110176,
+        "with_spf": 1.3146622683110176,
+        "relative_with_spf": 1.0,
+        "n": 51,
+        "mean_differential": 0.0,
+        "digest": "c76903cde8580d1c809ac5352aab33af5a310ad05126294d66e06db880c463ed",
+        "no_spf_digest": "1af69802459a6c1efec7c5d65d2bcb4ef5045b9ffe076c7536921c0a8ffc4d8d",
+        "with_spf_digest": "1af69802459a6c1efec7c5d65d2bcb4ef5045b9ffe076c7536921c0a8ffc4d8d"
+       }
+      },
+      "dm": {
+       "RMSE": {
+        "mean_differential": 0.0,
+        "statistic": 0.0,
+        "p_value": 0.5,
+        "hac_lags": 0,
+        "hln_factor": 1.0,
+        "n": 51,
+        "alternative": "less",
+        "note": "degenerate differential (zero HAC variance); p-value is the limit"
+       },
+       "CRPS": {
+        "mean_differential": 0.0,
+        "statistic": 0.0,
+        "p_value": 0.5,
+        "hac_lags": 0,
+        "hln_factor": 1.0,
+        "n": 51,
+        "alternative": "less",
+        "note": "degenerate differential (zero HAC variance); p-value is the limit"
+       }
+      },
+      "romano_wolf": {
+       "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+       "fwer": 0.1,
+       "replications": 2000,
+       "seed": 20261112,
+       "block_length": 4,
+       "block_length_rule": "max(ceil(n**(1/3)), horizon)",
+       "null_calibration": "t_variance",
+       "target_null_variance": 1.0416666666666667,
+       "horizon": 1,
+       "n": 51,
+       "family_size": 2,
+       "family": [
+        "CRPS",
+        "RMSE"
+       ],
+       "statistics": {
+        "CRPS": 0.0,
+        "RMSE": 0.0
+       },
+       "mean_differentials": {
+        "CRPS": 0.0,
+        "RMSE": 0.0
+       },
+       "raw_p_values": {
+        "CRPS": 0.5,
+        "RMSE": 0.5
+       },
+       "bootstrap_sd": {
+        "CRPS": 0.0,
+        "RMSE": 0.0
+       },
+       "calibration_factor": {
+        "CRPS": 1.0,
+        "RMSE": 1.0
+       },
+       "adjusted_p_values": {
+        "CRPS": 1.0,
+        "RMSE": 1.0
+       },
+       "rejected": [],
+       "sign_convention": "positive statistic = candidate better (mean differential < 0)",
+       "note": "one-sided Romano-Wolf stepdown with the stationary bootstrap; the HAC/HLN studentization uses the observed sample as scale (fixed-scale studentization), one shared bootstrap index matrix keeps the joint dependence of the family, and the bootstrap null distribution is variance-calibrated to the t(n-1) reference"
+      },
+      "status": "OK"
+     },
+     "paired_spf_subsample": {
+      "subset": "W2_SPF_AVAILABLE",
+      "origins": 0,
+      "first_origin": null,
+      "last_origin": null,
+      "losses": {},
+      "dm": {},
+      "romano_wolf": null,
+      "status": "NOT_AVAILABLE",
+      "reason": "NO_ORIGINS"
+     }
+    },
+    "ALL": {
+     "meta": {
+      "origins_scored": 91,
+      "spf_available": 0,
+      "crps_checked": 91,
+      "crps_rejected": 0,
+      "crps_max_deviation": 6.2905180662756575,
+      "crps_max_abs": 8.804534565092007
+     },
+     "full_sample": {
+      "subset": "ALL_ORIGINS",
+      "origins": 91,
+      "first_origin": "1996-12-31",
+      "last_origin": "2019-09-30",
+      "losses": {
+       "RMSE": {
+        "no_spf": 1.5196564266303323,
+        "with_spf": 1.5196564266303323,
+        "relative_with_spf": 1.0,
+        "n": 91,
+        "mean_differential": 0.0,
+        "digest": "e6ff459ebc86a128b3e37b46d41efd52eedbe5c955acf3d20dfbf99a33fb2557",
+        "rmse_improvement_percent": 0.0,
+        "no_spf_digest": "1a6097c9897c78ce82731dbb6dd525a8eb43697dd8657008762f040188fe1282",
+        "with_spf_digest": "1a6097c9897c78ce82731dbb6dd525a8eb43697dd8657008762f040188fe1282"
+       },
+       "CRPS": {
+        "no_spf": 1.2681285746042261,
+        "with_spf": 1.2681285746042261,
+        "relative_with_spf": 1.0,
+        "n": 91,
+        "mean_differential": 0.0,
+        "digest": "e6ff459ebc86a128b3e37b46d41efd52eedbe5c955acf3d20dfbf99a33fb2557",
+        "no_spf_digest": "a12b7525e2c963be7ca3c7d9a074b6c5e186108da6193cb2d4e62c28e77f6efa",
+        "with_spf_digest": "a12b7525e2c963be7ca3c7d9a074b6c5e186108da6193cb2d4e62c28e77f6efa"
+       }
+      },
+      "dm": {
+       "RMSE": {
+        "mean_differential": 0.0,
+        "statistic": 0.0,
+        "p_value": 0.5,
+        "hac_lags": 0,
+        "hln_factor": 1.0,
+        "n": 91,
+        "alternative": "less",
+        "note": "degenerate differential (zero HAC variance); p-value is the limit"
+       },
+       "CRPS": {
+        "mean_differential": 0.0,
+        "statistic": 0.0,
+        "p_value": 0.5,
+        "hac_lags": 0,
+        "hln_factor": 1.0,
+        "n": 91,
+        "alternative": "less",
+        "note": "degenerate differential (zero HAC variance); p-value is the limit"
+       }
+      },
+      "romano_wolf": {
+       "method": "ROMANO_WOLF_STEPDOWN_STATIONARY_BOOTSTRAP",
+       "fwer": 0.1,
+       "replications": 2000,
+       "seed": 20261112,
+       "block_length": 5,
+       "block_length_rule": "max(ceil(n**(1/3)), horizon)",
+       "null_calibration": "t_variance",
+       "target_null_variance": 1.0227272727272727,
+       "horizon": 1,
+       "n": 91,
+       "family_size": 2,
+       "family": [
+        "CRPS",
+        "RMSE"
+       ],
+       "statistics": {
+        "CRPS": 0.0,
+        "RMSE": 0.0
+       },
+       "mean_differentials": {
+        "CRPS": 0.0,
+        "RMSE": 0.0
+       },
+       "raw_p_values": {
+        "CRPS": 0.5,
+        "RMSE": 0.5
+       },
+       "bootstrap_sd": {
+        "CRPS": 0.0,
+        "RMSE": 0.0
+       },
+       "calibration_factor": {
+        "CRPS": 1.0,
+        "RMSE": 1.0
+       },
+       "adjusted_p_values": {
+        "CRPS": 1.0,
+        "RMSE": 1.0
+       },
+       "rejected": [],
+       "sign_convention": "positive statistic = candidate better (mean differential < 0)",
+       "note": "one-sided Romano-Wolf stepdown with the stationary bootstrap; the HAC/HLN studentization uses the observed sample as scale (fixed-scale studentization), one shared bootstrap index matrix keeps the joint dependence of the family, and the bootstrap null distribution is variance-calibrated to the t(n-1) reference"
+      },
+      "status": "OK"
+     },
+     "paired_spf_subsample": {
+      "subset": "SPF_AVAILABLE",
+      "origins": 0,
+      "first_origin": null,
+      "last_origin": null,
+      "losses": {},
+      "dm": {},
+      "romano_wolf": null,
+      "status": "NOT_AVAILABLE",
+      "reason": "NO_ORIGINS"
+     }
+    }
+   }
+  }
+ },
+ "data_quality": {
+  "T2_GDP_GROWTH/h0": {
+   "crps_usable": true,
+   "mixture_sanity": {
+    "deviation_limit": 50.0,
+    "absolute_limit": 1000.0,
+    "checked": 277,
+    "rejected": 0,
+    "max_deviation": 6.796922470381017,
+    "max_abs": 8.697961335742935,
+    "reasons": {}
+   },
+   "note": "docs/91 flagged the T2 ensemble mixture; the gate is recomputed on every run so CRPS is reported automatically once the mixtures are sane"
+  },
+  "T2_GDP_GROWTH/h1": {
+   "crps_usable": true,
+   "mixture_sanity": {
+    "deviation_limit": 50.0,
+    "absolute_limit": 1000.0,
+    "checked": 91,
+    "rejected": 0,
+    "max_deviation": 6.2905180662756575,
+    "max_abs": 8.804534565092007,
+    "reasons": {}
+   },
+   "note": "docs/91 flagged the T2 ensemble mixture; the gate is recomputed on every run so CRPS is reported automatically once the mixtures are sane"
+  }
+ },
+ "limitations": [
+  "diagnostic, not an admission decision: C1-C6 are not applied and no stage is advanced; the protocol spf_alignment rule (re-run every model at the survey deadline) is not used here - the sensitivity runs at the protocol month-end origins with the release-date availability filter",
+  "SPF values are the latest file revision, not a point-in-time vintage: the release date fixes availability but errata/revisions after the survey are not audited (docs/86 §8)",
+  "the SPF member's predictive distribution is a project-derived statistic (empirical historical SPF errors centred on the median), not a Philadelphia Fed density",
+  "RMSE is the primary loss; CRPS is reported only when the ensemble mixture passes the sanity gate (docs/91 found extreme T2 mixture quantiles)",
+  "the SPF-available subsample is selected by the calendar (middle months / release rule), not by performance, but it differs from the full sample and the paired comparison is the only apples-to-apples one",
+  "REAL_TIME only: PSEUDO_REAL_TIME origins at the start of W1 are counted and excluded, as in docs/91",
+  "the external member enters with equal weights under the control scheme; alternative weighting schemes are not re-fitted for this sensitivity"
+ ],
+ "next_steps": [
+  "rerun this tool after the T2 mixture fix (docs/94) lands: CRPS switches from NOT_AVAILABLE to a reported loss automatically if the mixtures pass the sanity gate",
+  "repeat the analysis at the protocol's SPF-alignment origins (survey deadlines) as a sensitivity check, and with the adaptive weighting scheme",
+  "extend to T2 h=2/h=4 once the mixture and the SPF subsample sizes are sufficient",
+  "decide (Lead) whether a SPF-augmented T2 candidate is registered for admission testing; this report deliberately assigns no status"
+ ],
+ "ci_method": "no SPF values are in git: restore the private r2-metadata artifact (data/raw/spf/spf_median.json) or run tools/fetch_spf.py, then run this tool. The tool reports NOT_AVAILABLE honestly when the values are absent",
+ "availability": {
+  "0": {
+   "origins": 360,
+   "available": 117,
+   "first_available": "1990-08-31",
+   "last_available": "2019-11-30",
+   "not_available_reasons": {
+    "ORIGIN_IS_NOT_AN_SPF_DEADLINE_MONTH": 240,
+    "SPF_NEWS_RELEASE_NOT_PUBLISHED_AT_ORIGIN": 1,
+    "SPF_NOT_REAL_TIME_BEFORE_1990Q3": 2
+   }
+  },
+  "1": {
+   "origins": 118,
+   "available": 116,
+   "first_available": "1990-09-30",
+   "last_available": "2019-09-30",
+   "not_available_reasons": {
+    "SPF_NOT_REAL_TIME_BEFORE_1990Q3": 2
+   }
+  }
+ },
+ "status": "OK",
+ "status_reason": null,
+ "summary": {
+  "real_time_origins_scored": 368,
+  "paired_spf_origins": 91,
+  "horizons": [
+   0,
+   1
+  ],
+  "crps_reported": true
+ },
+ "content_sha256": "ce80e3cd0b2792eaad86e110fcaf21edcd6e1118d5c007218e29196163ffbd13"
+}
