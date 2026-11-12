@@ -12,6 +12,11 @@ Differences from the pilot (tools/run_first_evaluation.py):
 
 The candidate must be registered before the evaluation (protocol model_class_rules.registry_access);
 this runner writes protocols/candidates_<date>.json with the candidate definition and code hash.
+
+``--cache-dir`` enables the deterministic forecast cache (tools/eval_cache.py): predictions are
+memoised under a PIT/version-safe content key (prediction identity + frozen versions + forecast-code
+digest + private-data digest), so a repeated run reuses the same precomputed forecasts and produces
+exactly the same report; ``--max-origins`` limits the origins per window for benchmarks/debug runs.
 """
 from __future__ import annotations
 
@@ -34,16 +39,27 @@ from amfe.candidates.models import (CANDIDATE_DESCRIPTION, CANDIDATE_IDS,  # noq
                                     candidate_forecast as rw_ar_candidate)
 from amfe.ensemble import ENSEMBLE_IDS  # noqa: E402
 from amfe.ensemble.ensemble import candidate_forecast as ensemble_candidate  # noqa: E402
+try:
+    from spf_augmented_candidate import (  # noqa: E402
+        CANDIDATE_IDS as SPF_CANDIDATE_IDS, candidate_forecast as spf_candidate_forecast)
+except Exception:  # pragma: no cover - tool not importable
+    SPF_CANDIDATE_IDS = ()
+    spf_candidate_forecast = None
+
 
 
 def candidate_forecast(candidate_id, target, origin, horizon, series_id=None, mode="auto"):
     """Dispatcher: ensemble candidates come from amfe.ensemble, the rest from amfe.candidates."""
     if candidate_id in ENSEMBLE_IDS:
         return ensemble_candidate(candidate_id, target, origin, horizon, series_id=series_id, mode=mode)
+    if SPF_CANDIDATE_IDS and candidate_id in SPF_CANDIDATE_IDS:
+        return spf_candidate_forecast(candidate_id, target, origin, horizon,
+                                      series_id=series_id, mode=mode)
     return rw_ar_candidate(candidate_id, target, origin, horizon, series_id=series_id, mode=mode)
 from amfe.evaluation.actuals import actual_pair  # noqa: E402
 from amfe.evaluation.distributions import mixture_quantiles  # noqa: E402
 import evaluate  # noqa: E402
+import eval_cache  # noqa: E402
 import windows  # noqa: E402
 
 PROTOCOL = ROOT / "protocols" / "evaluation_protocol_v4.json"
@@ -83,11 +99,13 @@ def recession_mask(target: str, origins: list, horizon: int) -> list:
 
 
 def build_window(target: str, horizon: int, window: str, candidate_id: str, series_id,
-                 mode: str, allow_pseudo: bool = False) -> dict:
+                 mode: str, allow_pseudo: bool = False, cache=None, max_origins=None) -> dict:
     protocol = json.loads(PROTOCOL.read_text(encoding="utf-8"))
     composition = json.loads(COMPOSITION.read_text(encoding="utf-8"))
     rows = windows.origins_for(protocol, target, horizon, window)
     origins = [r["origin"] for r in rows]
+    if max_origins is not None:
+        origins = origins[:int(max_origins)]
     member_ids = members_for(composition, target, "CRPS" if target != "T3_RECESSION" else "Brier", horizon)
     cand_points, cand_quants = [], []
     comp_points, comp_quants = [], []
@@ -97,9 +115,20 @@ def build_window(target: str, horizon: int, window: str, candidate_id: str, seri
     used_origins = []
     member_failures = 0
     pseudo_skipped = 0
+
+    def predict(kind: str, name: str, compute):
+        """Cache-aware prediction call (identity + version key, see tools/eval_cache.py)."""
+        if cache is None:
+            return compute()
+        payload, _hit = cache.forecast(
+            compute, kind=kind, name=name, target=target, horizon=horizon, origin=origin,
+            series_id=series_id, mode=mode)
+        return payload
+
     for origin in origins:
         try:
-            cand = candidate_forecast(candidate_id, target, origin, horizon, series_id=series_id, mode=mode)
+            cand = predict("candidate", candidate_id, lambda: candidate_forecast(
+                candidate_id, target, origin, horizon, series_id=series_id, mode=mode))
         except Exception:
             continue
         actual = actual_pair(target, origin, horizon, series_id=series_id)
@@ -108,8 +137,8 @@ def build_window(target: str, horizon: int, window: str, candidate_id: str, seri
         member_forecasts = []
         for member in member_ids:
             try:
-                member_forecasts.append(forecast(member, target, origin, horizon,
-                                                 series_id=series_id, mode=mode).to_dict())
+                member_forecasts.append(predict("model", member, lambda m=member: forecast(
+                    m, target, origin, horizon, series_id=series_id, mode=mode).to_dict()))
             except Exception:
                 member_failures += 1
         if len(member_forecasts) < 2:
@@ -196,8 +225,16 @@ def main(argv=None) -> int:
     ap.add_argument("--allow-pseudo", action="store_true",
                     help="include PSEUDO_REAL_TIME origins (the admission guard will then refuse)")
     ap.add_argument("--out", default=str(ROOT / "protocols" / "first_real_evaluation_report.json"))
+    ap.add_argument("--cache-dir", default=None,
+                    help="forecast cache directory (tools/eval_cache.py); off by default")
+    ap.add_argument("--max-origins", type=int, default=None,
+                    help="limit origins per window (benchmark/debug; default: all origins)")
     args = ap.parse_args(argv)
-    if args.candidate not in CANDIDATE_IDS and args.candidate not in ENSEMBLE_IDS:
+    if args.max_origins is not None and args.max_origins < 1:
+        raise SystemExit("--max-origins must be a positive integer")
+    cache = eval_cache.ForecastCache(Path(args.cache_dir)) if args.cache_dir else None
+    if (args.candidate not in CANDIDATE_IDS and args.candidate not in ENSEMBLE_IDS
+            and args.candidate not in (SPF_CANDIDATE_IDS or ())):
         raise SystemExit(f"unknown candidate {args.candidate}")
     protocol = json.loads(PROTOCOL.read_text(encoding="utf-8"))
     candidate_doc = {
@@ -228,9 +265,9 @@ def main(argv=None) -> int:
     CANDIDATES.write_text(json.dumps(candidate_doc, ensure_ascii=False, indent=2) + "\n",
                           encoding="utf-8", newline="\n")
     w1 = build_window(args.target, args.horizon, "W1", args.candidate, args.series_id, args.mode,
-                      allow_pseudo=args.allow_pseudo)
+                      allow_pseudo=args.allow_pseudo, cache=cache, max_origins=args.max_origins)
     w2 = build_window(args.target, args.horizon, "W2", args.candidate, args.series_id, args.mode,
-                      allow_pseudo=args.allow_pseudo)
+                      allow_pseudo=args.allow_pseudo, cache=cache, max_origins=args.max_origins)
     data_class = "REAL_TIME" if w1["data_class"] == w2["data_class"] == "REAL_TIME" else "PSEUDO_REAL_TIME"
     report = {
         "report_id": "AMFE-FIRST-REAL-EVALUATION",
@@ -278,13 +315,16 @@ def main(argv=None) -> int:
                                          default=_json_default) + "\n",
                               encoding="utf-8", newline="\n")
     adm = report["admission"]
-    print(json.dumps({"candidate": args.candidate, "target": args.target, "horizon": args.horizon,
-                      "data_class": data_class, "status": adm["status"],
-                      "w1_origins": w1["origins"], "w2_origins": w2["origins"],
-                      "c1": {loss: adm["criteria"]["C1"]["windows"]["W1"][loss]["pass"]
-                             for loss in adm["criteria"]["C1"]["windows"]["W1"]},
-                      "c2": adm["criteria"]["C2"]["pass"], "c4": adm["criteria"]["C4"]["pass"],
-                      "c5": adm["criteria"]["C5"]["pass"], "out": args.out}, ensure_ascii=False, indent=1))
+    summary = {"candidate": args.candidate, "target": args.target, "horizon": args.horizon,
+               "data_class": data_class, "status": adm["status"],
+               "w1_origins": w1["origins"], "w2_origins": w2["origins"],
+               "c1": {loss: adm["criteria"]["C1"]["windows"]["W1"][loss]["pass"]
+                      for loss in adm["criteria"]["C1"]["windows"]["W1"]},
+               "c2": adm["criteria"]["C2"]["pass"], "c4": adm["criteria"]["C4"]["pass"],
+               "c5": adm["criteria"]["C5"]["pass"], "out": args.out}
+    if cache is not None:
+        summary["cache"] = cache.stats()
+    print(json.dumps(summary, ensure_ascii=False, indent=1))
     return 0
 
 

@@ -140,6 +140,75 @@
         "SPF (external, when available)"
       ],
       "note": "registered before the first evaluation of this batch; SPF mapping per docs/81 §4 is declared by the project and still requires the official mapping document"
+    },
+    {
+      "id": "ENSEMBLE_T2_NOT_SPF",
+      "description": "control: equal-weight ensemble of the four internal T2 R3 members (no external forecast)",
+      "role": "control",
+      "code_file": "tools/spf_augmented_candidate.py",
+      "code_sha256": "c114ac88ed45648f620be5377a7c6d644b60b4df4bac9887b4426ccefe28d255",
+      "targets": [
+        "T2_GDP_GROWTH"
+      ],
+      "horizons_quarters": [
+        0,
+        1,
+        2,
+        4
+      ],
+      "members": [
+        "AO",
+        "AR_BIC",
+        "BVAR_MINNESOTA",
+        "OWN_NOWCAST_BRIDGE"
+      ],
+      "weight_scheme": "ENSEMBLE_EQUAL: equal weights over the members available at the origin, renormalised when a member is missing (the SPF member enters/leaves the set; the weights are recomputed, not fixed)",
+      "availability_rule": "SPF median is public at the origin iff the survey quarter is real time (>= 1990Q3), the origin is the month-end of the middle month of the survey quarter (frozen protocol alignment) and the origin is on/after the official news-release date from src/amfe/ensemble/spf_calendar.py (docs/86 §5). Under protocol v4 the h=1/2/4 origins are quarter ends, so SPF enters only at h=0 middle-month origins; elsewhere the candidate falls back to the control.",
+      "fallback": "if the SPF median is not public (or its values are not present in the git-ignored data directory), the SPF candidate uses exactly the control member set and reports spf_available=false, spf_fallback=true with the explicit reason",
+      "spf_attribution": "Source: Federal Reserve Bank of Philadelphia, Survey of Professional Forecasters, median forecasts (https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/survey-of-professional-forecasters); values used under research use terms, attribution required",
+      "spf_mapping": {
+        "0": "drgdp2",
+        "1": "drgdp3",
+        "2": "drgdp4",
+        "4": "drgdp6"
+      },
+      "registration_status": "NOT_REGISTERED",
+      "note": "defined by tools/spf_augmented_candidate.py; the Lead registers the candidate in protocols/candidates_*.json and the harness dispatcher before any evaluation"
+    },
+    {
+      "id": "ENSEMBLE_T2_SPF",
+      "description": "SPF-augmented T2 ensemble: the same equal-weight scheme with the Philadelphia Fed SPF median as a fifth member when the median is public at the origin; falls back to the four internal members otherwise",
+      "role": "candidate",
+      "code_file": "tools/spf_augmented_candidate.py",
+      "code_sha256": "c114ac88ed45648f620be5377a7c6d644b60b4df4bac9887b4426ccefe28d255",
+      "targets": [
+        "T2_GDP_GROWTH"
+      ],
+      "horizons_quarters": [
+        0,
+        1,
+        2,
+        4
+      ],
+      "members": [
+        "AO",
+        "AR_BIC",
+        "BVAR_MINNESOTA",
+        "OWN_NOWCAST_BRIDGE",
+        "SPF_GDP_MEDIAN"
+      ],
+      "weight_scheme": "ENSEMBLE_EQUAL: equal weights over the members available at the origin, renormalised when a member is missing (the SPF member enters/leaves the set; the weights are recomputed, not fixed)",
+      "availability_rule": "SPF median is public at the origin iff the survey quarter is real time (>= 1990Q3), the origin is the month-end of the middle month of the survey quarter (frozen protocol alignment) and the origin is on/after the official news-release date from src/amfe/ensemble/spf_calendar.py (docs/86 §5). Under protocol v4 the h=1/2/4 origins are quarter ends, so SPF enters only at h=0 middle-month origins; elsewhere the candidate falls back to the control.",
+      "fallback": "if the SPF median is not public (or its values are not present in the git-ignored data directory), the SPF candidate uses exactly the control member set and reports spf_available=false, spf_fallback=true with the explicit reason",
+      "spf_attribution": "Source: Federal Reserve Bank of Philadelphia, Survey of Professional Forecasters, median forecasts (https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/survey-of-professional-forecasters); values used under research use terms, attribution required",
+      "spf_mapping": {
+        "0": "drgdp2",
+        "1": "drgdp3",
+        "2": "drgdp4",
+        "4": "drgdp6"
+      },
+      "registration_status": "NOT_REGISTERED",
+      "note": "defined by tools/spf_augmented_candidate.py; the Lead registers the candidate in protocols/candidates_*.json and the harness dispatcher before any evaluation"
     }
   ],
   "batches": [
@@ -158,6 +227,14 @@
         "ENSEMBLE_ADAPTIVE"
       ],
       "source": "docs/81"
+    },
+    {
+      "date": "2026-11-12",
+      "ids": [
+        "ENSEMBLE_T2_NOT_SPF",
+        "ENSEMBLE_T2_SPF"
+      ],
+      "source": "docs/100 SPF-augmented T2 candidates"
     }
   ],
   "updated_on": "2026-11-12"
