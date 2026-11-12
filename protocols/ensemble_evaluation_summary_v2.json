@@ -3,7 +3,7 @@
   "generated_at": "2026-11-12T12:30:01Z",
   "report": {
     "file": "protocols/ensemble_evaluation_report_v2.json",
-    "sha256": "c91b5a7aca522ace42ab081c4b7ea1c81df4e1cf909465040cbe04f1a1b22c59"
+    "sha256": "0ec9b63592f013f0269f414caaf3e72076a0d5b4c8ce2050371a3871bbaacc2d"
   },
   "supersedes": {
     "status": "INVALID",
@@ -979,13 +979,5 @@
     "protocols/ensemble_eval_ENSEMBLE_ADAPTIVE_T1_h1_v2.json": "d8e11379c4b221362065faa7e54d29d818d8c366bf6341aab717bef3e889a41f",
     "protocols/ensemble_eval_ENSEMBLE_EQUAL_T2_h0_v2.json": "ed3dc6e99bfb46f2066904b671d056b40958b6cb15acf72da0d10f545afb1581",
     "protocols/ensemble_eval_ENSEMBLE_ADAPTIVE_T2_h0_v2.json": "0d55b15aa1fccbb1e9eab46321e6d618e908e5c01683dfd2bedf94f34ff2ccf3"
-  },
-  "extended_pass": {
-    "date": "2026-11-12",
-    "note": "INVERSE_MSE and BAYES were added after the reduced first pass; all four registered candidates are now evaluated",
-    "report": {
-      "file": "ensemble_evaluation_report_v2.json",
-      "sha256": "c91b5a7aca522ace42ab081c4b7ea1c81df4e1cf909465040cbe04f1a1b22c59"
-    }
   }
 }

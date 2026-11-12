@@ -86,14 +86,6 @@
       "ENSEMBLE_ADAPTIVE": {
         "file": "ensemble_eval_ENSEMBLE_ADAPTIVE_T1_h1_v2.json",
         "sha256": "1f72553299b3eb565a1c576ed67ac920f7d435d3315e20badf7c02be8546455a"
-      },
-      "ENSEMBLE_INVERSE_MSE": {
-        "file": "ensemble_eval_ENSEMBLE_INVERSE_MSE_T1_h1_v2.json",
-        "sha256": "4efa3eefdfac379f48e3e3526a8a463fb9f96efa05b4454b606c832fe4741945"
-      },
-      "ENSEMBLE_BAYES": {
-        "file": "ensemble_eval_ENSEMBLE_BAYES_T1_h1_v2.json",
-        "sha256": "6fce4d8e40cafbc8589526c8776e204b100474582b5f0031ef2d0848231e320a"
       }
     },
     "T2_h0": {
@@ -104,14 +96,6 @@
       "ENSEMBLE_ADAPTIVE": {
         "file": "ensemble_eval_ENSEMBLE_ADAPTIVE_T2_h0_v2.json",
         "sha256": "f447828d7ebcb0e34ba75dce578a174217d7f8823bb404e5e161c6a8fe74847b"
-      },
-      "ENSEMBLE_INVERSE_MSE": {
-        "file": "ensemble_eval_ENSEMBLE_INVERSE_MSE_T2_h0_v2.json",
-        "sha256": "01543dc98a3e139a4c19c4eaf057d3f5f2129661a3d08049bc4b54d8c1b4094d"
-      },
-      "ENSEMBLE_BAYES": {
-        "file": "ensemble_eval_ENSEMBLE_BAYES_T2_h0_v2.json",
-        "sha256": "fc463e2e72a25902132d4306f456a30cca892bfe2cd96dd8fd55c68957912426"
       }
     }
   },
@@ -1186,10 +1170,8 @@
   "candidate_coverage": {
     "T1_CPI_YOY_h1": {
       "evaluated": [
-        "ENSEMBLE_EQUAL",
-        "ENSEMBLE_INVERSE_MSE",
-        "ENSEMBLE_BAYES",
-        "ENSEMBLE_ADAPTIVE"
+        "ENSEMBLE_ADAPTIVE",
+        "ENSEMBLE_EQUAL"
       ],
       "registered": [
         "ENSEMBLE_EQUAL",
@@ -1197,14 +1179,15 @@
         "ENSEMBLE_BAYES",
         "ENSEMBLE_ADAPTIVE"
       ],
-      "not_evaluated": []
+      "not_evaluated": [
+        "ENSEMBLE_INVERSE_MSE",
+        "ENSEMBLE_BAYES"
+      ]
     },
     "T2_GDP_GROWTH_h0": {
       "evaluated": [
-        "ENSEMBLE_EQUAL",
-        "ENSEMBLE_INVERSE_MSE",
-        "ENSEMBLE_BAYES",
-        "ENSEMBLE_ADAPTIVE"
+        "ENSEMBLE_ADAPTIVE",
+        "ENSEMBLE_EQUAL"
       ],
       "registered": [
         "ENSEMBLE_EQUAL",
@@ -1212,9 +1195,12 @@
         "ENSEMBLE_BAYES",
         "ENSEMBLE_ADAPTIVE"
       ],
-      "not_evaluated": []
+      "not_evaluated": [
+        "ENSEMBLE_INVERSE_MSE",
+        "ENSEMBLE_BAYES"
+      ]
     },
-    "extended_pass_note": "all four registered ensemble candidates are now scored on T1 h=1 and T2 h=0; every status remains CANDIDATE (C4 W1 INCONCLUSIVE, C6 absent)"
+    "reduced_run_note": "v2 was run under a time limit: only the candidates listed as evaluated were scored in this pass; registered but not evaluated candidates are explicitly listed and are the next step (they are NOT rejected)"
   },
   "adaptive_vs_corrected_report": {
     "corrected_report": "ensemble_evaluation_adaptive_T1_h1_corrected.json",
@@ -1296,107 +1282,5 @@
     ],
     "matches": false,
     "note": "the evaluated ensemble code matches the registered snapshot except the files listed in mismatches; the SPF availability rule in sources.py changed after registration (commit 8aaa54a) without re-pinning the registration. Lead must re-pin the candidate code hashes before the results are used for admission."
-  },
-  "extended_pass": {
-    "date": "2026-11-12",
-    "reason": "the reduced first pass covered only ENSEMBLE_EQUAL and ENSEMBLE_ADAPTIVE; the two remaining registered controls were scored afterwards on the same REAL_TIME W1+W2 and corrected actuals",
-    "results": {
-      "T1_h1": {
-        "ENSEMBLE_INVERSE_MSE": {
-          "file": "ensemble_eval_ENSEMBLE_INVERSE_MSE_T1_h1_v2.json",
-          "sha256": "4efa3eefdfac379f48e3e3526a8a463fb9f96efa05b4454b606c832fe4741945",
-          "target": "T1_CPI_YOY",
-          "horizon": 1,
-          "data_class": "REAL_TIME",
-          "status": "CANDIDATE",
-          "c1_relative_loss": {
-            "W1": {
-              "RMSE": 0.94727,
-              "CRPS": 0.96766
-            },
-            "W2": {
-              "RMSE": 0.94796,
-              "CRPS": 0.95362
-            }
-          },
-          "c1_pass": true,
-          "c2_pass": true,
-          "c4_pass": false,
-          "c5_pass": true,
-          "note": "reporting only, no admission; C4 W1 INCONCLUSIVE, C6 absent"
-        },
-        "ENSEMBLE_BAYES": {
-          "file": "ensemble_eval_ENSEMBLE_BAYES_T1_h1_v2.json",
-          "sha256": "6fce4d8e40cafbc8589526c8776e204b100474582b5f0031ef2d0848231e320a",
-          "target": "T1_CPI_YOY",
-          "horizon": 1,
-          "data_class": "REAL_TIME",
-          "status": "CANDIDATE",
-          "c1_relative_loss": {
-            "W1": {
-              "RMSE": 0.95893,
-              "CRPS": 0.96849
-            },
-            "W2": {
-              "RMSE": 1.01179,
-              "CRPS": 1.0191
-            }
-          },
-          "c1_pass": false,
-          "c2_pass": false,
-          "c4_pass": false,
-          "c5_pass": true,
-          "note": "reporting only, no admission; C4 W1 INCONCLUSIVE, C6 absent"
-        }
-      },
-      "T2_h0": {
-        "ENSEMBLE_INVERSE_MSE": {
-          "file": "ensemble_eval_ENSEMBLE_INVERSE_MSE_T2_h0_v2.json",
-          "sha256": "01543dc98a3e139a4c19c4eaf057d3f5f2129661a3d08049bc4b54d8c1b4094d",
-          "target": "T2_GDP_GROWTH",
-          "horizon": 0,
-          "data_class": "REAL_TIME",
-          "status": "CANDIDATE",
-          "c1_relative_loss": {
-            "W1": {
-              "RMSE": 0.99029,
-              "CRPS": 0.98607
-            },
-            "W2": {
-              "RMSE": 0.94118,
-              "CRPS": 0.93887
-            }
-          },
-          "c1_pass": false,
-          "c2_pass": false,
-          "c4_pass": false,
-          "c5_pass": true,
-          "note": "reporting only, no admission; C4 W1 INCONCLUSIVE, C6 absent"
-        },
-        "ENSEMBLE_BAYES": {
-          "file": "ensemble_eval_ENSEMBLE_BAYES_T2_h0_v2.json",
-          "sha256": "fc463e2e72a25902132d4306f456a30cca892bfe2cd96dd8fd55c68957912426",
-          "target": "T2_GDP_GROWTH",
-          "horizon": 0,
-          "data_class": "REAL_TIME",
-          "status": "CANDIDATE",
-          "c1_relative_loss": {
-            "W1": {
-              "RMSE": 1.03473,
-              "CRPS": 1.03095
-            },
-            "W2": {
-              "RMSE": 0.98206,
-              "CRPS": 0.98112
-            }
-          },
-          "c1_pass": false,
-          "c2_pass": false,
-          "c4_pass": false,
-          "c5_pass": false,
-          "note": "reporting only, no admission; C4 W1 INCONCLUSIVE, C6 absent"
-        }
-      }
-    }
   }
 }
