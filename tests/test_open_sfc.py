@@ -44,13 +44,20 @@ from amfe.accounts import (  # noqa: E402
 )
 from amfe.accounts.open import (  # noqa: E402
     EXPORTS,
+    EXPORTS_GOODS,
+    EXPORTS_SERVICES,
     EXPORT_KIND,
     EXTERNAL_CLAIM,
     EXTERNAL_LIABILITY,
     IMPORTS,
+    IMPORTS_GOODS,
+    IMPORTS_SERVICES,
     IMPORT_KIND,
     OPEN_CHART,
+    PRIMARY_INCOME,
     ROW,
+    SECONDARY_INCOME,
+    SETTLEMENT_KIND,
     OpenAccountSystem,
     open_economy_chart,
 )
@@ -59,6 +66,7 @@ from amfe.world import (  # noqa: E402
     CountryConfig,
     PhysicalConfig,
     WorldConfig,
+    WorldConfigError,
     WorldCore,
     WorldError,
     baseline_scenario,
@@ -66,7 +74,12 @@ from amfe.world import (  # noqa: E402
     devaluation_scenario,
     energy_shock_scenario,
 )
-from amfe.world.open import OpenPostingHook, OpenWorldCore  # noqa: E402
+from amfe.world.open import (  # noqa: E402
+    OpenFlowScenario,
+    OpenPostingHook,
+    OpenWorldCore,
+    extended_open_scenario,
+)
 from amfe.world.scenarios import WorldScenario  # noqa: E402
 
 D = Decimal
@@ -469,6 +482,226 @@ class TestOpenWorldCore(unittest.TestCase):
         self.assertEqual(sorted(description["open_books"]), ["A", "B"])
         self.assertIn("nfa", description["open_books"]["A"])
         self.assertIn("growth", "nothing") if False else None
+
+
+class TestOpenExtendedFlows(unittest.TestCase):
+    """Services, income, capital transfers and ROW settlements (task-44 extension)."""
+
+    def test_services_are_separate_flows(self):
+        book = OpenAccountSystem()
+        book.loan(100)
+        book.produce(100)
+        book.pay_wages(100)
+        book.household_purchase(40)
+        book.export_goods(10)
+        book.export_services(6)
+        book.import_goods(8)
+        book.import_services(4)
+        report = book.close_period()
+        self.assertEqual(report.exports_goods, D(10))
+        self.assertEqual(report.exports_services, D(6))
+        self.assertEqual(report.imports_goods, D(8))
+        self.assertEqual(report.imports_services, D(4))
+        self.assertEqual(report.exports, D(16))
+        self.assertEqual(report.imports, D(12))
+        self.assertEqual(report.net_exports, D(4))
+        self.assertEqual(report.open_gdp_expenditure, D(100))
+        self.assertEqual(report.base.gdp_production, D(100))
+
+    def test_primary_income_changes_gni_not_gdp(self):
+        book = OpenAccountSystem()
+        book.produce(100)
+        book.export_goods(20)
+        book.receive_primary_income(5)
+        book.pay_primary_income(2)
+        report = book.close_period()
+        self.assertEqual(report.net_primary_income, D(3))
+        self.assertEqual(report.base.gdp_production, D(100))
+        self.assertEqual(report.gross_national_income, D(103))
+        self.assertEqual(report.gross_national_disposable_income, D(103))
+        self.assertEqual(report.current_account_balance,
+                         report.net_exports + report.net_primary_income
+                         + report.net_secondary_income)
+        self.assertEqual(report.nfa, report.external_assets
+                         - report.external_liabilities - report.row_deposits)
+
+    def test_secondary_income_and_gndi(self):
+        book = OpenAccountSystem()
+        book.produce(100)
+        book.receive_secondary_income(4)
+        book.pay_secondary_income(1)
+        report = book.close_period()
+        self.assertEqual(report.net_secondary_income, D(3))
+        self.assertEqual(report.gross_national_income, D(100))
+        self.assertEqual(report.gross_national_disposable_income, D(103))
+        self.assertEqual(report.current_account_balance, D(3))
+
+    def test_capital_transfers_are_in_the_capital_account(self):
+        book = OpenAccountSystem()
+        book.produce(100)
+        book.receive_capital_transfer(7)
+        book.pay_capital_transfer(2)
+        report = book.close_period()
+        self.assertEqual(report.net_capital_transfers, D(5))
+        # Capital transfers are a capital-account item, not a current flow.
+        self.assertEqual(report.current_account_balance, D(0))
+        self.assertEqual(report.nfa, D(5))
+        self.assertEqual(report.nfa + report.row_net_worth, D(0))
+        self.assertEqual(report.net_worth_residents + report.row_net_worth,
+                         report.real_assets_total)
+
+    def test_settlement_reduces_gross_claims_and_keeps_nfa(self):
+        book = OpenAccountSystem()
+        book.loan(100)
+        book.produce(100)
+        book.pay_wages(100)
+        book.export_goods(20)
+        book.import_goods(10)
+        before = book.close_period()
+        book.begin_period("P2")
+        nfa_before = book.nfa()
+        assets_before = book.external_assets()
+        book.settle_external_liability(4)
+        book.settle_external_claim(4)
+        self.assertEqual(book.nfa(), nfa_before)
+        self.assertLess(book.external_assets(), assets_before)
+        self.assertEqual(book.balance(ROW, "deposit"), D(0))
+        report = book.close_period()
+        self.assertEqual(report.settlements, D(8))
+        self.assertEqual(report.nfa, nfa_before)
+
+    def test_over_settlement_is_rejected(self):
+        book = OpenAccountSystem()
+        book.loan(100)
+        book.produce(100)
+        book.pay_wages(100)
+        book.export_goods(10)
+        with self.assertRaises(TransactionRejected):
+            book.settle_external_claim(11)   # claim is only 10
+        with self.assertRaises(TransactionRejected):
+            book.settle_external_liability(1)  # nothing owed yet
+
+    def test_combined_flows_report_is_json_serialisable(self):
+        book = OpenAccountSystem()
+        book.produce(100)
+        book.export_services(3)
+        book.import_services(2)
+        book.receive_primary_income(1)
+        book.pay_secondary_income(1)
+        book.receive_capital_transfer(1)
+        report = book.close_period()
+        payload = report.as_dict()
+        open_block = payload["open_sfc"]
+        for key in ("exports_goods", "exports_services", "imports_goods",
+                    "imports_services", "net_primary_income",
+                    "net_secondary_income", "net_capital_transfers",
+                    "current_account_balance", "gross_national_income",
+                    "gross_national_disposable_income", "row_deposits",
+                    "settlements"):
+            self.assertIn(key, open_block)
+        json.dumps(payload)
+        check = report.gdp_production == report.gdp_income == report.gdp_expenditure
+        self.assertTrue(check)
+
+
+class TestExtendedOpenWorld(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.scenario = extended_open_scenario(settlement_share=0.05)
+        cls.core = OpenWorldCore(WorldConfig(), cls.scenario)
+        cls.run_result = cls.core.run(6)
+
+    def test_extended_run_is_ok(self):
+        run = self.run_result
+        self.assertTrue(run.ok)
+        self.assertGreaterEqual(len(run.last.checks), 65)
+        for report in run.reports:
+            for country in report.countries.values():
+                self.assertTrue(country.open_economy)
+                self.assertGreater(country.services_exports_local, D(0))
+                self.assertGreater(country.services_imports_local, D(0))
+                if report.period > 0:
+                    self.assertNotEqual(country.net_primary_income_local, D(0))
+                self.assertNotEqual(country.net_secondary_income_local, D(0))
+                self.assertNotEqual(country.net_capital_transfers_local, D(0))
+                self.assertGreaterEqual(country.settlement_local, D(0))
+                self.assertEqual(country.row_deposits_local, D(0))
+
+    def test_bop_income_and_capital_accounts_reconcile(self):
+        last = self.run_result.last
+        for name in ("A", "B"):
+            country = last.countries[name]
+            prefix = f"{name}."
+            self.assertEqual(country.current_account_local,
+                             country.net_exports_local
+                             + country.net_primary_income_local
+                             + country.net_secondary_income_local)
+            self.assertTrue(last.checks[prefix + "open_bop_current"])
+            self.assertTrue(last.checks[prefix + "open_bop_capital"])
+            self.assertTrue(last.checks[prefix + "open_bop_financial"])
+            self.assertTrue(last.checks[prefix + "open_income_posted"])
+            self.assertTrue(last.checks[prefix + "open_gni_definition"])
+            self.assertTrue(last.checks[prefix + "open_current_account_definition"])
+            for key in ("open_bop_current", "open_bop_capital",
+                        "open_bop_financial", "open_iip_revaluation",
+                        "open_income_posted", "open_inventory_bridge"):
+                self.assertLess(last.residuals[prefix + key], 1e-9)
+
+    def test_nfa_iip_and_world_wealth_survive_extended_flows(self):
+        for report in self.run_result.reports:
+            rate_a = Decimal(report.fx["AAA"])
+            rate_b = Decimal(report.fx["BBB"])
+            nfa_mirror = (report.countries["A"].nfa_local * rate_a
+                          + report.countries["B"].nfa_local * rate_b)
+            self.assertLess(abs(nfa_mirror), D("1e-9"))
+            self.assertTrue(report.checks["open_two_book_mirror"])
+            self.assertTrue(report.checks["open_world_wealth"])
+            self.assertTrue(report.checks["A.open_nfa_iip"])
+            self.assertTrue(report.checks["B.open_nfa_iip"])
+
+    def test_settlement_reduces_gross_positions(self):
+        baseline = OpenWorldCore(WorldConfig(), extended_open_scenario(
+            settlement_share=0.0)).run(6)
+        settled = self.run_result
+        for period in (3, 5):
+            base_country = baseline.reports[period].countries["A"]
+            settled_country = settled.reports[period].countries["A"]
+            self.assertLess(settled_country.external_assets_local,
+                            base_country.external_assets_local)
+            self.assertLess(settled_country.external_liabilities_local,
+                            base_country.external_liabilities_local)
+            self.assertGreater(settled_country.settlement_local, D(0))
+            self.assertEqual(settled_country.row_deposits_local, D(0))
+
+    def test_default_scenario_keeps_the_28_test_behaviour(self):
+        core = OpenWorldCore(WorldConfig(), baseline_scenario())
+        run = core.run(3)
+        self.assertTrue(run.ok)
+        self.assertEqual(len(core.hook.claims), 6)   # goods trade only
+        self.assertEqual(len(core.hook.flows), 12)
+        self.assertEqual(len(run.last.checks), 72)
+        for country in run.last.countries.values():
+            self.assertEqual(country.services_exports_local, D(0))
+            self.assertEqual(country.services_imports_local, D(0))
+            self.assertEqual(country.net_primary_income_local, D(0))
+            self.assertEqual(country.net_capital_transfers_local, D(0))
+
+    def test_extended_scenario_is_deterministic(self):
+        first = OpenWorldCore(WorldConfig(), extended_open_scenario()).run(4)
+        second = OpenWorldCore(WorldConfig(), extended_open_scenario()).run(4)
+        self.assertEqual(first.digest, second.digest)
+
+    def test_extended_scenario_validation(self):
+        with self.assertRaises(WorldConfigError):
+            OpenFlowScenario(name="bad", settlement_share=1.5)
+        with self.assertRaises(WorldConfigError):
+            OpenFlowScenario(name="bad", services_share=float("nan"))
+
+    def test_unknown_external_category_is_rejected(self):
+        core = OpenWorldCore(WorldConfig(), baseline_scenario())
+        with self.assertRaises(WorldError):
+            core.hook.on_external_flow(kind="CA", category="mystery",
+                                       country="A", numeraire_value=D("1"))
 
 
 if __name__ == "__main__":

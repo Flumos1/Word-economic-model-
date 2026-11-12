@@ -65,6 +65,16 @@ class CountryPeriodReport:
     open_gdp_expenditure: Decimal = Decimal(0)
     bop_current_account_local: Decimal = Decimal(0)
     bop_financial_account_local: Decimal = Decimal(0)
+    services_exports_local: Decimal = Decimal(0)
+    services_imports_local: Decimal = Decimal(0)
+    net_primary_income_local: Decimal = Decimal(0)
+    net_secondary_income_local: Decimal = Decimal(0)
+    net_capital_transfers_local: Decimal = Decimal(0)
+    current_account_local: Decimal = Decimal(0)
+    gni_local: Decimal = Decimal(0)
+    row_deposits_local: Decimal = Decimal(0)
+    settlement_local: Decimal = Decimal(0)
+    settlement_numeraire: Decimal = Decimal(0)
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "external", MappingProxyType(dict(self.external)))
@@ -130,6 +140,16 @@ class CountryPeriodReport:
                 "open_gdp_expenditure": _d(self.open_gdp_expenditure),
                 "bop_current_account_local": _d(self.bop_current_account_local),
                 "bop_financial_account_local": _d(self.bop_financial_account_local),
+                "services_exports_local": _d(self.services_exports_local),
+                "services_imports_local": _d(self.services_imports_local),
+                "net_primary_income_local": _d(self.net_primary_income_local),
+                "net_secondary_income_local": _d(self.net_secondary_income_local),
+                "net_capital_transfers_local": _d(self.net_capital_transfers_local),
+                "current_account_local": _d(self.current_account_local),
+                "gni_local": _d(self.gni_local),
+                "row_deposits_local": _d(self.row_deposits_local),
+                "settlement_local": _d(self.settlement_local),
+                "settlement_numeraire": _d(self.settlement_numeraire),
             }} if self.open_economy else {}),
         }
 

@@ -259,5 +259,163 @@ class RealDataRegression(unittest.TestCase):
             self.assertGreater(float(quantiles[0]), -100.0)
 
 
+class WeightedMixtureRobustness(unittest.TestCase):
+    """docs/104: the weighted ensemble path uses the same robust helper as the equal-weight path."""
+
+    @staticmethod
+    def _plain_weighted_reference(vectors, weights, grid_size: int = 4001) -> np.ndarray:
+        """Independent historical reference: raw grid, weighted CDFs, uncapped Gaussian tails."""
+        vectors = [np.asarray(vector, dtype=float) for vector in vectors]
+        values = np.asarray(weights, dtype=float)
+        values = values / values.sum()
+        low = min(float(vector[0]) for vector in vectors)
+        high = max(float(vector[-1]) for vector in vectors)
+        span = max(high - low, 1e-6)
+        grid = np.linspace(low - 0.75 * span, high + 0.75 * span, grid_size)
+        cdf = np.zeros_like(grid)
+        for vector, weight in zip(vectors, values):
+            cdf += weight * _member_cdf(vector, grid, tail_sigma_k=None)
+        cdf = np.clip(cdf, 0.0, 1.0)
+        out = np.array([float(np.interp(level, cdf, grid)) for level in QUANTILE_LEVELS])
+        return np.maximum.accumulate(out)
+
+    def _vectors(self):
+        return normal_ensemble()
+
+    def test_well_formed_weighted_matches_legacy_behaviour(self):
+        from amfe.ensemble.mixture import weighted_mixture_quantiles
+        vectors = self._vectors()
+        weights = [0.35, 0.25, 0.2, 0.12, 0.08]
+        robust = weighted_mixture_quantiles(vectors, weights)
+        legacy = self._plain_weighted_reference(vectors, weights)
+        legacy_flagged = weighted_mixture_quantiles(vectors, weights, robust=False)
+        np.testing.assert_allclose(robust, legacy, atol=1e-9, rtol=0.0)
+        np.testing.assert_allclose(legacy_flagged, legacy, atol=1e-9, rtol=0.0)
+
+    def test_uniform_weighted_matches_the_equal_weight_mixture(self):
+        from amfe.ensemble.mixture import weighted_mixture_quantiles
+        vectors = self._vectors()
+        uniform = np.full(len(vectors), 1.0 / len(vectors))
+        weighted = weighted_mixture_quantiles(vectors, uniform)
+        equal = mixture_quantiles(vectors)
+        np.testing.assert_allclose(weighted, equal, atol=1e-12, rtol=0.0)
+        # the public wrapper keeps the same delegation for equal weights
+        from amfe.ensemble.mixture import mix_distributions
+        np.testing.assert_allclose(mix_distributions(vectors), equal, atol=1e-12, rtol=0.0)
+
+    def test_broken_member_does_not_explode_the_weighted_q95(self):
+        from amfe.ensemble.mixture import weighted_mixture_quantiles
+        vectors = self._vectors() + [historical_broken_spf()]
+        weights = [1.0 / len(vectors)] * len(vectors)
+        legacy = self._plain_weighted_reference(vectors, weights)
+        robust, diagnostics = weighted_mixture_quantiles(vectors, weights, return_diagnostics=True)
+        self.assertGreater(float(legacy[-1]), 1000.0)          # the historical defect is reproduced
+        self.assertLess(float(robust[-1]), 50.0)               # the weighted path is protected
+        self.assertLess(abs(float(robust[INDEX_Q50])), 20.0)
+        self.assertTrue(np.all(np.diff(robust) >= -1e-12))
+        self.assertIn(5, diagnostics["winsorized_members"])
+        self.assertEqual(diagnostics["method"], "WEIGHTED_MIXTURE_ROBUST")
+
+    def test_dominant_broken_member_is_contained(self):
+        from amfe.ensemble.mixture import weighted_mixture_quantiles
+        vectors = self._vectors() + [historical_broken_spf()]
+        weights = [0.04, 0.04, 0.04, 0.04, 0.04, 0.8]
+        robust, diagnostics = weighted_mixture_quantiles(vectors, weights, return_diagnostics=True)
+        self.assertLess(float(robust[-1]), 100.0)
+        self.assertTrue(np.all(np.isfinite(robust)))
+        self.assertTrue(np.all(np.diff(robust) >= -1e-12))
+        self.assertIn(5, diagnostics["winsorized_members"])
+        # the mixture quantiles must stay inside the winsorized member envelope
+        low, high = diagnostics["consensus_envelope"]
+        self.assertGreaterEqual(float(robust[0]), low - 1e-9)
+        self.assertLessEqual(float(robust[-1]), high + 1e-9)
+
+    def test_weighted_guard_and_monotonicity_on_adversarial_inputs(self):
+        from amfe.ensemble.mixture import weighted_mixture_quantiles
+        rng = np.random.default_rng(20261113)
+        for _ in range(20):
+            n = int(rng.integers(2, 7))
+            vectors = []
+            for _ in range(n):
+                center = rng.normal(0.0, 3.0)
+                spread = float(np.exp(rng.uniform(-3.0, 6.0)))
+                vectors.append(np.maximum.accumulate(center + spread * Z))
+            weights = rng.uniform(0.0, 1.0, size=n)
+            mixed, diagnostics = weighted_mixture_quantiles(vectors, weights, return_diagnostics=True)
+            self.assertTrue(np.all(np.isfinite(mixed)))
+            self.assertTrue(np.all(np.diff(mixed) >= -1e-12))
+            low, high = diagnostics["final_bounds"]
+            self.assertGreaterEqual(float(mixed[0]), low - 1e-9)
+            self.assertLessEqual(float(mixed[-1]), high + 1e-9)
+
+    def test_weighted_diagnostics_and_legacy_flag(self):
+        from amfe.ensemble.mixture import weighted_mixture_quantiles
+        vectors = self._vectors() + [historical_broken_spf()]
+        weights = [0.25, 0.25, 0.15, 0.15, 0.1, 0.1]
+        robust, diagnostics = weighted_mixture_quantiles(vectors, weights, return_diagnostics=True)
+        self.assertTrue(diagnostics["robust"])
+        self.assertEqual(diagnostics["method"], "WEIGHTED_MIXTURE_ROBUST")
+        self.assertEqual(len(diagnostics["weights"]), len(vectors))
+        self.assertTrue(math.isclose(sum(diagnostics["weights"]), 1.0, abs_tol=1e-12))
+        for key in ("winsorized_members", "consensus_envelope", "final_guard_triggered",
+                    "final_bounds", "q05", "q50", "q95", "assumptions"):
+            self.assertIn(key, diagnostics)
+        self.assertEqual(diagnostics["assumptions"]["winsor_k"], WINSOR_K)
+        legacy, legacy_diagnostics = weighted_mixture_quantiles(
+            vectors, weights, robust=False, return_diagnostics=True)
+        self.assertFalse(legacy_diagnostics["robust"])
+        self.assertEqual(legacy_diagnostics["method"], "WEIGHTED_MIXTURE_PLAIN")
+        self.assertEqual(legacy_diagnostics["winsorized_members"], [])
+        self.assertGreater(float(legacy[-1]), 1000.0)
+        self.assertLess(float(robust[-1]), 50.0)
+
+    def test_weighted_tail_cap_bounds_a_flat_tail_member(self):
+        from amfe.ensemble.mixture import weighted_mixture_quantiles
+        flat_tail = np.linspace(0.0, 5.0, 19)
+        flat_tail[17] = 5.0
+        flat_tail[18] = 60.0
+        vectors = self._vectors() + [flat_tail]
+        weights = [1.0 / len(vectors)] * len(vectors)
+        legacy = self._plain_weighted_reference(vectors, weights)
+        robust = weighted_mixture_quantiles(vectors, weights)
+        self.assertGreater(float(legacy[-1]), float(robust[-1]))
+        self.assertLess(float(robust[-1]), 100.0)
+
+    def test_weighted_invalid_inputs_are_rejected(self):
+        from amfe.ensemble import EnsembleError
+        from amfe.ensemble.mixture import weighted_mixture_quantiles
+        vectors = self._vectors()
+        with self.assertRaises(EnsembleError):
+            weighted_mixture_quantiles(vectors, [0.5, 0.5])             # wrong count
+        with self.assertRaises(EnsembleError):
+            weighted_mixture_quantiles(vectors, [1.0, -0.5, 0.0, 0.0, 0.5])  # negative
+        with self.assertRaises(EnsembleError):
+            weighted_mixture_quantiles(vectors, [0.0, 0.0, 0.0, 0.0, 0.0])   # zero sum
+        with self.assertRaises(EnsembleError):
+            weighted_mixture_quantiles([np.zeros(18)], None)            # bad vector length
+
+    @unittest.skipUnless(DATA_PRESENT, "data/raw is git-ignored and not downloaded")
+    def test_real_weighted_members_are_sane_and_unchanged(self):
+        from amfe.ensemble import target_member_ids
+        from amfe.ensemble.history import current_member_parts
+        from amfe.ensemble.mixture import weighted_mixture_quantiles
+        from amfe.forecast.data import month_end_of
+
+        members = target_member_ids("T2_GDP_GROWTH", 0)
+        for label in ("1997-02-28", "2004-05-31", "2012-05-31"):
+            origin = month_end_of(label)
+            parts, _excluded = current_member_parts("T2_GDP_GROWTH", origin, 0, members, mode="auto")
+            vectors = [np.asarray(part["quantiles"], dtype=float)
+                       for part in parts.values() if part.get("quantiles") is not None]
+            if len(vectors) < 2:
+                self.skipTest(f"fewer than two member distributions at {label}")
+            weights = np.linspace(1.0, 2.0, len(vectors))
+            robust = weighted_mixture_quantiles(vectors, weights)
+            legacy = weighted_mixture_quantiles(vectors, weights, robust=False)
+            np.testing.assert_allclose(robust, legacy, atol=1e-9, rtol=0.0, err_msg=label)
+            self.assertLess(float(robust[-1]), 50.0, label)
+            self.assertGreater(float(robust[0]), -50.0, label)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

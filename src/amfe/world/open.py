@@ -35,6 +35,8 @@ The closed :class:`~amfe.world.model.WorldCore` is untouched; its tests remain g
 """
 from __future__ import annotations
 
+import math
+from dataclasses import dataclass
 from decimal import Decimal
 from typing import Mapping
 
@@ -47,10 +49,15 @@ from amfe.accounts import (
 from amfe.accounts.invariants import check_external_mirroring
 from amfe.accounts.model import BalanceSheet, Snapshot, to_decimal
 from amfe.accounts.open import (
+    CAPITAL_TRANSFER_KIND,
     EXTERNAL_CLAIM,
     EXTERNAL_LIABILITY,
     EXPORTS,
     IMPORTS,
+    INCOME_KIND,
+    PRIMARY_INCOME,
+    SECONDARY_INCOME,
+    SETTLEMENT_KIND,
     OpenAccountSystem,
     ROW,
 )
@@ -93,6 +100,63 @@ _REVAL_TOLERANCE = 1e-9
 
 
 # ---------------------------------------------------------------------------
+# Extended-flow scenario
+# ---------------------------------------------------------------------------
+@dataclass(frozen=True)
+class OpenFlowScenario(WorldScenario):
+    """Open-economy scenario with the stage-3 extended external flows.
+
+    The base :class:`~amfe.world.scenarios.WorldScenario` keeps the closed baseline
+    behaviour (goods trade only) so the existing 28 tests and the closed world core are
+    unchanged.  This subclass adds the extended flows, all disabled by default:
+
+    * ``include_services`` - an additional balanced services trade flow of
+      ``services_share`` of each country's GDP;
+    * ``include_income`` - primary income on the opening bilateral claims (yield from
+      ``primary_income_yield``) and reciprocal secondary incomes (``secondary_income_rate``
+      of GDP);
+    * ``include_capital_transfers`` - reciprocal capital transfers
+      (``capital_transfer_rate`` of GDP);
+    * ``settlement_share`` - share of the smaller gross bilateral position settled each
+      period through ROW deposits (after the FX revaluation is posted).
+    """
+
+    include_services: bool = False
+    include_income: bool = False
+    include_capital_transfers: bool = False
+    settlement_share: float = 0.0
+    services_share: float = 0.02
+    primary_income_yield: float = 0.01
+    secondary_income_rate: float = 0.005
+    capital_transfer_rate: float = 0.003
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        for name in ("settlement_share", "services_share", "primary_income_yield",
+                     "secondary_income_rate", "capital_transfer_rate"):
+            value = float(getattr(self, name))
+            if not math.isfinite(value) or value < 0.0:
+                raise WorldConfigError(f"{name} must be a finite non-negative number")
+            if name == "settlement_share" and value > 1.0:
+                raise WorldConfigError("settlement_share must lie in [0, 1]")
+            object.__setattr__(self, name, value)
+
+
+def extended_open_scenario(*, name: str = "open_extended",
+                           include_services: bool = True,
+                           include_income: bool = True,
+                           include_capital_transfers: bool = True,
+                           settlement_share: float = 0.05,
+                           **kwargs) -> OpenFlowScenario:
+    """Convenience constructor for the extended open-economy flows."""
+    return OpenFlowScenario(
+        name=name, include_services=include_services,
+        include_income=include_income,
+        include_capital_transfers=include_capital_transfers,
+        settlement_share=settlement_share, **kwargs)
+
+
+# ---------------------------------------------------------------------------
 # Hook: posts the external events into the open account books
 # ---------------------------------------------------------------------------
 class OpenPostingHook:
@@ -118,6 +182,14 @@ class OpenPostingHook:
         self.claim_events: list[dict] = []
         self.import_local: dict[str, Decimal] = {}
         self.export_local: dict[str, Decimal] = {}
+        self.services_export_local: dict[str, Decimal] = {}
+        self.services_import_local: dict[str, Decimal] = {}
+        self.primary_income_received: dict[str, Decimal] = {}
+        self.primary_income_paid: dict[str, Decimal] = {}
+        self.secondary_income_received: dict[str, Decimal] = {}
+        self.secondary_income_paid: dict[str, Decimal] = {}
+        self.capital_transfer_received: dict[str, Decimal] = {}
+        self.capital_transfer_paid: dict[str, Decimal] = {}
         self.pending: dict[str, tuple[dict, dict]] = {}
         self.posted_revaluations: list[dict] = []
 
@@ -129,6 +201,14 @@ class OpenPostingHook:
         self.claim_events.clear()
         self.import_local.clear()
         self.export_local.clear()
+        self.services_export_local.clear()
+        self.services_import_local.clear()
+        self.primary_income_received.clear()
+        self.primary_income_paid.clear()
+        self.secondary_income_received.clear()
+        self.secondary_income_paid.clear()
+        self.capital_transfer_received.clear()
+        self.capital_transfer_paid.clear()
         self.pending.clear()
         self.posted_revaluations.clear()
 
@@ -137,6 +217,14 @@ class OpenPostingHook:
         self.claim_events.clear()
         self.import_local.clear()
         self.export_local.clear()
+        self.services_export_local.clear()
+        self.services_import_local.clear()
+        self.primary_income_received.clear()
+        self.primary_income_paid.clear()
+        self.secondary_income_received.clear()
+        self.secondary_income_paid.clear()
+        self.capital_transfer_received.clear()
+        self.capital_transfer_paid.clear()
         self.pending.clear()
         self.posted_revaluations.clear()
 
@@ -177,24 +265,66 @@ class OpenPostingHook:
         if self.extra is not None:
             self.extra.on_external_flow(kind=kind, category=category, country=country,
                                         numeraire_value=numeraire_value)
-        if kind != "CA":
-            raise WorldError(
-                "the open SFC prototype posts only current-account external flows; "
-                f"got kind={kind!r} (capital transfers are not implemented)")
         if numeraire_value == 0:
             return
         local = _q(abs(numeraire_value) / self._rate(self.currencies[country]))
         book = self._book(country)
+        receiving = numeraire_value > 0
         try:
-            if numeraire_value > 0:      # this country is the exporter
-                book.export_goods(local)
-                self.export_local[country] = self.export_local.get(country, _ZERO) + local
-            else:                        # this country is the importer
-                book.import_goods(local)
-                self.import_local[country] = self.import_local.get(country, _ZERO) + local
+            if kind == "CA":
+                if category == "goods":
+                    if receiving:
+                        book.export_goods(local)
+                        self.export_local[country] = self.export_local.get(country, _ZERO) + local
+                    else:
+                        book.import_goods(local)
+                        self.import_local[country] = self.import_local.get(country, _ZERO) + local
+                elif category == "services":
+                    if receiving:
+                        book.export_services(local)
+                        self.services_export_local[country] = (
+                            self.services_export_local.get(country, _ZERO) + local)
+                    else:
+                        book.import_services(local)
+                        self.services_import_local[country] = (
+                            self.services_import_local.get(country, _ZERO) + local)
+                elif category == "primary_income":
+                    if receiving:
+                        book.receive_primary_income(local)
+                        self.primary_income_received[country] = (
+                            self.primary_income_received.get(country, _ZERO) + local)
+                    else:
+                        book.pay_primary_income(local)
+                        self.primary_income_paid[country] = (
+                            self.primary_income_paid.get(country, _ZERO) + local)
+                elif category == "secondary_income":
+                    if receiving:
+                        book.receive_secondary_income(local)
+                        self.secondary_income_received[country] = (
+                            self.secondary_income_received.get(country, _ZERO) + local)
+                    else:
+                        book.pay_secondary_income(local)
+                        self.secondary_income_paid[country] = (
+                            self.secondary_income_paid.get(country, _ZERO) + local)
+                else:
+                    raise WorldError(f"unknown current-account category {category!r}")
+            elif kind == "KA":
+                if category != "capital_transfer":
+                    raise WorldError(f"unknown capital-account category {category!r}")
+                if receiving:
+                    book.receive_capital_transfer(local)
+                    self.capital_transfer_received[country] = (
+                        self.capital_transfer_received.get(country, _ZERO) + local)
+                else:
+                    book.pay_capital_transfer(local)
+                    self.capital_transfer_paid[country] = (
+                        self.capital_transfer_paid.get(country, _ZERO) + local)
+            else:
+                raise WorldError(
+                    f"the open SFC prototype has no flow kind {kind!r}")
         except AccountingError as exc:
             raise WorldError(
-                f"posting the external trade of {country} broke the accounts: {exc}") from exc
+                f"posting the external flow of {country} broke the accounts: {exc}") from exc
 
     def on_revaluation(self, *, country, currency, amount: Decimal) -> None:
         entry = {"country": country, "currency": currency, "amount": amount}
@@ -466,6 +596,9 @@ class OpenWorldCore(WorldCore):
             raise WorldError(
                 f"external trade failed in period {period + 1}: {exc}") from exc
 
+        # 4b: optional services, income and capital transfers (extended scenario).
+        self._record_extended_external_flows(scenario, states, opening_claims, period)
+
         # 5a: finish the domestic block with the posted import values.
         for country in config.countries:
             state = states[country.name]
@@ -473,9 +606,36 @@ class OpenWorldCore(WorldCore):
             state["imports_local"] = imports_local
             state["imports_numeraire"] = _q(imports_local
                                             * self._fx.rate(country.currency))
-            state["net_exports_local"] = (state["exports_local"] - imports_local)
-            state["bop_current_account_local"] = state["net_exports_local"]
-            state["bop_financial_account_local"] = state["net_exports_local"]
+            services_exports = hook.services_export_local.get(country.name, _ZERO)
+            services_imports = hook.services_import_local.get(country.name, _ZERO)
+            primary_received = hook.primary_income_received.get(country.name, _ZERO)
+            primary_paid = hook.primary_income_paid.get(country.name, _ZERO)
+            secondary_received = hook.secondary_income_received.get(country.name, _ZERO)
+            secondary_paid = hook.secondary_income_paid.get(country.name, _ZERO)
+            capital_received = hook.capital_transfer_received.get(country.name, _ZERO)
+            capital_paid = hook.capital_transfer_paid.get(country.name, _ZERO)
+            net_primary = primary_received - primary_paid
+            net_secondary = secondary_received - secondary_paid
+            net_capital = capital_received - capital_paid
+            state["services_exports_local"] = services_exports
+            state["services_imports_local"] = services_imports
+            state["primary_income_received_local"] = primary_received
+            state["primary_income_paid_local"] = primary_paid
+            state["secondary_income_received_local"] = secondary_received
+            state["secondary_income_paid_local"] = secondary_paid
+            state["capital_transfers_received_local"] = capital_received
+            state["capital_transfers_paid_local"] = capital_paid
+            state["net_primary_income_local"] = net_primary
+            state["net_secondary_income_local"] = net_secondary
+            state["net_capital_transfers_local"] = net_capital
+            state["net_exports_local"] = (state["exports_local"]
+                                          + services_exports - imports_local
+                                          - services_imports)
+            state["bop_current_account_local"] = (state["net_exports_local"]
+                                                  + net_primary + net_secondary)
+            state["bop_capital_account_local"] = net_capital
+            state["bop_financial_account_local"] = (state["bop_current_account_local"]
+                                                    + net_capital)
             self._finish_domestic(country, self._runtime(country.name), state)
 
         # 5b: FX revaluation is prepared as data, then the external close fires the
@@ -505,6 +665,16 @@ class OpenWorldCore(WorldCore):
             states[country.name]["iip_revaluation_numeraire"] = payload["iip"]["revaluation"]
             states[country.name]["iip_transactions_numeraire"] = payload["iip"]["transactions"]
 
+        # 5b-bis: optional settlement of the smaller gross bilateral position through
+        # ROW deposits.  Symmetric in both books, so the two-book mirror and NFA hold.
+        settle_share = float(getattr(scenario, "settlement_share", 0.0) or 0.0)
+        settled_numeraire = self._settle_period(settle_share) if settle_share > 0 else _ZERO
+        for country in config.countries:
+            rate = self._fx.rate(country.currency)
+            states[country.name]["settlement_local"] = (
+                _q(settled_numeraire / rate) if rate > 0 else _ZERO)
+            states[country.name]["settlement_numeraire"] = settled_numeraire
+
         # 5c: close the open account books (the revaluations are already posted).
         for country in config.countries:
             runtime = self._runtime(country.name)
@@ -521,6 +691,10 @@ class OpenWorldCore(WorldCore):
             state["external_assets_local"] = report.external_assets
             state["external_liabilities_local"] = report.external_liabilities
             state["row_net_worth_local"] = report.row_net_worth
+            state["row_deposits_local"] = report.row_deposits
+            state["current_account_local"] = report.current_account_balance
+            state["gni_local"] = report.gross_national_income
+            state["settlement_local"] = report.settlements
             state["net_worth_local"] = report.net_worth_residents
             state["investment"] = (report.inventory_change.get(
                 Sector.FIRM.value, _ZERO)
@@ -569,6 +743,13 @@ class OpenWorldCore(WorldCore):
             config.country_a.name: export_a * rate_a,
             config.country_b.name: export_b * rate_b,
         }
+        for country in config.countries:
+            rate = self._fx.rate(country.currency)
+            expected_trade[country.name] += (
+                hook.services_export_local.get(country.name, _ZERO)
+                + hook.primary_income_received.get(country.name, _ZERO)
+                + hook.secondary_income_received.get(country.name, _ZERO)
+                + hook.capital_transfer_received.get(country.name, _ZERO)) * rate
         external_layer_checks, external_layer_residuals = external_checks(
             external_report, hook_claims, hook_flows, hook_revaluations, expected_trade)
         world_checks.update(external_layer_checks)
@@ -711,7 +892,8 @@ class OpenWorldCore(WorldCore):
         accounts: OpenAccountSystem = runtime.accounts
         imports_local = state["imports_local"]
         total_consumption = state["consumption"]
-        domestic_consumption = total_consumption - imports_local
+        domestic_consumption = (total_consumption - imports_local
+                                - state.get("services_imports_local", _ZERO))
         if domestic_consumption < 0:
             raise WorldError(
                 f"country {country.name}: imports ({imports_local}) exceed total household "
@@ -756,6 +938,113 @@ class OpenWorldCore(WorldCore):
                 f"invariants: {exc}") from exc
 
     # ------------------------------------------------------------------
+    # Extended external flows and settlements (stage 3)
+    # ------------------------------------------------------------------
+    def _record_extended_external_flows(self, scenario: WorldScenario,
+                                        states: dict, opening_claims: Mapping,
+                                        period: int) -> None:
+        """Services, income and capital transfers as real external events/hook postings."""
+        config = self.config
+        ext = self._external
+        try:
+            if getattr(scenario, "include_services", False):
+                share = float(getattr(scenario, "services_share", 0.02))
+                services_a = _q(_share_decimal(share)
+                                * states[config.country_a.name]["nominal_gdp"])
+                services_b = _q(_share_decimal(share)
+                                * states[config.country_b.name]["nominal_gdp"])
+                ext.record_trade(config.country_a.name, config.country_b.name,
+                                 services_a, config.country_a.currency,
+                                 category="services")
+                ext.record_trade(config.country_b.name, config.country_a.name,
+                                 services_b, config.country_b.currency,
+                                 category="services")
+            if getattr(scenario, "include_income", False):
+                income_yield = float(getattr(scenario, "primary_income_yield", 0.01))
+                yield_share = _share_decimal(income_yield)
+                for key in sorted(opening_claims):
+                    holder, issuer, _instrument, currency = key
+                    amount = opening_claims[key]
+                    income = _q(amount * yield_share)
+                    if income > 0:
+                        ext.record_income(receiver=holder, payer=issuer, value=income,
+                                          currency=currency,
+                                          category="primary_income")
+                secondary_rate = float(getattr(scenario, "secondary_income_rate", 0.005))
+                secondary_share = _share_decimal(secondary_rate)
+                for country, partner in ((config.country_a, config.country_b),
+                                         (config.country_b, config.country_a)):
+                    value = _q(secondary_share
+                               * states[country.name]["nominal_gdp"])
+                    if value > 0:
+                        ext.record_income(receiver=partner.name, payer=country.name,
+                                          value=value, currency=country.currency,
+                                          category="secondary_income")
+            if getattr(scenario, "include_capital_transfers", False):
+                capital_rate = float(getattr(scenario, "capital_transfer_rate", 0.003))
+                capital_share = _share_decimal(capital_rate)
+                for country, partner in ((config.country_a, config.country_b),
+                                         (config.country_b, config.country_a)):
+                    value = _q(capital_share
+                               * states[country.name]["nominal_gdp"])
+                    if value > 0:
+                        ext.record_capital_transfer(
+                            donor=country.name, receiver=partner.name,
+                            value=value, currency=country.currency)
+        except WorldError:
+            raise
+        except Exception as exc:
+            raise WorldError(
+                f"extended external flows failed in period {period + 1}: {exc}") from exc
+
+    def _settle_period(self, share: float) -> Decimal:
+        """Settle a symmetric share of the gross bilateral positions via ROW deposits.
+
+        Both books settle the same numeraire amount: the ROW first receives deposits by
+        settling the resident external liabilities and then pays the resident external
+        claims, so each book's ROW deposit ends the period at zero.  Settlement is a
+        financial transaction: it does not change NFA, the current account or the world
+        net worth; it only reduces the gross external positions.
+        """
+        share = float(share)
+        if not math.isfinite(share) or share <= 0.0:
+            return _ZERO
+        share = min(1.0, share)
+        config = self.config
+        rate_a = self._fx.rate(config.country_a.currency)
+        rate_b = self._fx.rate(config.country_b.currency)
+
+        def capacity(book) -> Decimal:
+            claim = book.balance(Sector.FIRM, EXTERNAL_CLAIM)
+            liability = -book.balance(Sector.HOUSEHOLD, EXTERNAL_LIABILITY)
+            deposit = book.balance(Sector.HOUSEHOLD, FinancialInstrument.DEPOSIT)
+            return max(_ZERO, min(claim, liability, deposit))
+
+        book_a = self._open_books[config.country_a.name]
+        book_b = self._open_books[config.country_b.name]
+        capacity_num = min(capacity(book_a) * rate_a, capacity(book_b) * rate_b)
+        target = _q(_share_decimal(share) * capacity_num)
+        if target <= 0:
+            return _ZERO
+        local_a = _q(target / rate_a)
+        local_b = _q(target / rate_b)
+        # Rounding-safe downscaling: every local leg must be feasible.
+        local_a = min(local_a, capacity(book_a))
+        local_b = min(local_b, capacity(book_b))
+        local_a = _q(local_a)
+        local_b = _q(local_b)
+        if local_a <= 0 or local_b <= 0:
+            return _ZERO
+        try:
+            book_a.settle_external_liability(local_a)
+            book_a.settle_external_claim(local_a)
+            book_b.settle_external_liability(local_b)
+            book_b.settle_external_claim(local_b)
+        except AccountingError as exc:
+            raise WorldError(f"external settlement broke the accounts: {exc}") from exc
+        return local_a * rate_a
+
+    # ------------------------------------------------------------------
     # FX revaluation preparation
     # ------------------------------------------------------------------
     def _prepare_fx_revaluation(self, opening_claims: Mapping, opening_fx: FXMarket,
@@ -776,10 +1065,10 @@ class OpenWorldCore(WorldCore):
         keys = set(opening_claims) | set(current_claims) | set(transactions)
         currency_of = {country.name: country.currency
                        for country in self.config.countries}
-        claim_revaluation: dict[str, Decimal] = {}
+        claim_revaluation: dict[tuple[str, str], Decimal] = {}
         liability_revaluation: dict[str, Decimal] = {}
         for key in sorted(keys):
-            holder, issuer, _instrument, currency = key
+            holder, issuer, instrument, currency = key
             opening_amount = opening_claims.get(key, _ZERO)
             closing_amount = current_claims.get(key, _ZERO)
             tx = transactions.get(key, {"amount": _ZERO, "holder_local": _ZERO,
@@ -798,20 +1087,27 @@ class OpenWorldCore(WorldCore):
             closing_issuer_local = closing_amount * rate_close / issuer_close_rate
             issuer_revaluation = (-closing_issuer_local + opening_issuer_local
                                   - tx["issuer_local"])
-            claim_revaluation[holder] = (claim_revaluation.get(holder, _ZERO)
-                                         + holder_revaluation)
+            claim_sector = (Sector.FIRM.value if instrument == "trade_credit"
+                            else Sector.HOUSEHOLD.value)
+            claim_key = (holder, claim_sector)
+            claim_revaluation[claim_key] = (claim_revaluation.get(claim_key, _ZERO)
+                                            + holder_revaluation)
             liability_revaluation[issuer] = (liability_revaluation.get(issuer, _ZERO)
                                              + issuer_revaluation)
         pending: dict[str, tuple[dict, dict]] = {}
         for country in self.config.countries:
-            claim = claim_revaluation.get(country.name, _ZERO)
-            liability = liability_revaluation.get(country.name, _ZERO)
-            claim = _q(claim)
-            liability = _q(liability)
-            if claim == 0 and liability == 0:
+            claim_changes: dict[str, Decimal] = {}
+            for (holder, sector), value in claim_revaluation.items():
+                if holder != country.name:
+                    continue
+                value = _q(value)
+                if value != 0:
+                    claim_changes[sector] = claim_changes.get(sector, _ZERO) + value
+            liability = _q(liability_revaluation.get(country.name, _ZERO))
+            liability_changes = ({Sector.HOUSEHOLD.value: liability}
+                                 if liability != 0 else {})
+            if not claim_changes and not liability_changes:
                 continue
-            claim_changes = {Sector.FIRM.value: claim} if claim != 0 else {}
-            liability_changes = {Sector.HOUSEHOLD.value: liability} if liability != 0 else {}
             pending[country.name] = (claim_changes, liability_changes)
         return pending
 
@@ -843,53 +1139,81 @@ class OpenWorldCore(WorldCore):
         iip_net = external_report["countries"][country.name]["iip"]["net"]
         residuals["open_nfa_iip"] = float(_residual(nfa_numeraire - iip_net))
         checks["open_nfa_iip"] = _residual(nfa_numeraire - iip_net) <= _TOLERANCE
-        # BoP current account against the posted trade flows
-        net_exports_numeraire = state["bop_current_account_local"] * state["rate"]
-        current_account = external_report["countries"][country.name][
-            "current_account_total"]
+        # BoP current / capital / financial account against the posted flows
+        trade_rate = state["rate"]
+        current_local = state["bop_current_account_local"]
+        capital_local = state["bop_capital_account_local"]
+        current_numeraire = current_local * trade_rate
+        capital_numeraire = capital_local * trade_rate
+        financial_numeraire = current_numeraire + capital_numeraire
+        country_external = external_report["countries"][country.name]
         residuals["open_bop_current"] = float(_residual(
-            net_exports_numeraire - current_account))
+            current_numeraire - country_external["current_account_total"]))
         checks["open_bop_current"] = _residual(
-            net_exports_numeraire - current_account) <= _TOLERANCE
-        # Financial account: the posted external positions change
-        financial_account = external_report["countries"][country.name][
-            "financial_account"]
+            current_numeraire - country_external["current_account_total"]) <= _TOLERANCE
+        residuals["open_bop_capital"] = float(_residual(
+            capital_numeraire - country_external["capital_account_total"]))
+        checks["open_bop_capital"] = _residual(
+            capital_numeraire - country_external["capital_account_total"]) <= _TOLERANCE
         residuals["open_bop_financial"] = float(_residual(
-            net_exports_numeraire - financial_account))
+            financial_numeraire - country_external["financial_account"]))
         checks["open_bop_financial"] = _residual(
-            net_exports_numeraire - financial_account) <= _TOLERANCE
+            financial_numeraire - country_external["financial_account"]) <= _TOLERANCE
         # IIP identity reconciled with the posted revaluation
         revaluation_from_accounts = (
             report.nfa * rate
             - opening_nfa[country.name] * runtime.previous_rate
-            - net_exports_numeraire)
+            - financial_numeraire)
         iip_revaluation = external_report["countries"][country.name]["iip"][
             "revaluation"]
         residuals["open_iip_revaluation"] = float(_residual(
             revaluation_from_accounts - iip_revaluation))
         checks["open_iip_revaluation"] = _residual(
             revaluation_from_accounts - iip_revaluation) <= _TOLERANCE
-        # Inventory bridge: capital formation = planned investment + imports - exports
+        # Income/capital-account postings match the hook's local values
+        residuals["open_income_posted"] = float(
+            _residual(report.net_primary_income - state["net_primary_income_local"])
+            + _residual(report.net_secondary_income
+                        - state["net_secondary_income_local"])
+            + _residual(report.net_capital_transfers
+                        - state["net_capital_transfers_local"]))
+        checks["open_income_posted"] = residuals["open_income_posted"] <= 1e-9
+        # Inventory bridge: planned investment + imports - exports (goods and services)
         actual_formation = report.inventory_change.get(Sector.FIRM.value, _ZERO)
-        expected_formation = (state["planned_investment"] + state["imports_local"]
-                              - state["exports_local"])
+        expected_formation = (
+            state["planned_investment"] + state["imports_local"]
+            + state["services_imports_local"] - state["exports_local"]
+            - state["services_exports_local"])
         residuals["open_inventory_bridge"] = float(_residual(
             actual_formation - expected_formation))
         checks["open_inventory_bridge"] = _residual(
             actual_formation - expected_formation) <= _TOLERANCE
         # The trade postings in the books are exactly the hook's local values
         residuals["open_trade_posted"] = float(
-            _residual(report.exports - state["exports_local"])
-            + _residual(report.imports - state["imports_local"]))
+            _residual(report.exports - state["exports_local"]
+                      - state["services_exports_local"])
+            + _residual(report.imports - state["imports_local"]
+                        - state["services_imports_local"]))
         checks["open_trade_posted"] = residuals["open_trade_posted"] <= 1e-9
+        # Current-account definition: trade + primary + secondary income
+        residuals["open_current_account_definition"] = float(_residual(
+            report.current_account_balance
+            - (report.net_exports + report.net_primary_income
+               + report.net_secondary_income)))
+        checks["open_current_account_definition"] = (
+            residuals["open_current_account_definition"] <= 1e-9)
+        checks["open_gni_definition"] = (
+            report.gross_national_income == (report.gdp_production
+                                             + report.net_primary_income))
         # National wealth bridge in the numeraire (residents only: NW = real + NFA)
         savings = report.savings_residents * rate
         revaluation = report.revaluation_residents * rate
+        capital_transfers = report.net_capital_transfers * rate
         translation = runtime.previous_net_worth * (
             rate - runtime.previous_rate)
         delta_wealth = report.net_worth_residents * rate - (
             runtime.previous_net_worth * runtime.previous_rate)
-        expected = savings + revaluation + translation
+        expected = savings + revaluation + capital_transfers + translation
         residuals["open_national_wealth_bridge"] = float(_residual(
             delta_wealth - expected))
         checks["open_national_wealth_bridge"] = _residual(
@@ -1028,6 +1352,16 @@ class OpenWorldCore(WorldCore):
             open_gdp_expenditure=report.open_gdp_expenditure,
             bop_current_account_local=state["bop_current_account_local"],
             bop_financial_account_local=state["bop_financial_account_local"],
+            services_exports_local=state["services_exports_local"],
+            services_imports_local=state["services_imports_local"],
+            net_primary_income_local=state["net_primary_income_local"],
+            net_secondary_income_local=state["net_secondary_income_local"],
+            net_capital_transfers_local=state["net_capital_transfers_local"],
+            current_account_local=state["current_account_local"],
+            gni_local=state["gni_local"],
+            row_deposits_local=state["row_deposits_local"],
+            settlement_local=state.get("settlement_local", _ZERO),
+            settlement_numeraire=state.get("settlement_numeraire", _ZERO),
         )
 
     # ------------------------------------------------------------------

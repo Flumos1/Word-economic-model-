@@ -56,6 +56,7 @@ from .accounts import AccountSystem, OpeningBalances
 from .model import (
     AccountSpec,
     AccountingError,
+    CapitalFlow,
     ChartOfAccounts,
     CurrentFlow,
     DEFAULT_CHART,
@@ -81,13 +82,26 @@ ROW = "row"
 EXTERNAL_CLAIM = "external_claim"
 #: Residents' external liabilities (mirrored by the ROW's asset).
 EXTERNAL_LIABILITY = "external_liability"
-#: Current flow: the ROW's expenditure on resident exports (negative on the ROW).
-EXPORTS = "exports"
-#: Current flow: the ROW's revenue from resident imports (positive on the ROW).
-IMPORTS = "imports"
+#: Current flows: the ROW's expenditure on resident exports (negative on the ROW).
+EXPORTS_GOODS = "exports_goods"
+EXPORTS_SERVICES = "exports_services"
+#: Current flows: the ROW's revenue from resident imports (positive on the ROW).
+IMPORTS_GOODS = "imports_goods"
+IMPORTS_SERVICES = "imports_services"
+#: Backward-compatible aliases (goods are the default category).
+EXPORTS = EXPORTS_GOODS
+IMPORTS = IMPORTS_GOODS
+#: Mirrored income flows (primary and secondary income with the ROW).
+PRIMARY_INCOME = "primary_income"
+SECONDARY_INCOME = "secondary_income"
 #: Transaction kinds of the open extension.
 EXPORT_KIND = "export"
 IMPORT_KIND = "import"
+SERVICE_EXPORT_KIND = "export_service"
+SERVICE_IMPORT_KIND = "import_service"
+INCOME_KIND = "external_income"
+CAPITAL_TRANSFER_KIND = "external_capital_transfer"
+SETTLEMENT_KIND = "external_settlement"
 #: Resident sector codes, in the order used by the reports.
 RESIDENTS = tuple(sector.value for sector in Sector)
 RESIDENT_ENUM = tuple(Sector)
@@ -103,26 +117,59 @@ def _non_negative(value: object, *, what: str) -> Decimal:
 
 
 def open_economy_chart(base: ChartOfAccounts = DEFAULT_CHART) -> ChartOfAccounts:
-    """Return the four-sector chart extended with the ROW sector and external accounts."""
+    """Return the four-sector chart extended with the ROW sector and external accounts.
+
+    The chart contains the goods/services export and import flows, the mirrored primary
+    and secondary income flows, the ROW roles of the capital account, two external
+    financial instruments and a ROW deposit account (so that external positions can be
+    settled through the domestic banking system).
+    """
     residents = RESIDENTS
+    everyone = residents + (ROW,)
+    capital = base.spec(Dimension.CAPITAL, CapitalFlow.CAPITAL_TRANSFER)
+    deposit = base.spec(Dimension.FINANCIAL, FinancialInstrument.DEPOSIT)
     specs = (
+        AccountSpec(EXPORTS_GOODS, Dimension.CURRENT,
+                    posting_sectors=(ROW,), negative_sectors=(ROW,)),
+        AccountSpec(EXPORTS_SERVICES, Dimension.CURRENT,
+                    posting_sectors=(ROW,), negative_sectors=(ROW,)),
+        AccountSpec(IMPORTS_GOODS, Dimension.CURRENT,
+                    posting_sectors=(ROW,), positive_sectors=(ROW,)),
+        AccountSpec(IMPORTS_SERVICES, Dimension.CURRENT,
+                    posting_sectors=(ROW,), positive_sectors=(ROW,)),
+        AccountSpec(PRIMARY_INCOME, Dimension.CURRENT,
+                    posting_sectors=everyone, positive_sectors=everyone,
+                    negative_sectors=everyone, mirrored=True),
+        AccountSpec(SECONDARY_INCOME, Dimension.CURRENT,
+                    posting_sectors=everyone, positive_sectors=everyone,
+                    negative_sectors=everyone, mirrored=True),
         AccountSpec(
-            EXPORTS, Dimension.CURRENT,
-            posting_sectors=(ROW,), negative_sectors=(ROW,)),
-        AccountSpec(
-            IMPORTS, Dimension.CURRENT,
-            posting_sectors=(ROW,), positive_sectors=(ROW,)),
+            capital.code, capital.dimension,
+            posting_sectors=capital.posting_sectors | {ROW},
+            positive_sectors=capital.positive_sectors | {ROW},
+            negative_sectors=capital.negative_sectors | {ROW},
+            mirrored=True),
         AccountSpec(
             EXTERNAL_CLAIM, Dimension.FINANCIAL,
-            posting_sectors=residents + (ROW,), mirrored=True,
+            posting_sectors=everyone, mirrored=True,
             asset_sectors=residents, liability_sectors=(ROW,)),
         AccountSpec(
             EXTERNAL_LIABILITY, Dimension.FINANCIAL,
-            posting_sectors=residents + (ROW,), mirrored=True,
+            posting_sectors=everyone, mirrored=True,
             asset_sectors=(ROW,), liability_sectors=residents),
+        AccountSpec(
+            deposit.code, deposit.dimension,
+            posting_sectors=deposit.posting_sectors | {ROW},
+            positive_sectors=deposit.positive_sectors,
+            negative_sectors=deposit.negative_sectors,
+            mirrored=True,
+            asset_sectors=deposit.asset_sectors | {ROW},
+            liability_sectors=deposit.liability_sectors),
     )
-    return base.extend(sectors=(ROW,), specs=specs,
-                       kinds=(EXPORT_KIND, IMPORT_KIND))
+    return base.extend(
+        sectors=(ROW,), specs=specs,
+        kinds=(EXPORT_KIND, IMPORT_KIND, SERVICE_EXPORT_KIND, SERVICE_IMPORT_KIND,
+               INCOME_KIND, CAPITAL_TRANSFER_KIND, SETTLEMENT_KIND))
 
 
 OPEN_CHART = open_economy_chart()
@@ -142,6 +189,18 @@ class OpenPeriodReport:
     row_net_worth: Decimal
     open_gdp_expenditure: Decimal
     nfa_revaluation: Decimal
+    exports_goods: Decimal = Decimal(0)
+    exports_services: Decimal = Decimal(0)
+    imports_goods: Decimal = Decimal(0)
+    imports_services: Decimal = Decimal(0)
+    net_primary_income: Decimal = Decimal(0)
+    net_secondary_income: Decimal = Decimal(0)
+    net_capital_transfers: Decimal = Decimal(0)
+    current_account_balance: Decimal = Decimal(0)
+    gross_national_income: Decimal = Decimal(0)
+    gross_national_disposable_income: Decimal = Decimal(0)
+    row_deposits: Decimal = Decimal(0)
+    settlements: Decimal = Decimal(0)
 
     # -- closed-report delegation ---------------------------------------
     def __getattr__(self, name: str):
@@ -201,6 +260,19 @@ class OpenPeriodReport:
             "open_gdp_expenditure": str(self.open_gdp_expenditure),
             "closed_gdp_expenditure": str(self.closed_gdp_expenditure),
             "nfa_revaluation": str(self.nfa_revaluation),
+            "exports_goods": str(self.exports_goods),
+            "exports_services": str(self.exports_services),
+            "imports_goods": str(self.imports_goods),
+            "imports_services": str(self.imports_services),
+            "net_primary_income": str(self.net_primary_income),
+            "net_secondary_income": str(self.net_secondary_income),
+            "net_capital_transfers": str(self.net_capital_transfers),
+            "current_account_balance": str(self.current_account_balance),
+            "gross_national_income": str(self.gross_national_income),
+            "gross_national_disposable_income": str(
+                self.gross_national_disposable_income),
+            "row_deposits": str(self.row_deposits),
+            "settlements": str(self.settlements),
         }
         return payload
 
@@ -239,25 +311,66 @@ class OpenAccountSystem(AccountSystem):
         base = self._build_report(entries, nontransaction)
 
         row_current = base.current.get(ROW, {})
-        exports = -row_current.get(EXPORTS, Decimal(0))
-        imports = row_current.get(IMPORTS, Decimal(0))
+        exports_goods = -row_current.get(EXPORTS_GOODS, Decimal(0))
+        exports_services = -row_current.get(EXPORTS_SERVICES, Decimal(0))
+        imports_goods = row_current.get(IMPORTS_GOODS, Decimal(0))
+        imports_services = row_current.get(IMPORTS_SERVICES, Decimal(0))
+        exports = exports_goods + exports_services
+        imports = imports_goods + imports_services
         net_exports = exports - imports
+        net_primary_income = sum(
+            (base.current.get(sector, {}).get(PRIMARY_INCOME, Decimal(0))
+             for sector in RESIDENTS), Decimal(0))
+        net_secondary_income = sum(
+            (base.current.get(sector, {}).get(SECONDARY_INCOME, Decimal(0))
+             for sector in RESIDENTS), Decimal(0))
+        net_capital_transfers = sum(
+            (base.capital_transfers.get(sector, Decimal(0))
+             for sector in RESIDENTS), Decimal(0))
+        current_account_balance = (net_exports + net_primary_income
+                                   + net_secondary_income)
         external_assets = self.external_assets()
         external_liabilities = self.external_liabilities()
-        nfa = external_assets - external_liabilities
+        row_deposits = self.balance(ROW, FinancialInstrument.DEPOSIT)
+        nfa = external_assets - external_liabilities - row_deposits
         row_net_worth = self.net_worth(ROW)
         nfa_revaluation = sum(
             (entry.amount for entry in nontransaction
              if entry.dimension is Dimension.FINANCIAL
              and entry.code in (EXTERNAL_CLAIM, EXTERNAL_LIABILITY)
              and entry.sector in RESIDENTS), Decimal(0))
-        open_gdp_expenditure = base.gdp_expenditure + exports - imports
+        settlements = Decimal(0)
+        for entry in entries:
+            if entry.kind != SETTLEMENT_KIND:
+                continue
+            for posting in entry.postings:
+                if posting.dimension is not Dimension.FINANCIAL:
+                    continue
+                if posting.sector not in RESIDENTS:
+                    continue
+                if posting.code == EXTERNAL_CLAIM and posting.amount < 0:
+                    settlements += -posting.amount
+                elif posting.code == EXTERNAL_LIABILITY and posting.amount > 0:
+                    settlements += posting.amount
+        open_gdp_expenditure = base.gdp_expenditure + net_exports
+        gross_national_income = base.gdp_production + net_primary_income
+        gross_national_disposable_income = (gross_national_income
+                                            + net_secondary_income)
         report = OpenPeriodReport(
             base=base, exports=exports, imports=imports, net_exports=net_exports,
             external_assets=external_assets, external_liabilities=external_liabilities,
             nfa=nfa, row_net_worth=row_net_worth,
             open_gdp_expenditure=open_gdp_expenditure,
-            nfa_revaluation=nfa_revaluation)
+            nfa_revaluation=nfa_revaluation,
+            exports_goods=exports_goods, exports_services=exports_services,
+            imports_goods=imports_goods, imports_services=imports_services,
+            net_primary_income=net_primary_income,
+            net_secondary_income=net_secondary_income,
+            net_capital_transfers=net_capital_transfers,
+            current_account_balance=current_account_balance,
+            gross_national_income=gross_national_income,
+            gross_national_disposable_income=gross_national_disposable_income,
+            row_deposits=row_deposits, settlements=settlements)
         try:
             self._check_open_report(report)
         except InvariantViolation as exc:
@@ -293,12 +406,20 @@ class OpenAccountSystem(AccountSystem):
                 f"external mirroring broken: NFA {report.nfa} + ROW net worth "
                 f"{report.row_net_worth} = {residual}", code="nfa_identity")
         nfa_change = report.nfa - self._opening_nfa
-        expected = report.net_exports + report.nfa_revaluation
+        expected = (report.current_account_balance + report.net_capital_transfers
+                    + report.nfa_revaluation)
         if abs(nfa_change - expected) > TOLERANCE:
             raise InvariantViolation(
-                f"NFA bridge broken: dNFA {nfa_change} != net exports "
-                f"{report.net_exports} + revaluation {report.nfa_revaluation}",
-                code="nfa_bridge")
+                f"NFA bridge broken: dNFA {nfa_change} != current account "
+                f"{report.current_account_balance} + capital transfers "
+                f"{report.net_capital_transfers} + revaluation "
+                f"{report.nfa_revaluation}", code="nfa_bridge")
+        if report.gross_national_income != (report.base.gdp_production
+                                            + report.net_primary_income):
+            raise InvariantViolation("GNI definition broken", code="gni_identity")
+        if report.gross_national_disposable_income != (
+                report.gross_national_income + report.net_secondary_income):
+            raise InvariantViolation("GNDI definition broken", code="gndi_identity")
         world_wealth = (report.net_worth_residents + report.row_net_worth)
         if abs(world_wealth - report.real_assets_total) > TOLERANCE:
             raise InvariantViolation(
@@ -317,8 +438,13 @@ class OpenAccountSystem(AccountSystem):
                      for sector in RESIDENT_ENUM), Decimal(0))
 
     def nfa(self) -> Decimal:
-        """Net external position of the residents (assets minus liabilities)."""
-        return self.external_assets() - self.external_liabilities()
+        """Net external position: external assets - liabilities - ROW deposits.
+
+        A deposit that the rest of the world holds at the domestic bank is a liability
+        of the residents, so it enters the net external position with a negative sign.
+        """
+        return (self.external_assets() - self.external_liabilities()
+                - self.balance(ROW, FinancialInstrument.DEPOSIT))
 
     def row_net_worth(self) -> Decimal:
         return self.net_worth(ROW)
@@ -326,20 +452,18 @@ class OpenAccountSystem(AccountSystem):
     # ------------------------------------------------------------------
     # External transactions
     # ------------------------------------------------------------------
-    def export_goods(self, amount: object, *, exporter: object = Sector.FIRM,
-                     memo: str = "") -> object:
-        """Export goods to the ROW: resident claim, ROW import expenditure."""
+    def _export(self, amount: object, flow: str, kind: str,
+                exporter: object, memo: str) -> object:
         n = _non_negative(amount, what="export")
-        return self._post(EXPORT_KIND, (
+        return self._post(kind, (
             Posting.real(exporter, RealAsset.INVENTORY, -n),
             Posting.financial(exporter, EXTERNAL_CLAIM, n),
             Posting.financial(ROW, EXTERNAL_CLAIM, -n),
-            Posting.current(ROW, EXPORTS, -n),
+            Posting.current(ROW, flow, -n),
         ), memo)
 
-    def import_goods(self, amount: object, *, importer: object = Sector.HOUSEHOLD,
-                     memo: str = "") -> object:
-        """Import goods from the ROW: resident consumption and external liability."""
+    def _import(self, amount: object, flow: str, kind: str,
+                importer: object, memo: str) -> object:
         n = _non_negative(amount, what="import")
         importer_code = code_string(importer, what="importer")
         if importer_code == Sector.HOUSEHOLD.value:
@@ -350,17 +474,144 @@ class OpenAccountSystem(AccountSystem):
             raise TransactionRejected(
                 "imports are modelled for households and government only",
                 code="invalid_importer")
-        return self._post(IMPORT_KIND, (
+        return self._post(kind, (
             consumption,
             Posting.financial(importer, EXTERNAL_LIABILITY, -n),
             Posting.financial(ROW, EXTERNAL_LIABILITY, n),
-            Posting.current(ROW, IMPORTS, n),
+            Posting.current(ROW, flow, n),
+        ), memo)
+
+    def export_goods(self, amount: object, *, exporter: object = Sector.FIRM,
+                     memo: str = "") -> object:
+        """Export goods to the ROW: resident claim, ROW import expenditure."""
+        return self._export(amount, EXPORTS_GOODS, EXPORT_KIND, exporter, memo)
+
+    def export_services(self, amount: object, *, exporter: object = Sector.FIRM,
+                        memo: str = "") -> object:
+        """Export services to the ROW (same accounting, separate flow code)."""
+        return self._export(amount, EXPORTS_SERVICES, SERVICE_EXPORT_KIND,
+                            exporter, memo)
+
+    def import_goods(self, amount: object, *, importer: object = Sector.HOUSEHOLD,
+                     memo: str = "") -> object:
+        """Import goods from the ROW: resident consumption and external liability."""
+        return self._import(amount, IMPORTS_GOODS, IMPORT_KIND, importer, memo)
+
+    def import_services(self, amount: object, *, importer: object = Sector.HOUSEHOLD,
+                        memo: str = "") -> object:
+        """Import services from the ROW (same accounting, separate flow code)."""
+        return self._import(amount, IMPORTS_SERVICES, SERVICE_IMPORT_KIND,
+                            importer, memo)
+
+    def _income(self, amount: object, flow: str, received: bool,
+                resident: object, memo: str) -> object:
+        n = _non_negative(amount, what="income")
+        resident_code = code_string(resident, what="resident")
+        if resident_code not in RESIDENTS:
+            raise TransactionRejected("external income applies to resident sectors",
+                                      code="invalid_sector")
+        sign = Decimal(1) if received else Decimal(-1)
+        return self._post(INCOME_KIND, (
+            Posting.current(resident, flow, sign * n),
+            Posting.financial(resident,
+                              EXTERNAL_CLAIM if received else EXTERNAL_LIABILITY,
+                              sign * n),
+            Posting.current(ROW, flow, -sign * n),
+            Posting.financial(ROW,
+                              EXTERNAL_CLAIM if received else EXTERNAL_LIABILITY,
+                              -sign * n),
+        ), memo)
+
+    def receive_primary_income(self, amount: object, *,
+                               resident: object = Sector.HOUSEHOLD,
+                               memo: str = "") -> object:
+        """Primary income received from the ROW (increases GNI, not GDP)."""
+        return self._income(amount, PRIMARY_INCOME, True, resident, memo)
+
+    def pay_primary_income(self, amount: object, *,
+                           resident: object = Sector.HOUSEHOLD,
+                           memo: str = "") -> object:
+        """Primary income paid to the ROW (decreases GNI, not GDP)."""
+        return self._income(amount, PRIMARY_INCOME, False, resident, memo)
+
+    def receive_secondary_income(self, amount: object, *,
+                                 resident: object = Sector.HOUSEHOLD,
+                                 memo: str = "") -> object:
+        """Secondary income (current transfer) received from the ROW."""
+        return self._income(amount, SECONDARY_INCOME, True, resident, memo)
+
+    def pay_secondary_income(self, amount: object, *,
+                             resident: object = Sector.HOUSEHOLD,
+                             memo: str = "") -> object:
+        """Secondary income (current transfer) paid to the ROW."""
+        return self._income(amount, SECONDARY_INCOME, False, resident, memo)
+
+    def _capital_transfer(self, amount: object, received: bool,
+                          resident: object, memo: str) -> object:
+        n = _non_negative(amount, what="capital transfer")
+        resident_code = code_string(resident, what="resident")
+        if resident_code not in RESIDENTS:
+            raise TransactionRejected("external capital transfers apply to residents",
+                                      code="invalid_sector")
+        sign = Decimal(1) if received else Decimal(-1)
+        return self._post(CAPITAL_TRANSFER_KIND, (
+            Posting.capital(resident, CapitalFlow.CAPITAL_TRANSFER, sign * n),
+            Posting.financial(resident,
+                              EXTERNAL_CLAIM if received else EXTERNAL_LIABILITY,
+                              sign * n),
+            Posting.capital(ROW, CapitalFlow.CAPITAL_TRANSFER, -sign * n),
+            Posting.financial(ROW,
+                              EXTERNAL_CLAIM if received else EXTERNAL_LIABILITY,
+                              -sign * n),
+        ), memo)
+
+    def receive_capital_transfer(self, amount: object, *,
+                                 resident: object = Sector.HOUSEHOLD,
+                                 memo: str = "") -> object:
+        """Capital transfer received from the ROW (capital account + claim)."""
+        return self._capital_transfer(amount, True, resident, memo)
+
+    def pay_capital_transfer(self, amount: object, *,
+                             resident: object = Sector.HOUSEHOLD,
+                             memo: str = "") -> object:
+        """Capital transfer paid to the ROW (capital account + liability)."""
+        return self._capital_transfer(amount, False, resident, memo)
+
+    def settle_external_claim(self, amount: object, *,
+                              resident: object = Sector.FIRM,
+                              memo: str = "") -> object:
+        """The ROW settles a claim on it by transferring deposits to the resident."""
+        n = _non_negative(amount, what="external claim settlement")
+        resident_code = code_string(resident, what="resident")
+        return self._post(SETTLEMENT_KIND, (
+            Posting.financial(resident, EXTERNAL_CLAIM, -n),
+            Posting.financial(resident, FinancialInstrument.DEPOSIT, n),
+            Posting.financial(ROW, EXTERNAL_CLAIM, n),
+            Posting.financial(ROW, FinancialInstrument.DEPOSIT, -n),
+        ), memo)
+
+    def settle_external_liability(self, amount: object, *,
+                                  resident: object = Sector.HOUSEHOLD,
+                                  memo: str = "") -> object:
+        """The resident pays its external liability with a domestic deposit."""
+        n = _non_negative(amount, what="external liability settlement")
+        resident_code = code_string(resident, what="resident")
+        return self._post(SETTLEMENT_KIND, (
+            Posting.financial(resident, EXTERNAL_LIABILITY, n),
+            Posting.financial(resident, FinancialInstrument.DEPOSIT, -n),
+            Posting.financial(ROW, EXTERNAL_LIABILITY, -n),
+            Posting.financial(ROW, FinancialInstrument.DEPOSIT, n),
         ), memo)
 
     def export_transfer(self, amount: object, *, counterpart: str = "") -> None:
-        """Explicit capital/current transfer to the ROW (not used by the prototype)."""
+        """Deprecated primitive: use ``receive/pay_capital_transfer`` or income methods.
+
+        Kept for backward compatibility: a single "export transfer" primitive is not
+        meaningful now that current and capital transfers are modelled separately.
+        """
         raise AccountingError(
-            "external transfers are not part of the prototype; only goods trade is posted")
+            "use receive/pay_capital_transfer or receive/pay_*_income instead of "
+            "the old export_transfer primitive")
 
     # ------------------------------------------------------------------
     # FX translation (non-transaction revaluation)
@@ -417,7 +668,12 @@ class OpenAccountSystem(AccountSystem):
 
 
 __all__ = [
-    "ROW", "EXTERNAL_CLAIM", "EXTERNAL_LIABILITY", "EXPORTS", "IMPORTS",
-    "EXPORT_KIND", "IMPORT_KIND", "RESIDENTS", "RESIDENT_ENUM", "TOLERANCE",
+    "ROW", "EXTERNAL_CLAIM", "EXTERNAL_LIABILITY",
+    "EXPORTS", "EXPORTS_GOODS", "EXPORTS_SERVICES",
+    "IMPORTS", "IMPORTS_GOODS", "IMPORTS_SERVICES",
+    "PRIMARY_INCOME", "SECONDARY_INCOME",
+    "EXPORT_KIND", "IMPORT_KIND", "SERVICE_EXPORT_KIND", "SERVICE_IMPORT_KIND",
+    "INCOME_KIND", "CAPITAL_TRANSFER_KIND", "SETTLEMENT_KIND",
+    "RESIDENTS", "RESIDENT_ENUM", "TOLERANCE",
     "open_economy_chart", "OPEN_CHART", "OpenPeriodReport", "OpenAccountSystem",
 ]
