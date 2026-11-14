@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Статус и релизы — AMFE</title>
+<meta name="description" content="AMFE — исследовательская модель мировой экономики: межстрановые таблицы затрат–выпуск FIGARO, WIOD и OECD ICIO, прогноз инфляции США CPI и сценарные отчёты. Не допуск и не инвестиционная рекомендация.">
+<meta name="theme-color" content="#0f172a">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Статус и релизы — AMFE">
+<meta property="og:description" content="AMFE — исследовательская модель мировой экономики: межстрановые таблицы затрат–выпуск FIGARO, WIOD и OECD ICIO, прогноз инфляции США CPI и сценарные отчёты. Не допуск и не инвестиционная рекомендация.">
+<meta property="og:locale" content="ru_RU">
+<meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">AMFE · исследовательская модель мировой экономики</a>
+    <span class="build-stamp" title="Дата сборки снимка">обновлено 2026-11-14</span>
+    <nav aria-label="Основная навигация"><a href="index.html">Главная</a><a href="model.html">Модель</a><a href="forecast.html">Прогноз</a><a href="scenarios.html">Сценарии</a><a href="data.html">Данные</a><a href="methodology.html">Методология</a><a href="docs.html">Документы</a><a href="status.html" class="active">Статус</a></nav>
+    <div class="lang-switch" aria-label="Язык"><span class="current" lang="ru">RU</span><a href="en/status.html" hreflang="en" lang="en">EN</a></div>
+  </div>
+</header>
+<main class="wrap">
+
+<section><h1>Статус и свежесть снимка</h1>
+<p class="lead">Снимок собран <strong>2026-11-14T17:24:50Z</strong>; протокол оценивания
+<strong>5.0.1</strong> (FROZEN, SHA-256 <code>48c2f6a18a28…</code>). Сайт не присваивает
+статусы и не пересчитывает модель: он показывает зарегистрированные результаты.</p></section>
+<aside class="callout callout-warn"><p><strong>Не допуск и не инвестиционная рекомендация.</strong> AMFE — исследовательский проект. Статус CANDIDATE означает, что модель не допущена к использованию; цифры ниже — результаты проверок и сценариев, а не совет и не прогноз для сделок.</p></aside>
+<section>
+  <h2>Текущие статусы</h2>
+  <div class="table-wrap"><table>
+<thead><tr><th>Объект</th><th>Статус</th><th>Что это означает</th></tr></thead>
+<tbody>
+<tr><td>Прогноз T1 CPI (ENSEMBLE_INVERSE_MSE)</td><td><span class="badge badge-warn">CANDIDATE</span></td><td>Кандидат прошёл C1/C2/C5, но не C4 и не C6; к применению не допущен.</td></tr>
+<tr><td>Теневой трек ENSEMBLE_REGIME_V4</td><td><span class="badge badge-warn">SHADOW_TEST</span></td><td>Идёт мониторинг и накопление журнала; C4 PASS по обоим loss, C6 ждёт.</td></tr>
+<tr><td>Мировая модель (FIGARO 2019 / OECD 2016 / WIOD 2016)</td><td>RESEARCH_ONLY</td><td>Сценарии сравнительной статики, не прогноз и не допуск.</td></tr>
+</tbody></table></div>
+</section>
+<section>
+  <h2>Прогресс C6 (forward-журнал)</h2>
+  <svg class="chart" role="img" viewBox="0 0 720 46" aria-label="Прогресс C6"><rect x="0" y="10" width="720" height="22" rx="6" fill="#e2e8f0"></rect><rect x="0" y="10" width="2.0" height="22" rx="6" fill="#0f766e"></rect><text x="360" y="26" text-anchor="middle" class="chart-label">0 / 12</text></svg>
+  <div class="table-wrap"><table>
+<thead><tr><th>Показатель</th><th>Значение</th></tr></thead>
+<tbody>
+<tr><td>Разрешённых прогнозов</td><td>0 / 12</td></tr>
+<tr><td>Различных целевых периодов</td><td>1 / 4</td></tr>
+<tr><td>Строк журнала всего</td><td>11</td></tr>
+<tr><td>Последний винтаж</td><td>2026-W46</td></tr>
+<tr><td>Ориентир гейта C6</td><td>2027-05-07</td></tr>
+<tr><td>Допуск присвоен?</td><td>Нет</td></tr>
+</tbody></table></div>
+  <p class="muted">Ориентир — оценка по частоте релизов, а не обещание даты; гейт требует реальных
+  разрешённых прогнозов.</p>
+</section>
+<section>
+  <h2>Что в этом снимке</h2>
+  <ul>
+    <li>Мир FIGARO 2019: 50 × 64,
+    покрытие ВВП 87.3%.</li>
+    <li>OECD ICIO 2016: 71 экономика × 34 отрасли, 2000–2011, покрытие мировой ДС 95,4%
+    (docs/130).</li>
+    <li>WIOD 2016: 15 лет 2000–2014, 44 × 56, покрытие 84,4–89,9% (docs/129).</li>
+    <li>Сценариев: 7; все — сравнительная статика на реальной таблице.</li>
+    <li>Прогноз T1 CPI: origin 2026-11, h=1,
+    точка 3.6257.</li>
+  </ul>
+</section>
+<section>
+  <h2>Как цитировать и где история</h2>
+  <pre class="citation">@misc{amfe2026,
+  title  = {AMFE: Adaptive MacroForecast Engine — исследовательская модель мировой экономики},
+  year   = {2026},
+  note   = {Версия сайта: 2026-11-14; протокол оценивания 5.0.1; статус CANDIDATE/SHADOW_TEST},
+  url    = {https://flumos1.github.io/Word-economic-model-/}
+}</pre>
+  <p>Репозиторий и история коммитов:
+  <a href="https://github.com/Flumos1/Word-economic-model-">https://github.com/Flumos1/Word-economic-model-</a>. Живой сайт:
+  <a href="https://flumos1.github.io/Word-economic-model-/">https://flumos1.github.io/Word-economic-model-/</a>.</p>
+  <p class="muted">Обновление сайта: пересобрать артефакты, затем
+  <code>python tools/site_build.py</code> и push в <code>site/**</code> — деплой запустится сам.</p>
+</section>
+
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <p><strong>Дисклеймер.</strong> Это исследовательский артефакт, а не допущенная модель и не инвестиционная рекомендация. Статусы не присваиваются сайтом. Страницы содержат только собственные прогнозы и производные метрики проекта; сырых сторонних данных здесь нет.</p>
+    <p class="muted">Снимок: 2026-11-14T17:24:50Z · статический сайт без JavaScript, фреймворков и внешних ресурсов · собран
+    <code>tools/site_build.py</code>.</p>
+  </div>
+</footer>
+</body>
+</html>

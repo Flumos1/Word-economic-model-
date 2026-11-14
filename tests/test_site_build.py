@@ -29,10 +29,11 @@ REPORT_V5 = ROOT / "protocols" / "first_real_evaluation_report_v5.json"
 REPORT_V4 = ROOT / "protocols" / "regime_v4_candidate_evaluation_report.json"
 
 PAGES = ("index.html", "model.html", "forecast.html", "scenarios.html", "data.html",
-         "methodology.html", "docs.html")
+         "methodology.html", "docs.html", "status.html")
 EN_FILES = tuple(f"en/{name}" for name in PAGES)
 REQUIRED_FILES = PAGES + EN_FILES + ("assets/style.css",)
-ALL_FILES = REQUIRED_FILES
+EXTRA_FILES = ("sitemap.xml", "robots.txt")
+ALL_FILES = REQUIRED_FILES + EXTRA_FILES
 SOURCE_FILES = (
     "build/product/forecast_latest.json",
     "build/world/report_index.json",
@@ -92,6 +93,8 @@ class SiteBuild(unittest.TestCase):
         cls.code = site_build.main(["--out-dir", str(cls.out), "--generated-at", FIXED])
         cls.texts = {name: (cls.out / name).read_text(encoding="utf-8")
                      for name in REQUIRED_FILES}
+        cls.extra = {name: (cls.out / name).read_text(encoding="utf-8")
+                     for name in EXTRA_FILES}
         cls.feed = read_json(FEED)
         cls.world = read_json(WORLD_INDEX)
         cls.shadow = read_json(SHADOW)
@@ -142,6 +145,10 @@ class SiteBuild(unittest.TestCase):
         forbidden = ("http://", "https://", "<script", "javascript:", "onclick=", "onload=",
                      "cdn.", "@import url(", "<iframe", "react", "vue.js")
         for name, content in self.texts.items():
+            if name in ("status.html", "en/status.html"):
+                # The status page links the public repository and the live site as plain anchors;
+                # they are not resources, and no asset is loaded from them.
+                content = content.replace(site_build.REPO_URL, "").replace(site_build.SITE_URL, "")
             lowered = content.lower()
             for token in forbidden:
                 self.assertNotIn(token, lowered, f"{name} contains {token}")
@@ -291,6 +298,46 @@ class SiteBuild(unittest.TestCase):
             self.assertTrue(local.is_file(), target)
 
     # ------------------------------------------------------------------------- licence hygiene
+    def test_status_page_reports_freshness_and_gate(self):
+        status = text_of(self.texts["status.html"])
+        for token in ("Статус и свежесть снимка", FIXED, self.feed["protocol"]["version"],
+                      "CANDIDATE", "SHADOW_TEST", "0 / 12", "2027-05-07", "@misc{amfe2026",
+                      "Adaptive MacroForecast Engine",
+                      "github.com/Flumos1/Word-economic-model-", "C6"):
+            self.assertIn(token, status)
+        en_status = text_of(self.texts["en/status.html"])
+        for token in ("Status and snapshot freshness", FIXED, "CANDIDATE", "SHADOW_TEST",
+                      "0 / 12", "How to cite"):
+            self.assertIn(token, en_status)
+
+    def test_charts_are_inline_svg_and_derived(self):
+        for name in ("forecast.html", "scenarios.html", "status.html",
+                     "en/forecast.html", "en/scenarios.html", "en/status.html"):
+            page = self.texts[name]
+            self.assertIn("<svg", page, name)
+            self.assertIn('class="chart"', page, name)
+            self.assertNotIn("<img", page, name)
+            self.assertNotIn("canvas", page.lower(), name)
+        scenarios = text_of(self.texts["scenarios.html"])
+        for value in ("-253 452", "-2 859 371", "-5 560 552"):
+            self.assertIn(value, scenarios)
+
+    def test_meta_tags_and_crawler_files(self):
+        for name in PAGES + EN_FILES:
+            page = self.texts[name]
+            self.assertIn('<meta name="description"', page, name)
+            self.assertIn('<meta property="og:title"', page, name)
+            self.assertIn('<meta name="twitter:card"', page, name)
+            self.assertIn("build-stamp", page, name)
+        sitemap = self.extra["sitemap.xml"]
+        self.assertIn("<urlset", sitemap)
+        self.assertIn(site_build.SITE_URL + "status.html", sitemap)
+        self.assertIn(site_build.SITE_URL + "en/", sitemap)
+        self.assertIn("<lastmod>" + FIXED[:10] + "</lastmod>", sitemap)
+        robots = self.extra["robots.txt"]
+        self.assertIn("Sitemap: " + site_build.SITE_URL + "sitemap.xml", robots)
+        self.assertNotIn("Disallow", robots)
+
     def test_no_raw_third_party_values(self):
         forbidden = ("Z_sparse", "stored_Z", "cells_Z", "by_country", "by_industry",
                      "va_by_country", "x_by_country", "exports_by_country", "dataset.json",
@@ -350,7 +397,8 @@ class SiteBuild(unittest.TestCase):
             self.assertEqual(completed.returncode, 0, completed.stderr)
             summary = json.loads(completed.stdout)
             self.assertTrue(summary["ok"])
-            self.assertEqual(len(summary["files"]), len(REQUIRED_FILES) + len(site_build.DOC_FILES))
+            self.assertEqual(len(summary["files"]),
+                             len(REQUIRED_FILES) + len(EXTRA_FILES) + len(site_build.DOC_FILES))
             for name in REQUIRED_FILES:
                 self.assertTrue((Path(out) / name).is_file(), name)
 

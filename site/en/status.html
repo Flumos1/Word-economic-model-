@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Status and releases — AMFE</title>
+<meta name="description" content="AMFE is a research model of the world economy: FIGARO, WIOD and OECD ICIO inter-country input–output tables, a US CPI inflation forecast and scenario reports. Research only — not admission, not investment advice.">
+<meta name="theme-color" content="#0f172a">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Status and releases — AMFE">
+<meta property="og:description" content="AMFE is a research model of the world economy: FIGARO, WIOD and OECD ICIO inter-country input–output tables, a US CPI inflation forecast and scenario reports. Research only — not admission, not investment advice.">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">AMFE · research model of the world economy</a>
+    <span class="build-stamp" title="Snapshot build date">updated 2026-11-14</span>
+    <nav aria-label="Main navigation"><a href="index.html">Home</a><a href="model.html">Model</a><a href="forecast.html">Forecast</a><a href="scenarios.html">Scenarios</a><a href="data.html">Data</a><a href="methodology.html">Methodology</a><a href="docs.html">Documents</a><a href="status.html" class="active">Status</a></nav>
+    <div class="lang-switch" aria-label="Language"><a href="../status.html" hreflang="ru" lang="ru">RU</a><span class="current" lang="en">EN</span></div>
+  </div>
+</header>
+<main class="wrap">
+
+<section><h1>Status and snapshot freshness</h1>
+<p class="lead">Snapshot built <strong>2026-11-14T17:24:50Z</strong>; evaluation protocol
+<strong>5.0.1</strong> (FROZEN, SHA-256 <code>48c2f6a18a28…</code>). The site does not assign
+statuses and does not recompute the model: it publishes registered results.</p></section>
+<aside class="callout callout-warn"><p><strong>Research only — not admission, not investment advice.</strong> AMFE is a research project. CANDIDATE means the model is not admitted for use; the figures below are evaluation and scenario results, not advice and not trading forecasts.</p></aside>
+<section>
+  <h2>Current statuses</h2>
+  <div class="table-wrap"><table>
+<thead><tr><th>Object</th><th>Status</th><th>What it means</th></tr></thead>
+<tbody>
+<tr><td>T1 CPI forecast (ENSEMBLE_INVERSE_MSE)</td><td><span class="badge badge-warn">CANDIDATE</span></td><td>The candidate passes C1/C2/C5 but not C4 or C6; it is not admitted for use.</td></tr>
+<tr><td>Shadow track ENSEMBLE_REGIME_V4</td><td><span class="badge badge-warn">SHADOW_TEST</span></td><td>Monitoring and journal accumulation; C4 passes both losses, C6 is pending.</td></tr>
+<tr><td>World model (FIGARO 2019 / OECD 2016 / WIOD 2016)</td><td>RESEARCH_ONLY</td><td>Comparative-statics scenarios, not a forecast and not an admission.</td></tr>
+</tbody></table></div>
+</section>
+<section>
+  <h2>C6 progress (forward journal)</h2>
+  <svg class="chart" role="img" viewBox="0 0 720 46" aria-label="C6 progress"><rect x="0" y="10" width="720" height="22" rx="6" fill="#e2e8f0"></rect><rect x="0" y="10" width="2.0" height="22" rx="6" fill="#0f766e"></rect><text x="360" y="26" text-anchor="middle" class="chart-label">0 / 12</text></svg>
+  <div class="table-wrap"><table>
+<thead><tr><th>Indicator</th><th>Value</th></tr></thead>
+<tbody>
+<tr><td>Resolved forecasts</td><td>0 / 12</td></tr>
+<tr><td>Distinct target periods</td><td>1 / 4</td></tr>
+<tr><td>Journal rows in total</td><td>11</td></tr>
+<tr><td>Last vintage</td><td>2026-W46</td></tr>
+<tr><td>C6 gate estimate</td><td>2027-05-07</td></tr>
+<tr><td>Admission granted?</td><td>No</td></tr>
+</tbody></table></div>
+  <p class="muted">The estimate follows release frequency and is not a promised date; the gate needs
+  real resolved forecasts.</p>
+</section>
+<section>
+  <h2>What is in this snapshot</h2>
+  <ul>
+    <li>FIGARO 2019 world: 50 × 64,
+    GDP coverage 87.3%.</li>
+    <li>OECD ICIO 2016: 71 economies × 34 industries, 2000–2011, 95.4% world value-added coverage
+    (docs/130).</li>
+    <li>WIOD 2016: 15 years 2000–2014, 44 × 56, coverage 84.4–89.9% (docs/129).</li>
+    <li>Scenarios: 7; all are comparative statics on a real table.</li>
+    <li>T1 CPI forecast: origin 2026-11, h=1,
+    point 3.6257.</li>
+  </ul>
+</section>
+<section>
+  <h2>How to cite and where the history lives</h2>
+  <pre class="citation">@misc{amfe2026,
+  title  = {AMFE: Adaptive MacroForecast Engine — a research model of the world economy},
+  year   = {2026},
+  note   = {Site snapshot: 2026-11-14; evaluation protocol 5.0.1; status CANDIDATE/SHADOW_TEST},
+  url    = {https://flumos1.github.io/Word-economic-model-/}
+}</pre>
+  <p>Repository and commit history:
+  <a href="https://github.com/Flumos1/Word-economic-model-">https://github.com/Flumos1/Word-economic-model-</a>. Live site:
+  <a href="https://flumos1.github.io/Word-economic-model-/">https://flumos1.github.io/Word-economic-model-/</a>.</p>
+  <p class="muted">Site update: rebuild the artefacts, then <code>python tools/site_build.py</code>
+  and push to <code>site/**</code>; deployment starts automatically.</p>
+</section>
+
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <p><strong>Disclaimer.</strong> Research only — not admission, not investment advice. AMFE is a research project: CANDIDATE means the model is not admitted for use; the numbers are evaluation and scenario results, not advice or trading forecasts. These pages contain only the project&#x27;s own forecasts and derived metrics; there are no raw third-party data here.</p>
+    <p class="muted">Snapshot: 2026-11-14T17:24:50Z · static site with no JavaScript, frameworks or external resources · built by
+    <code>tools/site_build.py</code>.</p>
+  </div>
+</footer>
+</body>
+</html>

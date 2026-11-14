@@ -99,7 +99,32 @@ EN_DISCLAIMER = ("Research only — not admission, not investment advice. AMFE i
                  "CANDIDATE means the model is not admitted for use; the numbers are evaluation and "
                  "scenario results, not advice or trading forecasts.")
 
-PAGES = ("index", "model", "forecast", "scenarios", "data", "methodology", "docs")
+PAGES = ("index", "model", "forecast", "scenarios", "data", "methodology", "docs", "status")
+
+SITE_URL = "https://flumos1.github.io/Word-economic-model-/"
+REPO_URL = "https://github.com/Flumos1/Word-economic-model-"
+SITE_DESCRIPTIONS = {
+    "ru": ("AMFE — исследовательская модель мировой экономики: межстрановые таблицы затрат–выпуск "
+           "FIGARO, WIOD и OECD ICIO, прогноз инфляции США CPI и сценарные отчёты. Не допуск и не "
+           "инвестиционная рекомендация."),
+    "en": ("AMFE is a research model of the world economy: FIGARO, WIOD and OECD ICIO inter-country "
+           "input–output tables, a US CPI inflation forecast and scenario reports. Research only — "
+           "not admission, not investment advice."),
+}
+CITATION = {
+    "ru": """@misc{amfe2026,
+  title  = {AMFE: Adaptive MacroForecast Engine — исследовательская модель мировой экономики},
+  year   = {2026},
+  note   = {Версия сайта: %s; протокол оценивания %s; статус CANDIDATE/SHADOW_TEST},
+  url    = {%s}
+}""",
+    "en": """@misc{amfe2026,
+  title  = {AMFE: Adaptive MacroForecast Engine — a research model of the world economy},
+  year   = {2026},
+  note   = {Site snapshot: %s; evaluation protocol %s; status CANDIDATE/SHADOW_TEST},
+  url    = {%s}
+}""",
+}
 
 
 class SiteBuildError(RuntimeError):
@@ -190,6 +215,108 @@ def _criterion_value(block: dict, window: str, loss: str, field: str):
     return ((((block.get("windows") or {}).get(window) or {}).get(loss)) or {}).get(field)
 
 
+def _svg_interval_ladder(quantiles: list[float], point: float, lang: str = "ru") -> str:
+    """Inline SVG: 50/80/90% intervals around the point forecast (no JS, deterministic)."""
+    width, height, left, right, top = 720, 200, 120, 24, 26
+    low = min(min(quantiles), point) - 1.0
+    high = max(max(quantiles), point) + 1.0
+    span = high - low or 1.0
+
+    def x(value: float) -> float:
+        return left + (float(value) - low) / span * (width - left - right)
+
+    rows = [("90%", quantiles[0], quantiles[18], "#94a3b8"),
+            ("80%", quantiles[1], quantiles[17], "#64748b"),
+            ("50%", quantiles[4], quantiles[14], "#334155")]
+    parts = [f'<svg class="chart" role="img" viewBox="0 0 {width} {height}" '
+             f'aria-label="{"Интервалы прогноза CPI" if lang == "ru" else "CPI forecast intervals"}">']
+    for index, (label, low_value, high_value, color) in enumerate(rows):
+        y = top + index * 48
+        parts.append(f'<text x="{left - 12}" y="{y + 16}" text-anchor="end" '
+                     f'class="chart-label">{label}</text>')
+        parts.append(f'<rect x="{x(low_value):.1f}" y="{y}" width="{max(1.0, x(high_value) - x(low_value)):.1f}" '
+                     f'height="22" rx="4" fill="{color}" opacity="0.85"></rect>')
+        parts.append(f'<text x="{x(low_value) - 6:.1f}" y="{y + 16}" text-anchor="end" '
+                     f'class="chart-value">{fmt(low_value, 2)}</text>')
+        parts.append(f'<text x="{x(high_value) + 6:.1f}" y="{y + 16}" '
+                     f'class="chart-value">{fmt(high_value, 2)}</text>')
+    point_x = x(point)
+    parts.append(f'<line x1="{point_x:.1f}" y1="{top - 6}" x2="{point_x:.1f}" y2="{top + 3 * 48 - 10}" '
+                 f'stroke="#b91c1c" stroke-width="2" stroke-dasharray="4 3"></line>')
+    parts.append(f'<text x="{point_x:.1f}" y="{top - 10}" text-anchor="middle" '
+                 f'class="chart-point">{fmt(point, 2)}</text>')
+    ticks = 5
+    for index in range(ticks + 1):
+        value = low + span * index / ticks
+        parts.append(f'<line x1="{x(value):.1f}" y1="{top + 3 * 48 - 6}" x2="{x(value):.1f}" '
+                     f'y2="{top + 3 * 48}" stroke="#cbd5e1"></line>')
+        parts.append(f'<text x="{x(value):.1f}" y="{top + 3 * 48 + 16}" text-anchor="middle" '
+                     f'class="chart-value">{fmt(value, 1)}</text>')
+    parts.append("</svg>")
+    return "".join(parts)
+
+
+def _svg_bars(items: list[tuple[str, float]], lang: str = "ru", unit: str = "USD_mn") -> str:
+    """Inline SVG: horizontal bars for scenario output effects (negative = left, positive = right)."""
+    width, label_width, right, row_height, top = 760, 230, 90, 30, 14
+    height = top + row_height * len(items) + 18
+    largest = max([abs(float(value)) for _, value in items] or [1.0]) or 1.0
+    zero = label_width
+    scale = (width - label_width - right) / (2.0 * largest)
+    parts = [f'<svg class="chart" role="img" viewBox="0 0 {width} {height}" '
+             f'aria-label="{"Эффекты сценариев" if lang == "ru" else "Scenario effects"}">']
+    parts.append(f'<line x1="{zero}" y1="{top}" x2="{zero}" y2="{height - 8}" stroke="#94a3b8"></line>')
+    for index, (label, value) in enumerate(items):
+        value = float(value)
+        y = top + index * row_height
+        parts.append(f'<text x="{label_width - 10}" y="{y + 15}" text-anchor="end" '
+                     f'class="chart-label">{esc(label)}</text>')
+        bar = abs(value) * scale
+        x = zero - bar if value < 0 else zero
+        color = "#b91c1c" if value < 0 else "#047857"
+        parts.append(f'<rect x="{x:.1f}" y="{y + 2}" width="{max(1.0, bar):.1f}" height="18" '
+                     f'rx="3" fill="{color}" opacity="0.85"></rect>')
+        text_x = x - 6 if value < 0 else x + bar + 6
+        anchor = "end" if value < 0 else "start"
+        parts.append(f'<text x="{text_x:.1f}" y="{y + 16}" text-anchor="{anchor}" '
+                     f'class="chart-value">{fmt_int(value)}</text>')
+    parts.append("</svg>")
+    return "".join(parts)
+
+
+def _svg_progress(value: int, total: int, lang: str = "ru") -> str:
+    """Inline SVG progress bar (C6 journal)."""
+    width, height = 720, 46
+    fraction = 0.0 if total <= 0 else max(0.0, min(1.0, float(value) / float(total)))
+    parts = [f'<svg class="chart" role="img" viewBox="0 0 {width} {height}" '
+             f'aria-label="{"Прогресс C6" if lang == "ru" else "C6 progress"}">',
+             f'<rect x="0" y="10" width="{width}" height="22" rx="6" fill="#e2e8f0"></rect>',
+             f'<rect x="0" y="10" width="{max(2.0, width * fraction):.1f}" height="22" rx="6" '
+             f'fill="#0f766e"></rect>',
+             f'<text x="{width / 2:.0f}" y="26" text-anchor="middle" class="chart-label">'
+             f'{value} / {total}</text>', "</svg>"]
+    return "".join(parts)
+
+
+def _svg_sparkline(values: list[float], width: int = 320, height: int = 70) -> str:
+    """Inline SVG sparkline of the 19 quantiles (deterministic, no labels)."""
+    if not values:
+        return ""
+    low, high = min(values), max(values)
+    span = high - low or 1.0
+    step = width / max(1, len(values) - 1)
+    points = " ".join(f"{index * step:.1f},{height - 6 - (value - low) / span * (height - 12):.1f}"
+                      for index, value in enumerate(values))
+    return (f'<svg class="chart" role="img" viewBox="0 0 {width} {height}" '
+            f'aria-label="Распределение квантилей">'
+            f'<polyline fill="none" stroke="#0f766e" stroke-width="2" points="{points}"></polyline></svg>')
+
+
+def _citation_block(lang: str, generated_at: str, protocol: str) -> str:
+    text = CITATION[lang] % (generated_at[:10], protocol, SITE_URL)
+    return f'<pre class="citation">{esc(text)}</pre>'
+
+
 def _doc_links() -> list[dict]:
     links = []
     for relative in DOC_FILES:
@@ -270,10 +397,10 @@ def load_context(root: Path = ROOT) -> dict:
 NAV_LABELS = {
     "ru": (("index", "Главная"), ("model", "Модель"), ("forecast", "Прогноз"),
            ("scenarios", "Сценарии"), ("data", "Данные"),
-           ("methodology", "Методология"), ("docs", "Документы")),
+           ("methodology", "Методология"), ("docs", "Документы"), ("status", "Статус")),
     "en": (("index", "Home"), ("model", "Model"), ("forecast", "Forecast"),
            ("scenarios", "Scenarios"), ("data", "Data"),
-           ("methodology", "Methodology"), ("docs", "Documents")),
+           ("methodology", "Methodology"), ("docs", "Documents"), ("status", "Status")),
 }
 BRAND_LABELS = {
     "ru": "AMFE · исследовательская модель мировой экономики",
@@ -292,9 +419,12 @@ FOOTER = {
 NAV_ARIA = {"ru": "Основная навигация", "en": "Main navigation"}
 
 
-def page(title: str, current: str, body: str, generated_at: str, lang: str = "ru") -> str:
+def page(title: str, current: str, body: str, generated_at: str, lang: str = "ru",
+         description: str | None = None) -> str:
     if lang not in NAV_LABELS:
         raise SiteBuildError(f"неизвестный язык страницы: {lang!r}")
+    meta_description = description or SITE_DESCRIPTIONS[lang]
+    stamp = generated_at[:10]
     nav = []
     for page_id, label in NAV_LABELS[lang]:
         active = ' class="active"' if page_id == current else ""
@@ -317,12 +447,20 @@ def page(title: str, current: str, body: str, generated_at: str, lang: str = "ru
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{esc(title + " — AMFE" if not title.startswith("AMFE") else title)}</title>
+<meta name="description" content="{esc(meta_description)}">
+<meta name="theme-color" content="#0f172a">
+<meta property="og:type" content="website">
+<meta property="og:title" content="{esc(title + " — AMFE" if not title.startswith("AMFE") else title)}">
+<meta property="og:description" content="{esc(meta_description)}">
+<meta property="og:locale" content="{'ru_RU' if lang == 'ru' else 'en_US'}">
+<meta name="twitter:card" content="summary">
 <link rel="stylesheet" href="{css}">
 </head>
 <body>
 <header class="site-header">
   <div class="wrap">
     <a class="brand" href="index.html">{esc(BRAND_LABELS[lang])}</a>
+    <span class="build-stamp" title="{'Дата сборки снимка' if lang == 'ru' else 'Snapshot build date'}">{'обновлено' if lang == 'ru' else 'updated'} {esc(stamp)}</span>
     <nav aria-label="{esc(NAV_ARIA[lang])}">{''.join(nav)}</nav>
     {switch}
   </div>
@@ -624,6 +762,8 @@ def render_forecast(context: dict, generated_at: str) -> str:
       <div class="muted">FROZEN, SHA-256 {esc(str(feed["protocol"]["sha256"])[:12])}…</div></div>
   </div>
   {_table(["Интервал", "Границы", "Квантили"], rows, "Интервалы из 19 квантилей 5%…95%")}
+  {_svg_interval_ladder(quantiles, context["point"])}
+  <p class="muted">Диаграмма построена из тех же 19 квантилей; красная линия — точечный прогноз.</p>
   <p><strong>Контрольные плечи (точка):</strong></p>
   <ul>{controls}</ul>
 </section>
@@ -715,6 +855,8 @@ DE и FR. Это не прогноз: сценарии показывают, к�
   {_table(["Сценарий", "Δ выпуска, %", "Δ выпуска, USD_mn", "Крупнейшая страна",
            "Крупнейшая отрасль", "Описание"], rows,
           f"Статус: {context['world'].get('status') or 'RESEARCH_ONLY'}")}
+  {_svg_bars([(str(item.get("id")), ((item.get("headline") or {}).get("total_delta_output") or 0.0))
+              for item in context["scenarios"]])}
 </section>
 <section>
   <h2>Топ-5 стран и отраслей</h2>
@@ -1086,6 +1228,8 @@ model.</p></section>
       <div class="muted">FROZEN, SHA-256 {esc(str(feed["protocol"]["sha256"])[:12])}…</div></div>
   </div>
   {_table(["Interval", "Bounds", "Quantiles"], rows, "Intervals from the 19 quantiles 5%…95%")}
+  {_svg_interval_ladder(quantiles, context["point"], "en")}
+  <p class="muted">The chart is built from the same 19 quantiles; the red line is the point forecast.</p>
   <p><strong>Control arms (point):</strong></p>
   <ul>{controls}</ul>
 </section>
@@ -1177,6 +1321,8 @@ technology.</p></section>
   {_table(["Scenario", "Δ output, %", "Δ output, USD_mn", "Largest country",
            "Largest industry", "Description"], rows,
           f"Status: {context['world'].get('status') or 'RESEARCH_ONLY'}")}
+  {_svg_bars([(str(item.get("id")), ((item.get("headline") or {}).get("total_delta_output") or 0.0))
+              for item in context["scenarios"]], "en")}
 </section>
 <section>
   <h2>Top-5 countries and industries</h2>
@@ -1370,6 +1516,144 @@ point to repository files.</p></section>
     return page("Documents", "docs", body, generated_at, lang="en")
 
 
+def render_status(context: dict, generated_at: str) -> str:
+    feed = context["feed"]
+    shadow = context["shadow"]
+    c6 = shadow.get("c6") or {}
+    projection = shadow.get("projection") or {}
+    journal = shadow.get("journal") or {}
+    v4 = _v4_figures(context)
+    world = _world_figures(context)
+    protocol = feed["protocol"]["version"]
+    sha = str(feed["protocol"]["sha256"])[:12]
+    body = f"""
+<section><h1>Статус и свежесть снимка</h1>
+<p class="lead">Снимок собран <strong>{esc(generated_at)}</strong>; протокол оценивания
+<strong>{esc(protocol)}</strong> (FROZEN, SHA-256 <code>{esc(sha)}…</code>). Сайт не присваивает
+статусы и не пересчитывает модель: он показывает зарегистрированные результаты.</p></section>
+{_disclaimer_box()}
+<section>
+  <h2>Текущие статусы</h2>
+  {_table(["Объект", "Статус", "Что это означает"], [
+      [f"Прогноз T1 CPI ({esc(feed['candidate'])})", _badge(feed["status"]),
+       "Кандидат прошёл C1/C2/C5, но не C4 и не C6; к применению не допущен."],
+      [f"Теневой трек {esc(v4['candidate'] or 'ENSEMBLE_REGIME_V4')}",
+       _badge(v4["status"] or "SHADOW_TEST"),
+       "Идёт мониторинг и накопление журнала; C4 PASS по обоим loss, C6 ждёт."],
+      ["Мировая модель (FIGARO 2019 / OECD 2016 / WIOD 2016)", "RESEARCH_ONLY",
+       "Сценарии сравнительной статики, не прогноз и не допуск."],
+  ])}
+</section>
+<section>
+  <h2>Прогресс C6 (forward-журнал)</h2>
+  {_svg_progress(int(c6.get("n_resolved", 0)), int(c6.get("min_forecasts", 12)))}
+  {_table(["Показатель", "Значение"], [
+      ["Разрешённых прогнозов", f'{esc(c6.get("n_resolved", 0))} / {esc(c6.get("min_forecasts", 12))}'],
+      ["Различных целевых периодов",
+       f'{esc(c6.get("distinct_target_periods", 0))} / {esc(c6.get("min_distinct_target_periods", 4))}'],
+      ["Строк журнала всего", esc(journal.get("rows_total", "—"))],
+      ["Последний винтаж", esc(journal.get("last_vintage_week", "—"))],
+      ["Ориентир гейта C6", esc(projection.get("estimated_gate_date") or "—")],
+      ["Допуск присвоен?", "Нет" if not c6.get("pass") else "Да"],
+  ])}
+  <p class="muted">Ориентир — оценка по частоте релизов, а не обещание даты; гейт требует реальных
+  разрешённых прогнозов.</p>
+</section>
+<section>
+  <h2>Что в этом снимке</h2>
+  <ul>
+    <li>Мир FIGARO 2019: {fmt_int(world["countries"])} × {fmt_int(world["industries"])},
+    покрытие ВВП {fmt_pct(world["figaro_share"])}.</li>
+    <li>OECD ICIO 2016: 71 экономика × 34 отрасли, 2000–2011, покрытие мировой ДС 95,4%
+    (docs/130).</li>
+    <li>WIOD 2016: 15 лет 2000–2014, 44 × 56, покрытие 84,4–89,9% (docs/129).</li>
+    <li>Сценариев: {len(context["scenarios"])}; все — сравнительная статика на реальной таблице.</li>
+    <li>Прогноз T1 CPI: origin {esc(feed["origin"])}, h={esc(feed["horizon"])},
+    точка {fmt(context["point"])}.</li>
+  </ul>
+</section>
+<section>
+  <h2>Как цитировать и где история</h2>
+  {_citation_block("ru", generated_at, protocol)}
+  <p>Репозиторий и история коммитов:
+  <a href="{esc(REPO_URL)}">{esc(REPO_URL)}</a>. Живой сайт:
+  <a href="{esc(SITE_URL)}">{esc(SITE_URL)}</a>.</p>
+  <p class="muted">Обновление сайта: пересобрать артефакты, затем
+  <code>python tools/site_build.py</code> и push в <code>site/**</code> — деплой запустится сам.</p>
+</section>
+"""
+    return page("Статус и релизы", "status", body, generated_at)
+
+
+def render_status_en(context: dict, generated_at: str) -> str:
+    feed = context["feed"]
+    shadow = context["shadow"]
+    c6 = shadow.get("c6") or {}
+    projection = shadow.get("projection") or {}
+    journal = shadow.get("journal") or {}
+    v4 = _v4_figures(context)
+    world = _world_figures(context)
+    protocol = feed["protocol"]["version"]
+    sha = str(feed["protocol"]["sha256"])[:12]
+    body = f"""
+<section><h1>Status and snapshot freshness</h1>
+<p class="lead">Snapshot built <strong>{esc(generated_at)}</strong>; evaluation protocol
+<strong>{esc(protocol)}</strong> (FROZEN, SHA-256 <code>{esc(sha)}…</code>). The site does not assign
+statuses and does not recompute the model: it publishes registered results.</p></section>
+{_disclaimer_box_en()}
+<section>
+  <h2>Current statuses</h2>
+  {_table(["Object", "Status", "What it means"], [
+      [f"T1 CPI forecast ({esc(feed['candidate'])})", _badge(feed["status"]),
+       "The candidate passes C1/C2/C5 but not C4 or C6; it is not admitted for use."],
+      [f"Shadow track {esc(v4['candidate'] or 'ENSEMBLE_REGIME_V4')}",
+       _badge(v4["status"] or "SHADOW_TEST"),
+       "Monitoring and journal accumulation; C4 passes both losses, C6 is pending."],
+      ["World model (FIGARO 2019 / OECD 2016 / WIOD 2016)", "RESEARCH_ONLY",
+       "Comparative-statics scenarios, not a forecast and not an admission."],
+  ])}
+</section>
+<section>
+  <h2>C6 progress (forward journal)</h2>
+  {_svg_progress(int(c6.get("n_resolved", 0)), int(c6.get("min_forecasts", 12)), "en")}
+  {_table(["Indicator", "Value"], [
+      ["Resolved forecasts", f'{esc(c6.get("n_resolved", 0))} / {esc(c6.get("min_forecasts", 12))}'],
+      ["Distinct target periods",
+       f'{esc(c6.get("distinct_target_periods", 0))} / {esc(c6.get("min_distinct_target_periods", 4))}'],
+      ["Journal rows in total", esc(journal.get("rows_total", "—"))],
+      ["Last vintage", esc(journal.get("last_vintage_week", "—"))],
+      ["C6 gate estimate", esc(projection.get("estimated_gate_date") or "—")],
+      ["Admission granted?", "No" if not c6.get("pass") else "Yes"],
+  ])}
+  <p class="muted">The estimate follows release frequency and is not a promised date; the gate needs
+  real resolved forecasts.</p>
+</section>
+<section>
+  <h2>What is in this snapshot</h2>
+  <ul>
+    <li>FIGARO 2019 world: {fmt_int(world["countries"])} × {fmt_int(world["industries"])},
+    GDP coverage {fmt_pct(world["figaro_share"])}.</li>
+    <li>OECD ICIO 2016: 71 economies × 34 industries, 2000–2011, 95.4% world value-added coverage
+    (docs/130).</li>
+    <li>WIOD 2016: 15 years 2000–2014, 44 × 56, coverage 84.4–89.9% (docs/129).</li>
+    <li>Scenarios: {len(context["scenarios"])}; all are comparative statics on a real table.</li>
+    <li>T1 CPI forecast: origin {esc(feed["origin"])}, h={esc(feed["horizon"])},
+    point {fmt(context["point"])}.</li>
+  </ul>
+</section>
+<section>
+  <h2>How to cite and where the history lives</h2>
+  {_citation_block("en", generated_at, protocol)}
+  <p>Repository and commit history:
+  <a href="{esc(REPO_URL)}">{esc(REPO_URL)}</a>. Live site:
+  <a href="{esc(SITE_URL)}">{esc(SITE_URL)}</a>.</p>
+  <p class="muted">Site update: rebuild the artefacts, then <code>python tools/site_build.py</code>
+  and push to <code>site/**</code>; deployment starts automatically.</p>
+</section>
+"""
+    return page("Status and releases", "status", body, generated_at, lang="en")
+
+
 CSS = """/* AMFE static site: no external resources, no JavaScript, no frameworks. */
 :root {
   color-scheme: light dark;
@@ -1486,6 +1770,13 @@ a { color: var(--accent); }
 code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 0.9em; }
 .site-footer { border-top: 1px solid var(--line); background: var(--card); padding: 1.1rem 0 1.6rem; }
 .site-footer p { margin: 0.35rem 0; font-size: 0.88rem; }
+.build-stamp { color: var(--muted); font-size: 0.78rem; white-space: nowrap; }
+.chart { width: 100%; height: auto; margin: 0.8rem 0; display: block; }
+.chart-label { fill: var(--fg); font-size: 13px; }
+.chart-value { fill: var(--muted); font-size: 12px; }
+.chart-point { fill: #b91c1c; font-size: 12px; font-weight: 600; }
+.citation { background: var(--card); border: 1px solid var(--line); border-radius: 0.4rem;
+  padding: 0.8rem 1rem; overflow-x: auto; font-size: 0.82rem; line-height: 1.45; }
 @media (max-width: 40rem) {
   .site-header .wrap { gap: 0.4rem 0.8rem; }
   .site-header nav { font-size: 0.92rem; }
@@ -1495,12 +1786,12 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
 RENDERERS_RU = {
     "index": render_index, "model": render_model, "forecast": render_forecast,
     "scenarios": render_scenarios, "data": render_data, "methodology": render_methodology,
-    "docs": render_docs,
+    "docs": render_docs, "status": render_status,
 }
 RENDERERS_EN = {
     "index": render_index_en, "model": render_model_en, "forecast": render_forecast_en,
     "scenarios": render_scenarios_en, "data": render_data_en, "methodology": render_methodology_en,
-    "docs": render_docs_en,
+    "docs": render_docs_en, "status": render_status_en,
 }
 LANGUAGES = (("ru", RENDERERS_RU), ("en", RENDERERS_EN))
 
@@ -1535,6 +1826,23 @@ def build_site(root: Path = ROOT, out_dir: Path | None = None,
         target = docs_dir / Path(relative).name
         target.write_text(source.read_text(encoding="utf-8"), encoding="utf-8", newline="\n")
         written.append(target)
+    # Crawler metadata: sitemap and robots are static files of the deployed site (absolute URLs are
+    # required by the sitemap protocol; they never appear in the HTML/CSS themselves).
+    pages = [""] + [f"{name}.html" for name in PAGES] + ["en/"] + [
+        f"en/{name}.html" for name in PAGES]
+    urls = "\n".join(
+        f"  <url><loc>{esc(SITE_URL + page)}</loc><lastmod>{generated_at[:10]}</lastmod></url>"
+        for page in pages)
+    sitemap = (f'<?xml version="1.0" encoding="UTF-8"?>\n'
+               f'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{urls}\n</urlset>\n')
+    sitemap_path = out_dir / "sitemap.xml"
+    sitemap_path.write_text(sitemap, encoding="utf-8", newline="\n")
+    written.append(sitemap_path)
+    robots = ("User-agent: *\nAllow: /\n"
+              f"Sitemap: {SITE_URL}sitemap.xml\n")
+    robots_path = out_dir / "robots.txt"
+    robots_path.write_text(robots, encoding="utf-8", newline="\n")
+    written.append(robots_path)
     return written
 
 
