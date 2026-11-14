@@ -11,6 +11,7 @@
   <div class="wrap">
     <a class="brand" href="index.html">AMFE · исследовательская модель мировой экономики</a>
     <nav aria-label="Основная навигация"><a href="index.html">Главная</a><a href="model.html">Модель</a><a href="forecast.html">Прогноз</a><a href="scenarios.html">Сценарии</a><a href="data.html" class="active">Данные</a><a href="methodology.html">Методология</a><a href="docs.html">Документы</a></nav>
+    <div class="lang-switch" aria-label="Язык"><span class="current" lang="ru">RU</span><a href="en/data.html" hreflang="en" lang="en">EN</a></div>
   </div>
 </header>
 <main class="wrap">
@@ -54,7 +55,7 @@
   <div class="table-wrap"><table>
 <thead><tr><th>Источник</th><th>Статус</th><th>Почему</th><th>Что делать</th></tr></thead>
 <tbody>
-<tr><td>OECD ICIO 2025</td><td>BLOCKED_AUTOMATED</td><td>Небраузерные клиенты получают HTTP 403; условия требуют принятия в браузере</td><td>Скачать вручную в браузере, принять условия, положить в data/mrio/oecd_icio/archive/</td></tr>
+<tr><td>OECD ICIO 2016 (авто: 71×34, 1995–2011)</td><td>AVAILABLE_AUTO_2016</td><td>Официальные per-year архивы OECD (2016 edition) получены через Internet Archive; D1 PASS 2000–2011, покрытие мировой ДС 95,4%; 1995–1999 — FAIL только по одной отрицательной ячейке спроса</td><td>Релиз 2025 (60+×45, 1995–2022) — только вручную в браузере (docs/130)</td></tr>
 <tr><td>Eora MRIO</td><td>BLOCKED_LICENCE</td><td>Свободная только академическая лицензия с регистрацией; коммерческая — покупка</td><td>Не использовать без лицензии; парсер Eora в этой волне не реализован</td></tr>
 <tr><td>UN Comtrade</td><td>AVAILABLE_API</td><td>Это не MRIO: торговые потоки без отраслевой матрицы</td><td>Нужен мост HS → отрасль; отдельное решение</td></tr>
 </tbody></table></div>
@@ -73,10 +74,9 @@
 </main>
 <footer class="site-footer">
   <div class="wrap">
-    <p><strong>Дисклеймер.</strong> Это исследовательский артефакт, а не допущенная модель и не инвестиционная рекомендация. Статусы не присваиваются сайтом. Страницы содержат только собственные прогнозы и
-    производные метрики проекта; сырых сторонних данных здесь нет.</p>
-    <p class="muted">Снимок: 2026-11-14T13:18:26Z · статический сайт без JavaScript, фреймворков и
-    внешних ресурсов · собран <code>tools/site_build.py</code>.</p>
+    <p><strong>Дисклеймер.</strong> Это исследовательский артефакт, а не допущенная модель и не инвестиционная рекомендация. Статусы не присваиваются сайтом. Страницы содержат только собственные прогнозы и производные метрики проекта; сырых сторонних данных здесь нет.</p>
+    <p class="muted">Снимок: 2026-11-14T15:10:51Z · статический сайт без JavaScript, фреймворков и внешних ресурсов · собран
+    <code>tools/site_build.py</code>.</p>
   </div>
 </footer>
 </body>

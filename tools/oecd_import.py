@@ -51,6 +51,7 @@ import re
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 import zipfile
 from datetime import datetime, timezone
@@ -80,9 +81,13 @@ ICIO_INDUSTRIES = (
     "D97T98", "D99",
 )
 #: Final-demand columns of the ICIO tables; ``INV`` is carried separately (it can be negative).
-FINAL_DEMAND = ("HFCE", "NPISH", "GGFC", "GFCF", "EXP")
+FINAL_DEMAND = ("HFCE", "NPISH", "NPS", "GGFC", "GFCF", "EXP", "DIRP", "DISC")
 INVENTORY = ("INV", "CHINV", "INVENTORY")
-ADJUSTMENT_ROWS = ("VA", "TLS", "VAT", "GO", "OUTPUT", "TOT", "TOTAL", "II")
+#: ICIO 2016-edition matrix layout: final-demand columns are ``<PREFIX>_<ISO3>`` (6 categories:
+#: HFCE, NPS, GGFC, GFCF, INV, DIRP) plus one statistical-discrepancy column ``DISC``;
+#: the bottom rows are ``VA+TAXSUB`` (value added + taxes less subsidies) and ``OUT``.
+ICIO2016_FD = ("HFCE", "NPS", "GGFC", "GFCF", "INV", "DIRP")
+ADJUSTMENT_ROWS = ("VA", "VA+TAXSUB", "TLS", "VAT", "GO", "OUTPUT", "TOT", "TOTAL", "II", "OUT")
 FD_ALL = FINAL_DEMAND + INVENTORY
 
 BROWSER_HEADERS = {
@@ -310,15 +315,19 @@ def classify_column(labels: dict) -> dict:
 
 
 def detect_layout(header: list[str]) -> str:
-    """``long`` (tidy cells), ``wide`` (country-industry matrix) or ``sdmx`` (CSV data message)."""
-    upper = {str(column).upper() for column in header}
+    """``long``, ``wide``, ``icio_matrix`` (2016 edition) or ``sdmx`` CSV data message."""
+    header = [str(column) for column in header]
+    upper = {column.upper() for column in header}
     if {"REF_AREA", "OBS_VALUE"} <= upper:
         return "sdmx"
+    if header and header[0].strip() in ("", "Row", "row") and any(
+            re.fullmatch(r"[A-Z0-9]{3}_C[A-Z0-9]{2,}", column) for column in header[1:]):
+        return "icio_matrix"
     tidy = classify_column(header)
     if {"row_country", "row_industry", "col_country", "col_industry", "value"} <= set(tidy):
         return "long"
-    value_like = [str(column) for column in header[2:]
-                  if re.fullmatch(r"[A-Z]{3}[_:\-\s]?[A-Z0-9]{2,7}", str(column))]
+    value_like = [column for column in header[2:]
+                  if re.fullmatch(r"[A-Z]{3,4}[_:\-\s]?[A-Z0-9]{2,12}", column)]
     if len(header) >= 3 and len(value_like) >= max(1, len(header) - 3):
         return "wide"
     if any("country" in key or "industry" in key or "region" in key
@@ -326,7 +335,8 @@ def detect_layout(header: list[str]) -> str:
         return "long"
     raise OECDImportError(
         f"cannot detect the ICIO layout from the header {header[:8]}; expected a long/tidy table "
-        f"(row country/industry, column country/industry, value) or a wide WIOD-like matrix")
+        f"(row country/industry, column country/industry, value), a wide WIOD-like matrix or the "
+        f"ICIO 2016 matrix layout")
 
 
 def parse_tidy_rows(rows: list[dict], mapping: dict, default_year=None) -> list[dict]:
@@ -383,6 +393,83 @@ def parse_wide_rows(header: list[str], rows: list[list[str]], year: int) -> list
     return cells
 
 
+def parse_icio_matrix(header: list[str], rows: list[list[str]], year: int) -> list[dict]:
+    """ICIO 2016-edition matrix CSV (verified on the archived official file, docs/130).
+
+    Layout: one empty/first label column holding ``<ISO3>_<INDUSTRY>`` row keys plus the bottom
+    rows ``VA+TAXSUB`` and ``OUT``; value columns ``<ISO3>_<INDUSTRY>`` for intermediate use,
+    ``<PREFIX>_<ISO3>`` for the six final-demand categories (HFCE, NPS, GGFC, GFCF, INV, DIRP)
+    and a single ``DISC`` statistical-discrepancy column.
+    """
+    columns = [str(column) for column in header]
+    if not columns or columns[0].strip() not in ("", "Row", "row"):
+        raise OECDImportError("ICIO 2016 layout: first column must hold the row keys")
+    value_columns = columns[1:]
+    intermediate = []   # (index, country, industry)
+    final_demand = []   # (index, prefix, country)
+    discrepancy = None
+    for index, column in enumerate(value_columns):
+        if column == "DISC":
+            discrepancy = index
+            continue
+        prefix, _, suffix = column.partition("_")
+        if prefix in ICIO2016_FD and re.fullmatch(r"[A-Z0-9]{3}", suffix):
+            final_demand.append((index, prefix, suffix))
+        elif re.fullmatch(r"[A-Z0-9]{3}", prefix) and suffix.startswith("C"):
+            intermediate.append((index, prefix, suffix))
+        else:
+            raise OECDImportError(f"ICIO 2016 layout: cannot decode value column {column!r}")
+    row_economies, row_industries = [], []
+    for line in rows:
+        label = str(line[0]).strip() if line else ""
+        if "_" not in label:
+            continue
+        economy, _, industry = label.partition("_")
+        if industry.startswith("C"):
+            if economy not in row_economies:
+                row_economies.append(economy)
+            if industry not in row_industries:
+                row_industries.append(industry)
+    if not row_economies or not row_industries:
+        raise OECDImportError("ICIO 2016 layout: no country-industry row keys found")
+    cells = []
+    for line in rows:
+        label = str(line[0]).strip() if line else ""
+        if label in ("VA+TAXSUB", "OUT"):
+            for index, country, industry in intermediate:
+                cells.append({"year": int(year), "row_country": country,
+                              "row_industry": label,
+                              "col_country": country, "col_industry": industry,
+                              "value": _number(line[index + 1])})
+            continue
+        if "_" not in label:
+            continue
+        economy, _, industry = label.partition("_")
+        if not industry.startswith("C"):
+            continue
+        for index, country, col_industry in intermediate:
+            cells.append({"year": int(year), "row_country": economy,
+                          "row_industry": industry, "col_country": country,
+                          "col_industry": col_industry,
+                          "value": _number(line[index + 1])})
+        for index, prefix, country in final_demand:
+            cells.append({"year": int(year), "row_country": economy,
+                          "row_industry": industry, "col_country": country,
+                          "col_industry": prefix, "value": _number(line[index + 1])})
+        if discrepancy is not None:
+            cells.append({"year": int(year), "row_country": economy,
+                          "row_industry": industry, "col_country": economy,
+                          "col_industry": "DISC", "value": _number(line[discrepancy + 1])})
+    return cells
+
+
+def _number(value) -> float:
+    try:
+        return float(str(value).replace(",", ""))
+    except (TypeError, ValueError) as error:
+        raise OECDImportError(f"non-numeric ICIO value {value!r}") from error
+
+
 def parse_sdmx_rows(rows: list[dict]) -> list[dict]:
     """OECD SDMX CSV (data message) rows -> cells; dimensions must be resolvable by name."""
     def first(row, *names):
@@ -426,11 +513,16 @@ def read_archive(path: Path) -> list[dict]:
             header = next(reader)
         except StopIteration:
             continue
+        layout = detect_layout(header)
+        default_year = _year_from_name(name)
+        if layout == "icio_matrix":
+            lines = [line for line in reader if any(cell.strip() for cell in line)]
+            cells.extend(parse_icio_matrix(header, lines,
+                                           default_year if default_year else _require_year(lines)))
+            continue
         rows = [dict(zip(header, line)) for line in reader if any(cell.strip() for cell in line)]
         if not rows:
             continue
-        layout = detect_layout(header)
-        default_year = _year_from_name(name)
         if layout == "long":
             cells.extend(parse_tidy_rows(rows, classify_column(header), default_year))
         elif layout == "sdmx":
@@ -440,6 +532,18 @@ def read_archive(path: Path) -> list[dict]:
                                                   for row in rows],
                                          default_year if default_year else _require_year(rows)))
     return cells
+
+
+def _years_from_name(name: str) -> list[int]:
+    """Data years encoded in an ICIO file name (``ICIO2016_2011.zip`` -> [2011]).
+
+    The edition number is not a data year: only the trailing year of the
+    ``<edition>_<year>`` pattern is used; a single-year name keeps its only year.
+    """
+    matches = re.findall(r"(?<!\d)(19\d{2}|20\d{2})(?!\d)", str(name))
+    if not matches:
+        return []
+    return [int(matches[-1])]
 
 
 def _year_from_name(name: str):
@@ -489,6 +593,7 @@ def build_document(cells: list[dict], *, year: int, source: dict,
     Z = [[0.0] * size for _ in range(size)]
     y = [0.0] * size
     inventory = [0.0] * size
+    discrepancy = [0.0] * size
     x: list[float] = [0.0] * size
     va_rows: dict[str, dict[str, float]] = {}
     for cell in year_cells:
@@ -506,16 +611,23 @@ def build_document(cells: list[dict], *, year: int, source: dict,
             y[position[(cell["row_country"], row_code)]] += value
         elif col_code in INVENTORY:
             inventory[position[(cell["row_country"], row_code)]] += value
+        elif col_code == "DISC":
+            discrepancy[position[(cell["row_country"], row_code)]] += value
         elif col_code in ("TOTAL", "OUT", "OUTPUT"):
             x[position[(cell["row_country"], row_code)]] = value
         else:
             raise OECDImportError(f"unknown column industry {col_code!r}")
     va = [0.0] * size
-    va_block = va_rows.get("VA") or {}
+    va_block = va_rows.get("VA") or va_rows.get("VA+TAXSUB") or {}
     for country, industry in itertools.product(countries, industries):
         value = va_block.get((country, industry))
         if value is not None:
             va[position[(country, industry)]] = value
+    output_block = va_rows.get("OUT") or {}
+    for country, industry in itertools.product(countries, industries):
+        value = output_block.get((country, industry))
+        if value is not None:
+            x[position[(country, industry)]] = value
     if any(value == 0.0 for value in x):
         x = [sum(Z[row]) + y[row] + inventory[row] for row in range(size)]
     return {
@@ -528,6 +640,7 @@ def build_document(cells: list[dict], *, year: int, source: dict,
         "Z": Z,
         "y": y,
         "inventory_changes": inventory,
+        "discrepancy": discrepancy,
         "x": x,
         "va": va,
         "source": source,
@@ -554,17 +667,19 @@ def validate_v11(document: dict, tolerance: float | None = None) -> dict:
     Z_rows = [list(map(float, row)) for row in Z]
     y = list(map(float, data["y"]))
     inventory = list(map(float, data.get("inventory_changes", [0.0] * size)))
+    discrepancy = list(map(float, data.get("discrepancy", [0.0] * size)))
     x = list(map(float, data["x"]))
     va = list(map(float, data["va"]))
     if len(Z_rows) != size or any(len(row) != size for row in Z_rows):
         raise OECDImportError("D1: Z is not countries*industries square")
     if not (len(y) == len(inventory) == len(x) == len(va) == size):
         raise OECDImportError("D1: vector length mismatch")
-    row_residual = [sum(Z_rows[row]) + y[row] + inventory[row] - x[row] for row in range(size)]
+    row_residual = [sum(Z_rows[row]) + y[row] + inventory[row] + discrepancy[row] - x[row]
+                    for row in range(size)]
     column_residual = [sum(Z_rows[row][column] for row in range(size)) + va[column] - x[column]
                        for column in range(size)]
     total_x, total_z = sum(x), sum(sum(row) for row in Z_rows)
-    total_y = sum(y) + sum(inventory)
+    total_y = sum(y) + sum(inventory) + sum(discrepancy)
     total_va = sum(va)
     scale = max(1.0, abs(total_x))
     checks = {
@@ -768,6 +883,96 @@ def run_d1(root=None) -> dict:
     return report
 
 
+WAYBACK_EDITION = "ICIO2016"
+WAYBACK_YEARS = tuple(range(1995, 2012))
+
+
+def _wayback_playback_url(snapshot: str) -> str | None:
+    """Convert a Wayback snapshot URL to its raw playback (``id_``) form."""
+    match = re.match(r"https?://web\.archive\.org/web/(\d+)/(.*)$", str(snapshot))
+    if not match:
+        return None
+    return f"https://web.archive.org/web/{match.group(1)}id_/{match.group(2)}"
+
+
+def wayback_files(year: int, edition: str = WAYBACK_EDITION) -> dict:
+    """Official archived URL of one ICIO per-year zip (Wayback availability API)."""
+    original = f"oecd.org/sti/ind/{edition}_{year}.zip"
+    query = "https://archive.org/wayback/available?url=" + urllib.parse.quote(original, safe="")
+    try:
+        payload = json.loads(urllib.request.urlopen(
+            urllib.request.Request(query, headers=BROWSER_HEADERS), timeout=40).read())
+    except (urllib.error.URLError, TimeoutError, OSError, ValueError) as error:
+        return {"year": int(year), "url": None, "error": f"{type(error).__name__}: {error}"}
+    snapshot = (payload.get("archived_snapshots") or {}).get("closest") or {}
+    playback = _wayback_playback_url(snapshot.get("url") or "")
+    return {"year": int(year), "snapshot": snapshot.get("url"), "url": playback,
+            "status": snapshot.get("status")}
+
+
+def download_wayback_icio(root: Path | None = None, years=None,
+                          timeout: float = 120.0) -> dict:
+    """Download the official OECD ICIO 2016-edition per-year zips from the Internet Archive.
+
+    The files are the official OECD objects (``www.oecd.org/sti/ind/ICIO2016_<year>.zip``)
+    archived by the Wayback Machine; no protection is circumvented and no third-party mirror is
+    used as a data source.  Existing complete files are kept (size check) and re-verified by
+    SHA-256; the report contains sizes and hashes only.
+    """
+    root = Path(root) if root is not None else DEFAULT_DATA_ROOT
+    target_dir = root / "archive" / "icio_2016"
+    target_dir.mkdir(parents=True, exist_ok=True)
+    jar = http.cookiejar.CookieJar()
+    opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar))
+    results = []
+    for year in (years or WAYBACK_YEARS):
+        entry = wayback_files(int(year))
+        target = target_dir / f"{WAYBACK_EDITION}_{year}.zip"
+        record = {"year": int(year), "url": entry.get("url"), "path": str(target)}
+        if entry.get("url") is None:
+            record.update({"status": "NO_SNAPSHOT", "error": entry.get("error")})
+            results.append(record)
+            continue
+        if target.is_file() and target.stat().st_size > 1_000_000:
+            record.update({"status": "CACHED", "bytes": target.stat().st_size,
+                           "sha256": sha256_file(target)})
+            results.append(record)
+            continue
+        for attempt in range(3):
+            try:
+                started = time.monotonic()
+                part = target.with_suffix(".zip.part")
+                headers = dict(BROWSER_HEADERS)
+                headers["Referer"] = "https://web.archive.org/"
+                with opener.open(urllib.request.Request(entry["url"], headers=headers),
+                                 timeout=timeout) as response, part.open("wb") as handle:
+                    written = 0
+                    while True:
+                        block = response.read(1 << 20)
+                        if not block:
+                            break
+                        handle.write(block)
+                        written += len(block)
+                part.replace(target)
+                record.update({"status": "DOWNLOADED", "bytes": written,
+                               "sha256": sha256_file(target),
+                               "seconds": round(time.monotonic() - started, 1)})
+                break
+            except (urllib.error.URLError, TimeoutError, OSError) as error:
+                record.update({"status": "RETRY", "error": f"{type(error).__name__}: {error}"})
+                time.sleep(4)
+        if record.get("status") not in ("DOWNLOADED", "CACHED"):
+            record["status"] = "BLOCKED"
+        results.append(record)
+        time.sleep(1.0)
+    available = [item for item in results if item["status"] in ("DOWNLOADED", "CACHED")]
+    return {"generated_at": now(), "edition": WAYBACK_EDITION, "years": list(years or WAYBACK_YEARS),
+            "downloaded": available, "failed": [item for item in results
+                                                if item["status"] not in ("DOWNLOADED", "CACHED")],
+            "total_bytes": sum(int(item.get("bytes") or 0) for item in available),
+            "target_directory": str(target_dir)}
+
+
 def instruction_document() -> dict:
     return {"generated_at": now(), "source": "OECD ICIO 2025 release (1995-2022)",
             "download_page": PROBE_URLS[0][1],
@@ -790,6 +995,7 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description="OECD ICIO: automated attempts, parser, D1")
     parser.add_argument("--root", default=None, help="data root (default data/mrio/oecd_icio)")
     parser.add_argument("--probe", action="store_true", help="automated attempts (records facts)")
+    parser.add_argument("--wayback", action="store_true", help="download archived official ICIO 2016-edition per-year zips")
     parser.add_argument("--instruct", action="store_true", help="manual download instructions")
     parser.add_argument("--archive", default=None, help="downloaded zip/csv (default: scan archive/)")
     parser.add_argument("--convert", action="store_true", help="convert archive to dataset v1.1")
@@ -801,7 +1007,7 @@ def main(argv=None) -> int:
     parser.add_argument("--timeout", type=float, default=25.0)
     args = parser.parse_args(argv)
     root = data_root(args.root)
-    if not any((args.probe, args.instruct, args.convert, args.d1, args.check)):
+    if not any((args.probe, args.instruct, args.wayback, args.convert, args.d1, args.check)):
         parser.print_help()
         return 0
     try:
@@ -816,23 +1022,48 @@ def main(argv=None) -> int:
             document = instruction_document()
             document["file"] = write_json(document, root / "reports" / "instructions.json")
             print(json.dumps(document, ensure_ascii=False, indent=1))
+        if args.wayback:
+            report = download_wayback_icio(root)
+            path = write_json(report, root / "reports" / "wayback.json")
+            print(json.dumps({"action": "wayback", "downloaded": len(report["downloaded"]),
+                              "failed": len(report["failed"]),
+                              "total_bytes": report["total_bytes"], "file": path},
+                             ensure_ascii=False, indent=1))
         if args.convert:
-            archive = Path(args.archive) if args.archive else None
-            if archive is None:
-                candidates = sorted(p for p in (root / "archive").glob("*")
+            tasks: list[tuple[Path, list[int]]] = []
+            if args.archive:
+                archive = Path(args.archive)
+                years = args.year or _years_from_name(archive.name)
+                if not years:
+                    raise OECDImportError("cannot infer the year from the file name; pass --year")
+                tasks.append((archive, years))
+            else:
+                candidates = sorted(p for p in (root / "archive").rglob("*")
                                     if p.suffix.lower() in (".zip", ".csv", ".txt"))
                 if not candidates:
                     raise OECDImportError(
                         f"no archive under {root / 'archive'}; run --instruct and place the "
                         f"downloaded ICIO files there")
-                archive = candidates[0]
-            years = args.year or sorted(set(int(match) for match in re.findall(
-                r"(?<!\d)(19\d{2}|20\d{2})(?!\d)", archive.name)))
-            if not years:
-                raise OECDImportError("cannot infer the year from the file name; pass --year")
-            results = convert_years(archive, years, root / "datasets", args.jobs, args.tolerance)
-            print(json.dumps({"action": "convert", "archive": str(archive), "results": results},
-                             ensure_ascii=False, indent=1))
+                for archive in candidates:
+                    years = args.year or _years_from_name(archive.name)
+                    if years:
+                        tasks.append((archive, years))
+                if not tasks:
+                    raise OECDImportError("cannot infer any year from the archive file names; "
+                                          "pass --year")
+            flat = [(str(archive), year) for archive, years in tasks for year in years]
+            if args.jobs > 1 and len(flat) > 1:
+                with mp.get_context("spawn").Pool(min(args.jobs, len(flat))) as pool:
+                    results = pool.starmap(convert_year,
+                                           [(archive, year, str(root / "datasets"),
+                                             args.tolerance) for archive, year in flat])
+                results = sorted(results, key=lambda item: item["year"])
+            else:
+                results = [convert_year(archive, year, str(root / "datasets"), args.tolerance)
+                           for archive, year in flat]
+            print(json.dumps({"action": "convert",
+                              "archives": [str(archive) for archive, _ in tasks],
+                              "results": results}, ensure_ascii=False, indent=1))
         if args.d1:
             report = run_d1(args.root)
             report["file"] = write_json(report, root / "reports" / "d1.json")

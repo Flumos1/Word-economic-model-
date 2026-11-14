@@ -52,6 +52,7 @@ for _path in (ROOT / "src", ROOT / "tools"):
 import world_pipeline as wp  # noqa: E402
 from amfe.mrio.loaders import load_dataset  # noqa: E402
 from amfe.mrio.schema import MRIOError  # noqa: E402
+from amfe.world.sfc_io import SFCIOError, sfc_section  # noqa: E402
 
 REPORT_SCHEMA = "amfe.world.scenario_report.v1"
 INDEX_SCHEMA = "amfe.world.scenario_index.v1"
@@ -66,6 +67,12 @@ DEFAULT_FX_COUNTRIES = ("DE", "FR")
 DEFAULT_IMPORT_SHARES = (0.10, 0.20)
 DEFAULT_FX_SHARES = (0.10, 0.20)
 TOP_N = 10
+SFC_SCHEMA = "amfe.world.sfc_block.v1"
+DEFAULT_SFC_INVESTMENT_SHARE = 0.2
+SFC_CHECK_KEYS = ("current_account_disagreement_max_abs", "global_current_account_sum",
+                  "gdp_sum_minus_final_demand_sum", "saving_investment_identity_max_abs",
+                  "net_foreign_assets_opening_sum", "net_foreign_assets_closing_sum",
+                  "sfc_identity_residual", "sfc_net_worth_residual", "sfc_pass")
 #: Aggregate labels that are not single countries (the FIGARO rest-of-world residual block).
 REST_OF_WORLD_LABELS = ("ROW", "RoW", "REST_OF_WORLD", "WORLD")
 EXIT_OK = 0
@@ -223,9 +230,98 @@ def _baseline_block(table: wp.WorldTable, solver: wp.WorldSolver) -> dict:
     }
 
 
+def build_sfc_block(table: wp.WorldTable, *, investment_share: float = DEFAULT_SFC_INVESTMENT_SHARE,
+                   out_dir=None) -> dict:
+    """SFC <-> IO accounting block for the reports (docs/133 block, docs/131 section).
+
+    The block is computed once from the loaded IO table with :func:`amfe.world.sfc_io.sfc_section`
+    and attached to every scenario report: scenarios change gross output, not the accounting
+    identities, so ``S = I + CA`` and ``sum CA = 0`` are the same in every scenario.  If a pipeline
+    report with an ``sfc`` block exists under ``<out>/pipeline/*/world_pipeline_report.json`` the
+    block is recorded as available (``source.pipeline_report``), but the totals are recomputed at
+    the requested investment share so the S/I magnitudes are comparable across artefacts.
+    """
+    block = sfc_section(table, investment_share=float(investment_share))
+    block["schema"] = SFC_SCHEMA
+    pipeline_source = None
+    if out_dir is not None:
+        pipeline_source = _pipeline_sfc_path(Path(out_dir))
+    block["source"] = {"kind": "computed_from_table", "module": "amfe.world.sfc_io",
+                       "investment_share": float(investment_share),
+                       "pipeline_report": pipeline_source}
+    return block
+
+
+def _pipeline_sfc_path(out_dir: Path) -> str | None:
+    """Path of the first pipeline report carrying an ``sfc`` block (or None)."""
+    base = Path(out_dir) / "pipeline"
+    if not base.is_dir():
+        return None
+    for path in sorted(base.glob("*/world_pipeline_report.json")):
+        try:
+            document = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if isinstance(document, dict) and isinstance(document.get("sfc"), dict):
+            return str(path)
+    return None
+
+
+def sfc_summary(block: dict | None) -> dict | None:
+    """Index-level summary of the SFC block (totals, checks, top surplus/deficit, pass)."""
+    if not block:
+        return None
+    checks = block.get("checks") or {}
+    return {
+        "schema": SFC_SCHEMA,
+        "investment_share": block.get("investment_share"),
+        "units": block.get("units"),
+        "countries": block.get("countries"),
+        "totals": block.get("totals"),
+        "current_account": block.get("current_account"),
+        "pass": bool(block.get("pass")),
+        "checks": {key: checks[key] for key in SFC_CHECK_KEYS if key in checks},
+        "assumptions": list(block.get("assumptions") or []),
+        "source": block.get("source"),
+        "note": ("baseline IO accounting block: the same for every scenario; scenarios change gross "
+                 "output, not the identities (docs/133 conventions: A_c = FD_c, CA is the "
+                 "intermediate-trade balance)"),
+    }
+
+
+def _format_sfc_rows(block: dict) -> list[str]:
+    totals = block.get("totals") or {}
+    checks = block.get("checks") or {}
+    units = block.get("units") or ""
+    surplus = (block.get("current_account") or {}).get("top_surplus") or []
+    deficit = (block.get("current_account") or {}).get("top_deficit") or []
+
+    def fmt(items):
+        return ", ".join(f"{name} {_format_value(value, 1)}" for name, value in items[:3]) or "—"
+
+    return [
+        f"- ВВП {_format_value(totals.get('gdp'))}, конечный спрос "
+        f"{_format_value(totals.get('final_demand'))}, сбережения "
+        f"{_format_value(totals.get('savings'))}, инвестиции {_format_value(totals.get('investment'))}, "
+        f"CA {_format_value(totals.get('current_account'))} {units} "
+        f"(investment_share = {block.get('investment_share')})",
+        f"- сумма CA по миру: {checks.get('global_current_account_sum', 0.0):+.3e}; "
+        f"невязка двух сверок CA: {checks.get('current_account_disagreement_max_abs', 0.0):.3e}; "
+        f"невязка S − I − CA: {checks.get('saving_investment_identity_max_abs', 0.0):.3e}",
+        f"- SFC-шаг (opening + transactions + revaluation = closing): "
+        f"{'PASS' if checks.get('sfc_pass') else 'FAIL'}; невязки тождества "
+        f"{checks.get('sfc_identity_residual', 0.0):.3e} и чистой стоимости "
+        f"{checks.get('sfc_net_worth_residual', 0.0):.3e}",
+        f"- топ-профицит CA: {fmt(surplus)}; топ-дефицит CA: {fmt(deficit)}",
+        "- блок относится к базовой таблице: сценарий меняет выпуск, но не счётные тождества; "
+        "CA — баланс промежуточной торговли (поглощение A_c = FD_c), не официальный BoP "
+        "(docs/131, docs/133)",
+    ]
+
+
 def build_scenario_report(table: wp.WorldTable, solver: wp.WorldSolver, spec: dict,
                           raw: dict, dataset_meta: dict, baseline: dict,
-                          validation: dict, core: dict) -> dict:
+                          validation: dict, core: dict, sfc_block: dict | None = None) -> dict:
     """Assemble one aggregate-only scenario report from a raw ``world_pipeline`` result."""
     by_country = raw["impacts"]["by_country"]
     by_industry = raw["impacts"]["by_industry"]
@@ -284,6 +380,8 @@ def build_scenario_report(table: wp.WorldTable, solver: wp.WorldSolver, spec: di
             "by_country": raw["delta_final_demand"]["by_country"],
             "by_industry": raw["delta_final_demand"]["by_industry"],
         }
+    if sfc_block is not None:
+        report["sfc"] = sfc_block
     return report
 
 
@@ -311,7 +409,7 @@ def run_scenarios(table: wp.WorldTable, solver: wp.WorldSolver, specs: list[dict
 
 # ---------------------------------------------------------------------------------------- index
 def build_index(reports: list[dict], dataset_meta: dict, elapsed_ms: float,
-                peak_memory_mb: float, output_dir: Path) -> dict:
+                peak_memory_mb: float, output_dir: Path, sfc_block: dict | None = None) -> dict:
     entries = []
     for report in reports:
         scenario = report["scenario"]
@@ -337,6 +435,7 @@ def build_index(reports: list[dict], dataset_meta: dict, elapsed_ms: float,
                 "validation_pass": report["checks"]["validation_pass"],
                 "feasible": report["checks"]["feasible"],
                 "sfc_pass": (report["checks"].get("sfc_check") or {}).get("pass"),
+                "sfc_block_pass": bool((report.get("sfc") or {}).get("pass")),
             },
         })
     return {
@@ -352,7 +451,10 @@ def build_index(reports: list[dict], dataset_meta: dict, elapsed_ms: float,
             "max_abs_material_residual": max(
                 (entry["headline"]["max_abs_material_residual"] or 0.0 for entry in entries),
                 default=0.0),
+            "all_sfc_pass": (bool(all(entry["checks"]["sfc_block_pass"] for entry in entries))
+                             if sfc_block is not None else None),
         },
+        "sfc": sfc_summary(sfc_block),
         "dashboard": {"html": "dashboard.html", "md": "dashboard.md"},
         "timings_ms": {"total": round(float(elapsed_ms), 3),
                        "peak_memory_mb": round(float(peak_memory_mb), 1)},
@@ -456,6 +558,9 @@ def render_scenario_markdown(report: dict) -> str:
         sfc = checks["sfc_check"]
         lines.append(f"- SFC-проверка проводки FX: {'PASS' if sfc.get('pass') else 'FAIL'} "
                      f"(мировая чистая стоимость {sfc.get('world_net_worth_residual')})")
+    if report.get("sfc"):
+        lines += ["", "## SFC-проверки (S = I + CA)", ""]
+        lines += _format_sfc_rows(report["sfc"])
     lines += ["", "## Ограничения", ""]
     lines += [f"- {item}" for item in report["limitations"]]
     lines += ["", "## Воспроизведение", "",
@@ -503,9 +608,11 @@ def render_dashboard_markdown(index: dict) -> str:
         f"- максимальный материальный остаток сценариев: "
         f"{index['checks']['max_abs_material_residual']:.3e}.",
         "",
-        "## Ограничения",
-        "",
     ]
+    if index.get("sfc"):
+        lines += ["", "## SFC-проверки (S = I + CA)", ""]
+        lines += _format_sfc_rows(index["sfc"])
+    lines += ["", "## Ограничения", ""]
     lines += [f"- {item}" for item in index["limitations"]]
     lines += ["", "---", "", f"Статус: **{STATUS}** ({STATUS_NOTE}).", ""]
     return "\n".join(lines)
@@ -549,6 +656,11 @@ def render_dashboard_html(index: dict) -> str:
             f"<a href='{html.escape(entry['file_json'])}'>JSON</a></td>"
             "</tr>")
     limitations = "\n".join(f"<li>{html.escape(item)}</li>" for item in index["limitations"])
+    sfc_section_html = ""
+    if index.get("sfc"):
+        sfc_rows = "\n".join(f"<li>{html.escape(line[2:] if line.startswith('- ') else line)}</li>"
+                             for line in _format_sfc_rows(index["sfc"]))
+        sfc_section_html = f"<h2>SFC-проверки (S = I + CA)</h2>\n<ul>\n{sfc_rows}\n</ul>\n"
     return f"""<!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -587,6 +699,7 @@ def render_dashboard_html(index: dict) -> str:
 {index['checks']['max_abs_material_residual']:.3e}.</li>
 </ul>
 
+{sfc_section_html}
 <h2>Методика</h2>
 <p class="meta">Статическая линейная модель Леонтьева: x = (I−A)<sup>−1</sup>y; сценарий —
 x′ = (I−A′)<sup>−1</sup>y′. Сравнительная статика без цен, замещения и динамики; агрегаты по
@@ -780,7 +893,7 @@ def _load_sparse_document(path: Path, dataset_id: str):
 
 
 def build_reports(table: wp.WorldTable, specs: list[dict], dataset_meta: dict,
-                  workers: int = 1) -> tuple[list[dict], dict, dict]:
+                  workers: int = 1, sfc_block: dict | None = None) -> tuple[list[dict], dict, dict]:
     """Validate, solve the baseline, run every scenario and assemble the reports."""
     _validate_specs_against(table, specs)
     validation = wp.validate_table(table, workers=workers)
@@ -789,7 +902,8 @@ def build_reports(table: wp.WorldTable, specs: list[dict], dataset_meta: dict,
     baseline = _baseline_block(table, solver)
     outputs = run_scenarios(table, solver, specs)
     reports = [build_scenario_report(table, solver, spec, outputs[spec["id"]],
-                                     dataset_meta, baseline, validation, core)
+                                     dataset_meta, baseline, validation, core,
+                                     sfc_block=sfc_block)
                for spec in specs]
     index = build_index(reports, dataset_meta, 0.0, 0.0, Path("."))
     return reports, index, {"validation": validation, "core": core, "baseline": baseline}
@@ -835,10 +949,19 @@ def run(args) -> dict:
         fx_countries=fx_countries,
         fx_shares=parse_list(getattr(args, "fx_shares", None), float) or DEFAULT_FX_SHARES,
     )
+    sfc_block = None
+    if getattr(args, "sfc", False):
+        sfc_block = build_sfc_block(
+            table,
+            investment_share=float(getattr(args, "sfc_investment_share",
+                                           DEFAULT_SFC_INVESTMENT_SHARE)),
+            out_dir=out_dir)
     reports, index, _context = build_reports(table, specs, dataset_meta,
-                                             workers=int(getattr(args, "workers", 1) or 1))
+                                             workers=int(getattr(args, "workers", 1) or 1),
+                                             sfc_block=sfc_block)
     elapsed_ms = (time.perf_counter() - started) * 1000.0
-    index = build_index(reports, dataset_meta, elapsed_ms, wp.peak_memory_mb(), out_dir)
+    index = build_index(reports, dataset_meta, elapsed_ms, wp.peak_memory_mb(), out_dir,
+                        sfc_block=sfc_block)
     paths = write_outputs(reports, index, out_dir,
                           dashboard=not getattr(args, "no_dashboard", False))
     return {"index": index, "reports": reports, "paths": paths}
@@ -858,6 +981,14 @@ def _print_summary(result: dict) -> None:
               f"страна {headline['largest_country']}, отрасль {headline['largest_industry']}")
     print(f"  проверки: валидация {'PASS' if index['checks']['all_validations_pass'] else 'FAIL'}, "
           f"max остаток {index['checks']['max_abs_material_residual']:.3e}")
+    sfc = index.get("sfc")
+    if sfc:
+        totals = sfc["totals"]
+        print(f"  SFC (--sfc): S={totals['savings']:,.1f}, I={totals['investment']:,.1f}, "
+              f"CA={totals['current_account']:,.1f} {sfc.get('units', '')}; "
+              f"sumCA={sfc['checks']['global_current_account_sum']:+.3e}; "
+              f"S=I+CA max={sfc['checks']['saving_investment_identity_max_abs']:.3e}; "
+              f"SFC {'PASS' if sfc['checks']['sfc_pass'] else 'FAIL'}")
     print(f"  время {index['timings_ms']['total']:.0f} мс, пик {index['timings_ms']['peak_memory_mb']} МБ")
     print(f"  индекс: {result['paths']['index']}")
     print(f"  дашборд: {result['paths']['dashboard']['html']}")
@@ -889,6 +1020,14 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--json", action="store_true", help="print the report index as JSON")
     parser.add_argument("--no-dashboard", dest="no_dashboard", action="store_true",
                         help="write reports and the index but skip the dashboard")
+    parser.add_argument("--sfc", action="store_true",
+                        help="include the SFC <-> IO accounting block (S = I + CA, sum CA = 0, "
+                             "net foreign asset step) in the reports, index and dashboard "
+                             "(docs/131, docs/133)")
+    parser.add_argument("--sfc-investment-share", dest="sfc_investment_share", type=float,
+                        default=DEFAULT_SFC_INVESTMENT_SHARE,
+                        help="investment share of absorption for the S/I split (default 0.2; "
+                             "S = I + CA holds for any share)")
     return parser
 
 
@@ -900,7 +1039,7 @@ def main(argv=None) -> int:
     except BlockedData as exc:
         print(f"BLOCKED_DATA: {exc}", file=sys.stderr)
         return EXIT_BLOCKED
-    except (ReportError, wp.PipelineError, MRIOError) as exc:
+    except (ReportError, wp.PipelineError, MRIOError, SFCIOError) as exc:
         print(f"INVALID: {exc}", file=sys.stderr)
         return EXIT_INVALID
     if args.no_dashboard:

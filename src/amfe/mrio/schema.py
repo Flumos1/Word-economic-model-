@@ -350,6 +350,7 @@ class MRIODataset:
     fx: dict = field(default_factory=dict)
     prices: dict = field(default_factory=dict)
     tolerance: float = TOLERANCE
+    absolute_tolerance: float = 0.0
     final_demand_adjustments: tuple[float, ...] = ()
     va_adjustments: tuple[float, ...] = ()
     schema_version: str = SCHEMA_VERSION
@@ -595,8 +596,21 @@ def dataset_from_document(document: Mapping) -> MRIODataset:
     missing = [key for key in required if key not in document]
     if missing:
         raise SchemaError(f"dataset document misses required fields: {missing}")
-    fda = document.get("final_demand_adjustments") or ()
-    vaa = document.get("va_adjustments") or ()
+    # Canonical names are ``final_demand_adjustments`` / ``va_adjustments``; the OECD ICIO importer
+    # and older drafts use ``inventory_changes`` / ``discrepancy`` for the same signed terms, so the
+    # parser accepts the aliases (a document must not mix both spellings).
+    if "final_demand_adjustments" in document and "inventory_changes" in document:
+        raise SchemaError("use either final_demand_adjustments or inventory_changes, not both")
+    if "va_adjustments" in document and "discrepancy" in document:
+        raise SchemaError("use either va_adjustments or discrepancy, not both")
+    fda = document.get("final_demand_adjustments")
+    if fda is None:
+        fda = document.get("inventory_changes")
+    vaa = document.get("va_adjustments")
+    if vaa is None:
+        vaa = document.get("discrepancy")
+    fda = fda or ()
+    vaa = vaa or ()
     if version == LEGACY_SCHEMA_VERSION and (any(float(value) != 0.0 for value in fda)
                                              or any(float(value) != 0.0 for value in vaa)):
         raise SchemaError(
@@ -617,6 +631,7 @@ def dataset_from_document(document: Mapping) -> MRIODataset:
             fx=document.get("fx") or {},
             prices=document.get("prices") or {},
             tolerance=float(document.get("tolerance", TOLERANCE)),
+            absolute_tolerance=float(document.get("absolute_tolerance", 0.0)),
             final_demand_adjustments=tuple(fda),
             va_adjustments=tuple(vaa),
             schema_version=version,
@@ -699,17 +714,19 @@ def validate_dataset(dataset: MRIODataset, tolerance: float | None = None,
         residual = intermediate + dataset.y[row] + fda[row] - dataset.x[row]
         row_residual.append(residual)
         scale = max(1.0, abs(dataset.x[row]))
-        if abs(residual) > tol * scale:
+        limit = max(tol * scale, float(dataset.absolute_tolerance))
+        if abs(residual) > limit:
             errors.append(f"row balance violated at {dataset.labels[row]}: "
-                          f"sum(Z)+y+fda-x = {residual:.6e} (|.| > {tol:.1e}*{scale:.3g})")
+                          f"sum(Z)+y+fda-x = {residual:.6e} (|.| > {limit:.3g})")
     for column in range(size):
         intermediate = math.fsum(dataset.Z[row][column] for row in range(size))
         residual = intermediate + dataset.va[column] + vaa[column] - dataset.x[column]
         column_residual.append(residual)
         scale = max(1.0, abs(dataset.x[column]))
-        if abs(residual) > tol * scale:
+        limit = max(tol * scale, float(dataset.absolute_tolerance))
+        if abs(residual) > limit:
             errors.append(f"column balance violated at {dataset.labels[column]}: "
-                          f"sum(Z)+va+vaa-x = {residual:.6e} (|.| > {tol:.1e}*{scale:.3g})")
+                          f"sum(Z)+va+vaa-x = {residual:.6e} (|.| > {limit:.3g})")
 
     total_va = math.fsum(dataset.va)
     total_final = math.fsum(dataset.y)

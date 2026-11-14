@@ -422,5 +422,301 @@ class ModelAndOos(unittest.TestCase):
             gr._checked_dataset(dataset, 2)
 
 
+# ============================================================================================
+# v2: year-varying MRIO weights, BIC/AIC lag selection, CLI and fail-closed behaviour
+# ============================================================================================
+def write_wiod_fixture(path: Path, countries, industries, blocks, year=2000) -> Path:
+    """Write a minimal WIOD-shaped dataset.json: dense country-major Z block matrix."""
+    n = len(countries) * len(industries)
+
+    def index(country, industry):
+        return countries.index(country) * len(industries) + industry
+
+    Z = [[0.0] * n for _ in range(n)]
+    for (exporter, importer), value in blocks.items():
+        for industry_a in range(len(industries)):
+            for industry_b in range(len(industries)):
+                Z[index(exporter, industry_a)][index(importer, industry_b)] = float(value)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({"countries": list(countries), "industries": list(industries),
+                                "Z": Z, "years": [int(year)], "units": "USD_mn",
+                                "schema": "amfe.mrio.dataset.v1.1"}), encoding="utf-8")
+    return path
+
+
+def mrio_fixture_root(tmp: Path, wiod_years=(2000,)) -> Path:
+    """A data root with FIGARO 2019 and one or more WIOD vintages (tiny synthetic tables)."""
+    root = Path(tmp) / "mrio"
+    figaro = root / "figaro" / "figaro_2019" / "dataset.json"
+    figaro.parent.mkdir(parents=True, exist_ok=True)
+    write_figaro_fixture(figaro, ["US", "DE", "CN", "ROW"], ["A", "B"],
+                         {("US", "DE"): 4.0, ("US", "CN"): 6.0, ("US", "ROW"): 100.0,
+                          ("DE", "US"): 2.0, ("CN", "US"): 5.0, ("CN", "DE"): 1.0})
+    for year in wiod_years:
+        blocks = {("USA", "DEU"): 5.0, ("USA", "CHN"): 5.0, ("USA", "ROW"): 90.0,
+                  ("DEU", "USA"): 3.0, ("CHN", "USA"): 7.0, ("CHN", "DEU"): 1.0}
+        write_wiod_fixture(root / "wiod_2016" / f"wiod_{year}" / "dataset.json",
+                           ["USA", "DEU", "CHN", "ROW"], ["A", "B"], blocks, year=year)
+    return root
+
+
+def noisy_panel(countries=COUNTRIES, years=YEARS, seed=7) -> dict:
+    """Balanced panel with noisy, stationary AR(1) growth/inflation (non-degenerate residuals)."""
+    rng = np.random.default_rng(seed)
+    panel = {name: {} for name in ("gdp_growth", "inflation", "gdp_current", "trade_gdp",
+                                   "population")}
+    for index, code in enumerate(countries):
+        growth = 2.0
+        inflation = 2.0
+        for step, year in enumerate(years):
+            growth = 0.55 * growth + 0.45 * 2.0 + float(rng.normal(0.0, 0.6))
+            inflation = 0.60 * inflation + 0.40 * 2.0 + float(rng.normal(0.0, 0.4))
+            panel["gdp_growth"].setdefault(code, {})[year] = growth
+            panel["inflation"].setdefault(code, {})[year] = inflation
+            panel["gdp_current"].setdefault(code, {})[year] = 1_000.0 * (index + 1) * (
+                1.02 ** step)
+            panel["trade_gdp"].setdefault(code, {})[year] = 40.0 + index
+            panel["population"].setdefault(code, {})[year] = 50.0 + index
+    return panel
+
+
+def varx_dataset(countries=("A", "B", "C", "D", "E"), n=200, own=0.5, foreign=0.1,
+                 noise=0.2, seed=5) -> dict:
+    """Synthetic stable VARX(1) data with known own/foreign coefficients (k=1)."""
+    rng = np.random.default_rng(seed)
+    weights = {code: {other: 1.0 / (len(countries) - 1) for other in countries
+                      if other != code} for code in countries}
+    total = int(n) + 50
+    values = {code: np.zeros(total) for code in countries}
+    for step in range(1, total):
+        for code in countries:
+            factor = sum(weight * values[other][step - 1]
+                         for other, weight in weights[code].items())
+            values[code][step] = (own * values[code][step - 1] + foreign * factor
+                                  + float(rng.normal(0.0, noise)))
+    return {"countries": list(countries),
+            "series": {code: {"y": [float(v) for v in values[code][50:]]}
+                       for code in countries},
+            "weights": weights}
+
+
+class V2Vintages(unittest.TestCase):
+    def test_discover_vintages_and_vintage_choice(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = mrio_fixture_root(Path(directory), wiod_years=(2000, 2007, 2014))
+            vintages = gr.discover_mrio_vintages(root, cache_dir=root / "cache")
+            self.assertEqual([item["year"] for item in vintages], [2000, 2007, 2014, 2019])
+            self.assertEqual([item["kind"] for item in vintages],
+                             ["wiod", "wiod", "wiod", "figaro"])
+            expected = {1995: 2000, 1999: 2000, 2000: 2000, 2004: 2007, 2007: 2007,
+                        2010: 2007, 2012: 2014, 2015: 2014, 2017: 2019, 2019: 2019, 2024: 2019}
+            for year, vintage_year in expected.items():
+                vintage, choice = gr.choose_vintage(year, vintages)
+                self.assertEqual(int(vintage["year"]), vintage_year)
+                self.assertEqual(choice["target_year"], year)
+            # ties resolve to the earlier vintage (2005 is 5 away from both 2000 and 2010)
+            tie, _ = gr.choose_vintage(2005, [{"year": 2000}, {"year": 2010}])
+            self.assertEqual(int(tie["year"]), 2000)
+            # the export-matrix cache is written and reused
+            cache_files = sorted((root / "cache").glob("*.json"))
+            self.assertGreaterEqual(len(cache_files), 4)
+            again = gr.discover_mrio_vintages(root, cache_dir=root / "cache")
+            self.assertEqual([item["sha256"] for item in again],
+                             [item["sha256"] for item in vintages])
+
+    def test_duplicate_years_and_missing_root_fail_closed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "mrio"
+            write_wiod_fixture(root / "wiod_2016" / "wiod_2000" / "dataset.json",
+                               ["USA", "DEU"], ["A"], {("USA", "DEU"): 1.0}, year=2000)
+            write_wiod_fixture(root / "wiod_2016" / "wiod_2000b" / "dataset.json",
+                               ["USA", "DEU"], ["A"], {("USA", "DEU"): 1.0}, year=2000)
+            with self.assertRaises(gr.GVARRealError):
+                gr.discover_mrio_vintages(root, cache_dir=Path(directory) / "cache")
+        with tempfile.TemporaryDirectory() as directory:
+            with self.assertRaises(gr.GVARRealError):
+                gr.discover_mrio_vintages(Path(directory), cache_dir=Path(directory) / "cache")
+
+
+class V2YearWeights(unittest.TestCase):
+    def test_weights_by_year_are_deterministic_and_follow_the_rule(self):
+        panel = noisy_panel(countries=("USA", "DEU", "CHN"))
+        with tempfile.TemporaryDirectory() as directory:
+            root = mrio_fixture_root(Path(directory), wiod_years=(2000, 2007, 2014))
+            first, source = gr.build_weights_by_year(
+                panel, ("USA", "DEU", "CHN"), YEARS, data_root=root,
+                cache_dir=root / "cache")
+            second, source_again = gr.build_weights_by_year(
+                panel, ("USA", "DEU", "CHN"), YEARS, data_root=root,
+                cache_dir=root / "cache")
+        self.assertEqual(first, second)
+        self.assertEqual(source["per_year"], source_again["per_year"])
+        self.assertEqual(source["method"], "NEAREST_MRIO_VINTAGE")
+        self.assertIn("nearest", source["rule"])
+        self.assertEqual(source["per_year"][1995]["vintage_year"], 2000)
+        self.assertEqual(source["per_year"][2019]["vintage_year"], 2019)
+        self.assertEqual(source["per_year"][2010]["vintage_year"], 2007)
+        self.assertEqual(source["per_year"][2024]["vintage_year"], 2019)
+        self.assertEqual(source["fallback_total"], 0)
+        for year, weights in first.items():
+            for code in ("USA", "DEU", "CHN"):
+                self.assertAlmostEqual(math.fsum(weights[code].values()), 1.0, places=12)
+                self.assertNotIn(code, weights[code])
+        self.assertEqual(source["vintages"][0]["year"], 2000)
+
+    def test_uncovered_country_uses_gdp_fallback_and_fixed_2019(self):
+        panel = noisy_panel(countries=("USA", "DEU", "CHN", "JPN"))
+        with tempfile.TemporaryDirectory() as directory:
+            root = mrio_fixture_root(Path(directory), wiod_years=(2000,))
+            weights, source = gr.build_weights_by_year(
+                panel, ("USA", "DEU", "CHN", "JPN"), YEARS, data_root=root,
+                cache_dir=root / "cache")
+            self.assertIn("JPN", source["per_year"][1995]["fallback_rows"])
+            for code in ("USA", "DEU", "CHN", "JPN"):
+                self.assertAlmostEqual(math.fsum(weights[2000][code].values()), 1.0, places=12)
+            fixed, metadata = gr.fixed_2019_weights(
+                panel, ("USA", "DEU", "CHN", "JPN"), YEARS,
+                vintages=gr.discover_mrio_vintages(root, cache_dir=root / "cache"))
+            self.assertEqual(metadata["vintage_year"], 2019)
+            for code in ("USA", "DEU", "CHN", "JPN"):
+                self.assertAlmostEqual(math.fsum(fixed[code].values()), 1.0, places=12)
+            # without a 2019 vintage the fixed-2019 baseline is refused
+            only_old = [item for item in gr.discover_mrio_vintages(
+                root, cache_dir=root / "cache") if int(item["year"]) != 2019]
+            with self.assertRaises(gr.GVARRealError):
+                gr.fixed_2019_weights(panel, ("USA", "DEU", "CHN", "JPN"), YEARS,
+                                      vintages=only_old)
+
+    def test_wiod_block_sums(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = write_wiod_fixture(Path(directory) / "dataset.json",
+                                      ["USA", "DEU", "ROW"], ["A", "B"],
+                                      {("USA", "DEU"): 5.0, ("USA", "ROW"): 100.0}, year=2010)
+            document = gr.wiod_export_matrix(path)
+        index = {code: position for position, code in enumerate(document["countries"])}
+        self.assertEqual(document["year"], 2010)
+        self.assertAlmostEqual(document["exports"][index["USA"]][index["DEU"]],
+                               5.0 * 2 * 2, places=9)
+        self.assertAlmostEqual(document["exports"][index["USA"]][index["ROW"]],
+                               100.0 * 2 * 2, places=9)
+
+
+class V2LagSelection(unittest.TestCase):
+    def test_selects_lag_one_on_varx1_data(self):
+        dataset = varx_dataset()
+        selection = gr.select_lag(dataset, lags=(1, 2), criterion="bic")
+        self.assertEqual(selection["criterion"], "bic")
+        self.assertIn(selection["selected"], (1, 2))
+        self.assertEqual(selection["selected"], 1)
+        self.assertIn("1", selection["criteria"])
+        self.assertIn("2", selection["criteria"])
+        for lag, value in selection["criteria"].items():
+            self.assertIn("aic", value)
+            self.assertIn("bic", value)
+            self.assertIn("stable", value)
+        again = gr.select_lag(dataset, lags=(1, 2), criterion="bic")
+        self.assertEqual(selection, again)
+        aic = gr.select_lag(dataset, lags=(1, 2), criterion="aic")
+        self.assertEqual(aic["criterion"], "aic")
+        self.assertIn(aic["selected"], (1, 2))
+
+    def test_information_criteria_fields_and_fail_closed(self):
+        dataset = varx_dataset()
+        criteria = gr.information_criteria(dataset, 1)
+        self.assertEqual(criteria["lags"], 1)
+        self.assertEqual(criteria["observations"], 199)
+        self.assertGreater(criteria["params"], 0)
+        self.assertTrue(math.isfinite(criteria["aic"]))
+        self.assertTrue(math.isfinite(criteria["bic"]))
+        with self.assertRaises(gr.GVARRealError):
+            gr.select_lag(dataset, criterion="hq")
+        short = varx_dataset(n=4)
+        with self.assertRaises(gr.GVARRealError):
+            gr.select_lag(short, lags=(1, 2))
+
+
+class V2OOS(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.panel = noisy_panel(countries=("USA", "DEU", "FRA", "ITA", "CHN", "JPN"))
+        cls.countries = tuple(cls.panel["gdp_growth"])
+        cls.weights, _ = gr.gdp_weights(cls.panel, cls.countries, YEARS)
+        cls.by_year = {int(year): cls.weights for year in YEARS}
+        cls.groups = {"US": ["USA"], "EA": ["DEU", "FRA", "ITA"], "CN": ["CHN"],
+                      "WORLD": list(cls.countries)}
+
+    def _oos(self, criterion="bic"):
+        return gr.rolling_oos_v2(self.panel, self.countries, YEARS,
+                                 weights_by_year=self.by_year, weights_2019=self.weights,
+                                 weights_gdp=self.weights, groups=self.groups,
+                                 lags=(1, 2), criterion=criterion, max_h=4, n_origins=8)
+
+    def test_models_metrics_and_determinism(self):
+        first = self._oos()
+        second = self._oos()
+        self.assertEqual(json.dumps(first, sort_keys=True), json.dumps(second, sort_keys=True))
+        self.assertEqual(first["models"], ["GVAR_YEAR", "GVAR_2019", "GVAR_GDP", "AR1", "RW"])
+        self.assertEqual(first["criterion"], "bic")
+        for model in first["models"]:
+            for group in ("US", "EA", "CN", "WORLD"):
+                for variable in ("g", "pi"):
+                    for h in (1, 2, 3, 4):
+                        entry = first["metrics"][model][group][variable][h]
+                        self.assertGreater(entry["n"], 0)
+                        self.assertTrue(math.isfinite(entry["rmse"]))
+                        self.assertTrue(math.isfinite(entry["mae"]))
+        rolling = first["rolling"]["GVAR_YEAR"]
+        self.assertGreater(rolling["fits"], 0)
+        self.assertEqual(rolling["fits"] + rolling["skipped"], len(first["origins"]))
+        for entry in rolling["per_origin"]:
+            if "skipped" not in entry:
+                self.assertIn(entry["selected"], (1, 2))
+                self.assertIn(entry["used"], (1, 2))
+                self.assertTrue(entry["stable"])
+        comparisons = gr.compare_v2(first)
+        self.assertEqual(comparisons["primary"], "GVAR_YEAR")
+        for other in ("GVAR_2019", "GVAR_GDP", "AR1", "RW"):
+            self.assertIn(other, comparisons)
+            self.assertEqual(comparisons[other]["aggregate"]["cells"], 32)
+        best = gr.vs_best_baseline(first)
+        self.assertEqual(best["cells"], 32)
+        self.assertEqual(best["primary_better_cells"] + best["baseline_better_cells"]
+                         + best["ties"], 32)
+
+    def test_aic_selection_wired_and_short_sample_fails(self):
+        self.assertEqual(self._oos(criterion="aic")["criterion"], "aic")
+        with self.assertRaises(gr.GVARRealError):
+            gr.rolling_oos_v2(self.panel, self.countries, YEARS[:10],
+                              weights_by_year={int(y): self.weights for y in YEARS[:10]},
+                              weights_2019=self.weights, weights_gdp=self.weights,
+                              groups=self.groups, max_h=4, n_origins=5)
+
+    def test_cli_help_and_flag_validation(self):
+        import subprocess
+        tool = ROOT / "tools" / "gvar_real.py"
+        result = subprocess.run([sys.executable, str(tool), "--help"],
+                                capture_output=True, text=True, cwd=str(ROOT))
+        self.assertEqual(result.returncode, 0)
+        for token in ("--weights", "yby", "--lags", "--max-h", "--origins", "--report",
+                      "--select-lag", "--data-root"):
+            self.assertIn(token, result.stdout)
+        result_yby = subprocess.run([sys.executable, str(tool), "--weights", "yby", "--help"],
+                                    capture_output=True, text=True, cwd=str(ROOT))
+        self.assertEqual(result_yby.returncode, 0)
+        self.assertIn("yby", result_yby.stdout)
+        # the yby CLI rejects lag candidates outside 1..2 before touching any data
+        import types
+        with self.assertRaises(SystemExit):
+            gr.yby_cli(types.SimpleNamespace(lags="3", data_root=None, cache_dir=None,
+                                             weights_cache=None, refresh=False,
+                                             select_lag="bic", max_h=4, origins=5,
+                                             report=None))
+        with self.assertRaises(SystemExit):
+            gr.yby_cli(types.SimpleNamespace(lags="", data_root=None, cache_dir=None,
+                                             weights_cache=None, refresh=False,
+                                             select_lag="bic", max_h=4, origins=5,
+                                             report=None))
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

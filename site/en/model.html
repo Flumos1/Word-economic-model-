@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Model — AMFE</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">AMFE · research model of the world economy</a>
+    <nav aria-label="Main navigation"><a href="index.html">Home</a><a href="model.html" class="active">Model</a><a href="forecast.html">Forecast</a><a href="scenarios.html">Scenarios</a><a href="data.html">Data</a><a href="methodology.html">Methodology</a><a href="docs.html">Documents</a></nav>
+    <div class="lang-switch" aria-label="Language"><a href="../model.html" hreflang="ru" lang="ru">RU</a><span class="current" lang="en">EN</span></div>
+  </div>
+</header>
+<main class="wrap">
+
+<section><h1>Model: the AMFE architecture</h1>
+<p class="lead">Five layers: real input–output tables → IO/SFC core → GVAR → scenario reports →
+forecast product. Below is what is actually implemented on real data and what remains a prototype.</p>
+</section>
+<aside class="callout callout-warn"><p><strong>Research only — not admission, not investment advice.</strong> AMFE is a research project. CANDIDATE means the model is not admitted for use; the figures below are evaluation and scenario results, not advice and not trading forecasts.</p></aside>
+<section>
+  <h2>Pipeline</h2>
+  <ol class="flow">
+    <li><strong>MRIO data.</strong> FIGARO 2019 (50 countries ×
+    64 industries, 87.3% of world GDP) and WIOD 2016
+    (44 ×
+    56).</li>
+    <li><strong>IO/SFC core.</strong> Block matrix A, solution x = (I−A)⁻¹(y+fda); row/column balance
+    checks and the global value-added = final-demand identity.</li>
+    <li><strong>GVAR.</strong> A prototype of cross-country linkages for shock transmission; full
+    empirical calibration is not complete.</li>
+    <li><strong>Scenarios.</strong> Comparative statics: an energy shock, import costs, FX
+    pass-through; results by country and industry.</li>
+    <li><strong>Forecast product.</strong> A T1 CPI ensemble (US year-over-year inflation, h=1) with
+    intervals, under admission protocol v5.</li>
+  </ol>
+</section>
+<section>
+  <h2>Implemented vs not implemented</h2>
+  <div class="table-wrap"><table>
+<thead><tr><th>Layer</th><th>Content</th><th>Status</th><th>Comment</th></tr></thead>
+<tbody>
+<tr><td>MRIO data</td><td>FIGARO 2019 and WIOD 2016 — real country × industry tables</td><td>implemented</td><td>50×64 and 44×56; raw data outside git</td></tr>
+<tr><td>IO core</td><td>static Leontief model x = (I−A)⁻¹(y+fda), balance validation</td><td>implemented</td><td>spectral radius and residuals converge</td></tr>
+<tr><td>SFC layer</td><td>stocks and flows, cross-country settlement</td><td>partial</td><td>accounting prototypes without empirical calibration</td></tr>
+<tr><td>GVAR</td><td>cross-country linkages and shock transmission</td><td>prototype</td><td>on real data, not fully calibrated</td></tr>
+<tr><td>Scenarios</td><td>energy/import/FX comparative statics</td><td>implemented</td><td>7 reports, RESEARCH_ONLY</td></tr>
+<tr><td>Dynamics and expectations</td><td>fast/slow loop, drift</td><td>not implemented</td><td>a later stage after data and calibration</td></tr>
+<tr><td>Forecast product</td><td>T1 CPI ensemble, protocol v5</td><td>CANDIDATE / SHADOW_TEST</td><td>ACTIVE admission not granted</td></tr>
+</tbody></table></div>
+  <p class="muted">An honest boundary: real MRIO tables and scenarios on them exist; a full dynamic
+  SFC model, a calibrated GVAR and behavioural expectations do not. That is why the statuses are
+  CANDIDATE/SHADOW_TEST and RESEARCH_ONLY, not “an admitted model”.</p>
+</section>
+<section>
+  <h2>Invariants that are checked</h2>
+  <ul>
+    <li>MRIO row/column balances and the global Σva = Σy identity (for WIOD — with the signed
+    adjustments of schema v1.1).</li>
+    <li>Productiveness of matrix A: spectral radius &lt; 1 and a positive output vector.</li>
+    <li>Scenarios are reproducible: identical inputs give identical reports, material-balance
+    residuals are around 1e−8.</li>
+  </ul>
+</section>
+
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <p><strong>Disclaimer.</strong> Research only — not admission, not investment advice. AMFE is a research project: CANDIDATE means the model is not admitted for use; the numbers are evaluation and scenario results, not advice or trading forecasts. These pages contain only the project&#x27;s own forecasts and derived metrics; there are no raw third-party data here.</p>
+    <p class="muted">Snapshot: 2026-11-14T15:10:51Z · static site with no JavaScript, frameworks or external resources · built by
+    <code>tools/site_build.py</code>.</p>
+  </div>
+</footer>
+</body>
+</html>

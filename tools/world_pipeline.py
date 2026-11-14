@@ -256,18 +256,36 @@ class WorldTable:
         return Zc, yc, xc, vac
 
     def to_iodataset(self, level: str = "country") -> IODataset:
-        """Dense ``amfe.world.io_core.IODataset`` at country (or industry) level."""
+        """Dense ``amfe.world.io_core.IODataset`` at country (or industry) level.
+
+        Real MRIO tables contain members with zero gross output (e.g. OECD ``ISL|C10T14MIN``);
+        ``io_core`` needs ``x > 0`` for ``A = Z/x``, so such members are dropped from this
+        *diagnostic* dense core only (the sparse pipeline itself keeps them and uses zero columns).
+        """
         if level == "country":
             Zc, yc, xc, vac = self.country_block()
-            return IODataset(countries=self.countries, industries=("TOTAL",),
-                             Z=_dense(Zc), y=yc.tolist(), x=xc.tolist(), va=vac.tolist(),
-                             units=self.units, tolerance=self.tolerance)
+            keep = [index for index, value in enumerate(xc) if float(value) > 0.0]
+            if len(keep) != len(xc):
+                dense = _dense(Zc)
+                Zc = [[dense[row][column] for column in keep] for row in keep]
+                yc, xc, vac = yc[keep], xc[keep], vac[keep]
+            else:
+                Zc = _dense(Zc)
+            return IODataset(countries=tuple(self.countries[index] for index in keep),
+                             industries=("TOTAL",), Z=Zc, y=yc.tolist(), x=xc.tolist(),
+                             va=vac.tolist(), units=self.units, tolerance=self.tolerance)
         projection = _industry_projection(self.n_countries, self.n_industries)
-        Zi = (projection @ self.Z @ projection.T).tocsr()
-        return IODataset(countries=("WORLD",), industries=self.industries,
-                         Z=_dense(Zi), y=np.asarray(projection @ self.y).ravel().tolist(),
-                         x=np.asarray(projection @ self.x).ravel().tolist(),
-                         va=np.asarray(projection @ self.va).ravel().tolist(),
+        Zi = _dense((projection @ self.Z @ projection.T).tocsr())
+        yi = np.asarray(projection @ self.y).ravel()
+        xi = np.asarray(projection @ self.x).ravel()
+        vai = np.asarray(projection @ self.va).ravel()
+        keep = [index for index, value in enumerate(xi) if float(value) > 0.0]
+        if len(keep) != len(xi):
+            Zi = [[Zi[row][column] for column in keep] for row in keep]
+            yi, xi, vai = yi[keep], xi[keep], vai[keep]
+        return IODataset(countries=("WORLD",),
+                         industries=tuple(self.industries[index] for index in keep),
+                         Z=Zi, y=yi.tolist(), x=xi.tolist(), va=vai.tolist(),
                          units=self.units, tolerance=self.tolerance)
 
     def describe(self) -> dict:
@@ -784,12 +802,24 @@ def perron_root(A: sp.csr_matrix, max_iterations: int = POWER_ITERATIONS,
 def country_core(table: WorldTable) -> dict:
     """Dense reference core on the country block: A = Z/x, rho(A), Hawkins-Simon (io_core)."""
     dataset = table.to_iodataset("country")
+    keep = [index for index, value in enumerate(dataset.x) if float(value) > 0.0]
+    dropped = len(dataset.x) - len(keep)
+    if dropped:
+        dataset = IODataset(
+            countries=tuple(dataset.countries[index] for index in keep),
+            industries=dataset.industries,
+            Z=tuple(tuple(row[index] for index in keep) for row in dataset.Z),
+            y=tuple(dataset.y[index] for index in keep),
+            x=tuple(dataset.x[index] for index in keep),
+            va=tuple(dataset.va[index] for index in keep),
+            units=dataset.units, tolerance=dataset.tolerance)
     core = LeontiefCore.from_dataset(dataset)
     hawkins = core.hawkins_simon()
     return {
         "level": "country",
         "countries": table.n_countries,
         "aggregated_industries": 1,
+        "dropped_zero_output_countries": dropped,
         "spectral_radius": round(core.spectral_radius(), 12),
         "productive": bool(core.is_productive()),
         "productiveness_margin": round(core.productiveness_margin(), 12),
@@ -797,7 +827,7 @@ def country_core(table: WorldTable) -> dict:
         "hawkins_simon_min_pivot": (None if hawkins["min_pivot"] is None
                                     else round(float(hawkins["min_pivot"]), 12)),
         "max_abs_balance_residual": float(dataset.check_balance()),
-        "max_members": int(table.n_countries),
+        "max_members": int(len(dataset.countries)),
     }
 
 

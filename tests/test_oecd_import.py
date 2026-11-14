@@ -72,6 +72,10 @@ class LayoutTest(unittest.TestCase):
         header = ["REF_AREA", "ACTIVITY", "OBS_VALUE"]
         self.assertEqual(oecd.detect_layout(header), "sdmx")
 
+    def test_detect_icio_2016_matrix_layout(self):
+        header = ["", "AUS_C01T05AGR", "AUT_C10T14MIN", "HFCE_AUS", "INV_AUS", "DISC"]
+        self.assertEqual(oecd.detect_layout(header), "icio_matrix")
+
     def test_classify_column(self):
         mapping = oecd.classify_column(["Row Country", "Row Industry", "Column Country",
                                         "Column Industry", "Value", "Year"])
@@ -115,6 +119,67 @@ class ParseTest(unittest.TestCase):
             cells = oecd.read_archive(path)
             self.assertEqual(len(cells), 1)
             self.assertEqual(cells[0]["year"], 2019)
+
+
+def icio2016_csv() -> str:
+    """A two-economy x two-industry slice of the real ICIO 2016 matrix layout (balanced)."""
+    header = ["", "AAA_C1", "AAA_C2", "BBB_C1", "BBB_C2",
+              "HFCE_AAA", "INV_AAA", "DIRP_AAA", "HFCE_BBB", "INV_BBB", "DIRP_BBB", "DISC"]
+    # rows: Z row, HFCE, INV, DIRP, DISC; OUT and VA+TAXSUB are computed to balance exactly
+    data = {
+        "AAA_C1": ([10, 1, 2, 0], 4.0, -1.0, 0.0, 0.5),
+        "AAA_C2": ([0, 5, 0, 1], 2.0, 0.0, 0.0, 0.0),
+        "BBB_C1": ([1, 0, 6, 2], 3.0, 0.5, 0.0, 0.0),
+        "BBB_C2": ([0, 2, 0, 4], 1.0, 0.0, 0.0, 0.0),
+    }
+    Z = [data[label][0] for label in data]
+    y = [data[label][1] + data[label][3] + data[label][4] for label in data]
+    inv = [data[label][2] for label in data]
+    x = [sum(Z[row]) + y[row] + inv[row] for row in range(4)]
+    va = [x[column] - sum(Z[row][column] for row in range(4)) for column in range(4)]
+    rows = []
+    for position, (label, (inter, hfce, inv_value, dirp, disc)) in enumerate(data.items()):
+        rows.append([label] + [str(value) for value in inter]
+                    + [str(hfce), str(inv_value), str(dirp), "0", "0", "0", str(disc)])
+    rows.append(["VA+TAXSUB"] + [str(value) for value in va] + [""] * 7)
+    rows.append(["OUT"] + [str(value) for value in x] + [""] * 7)
+    buffer = io.StringIO()
+    writer = csv.writer(buffer, lineterminator="\n")
+    writer.writerow(header)
+    for row in rows:
+        writer.writerow(row)
+    return buffer.getvalue()
+
+
+class Icio2016MatrixTest(unittest.TestCase):
+    def test_parse_icio_matrix_maps_intermediate_final_demand_and_bottom_rows(self):
+        buffer = io.StringIO(icio2016_csv())
+        reader = csv.reader(buffer)
+        header = next(reader)
+        lines = [line for line in reader]
+        cells = oecd.parse_icio_matrix(header, lines, 2011)
+        industries = {cell["row_industry"] for cell in cells}
+        self.assertIn("C1", industries)
+        self.assertIn("VA+TAXSUB", industries)
+        self.assertIn("OUT", industries)
+        final = [cell for cell in cells if cell["col_industry"] == "HFCE"]
+        self.assertEqual({cell["col_country"] for cell in final}, {"AAA", "BBB"})
+
+    def test_icio_matrix_builds_a_consistent_v11_document(self):
+        reader = csv.reader(io.StringIO(icio2016_csv()))
+        header = next(reader)
+        lines = [line for line in reader]
+        cells = oecd.parse_icio_matrix(header, lines, 2011)
+        document = oecd.build_document(cells, year=2011, source={"name": "test"})
+        self.assertEqual(document["countries"], ["AAA", "BBB"])
+        self.assertEqual(document["industries"], ["C1", "C2"])
+        # x comes from the OUT row, y from HFCE/NPS/... and inventory from INV
+        self.assertEqual(document["x"][:2], [16.5, 8.0])
+        self.assertEqual(document["inventory_changes"][0], -1.0)
+        residual = [sum(document["Z"][row]) + document["y"][row]
+                    + document["inventory_changes"][row] + document["discrepancy"][row]
+                    - document["x"][row] for row in range(4)]
+        self.assertTrue(all(abs(value) < 1e-9 for value in residual), residual)
 
 
 class BuildDocumentTest(unittest.TestCase):
@@ -237,6 +302,22 @@ class InstructionTest(unittest.TestCase):
         for forbidden in ('"Z"', '"y"', '"va"', '"inventory_changes"'):
             self.assertNotIn(forbidden, text)
         self.assertIn("d1_pass", text)
+
+
+class WaybackTest(unittest.TestCase):
+    def test_playback_url_is_built_from_a_snapshot(self):
+        snapshot = ("http://web.archive.org/web/20210310170654/"
+                    "http://www.oecd.org/sti/ind/ICIO2016_2011.zip")
+        playback = oecd._wayback_playback_url(snapshot)
+        self.assertEqual(playback, "https://web.archive.org/web/20210310170654id_/"
+                                   "http://www.oecd.org/sti/ind/ICIO2016_2011.zip")
+        self.assertIsNone(oecd._wayback_playback_url("https://example.org/file.zip"))
+
+    def test_data_year_is_not_the_edition_year(self):
+        self.assertEqual(oecd._years_from_name("ICIO2016_2011.zip"), [2011])
+        self.assertEqual(oecd._years_from_name("ICIO2016_1995.zip"), [1995])
+        self.assertEqual(oecd._years_from_name("ICIO2019.csv"), [2019])
+        self.assertEqual(oecd._years_from_name("table.csv"), [])
 
 
 class ProbeTest(unittest.TestCase):

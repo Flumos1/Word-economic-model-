@@ -57,6 +57,17 @@ body {
 }
 .site-header nav a:hover, .site-header nav a:focus { color: var(--fg); }
 .site-header nav a.active { color: var(--accent); border-bottom-color: var(--accent); }
+.lang-switch { display: flex; gap: 0.35rem; margin-left: auto; align-items: center; font-size: 0.85rem; }
+.lang-switch a, .lang-switch .current {
+  display: inline-block;
+  padding: 0.05rem 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  text-decoration: none;
+}
+.lang-switch .current { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.lang-switch a { color: var(--muted); }
+.lang-switch a:hover, .lang-switch a:focus { color: var(--fg); }
 main { padding: 1.5rem 0 2.5rem; }
 h1 { font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.3rem); line-height: 1.2; margin: 0.4rem 0 0.8rem; }
 h2 { font-size: clamp(1.15rem, 1rem + 0.6vw, 1.5rem); margin: 2rem 0 0.7rem; }

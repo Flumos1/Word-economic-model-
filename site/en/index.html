@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AMFE: research model of the world economy</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">AMFE · research model of the world economy</a>
+    <nav aria-label="Main navigation"><a href="index.html" class="active">Home</a><a href="model.html">Model</a><a href="forecast.html">Forecast</a><a href="scenarios.html">Scenarios</a><a href="data.html">Data</a><a href="methodology.html">Methodology</a><a href="docs.html">Documents</a></nav>
+    <div class="lang-switch" aria-label="Language"><a href="../index.html" hreflang="ru" lang="ru">RU</a><span class="current" lang="en">EN</span></div>
+  </div>
+</header>
+<main class="wrap">
+
+<section class="hero">
+  <h1>AMFE: research model of the world economy</h1>
+  <p class="lead">A cross-country country × industry model built on real FIGARO and WIOD tables, a
+  forecast ensemble for US CPI inflation and scenario reports on how shocks propagate through supply
+  chains. Everything on this page is research, not an admitted model.</p>
+  <p class="badges"><span class="badge badge-warn">CANDIDATE</span> T1 CPI forecast · <span class="badge badge-warn">SHADOW_TEST</span>
+  shadow track ENSEMBLE_REGIME_V4 · statuses are not assigned by this site</p>
+</section>
+<aside class="callout callout-warn"><p><strong>Research only — not admission, not investment advice.</strong> AMFE is a research project. CANDIDATE means the model is not admitted for use; the figures below are evaluation and scenario results, not advice and not trading forecasts.</p></aside>
+<section>
+  <h2>Latest CPI forecast (T1, year over year, h=1)</h2>
+  <div class="grid">
+    <div class="card"><div class="card-label">Point</div>
+      <div class="card-value">3.6257</div>
+      <div class="muted">origin 2026-11, candidate ENSEMBLE_INVERSE_MSE</div></div>
+    <div class="card"><div class="card-label">90% interval</div>
+      <div class="card-value">[2.4579; 4.7971]</div>
+      <div class="muted">quantiles q05…q95, 19 values</div></div>
+    <div class="card"><div class="card-label">Status</div>
+      <div class="card-value"><span class="badge badge-warn">CANDIDATE</span></div>
+      <div class="muted">conditional_data_class = true</div></div>
+  </div>
+</section>
+<section>
+  <h2>World model on real data</h2>
+  <div class="grid">
+    <div class="card"><div class="card-label">FIGARO 2019</div>
+      <div class="card-value">50 × 64</div>
+      <div class="muted">countries × industries; 3200 sectors; GDP coverage
+      87.3%</div></div>
+    <div class="card"><div class="card-label">WIOD 2016</div>
+      <div class="card-value">44 ×
+      56</div>
+      <div class="muted">countries × industries; GDP coverage
+      84.7%–89.0%</div></div>
+    <div class="card"><div class="card-label">Scenarios</div>
+      <div class="card-value">7</div>
+      <div class="muted">energy / import / FX on real FIGARO; status
+      RESEARCH_ONLY</div></div>
+  </div>
+</section>
+<section>
+  <h2>Key scenario</h2>
+  <p>Energy shock: сокращение конечного спроса на 5% в энергетических отраслях CPA_B, CPA_C19, CPA_D35.</p>
+  <p>Total output change: <strong>-253 452 USD_mn</strong>
+  (-0.149% of baseline output); largest country —
+  US, largest industry —
+  CPA_D35.</p>
+  <p class="muted">Comparative statics, not a forecast. Full tables on the
+  <a href="scenarios.html">Scenarios</a> page.</p>
+</section>
+<section>
+  <h2>Sections</h2>
+  <ul class="links">
+    <li><a href="model.html">Model</a> — architecture: MRIO data → IO/SFC → GVAR → scenarios.</li>
+    <li><a href="forecast.html">Forecast</a> — the T1 CPI product: intervals, C4/C6, shadow track.</li>
+    <li><a href="scenarios.html">Scenarios</a> — 7 energy/import/FX reports with top countries and
+    industries.</li>
+    <li><a href="data.html">Data</a> — FIGARO, WIOD, OECD, Eora: coverage and licences.</li>
+    <li><a href="methodology.html">Methodology</a> — protocols, admission criteria C1–C6 and limits.</li>
+    <li><a href="docs.html">Documents</a> — key project documents.</li>
+  </ul>
+</section>
+
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <p><strong>Disclaimer.</strong> Research only — not admission, not investment advice. AMFE is a research project: CANDIDATE means the model is not admitted for use; the numbers are evaluation and scenario results, not advice or trading forecasts. These pages contain only the project&#x27;s own forecasts and derived metrics; there are no raw third-party data here.</p>
+    <p class="muted">Snapshot: 2026-11-14T15:10:51Z · static site with no JavaScript, frameworks or external resources · built by
+    <code>tools/site_build.py</code>.</p>
+  </div>
+</footer>
+</body>
+</html>

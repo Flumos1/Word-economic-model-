@@ -280,5 +280,117 @@ class Cli(unittest.TestCase):
             self.assertEqual(code, wr.EXIT_INVALID)
 
 
+class SFCBlock(unittest.TestCase):
+    """SFC <-> IO block (docs/133) in the scenario reports, index and dashboard."""
+
+    def _run(self, **overrides):
+        table = small_table()
+        overrides.setdefault("energy_industries", ",".join(table.industries[:2]))
+        overrides.setdefault("import_shares", "0.10")
+        overrides.setdefault("fx_countries", table.countries[0])
+        overrides.setdefault("fx_shares", "0.10")
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        result = wr.run(args(out=tmp.name, **overrides))
+        return result, Path(tmp.name)
+
+    def test_flag_adds_sfc_block_to_reports_index_and_dashboard(self):
+        result, out_dir = self._run(sfc=True)
+        for report in result["reports"]:
+            self.assertIn("sfc", report)
+            block = report["sfc"]
+            self.assertEqual(block["schema"], wr.SFC_SCHEMA)
+            self.assertTrue(block["pass"])
+            self.assertGreater(block["countries"], 0)
+            for key in ("gdp", "final_demand", "savings", "investment", "current_account"):
+                self.assertIn(key, block["totals"])
+            self.assertEqual(forbidden_keys(block), [])
+        index = result["index"]
+        self.assertIsNotNone(index["sfc"])
+        self.assertTrue(index["checks"]["all_sfc_pass"])
+        for entry in index["scenarios"]:
+            self.assertTrue(entry["checks"]["sfc_block_pass"])
+        markdown = Path(result["paths"]["reports"]["energy_minus5"]["md"]).read_text(encoding="utf-8")
+        self.assertIn("SFC-проверки (S = I + CA)", markdown)
+        dashboard_md = (out_dir / "dashboard.md").read_text(encoding="utf-8")
+        dashboard_html = (out_dir / "dashboard.html").read_text(encoding="utf-8")
+        self.assertIn("SFC-проверки (S = I + CA)", dashboard_md)
+        self.assertIn("SFC-проверки (S = I + CA)", dashboard_html)
+        json.loads((out_dir / "report_index.json").read_text(encoding="utf-8"))
+
+    def test_without_flag_the_artefacts_are_unchanged(self):
+        result, out_dir = self._run(sfc=False)
+        for report in result["reports"]:
+            self.assertNotIn("sfc", report)
+        self.assertIsNone(result["index"].get("sfc"))
+        self.assertIsNone(result["index"]["checks"].get("all_sfc_pass"))
+        dashboard_md = (out_dir / "dashboard.md").read_text(encoding="utf-8")
+        self.assertNotIn("SFC-проверки", dashboard_md)
+
+    def test_totals_are_consistent_with_saving_investment_identity(self):
+        result, _ = self._run(sfc=True)
+        sfc = result["index"]["sfc"]
+        totals = sfc["totals"]
+        checks = sfc["checks"]
+        self.assertAlmostEqual(totals["gdp"], totals["final_demand"], places=4)
+        self.assertAlmostEqual(totals["savings"] - totals["investment"],
+                               totals["current_account"], places=4)
+        scale = max(1.0, abs(totals["gdp"]))
+        self.assertLessEqual(abs(checks["global_current_account_sum"]), 1e-6 * scale)
+        self.assertLessEqual(checks["saving_investment_identity_max_abs"], 1e-6 * scale)
+        self.assertLessEqual(checks["current_account_disagreement_max_abs"], 1e-6 * scale)
+        self.assertTrue(checks["sfc_pass"])
+        self.assertLessEqual(abs(checks["net_foreign_assets_closing_sum"]), 1e-6 * scale)
+        # the block is baseline accounting: the same numbers in every scenario report
+        first = result["reports"][0]["sfc"]["totals"]
+        for report in result["reports"][1:]:
+            self.assertEqual(report["sfc"]["totals"], first)
+
+    def test_investment_share_changes_split_not_the_identity(self):
+        low, _ = self._run(sfc=True, sfc_investment_share=0.0)
+        high, _ = self._run(sfc=True, sfc_investment_share=0.4)
+        low_totals = low["index"]["sfc"]["totals"]
+        high_totals = high["index"]["sfc"]["totals"]
+        self.assertAlmostEqual(low_totals["savings"], low_totals["investment"], places=4)
+        self.assertAlmostEqual(high_totals["savings"] - high_totals["investment"],
+                               high_totals["current_account"], places=4)
+        self.assertAlmostEqual(high_totals["current_account"], low_totals["current_account"],
+                               places=4)
+        self.assertNotAlmostEqual(high_totals["savings"], low_totals["savings"], places=1)
+        self.assertTrue(low["index"]["sfc"]["pass"])
+        self.assertTrue(high["index"]["sfc"]["pass"])
+
+    def test_sfc_block_is_deterministic(self):
+        first, _ = self._run(sfc=True)
+        second, _ = self._run(sfc=True)
+        self.assertEqual(json.dumps(first["index"]["sfc"], sort_keys=True),
+                         json.dumps(second["index"]["sfc"], sort_keys=True))
+        for left, right in zip(first["reports"], second["reports"]):
+            self.assertEqual(json.dumps(left["sfc"], sort_keys=True),
+                             json.dumps(right["sfc"], sort_keys=True))
+
+    def test_sfc_failure_is_fail_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            table = small_table()
+            with mock.patch.object(wr, "sfc_section",
+                                   side_effect=wr.SFCIOError("broken IO accounting")):
+                with self.assertRaises(wr.SFCIOError):
+                    wr.run(args(sfc=True, out=tmp, import_shares="0.10", fx_shares="0.10",
+                                fx_countries=table.countries[0],
+                                energy_industries=table.industries[0]))
+            self.assertFalse((Path(tmp) / "report_index.json").exists())
+            self.assertFalse((Path(tmp) / "reports").exists())
+
+    def test_cli_sfc_flag(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            code = wr.main(["--synthetic", "--countries", "20", "--industries", "10",
+                            "--import-shares", "0.10", "--fx-countries", "C01",
+                            "--fx-shares", "0.10", "--sfc", "--out", tmp])
+            self.assertEqual(code, wr.EXIT_OK)
+            index = json.loads((Path(tmp) / "report_index.json").read_text(encoding="utf-8"))
+            self.assertIsNotNone(index["sfc"])
+            self.assertTrue(index["checks"]["all_sfc_pass"])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

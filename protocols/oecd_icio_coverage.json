@@ -1,0 +1,27 @@
+{
+ "source_id": "oecd_icio",
+ "edition": "OECD ICIO 2016 (ISIC Rev.3)",
+ "status": "AVAILABLE_AUTO_2016",
+ "period": "1995-2011",
+ "d1_pass_period": "2000-2011",
+ "d1_fail_period": "1995-1999 (one negative final-demand cell; datasets not written)",
+ "economies": 71,
+ "countries_named": 63,
+ "regions": "CN split into 4, MX into 3, ROW",
+ "industries": 34,
+ "sectors": 2414,
+ "units": "USD_mn",
+ "prices": "current",
+ "coverage_world_value_added_pct_min": 95.35,
+ "coverage_world_value_added_pct_max": 95.47,
+ "d1": "PASS for 2000-2011 (max absolute column residual 0.12-0.86 USD_mn)",
+ "files": {
+  "downloaded": 17,
+  "datasets_written": 12,
+  "archive_bytes": 86271689
+ },
+ "source": "official OECD per-year archives ICIO2016_<year>.zip retrieved via Internet Archive playback",
+ "licence": "OECD Terms; archive copies of official files; raw data not committed",
+ "release_2025": "manual only: 60+ economies x 45 industries, 1995-2022; browser download (docs/130)",
+ "docs": "docs/130_OECD_ICIO.md"
+}

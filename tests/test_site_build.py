@@ -30,7 +30,9 @@ REPORT_V4 = ROOT / "protocols" / "regime_v4_candidate_evaluation_report.json"
 
 PAGES = ("index.html", "model.html", "forecast.html", "scenarios.html", "data.html",
          "methodology.html", "docs.html")
-REQUIRED_FILES = PAGES + ("assets/style.css",)
+EN_FILES = tuple(f"en/{name}" for name in PAGES)
+REQUIRED_FILES = PAGES + EN_FILES + ("assets/style.css",)
+ALL_FILES = REQUIRED_FILES
 SOURCE_FILES = (
     "build/product/forecast_latest.json",
     "build/world/report_index.json",
@@ -144,7 +146,7 @@ class SiteBuild(unittest.TestCase):
             for token in forbidden:
                 self.assertNotIn(token, lowered, f"{name} contains {token}")
             if name.endswith(".html"):
-                self.assertIn('href="assets/style.css"', content, name)
+                self.assertIn("assets/style.css", content, name)
             else:
                 self.assertNotIn("url(", lowered)
 
@@ -201,7 +203,7 @@ class SiteBuild(unittest.TestCase):
     def test_data_page_lists_sources_and_licences(self):
         data = text_of(self.texts["data.html"])
         for token in ("FIGARO", "WIOD", "OECD", "Eora", "Comtrade", "CC BY 4.0",
-                      "BLOCKED_AUTOMATED", "BLOCKED_LICENCE"):
+                      "AVAILABLE_AUTO_2016", "BLOCKED_LICENCE"):
             self.assertIn(token, data)
         self.assertIn("не публикуются", data.lower())
 
@@ -210,10 +212,83 @@ class SiteBuild(unittest.TestCase):
         targets = re.findall(r'href="(\.\./docs/[^"]+)"', page)
         self.assertGreaterEqual(len(targets), 10)
         for target in targets:
-            local = (ROOT / "site" / target).resolve()
+            local = (ROOT / target[3:]).resolve()
             self.assertTrue(local.is_file(), target)
         for number in ("120", "125", "129", "131"):
             self.assertRegex(page, rf"docs/{number}_")
+
+    # ------------------------------------------------------------------------------ english version
+    def test_english_pages_exist_and_are_marked_en(self):
+        for name in EN_FILES:
+            content = self.texts[name]
+            self.assertIn('<html lang="en">', content, name)
+            self.assertNotIn('<html lang="ru">', content, name)
+            self.assertIn("../assets/style.css", content, name)
+
+    def test_english_disclaimer_and_statuses(self):
+        for name in EN_FILES:
+            text = text_of(self.texts[name])
+            self.assertIn("Research only", text, name)
+            self.assertIn("not admission", text, name)
+            self.assertIn("not investment advice", text, name)
+        index = text_of(self.texts["en/index.html"])
+        forecast = text_of(self.texts["en/forecast.html"])
+        self.assertIn("CANDIDATE", index)
+        self.assertIn("SHADOW_TEST", index)
+        self.assertIn("ENSEMBLE_REGIME_V4", forecast)
+        self.assertIn("C4", forecast)
+        self.assertIn("FAIL", forecast)
+        self.assertIn("C6", forecast)
+
+    def test_language_switcher_on_all_pages(self):
+        for name in PAGES:
+            ru_page = self.texts[name]
+            self.assertIn('class="lang-switch"', ru_page, name)
+            self.assertIn(f'href="en/{name}"', ru_page, name)
+            self.assertIn('hreflang="en"', ru_page, name)
+            self.assertIn('<html lang="ru">', ru_page, name)
+        for name in EN_FILES:
+            en_page = self.texts[name]
+            page_name = name.split("/", 1)[1]
+            self.assertIn('class="lang-switch"', en_page, name)
+            self.assertIn(f'href="../{page_name}"', en_page, name)
+            self.assertIn('hreflang="ru"', en_page, name)
+
+    def test_english_numbers_match_the_sources(self):
+        forecast = text_of(self.texts["en/forecast.html"])
+        quantiles = self.feed["quantiles_5_to_95_step_5"]
+        self.assertIn(f"{self.feed['point']:.4f}", forecast)
+        self.assertIn(f"{quantiles[0]:.4f}", forecast)
+        self.assertIn(f"{quantiles[-1]:.4f}", forecast)
+        for arm in ("RW", "EQUAL_WEIGHT_POINT", "EQUAL_WEIGHT_DENSITY"):
+            self.assertIn(f"{self.feed['controls'][arm]['point']:.4f}", forecast)
+        self.assertIn("1.0775", forecast)
+        self.assertIn("0.9303", forecast)
+        c6 = self.shadow["c6"]
+        self.assertIn(f'{c6["n_resolved"]} / {c6["min_forecasts"]}', forecast)
+        self.assertIn(f'{c6["distinct_target_periods"]} / {c6["min_distinct_target_periods"]}',
+                      forecast)
+        index = text_of(self.texts["en/index.html"])
+        data = text_of(self.texts["en/data.html"])
+        dataset = self.world["dataset"]
+        self.assertIn(f"{dataset['countries']} × {dataset['industries']}", index)
+        self.assertIn("87.3%", index)
+        self.assertIn("44 × 56", data)
+        self.assertIn("84.7%", data)
+        self.assertIn("89.0%", data)
+
+    def test_english_scenarios_and_docs(self):
+        scenarios = text_of(self.texts["en/scenarios.html"])
+        for scenario in self.world["scenarios"]:
+            self.assertIn(str(scenario["id"]), scenarios)
+        for value in ("-253 452", "-2 859 371", "RESEARCH_ONLY"):
+            self.assertIn(value, scenarios)
+        page = self.texts["en/docs.html"]
+        targets = re.findall(r'href="(\.\./\.\./docs/[^"]+)"', page)
+        self.assertGreaterEqual(len(targets), 10)
+        for target in targets:
+            local = (ROOT / target[6:]).resolve()
+            self.assertTrue(local.is_file(), target)
 
     # ------------------------------------------------------------------------- licence hygiene
     def test_no_raw_third_party_values(self):

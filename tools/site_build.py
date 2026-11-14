@@ -95,6 +95,9 @@ TOP_SCENARIOS = ("energy_minus5", "import_plus10", "fx_minus20_DE")
 
 DISCLAIMER = ("Это исследовательский артефакт, а не допущенная модель и не инвестиционная "
               "рекомендация. Статусы не присваиваются сайтом.")
+EN_DISCLAIMER = ("Research only — not admission, not investment advice. AMFE is a research project: "
+                 "CANDIDATE means the model is not admitted for use; the numbers are evaluation and "
+                 "scenario results, not advice or trading forecasts.")
 
 PAGES = ("index", "model", "forecast", "scenarios", "data", "methodology", "docs")
 
@@ -115,6 +118,34 @@ def read_json(path: Path, label: str) -> dict:
     if not isinstance(document, dict):
         raise SiteBuildError(f"{label}: ожидался JSON-объект")
     return document
+
+
+def oecd_source_row(lang: str = "ru") -> list[str]:
+    """OECD ICIO row: auto-downloaded 2016 edition when the coverage protocol exists, else blocked."""
+    try:
+        coverage = read_json(ROOT / "protocols" / "oecd_icio_coverage.json", "OECD coverage")
+    except SiteBuildError:
+        coverage = {}
+    if coverage:
+        if lang == "en":
+            return ["OECD ICIO 2016 (auto: 71×34, 1995–2011)", "AVAILABLE_AUTO_2016",
+                    "Official per-year OECD archives (2016 edition) retrieved via Internet Archive; "
+                    "D1 PASS 2000–2011, world value-added coverage 95.4%; 1995–1999 fail only on one "
+                    "negative final-demand cell",
+                    "2025 release (60+×45, 1995–2022) — browser download only (docs/130)"]
+        return ["OECD ICIO 2016 (авто: 71×34, 1995–2011)", "AVAILABLE_AUTO_2016",
+                "Официальные per-year архивы OECD (2016 edition) получены через Internet Archive; "
+                "D1 PASS 2000–2011, покрытие мировой ДС 95,4%; 1995–1999 — FAIL только по одной "
+                "отрицательной ячейке спроса",
+                "Релиз 2025 (60+×45, 1995–2022) — только вручную в браузере (docs/130)"]
+    if lang == "en":
+        return ["OECD ICIO 2025", "BLOCKED_AUTOMATED",
+                "Non-browser clients get HTTP 403; the terms are accepted in the browser",
+                "Download manually in the browser, accept the terms, put files in "
+                "data/mrio/oecd_icio/archive/"]
+    return ["OECD ICIO 2025", "BLOCKED_AUTOMATED",
+            "Небраузерные клиенты получают HTTP 403; условия требуют принятия в браузере",
+            "Скачать вручную в браузере, принять условия, положить в data/mrio/oecd_icio/archive/"]
 
 
 def esc(value) -> str:
@@ -235,27 +266,64 @@ def load_context(root: Path = ROOT) -> dict:
 
 
 # ----------------------------------------------------------------------------------------- layout
-def page(title: str, current: str, body: str, generated_at: str) -> str:
+NAV_LABELS = {
+    "ru": (("index", "Главная"), ("model", "Модель"), ("forecast", "Прогноз"),
+           ("scenarios", "Сценарии"), ("data", "Данные"),
+           ("methodology", "Методология"), ("docs", "Документы")),
+    "en": (("index", "Home"), ("model", "Model"), ("forecast", "Forecast"),
+           ("scenarios", "Scenarios"), ("data", "Data"),
+           ("methodology", "Methodology"), ("docs", "Documents")),
+}
+BRAND_LABELS = {
+    "ru": "AMFE · исследовательская модель мировой экономики",
+    "en": "AMFE · research model of the world economy",
+}
+FOOTER = {
+    "ru": ("Дисклеймер.", DISCLAIMER,
+           "Страницы содержат только собственные прогнозы и производные метрики проекта; сырых "
+           "сторонних данных здесь нет.",
+           "Снимок:", "статический сайт без JavaScript, фреймворков и внешних ресурсов · собран"),
+    "en": ("Disclaimer.", EN_DISCLAIMER,
+           "These pages contain only the project's own forecasts and derived metrics; there are no "
+           "raw third-party data here.",
+           "Snapshot:", "static site with no JavaScript, frameworks or external resources · built by"),
+}
+NAV_ARIA = {"ru": "Основная навигация", "en": "Main navigation"}
+
+
+def page(title: str, current: str, body: str, generated_at: str, lang: str = "ru") -> str:
+    if lang not in NAV_LABELS:
+        raise SiteBuildError(f"неизвестный язык страницы: {lang!r}")
     nav = []
-    for page_id, label in (("index", "Главная"), ("model", "Модель"), ("forecast", "Прогноз"),
-                           ("scenarios", "Сценарии"), ("data", "Данные"),
-                           ("methodology", "Методология"), ("docs", "Документы")):
+    for page_id, label in NAV_LABELS[lang]:
         active = ' class="active"' if page_id == current else ""
         href = "index.html" if page_id == "index" else f"{page_id}.html"
         nav.append(f'<a href="{href}"{active}>{label}</a>')
+    if lang == "ru":
+        css = "assets/style.css"
+        switch = (f'<div class="lang-switch" aria-label="Язык">'
+                  f'<span class="current" lang="ru">RU</span>'
+                  f'<a href="en/{current}.html" hreflang="en" lang="en">EN</a></div>')
+    else:
+        css = "../assets/style.css"
+        switch = (f'<div class="lang-switch" aria-label="Language">'
+                  f'<a href="../{current}.html" hreflang="ru" lang="ru">RU</a>'
+                  f'<span class="current" lang="en">EN</span></div>')
+    heading, disclaimer, note, snapshot, built = FOOTER[lang]
     return f"""<!DOCTYPE html>
-<html lang="ru">
+<html lang="{lang}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{esc(title + " — AMFE" if not title.startswith("AMFE") else title)}</title>
-<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="{css}">
 </head>
 <body>
 <header class="site-header">
   <div class="wrap">
-    <a class="brand" href="index.html">AMFE · исследовательская модель мировой экономики</a>
-    <nav aria-label="Основная навигация">{''.join(nav)}</nav>
+    <a class="brand" href="index.html">{esc(BRAND_LABELS[lang])}</a>
+    <nav aria-label="{esc(NAV_ARIA[lang])}">{''.join(nav)}</nav>
+    {switch}
   </div>
 </header>
 <main class="wrap">
@@ -263,10 +331,9 @@ def page(title: str, current: str, body: str, generated_at: str) -> str:
 </main>
 <footer class="site-footer">
   <div class="wrap">
-    <p><strong>Дисклеймер.</strong> {esc(DISCLAIMER)} Страницы содержат только собственные прогнозы и
-    производные метрики проекта; сырых сторонних данных здесь нет.</p>
-    <p class="muted">Снимок: {esc(generated_at)} · статический сайт без JavaScript, фреймворков и
-    внешних ресурсов · собран <code>tools/site_build.py</code>.</p>
+    <p><strong>{esc(heading)}</strong> {esc(disclaimer)} {esc(note)}</p>
+    <p class="muted">{esc(snapshot)} {esc(generated_at)} · {esc(built)}
+    <code>tools/site_build.py</code>.</p>
   </div>
 </footer>
 </body>
@@ -716,9 +783,11 @@ def render_data(context: dict, generated_at: str) -> str:
 <section>
   <h2>Источники: статусы</h2>
   {_table(["Источник", "Статус", "Почему", "Что делать"], [
-      ["OECD ICIO 2025", esc(oecd.get("status") or "BLOCKED_AUTOMATED"),
-       "Небраузерные клиенты получают HTTP 403; условия требуют принятия в браузере",
-       "Скачать вручную в браузере, принять условия, положить в data/mrio/oecd_icio/archive/"],
+      ["OECD ICIO 2016 (авто: 71×34, 1995–2011)", "AVAILABLE_AUTO_2016",
+       "Официальные per-year архивы OECD (2016 edition) получены через Internet Archive; "
+       "D1 PASS 2000–2011, покрытие мировой ДС 95,4%; 1995–1999 — FAIL только по одной "
+       "отрицательной ячейке спроса",
+       "Релиз 2025 (60+×45, 1995–2022) — только вручную в браузере (docs/130)"],
       ["Eora MRIO", esc(eora.get("status") or "BLOCKED_LICENCE"),
        "Свободная только академическая лицензия с регистрацией; коммерческая — покупка",
        "Не использовать без лицензии; парсер Eora в этой волне не реализован"],
@@ -838,6 +907,468 @@ def render_docs(context: dict, generated_at: str) -> str:
     return page("Документы", "docs", body, generated_at)
 
 
+def _disclaimer_box_en() -> str:
+    return ('<aside class="callout callout-warn"><p><strong>Research only — not admission, not '
+            'investment advice.</strong> AMFE is a research project. CANDIDATE means the model is not '
+            'admitted for use; the figures below are evaluation and scenario results, not advice and '
+            'not trading forecasts.</p></aside>')
+
+
+def render_index_en(context: dict, generated_at: str) -> str:
+    feed = context["feed"]
+    world = _world_figures(context)
+    v4 = _v4_figures(context)
+    energy = context["scenarios"][0] if context["scenarios"] else {}
+    headline = energy.get("headline") or {}
+    body = f"""
+<section class="hero">
+  <h1>AMFE: research model of the world economy</h1>
+  <p class="lead">A cross-country country × industry model built on real FIGARO and WIOD tables, a
+  forecast ensemble for US CPI inflation and scenario reports on how shocks propagate through supply
+  chains. Everything on this page is research, not an admitted model.</p>
+  <p class="badges">{_badge("CANDIDATE")} T1 CPI forecast · {_badge(v4["status"] or "SHADOW_TEST")}
+  shadow track {esc(v4["candidate"] or "ENSEMBLE_REGIME_V4")} · statuses are not assigned by this site</p>
+</section>
+{_disclaimer_box_en()}
+<section>
+  <h2>Latest CPI forecast (T1, year over year, h=1)</h2>
+  <div class="grid">
+    <div class="card"><div class="card-label">Point</div>
+      <div class="card-value">{fmt(context["point"])}</div>
+      <div class="muted">origin {esc(feed["origin"])}, candidate {esc(feed["candidate"])}</div></div>
+    <div class="card"><div class="card-label">90% interval</div>
+      <div class="card-value">[{fmt(context["quantiles"][0])}; {fmt(context["quantiles"][18])}]</div>
+      <div class="muted">quantiles q05…q95, 19 values</div></div>
+    <div class="card"><div class="card-label">Status</div>
+      <div class="card-value">{_badge(feed["status"])}</div>
+      <div class="muted">conditional_data_class = {str(feed["conditional_data_class"]).lower()}</div></div>
+  </div>
+</section>
+<section>
+  <h2>World model on real data</h2>
+  <div class="grid">
+    <div class="card"><div class="card-label">FIGARO 2019</div>
+      <div class="card-value">{esc(world["countries"])} × {esc(world["industries"])}</div>
+      <div class="muted">countries × industries; {esc(world["sectors"])} sectors; GDP coverage
+      {fmt_pct(world["figaro_share"])}</div></div>
+    <div class="card"><div class="card-label">WIOD 2016</div>
+      <div class="card-value">{esc(world["wiod"][0]["countries"] if world["wiod"] else "—")} ×
+      {esc(world["wiod"][0]["industries"] if world["wiod"] else "—")}</div>
+      <div class="muted">countries × industries; GDP coverage
+      {fmt_pct(world["wiod_min"])}–{fmt_pct(world["wiod_max"])}</div></div>
+    <div class="card"><div class="card-label">Scenarios</div>
+      <div class="card-value">{len(context["scenarios"])}</div>
+      <div class="muted">energy / import / FX on real FIGARO; status
+      {esc(context["world"].get("status") or "RESEARCH_ONLY")}</div></div>
+  </div>
+</section>
+<section>
+  <h2>Key scenario</h2>
+  <p>Energy shock: {esc(energy.get("description") or "a 5% cut in final demand")}.</p>
+  <p>Total output change: <strong>{fmt_int(headline.get("total_delta_output"))} USD_mn</strong>
+  ({fmt((headline.get("relative_delta_output") or 0) * 100, 3)}% of baseline output); largest country —
+  {esc(headline.get("largest_country") or "—")}, largest industry —
+  {esc(headline.get("largest_industry") or "—")}.</p>
+  <p class="muted">Comparative statics, not a forecast. Full tables on the
+  <a href="scenarios.html">Scenarios</a> page.</p>
+</section>
+<section>
+  <h2>Sections</h2>
+  <ul class="links">
+    <li><a href="model.html">Model</a> — architecture: MRIO data → IO/SFC → GVAR → scenarios.</li>
+    <li><a href="forecast.html">Forecast</a> — the T1 CPI product: intervals, C4/C6, shadow track.</li>
+    <li><a href="scenarios.html">Scenarios</a> — 7 energy/import/FX reports with top countries and
+    industries.</li>
+    <li><a href="data.html">Data</a> — FIGARO, WIOD, OECD, Eora: coverage and licences.</li>
+    <li><a href="methodology.html">Methodology</a> — protocols, admission criteria C1–C6 and limits.</li>
+    <li><a href="docs.html">Documents</a> — key project documents.</li>
+  </ul>
+</section>
+"""
+    return page("AMFE: research model of the world economy", "index", body, generated_at, lang="en")
+
+
+def render_model_en(context: dict, generated_at: str) -> str:
+    world = _world_figures(context)
+    rows = [
+        ["MRIO data", "FIGARO 2019 and WIOD 2016 — real country × industry tables", "implemented",
+         "50×64 and 44×56; raw data outside git"],
+        ["IO core", "static Leontief model x = (I−A)⁻¹(y+fda), balance validation", "implemented",
+         "spectral radius and residuals converge"],
+        ["SFC layer", "stocks and flows, cross-country settlement", "partial",
+         "accounting prototypes without empirical calibration"],
+        ["GVAR", "cross-country linkages and shock transmission", "prototype",
+         "on real data, not fully calibrated"],
+        ["Scenarios", "energy/import/FX comparative statics", "implemented",
+         f"{len(context['scenarios'])} reports, RESEARCH_ONLY"],
+        ["Dynamics and expectations", "fast/slow loop, drift", "not implemented",
+         "a later stage after data and calibration"],
+        ["Forecast product", "T1 CPI ensemble, protocol v5", "CANDIDATE / SHADOW_TEST",
+         "ACTIVE admission not granted"],
+    ]
+    body = f"""
+<section><h1>Model: the AMFE architecture</h1>
+<p class="lead">Five layers: real input–output tables → IO/SFC core → GVAR → scenario reports →
+forecast product. Below is what is actually implemented on real data and what remains a prototype.</p>
+</section>
+{_disclaimer_box_en()}
+<section>
+  <h2>Pipeline</h2>
+  <ol class="flow">
+    <li><strong>MRIO data.</strong> FIGARO 2019 ({esc(world["countries"])} countries ×
+    {esc(world["industries"])} industries, {fmt_pct(world["figaro_share"])} of world GDP) and WIOD 2016
+    ({esc(world["wiod"][0]["countries"] if world["wiod"] else "—")} ×
+    {esc(world["wiod"][0]["industries"] if world["wiod"] else "—")}).</li>
+    <li><strong>IO/SFC core.</strong> Block matrix A, solution x = (I−A)⁻¹(y+fda); row/column balance
+    checks and the global value-added = final-demand identity.</li>
+    <li><strong>GVAR.</strong> A prototype of cross-country linkages for shock transmission; full
+    empirical calibration is not complete.</li>
+    <li><strong>Scenarios.</strong> Comparative statics: an energy shock, import costs, FX
+    pass-through; results by country and industry.</li>
+    <li><strong>Forecast product.</strong> A T1 CPI ensemble (US year-over-year inflation, h=1) with
+    intervals, under admission protocol v5.</li>
+  </ol>
+</section>
+<section>
+  <h2>Implemented vs not implemented</h2>
+  {_table(["Layer", "Content", "Status", "Comment"], rows)}
+  <p class="muted">An honest boundary: real MRIO tables and scenarios on them exist; a full dynamic
+  SFC model, a calibrated GVAR and behavioural expectations do not. That is why the statuses are
+  CANDIDATE/SHADOW_TEST and RESEARCH_ONLY, not “an admitted model”.</p>
+</section>
+<section>
+  <h2>Invariants that are checked</h2>
+  <ul>
+    <li>MRIO row/column balances and the global Σva = Σy identity (for WIOD — with the signed
+    adjustments of schema v1.1).</li>
+    <li>Productiveness of matrix A: spectral radius &lt; 1 and a positive output vector.</li>
+    <li>Scenarios are reproducible: identical inputs give identical reports, material-balance
+    residuals are around 1e−8.</li>
+  </ul>
+</section>
+"""
+    return page("Model", "model", body, generated_at, lang="en")
+
+
+def render_forecast_en(context: dict, generated_at: str) -> str:
+    feed = context["feed"]
+    v5 = _v5_figures(context)
+    v4 = _v4_figures(context)
+    shadow = context["shadow"]
+    c6 = shadow.get("c6") or {}
+    projection = shadow.get("projection") or {}
+    journal = shadow.get("journal") or {}
+    quantiles = context["quantiles"]
+    intervals = [("50%", quantiles[4], quantiles[14], "q25…q75"),
+                 ("80%", quantiles[1], quantiles[17], "q10…q90"),
+                 ("90%", quantiles[0], quantiles[18], "q05…q95")]
+    rows = [[level, f"{fmt(low)} … {fmt(high)}", labels] for level, low, high, labels in intervals]
+    controls = "".join(
+        f"<li>{esc(arm)}: <strong>{fmt(feed['controls'][arm]['point'])}</strong></li>"
+        for arm in ("RW", "EQUAL_WEIGHT_POINT", "EQUAL_WEIGHT_DENSITY"))
+    body = f"""
+<section><h1>T1 CPI forecast: US inflation, year over year, h=1</h1>
+<p class="lead">Candidate {esc(feed["candidate"])}, origin {esc(feed["origin"])},
+status {_badge(feed["status"])}, conditional_data_class =
+{str(feed["conditional_data_class"]).lower()}. This is a research ensemble forecast, not an admitted
+model.</p></section>
+{_disclaimer_box_en()}
+<section>
+  <h2>Point forecast and intervals</h2>
+  <div class="grid">
+    <div class="card"><div class="card-label">Point</div>
+      <div class="card-value">{fmt(context["point"])}</div></div>
+    <div class="card"><div class="card-label">Median (q50)</div>
+      <div class="card-value">{fmt(quantiles[9])}</div></div>
+    <div class="card"><div class="card-label">Protocol</div>
+      <div class="card-value">{esc(feed["protocol"]["version"])}</div>
+      <div class="muted">FROZEN, SHA-256 {esc(str(feed["protocol"]["sha256"])[:12])}…</div></div>
+  </div>
+  {_table(["Interval", "Bounds", "Quantiles"], rows, "Intervals from the 19 quantiles 5%…95%")}
+  <p><strong>Control arms (point):</strong></p>
+  <ul>{controls}</ul>
+</section>
+<section>
+  <h2>What is confirmed</h2>
+  <p>The first real evaluation under protocol v5 for the T1 h=1 pair:</p>
+  <ul>
+    <li><strong>C1 PASS</strong> — relative RMSE/CRPS loss {fmt(v5["c1_w1_rmse"])} /
+    {fmt(v5["c1_w1_crps"])} on window W1 against a threshold of 0.97.</li>
+    <li><strong>C2 PASS</strong> — Romano–Wolf adjusted p-values {fmt(v5["c2_w1_rmse_p"])} (W1 RMSE)
+    and {fmt(v5["c2_w2_crps_p"])} (W2 CRPS), FWER 0.10.</li>
+    <li><strong>C5 PASS</strong> — the candidate is not worse than the comparator on secondary facts.</li>
+  </ul>
+</section>
+<section>
+  <h2>What is NOT confirmed</h2>
+  <ul>
+    <li><strong>C4 — FAIL on RMSE.</strong> Relative loss {fmt(v5["c4_rmse"])} in recession months of
+    W1_EXT (threshold ≤ 1.00); the conditional Giacomini–White test rejects in favour of the comparator
+    (p ≈ {fmt_sci(v5["c4_gw_p"])}). C4 PASS on CRPS ({fmt(v5["c4_crps"])}), but C4 requires passing
+    every loss.</li>
+    <li><strong>C6 — not passed.</strong> The forward journal has
+    {esc(c6.get("n_resolved", 0))} of {esc(c6.get("min_forecasts", 12))} resolved forecasts and
+    {esc(c6.get("distinct_target_periods", 0))} of
+    {esc(c6.get("min_distinct_target_periods", 4))} distinct target periods. The C6 gate cannot be
+    passed before the journal accumulates.</li>
+    <li>SHADOW_TEST, LIMITED_DEPLOYMENT and ACTIVE have not been reached for this candidate.</li>
+  </ul>
+</section>
+<section>
+  <h2>Shadow track: {esc(v4["candidate"] or "ENSEMBLE_REGIME_V4")}</h2>
+  <p>Candidate status: {_badge(v4["status"] or "SHADOW_TEST")}
+  ({esc(v4["status_label"] or "SHADOW_TEST")}), conditional_data_class =
+  {str(v4["conditional"]).lower()}; C1/C2/C4/C5 — PASS, C6 — awaiting the journal. The track keeps the
+  journal and measures the distance to the C6 gate.</p>
+  {_table(["Metric", "Value"], [
+      ["Track status", esc(shadow.get("status") or "—")],
+      ["Journal rows in total", esc(journal.get("rows_total", "—"))],
+      ["Resolved forecasts", f'{esc(c6.get("n_resolved", 0))} / {esc(c6.get("min_forecasts", 12))}'],
+      ["Distinct target periods",
+       f'{esc(c6.get("distinct_target_periods", 0))} / {esc(c6.get("min_distinct_target_periods", 4))}'],
+      ["C6 gate estimate", esc(projection.get("estimated_gate_date") or "—")],
+      ["C4 W1 RMSE / CRPS", f'{fmt(v4["c4_w1_rmse"])} / {fmt(v4["c4_w1_crps"])}'],
+  ])}
+  <p class="muted">No new admissions are granted: the track is monitoring, not an admission decision.</p>
+</section>
+"""
+    return page("T1 CPI forecast", "forecast", body, generated_at, lang="en")
+
+
+def render_scenarios_en(context: dict, generated_at: str) -> str:
+    rows = []
+    for scenario in context["scenarios"]:
+        headline = scenario.get("headline") or {}
+        rows.append([
+            esc(scenario.get("id")),
+            fmt((headline.get("relative_delta_output") or 0) * 100, 3) + "%",
+            fmt_int(headline.get("total_delta_output")),
+            esc(headline.get("largest_country") or "—"),
+            esc(headline.get("largest_industry") or "—"),
+            esc(scenario.get("description") or ""),
+        ])
+    tops = ""
+    for scenario_id in TOP_SCENARIOS:
+        report = context["reports"].get(scenario_id)
+        if not report:
+            continue
+        impacts = report.get("impacts") or {}
+        countries = ((impacts.get("countries") or {}).get("top") or [])[:5]
+        industries = ((impacts.get("industries") or {}).get("top") or [])[:5]
+        country_rows = [[esc(item.get("name")), fmt_int(item.get("delta_output")),
+                         fmt((item.get("share_of_abs") or 0) * 100, 1) + "%"] for item in countries]
+        industry_rows = [[esc(item.get("name")), fmt_int(item.get("delta_output")),
+                          fmt((item.get("share_of_abs") or 0) * 100, 1) + "%"] for item in industries]
+        tops += f"""
+<h3>{esc(scenario_id)}: {esc((report.get("scenario") or {}).get("description") or "")}</h3>
+<div class="columns">
+  <div>{_table(["Country", "Δ output, USD_mn", "Share of |Δ|"], country_rows, "Top-5 countries")}</div>
+  <div>{_table(["Industry", "Δ output, USD_mn", "Share of |Δ|"], industry_rows, "Top-5 industries")}</div>
+</div>"""
+    body = f"""
+<section><h1>World scenarios: comparative statics on real FIGARO 2019</h1>
+<p class="lead">Seven scenarios: an energy shock, higher import costs and FX pass-through for DE and FR.
+This is not a forecast: the scenarios show how a shock propagates through supply chains under fixed
+technology.</p></section>
+{_disclaimer_box_en()}
+<section>
+  <h2>All scenarios</h2>
+  {_table(["Scenario", "Δ output, %", "Δ output, USD_mn", "Largest country",
+           "Largest industry", "Description"], rows,
+          f"Status: {context['world'].get('status') or 'RESEARCH_ONLY'}")}
+</section>
+<section>
+  <h2>Top-5 countries and industries</h2>
+  <p>Sums over the absolute output change; ROW is the FIGARO rest-of-world aggregate.</p>
+  {tops}
+</section>
+<section>
+  <h2>Method and assumptions</h2>
+  <ul>
+    <li>Model: static linear Leontief model x = (I−A)⁻¹(y+fda), A = Z·diag(x)⁻¹; a scenario changes y
+    or the import coefficients.</li>
+    <li>No prices, substitution, dynamics or feedback loops; coefficients A are fixed.</li>
+    <li>Energy: final demand −5% in industries CPA_B, CPA_C19, CPA_D35.</li>
+    <li>Imports: import costs +10%/20% with a proportional cut in demand.</li>
+    <li>FX: 10%/20% pass-through into import costs for the chosen country.</li>
+    <li>Reports are aggregate: no raw Z matrices and no raw observed values.</li>
+  </ul>
+</section>
+"""
+    return page("Scenarios", "scenarios", body, generated_at, lang="en")
+
+
+def render_data_en(context: dict, generated_at: str) -> str:
+    world = _world_figures(context)
+    figaro_source = ((context["figaro"].get("source") or {}))
+    wiod_rows = []
+    for item in world["wiod"]:
+        wiod_rows.append([esc(item["id"]), esc(item["year"]),
+                          f'{esc(item["countries"])} × {esc(item["industries"])}',
+                          fmt_pct(item["share"], 4), esc(item["licence"] or "—")])
+    blocked = {}
+    for source in (context["blocked"].get("sources") or []):
+        if isinstance(source, dict) and source.get("source_id"):
+            blocked[source["source_id"]] = source
+    oecd = blocked.get("oecd_icio") or {}
+    eora = blocked.get("eora_mrio") or {}
+    comtrade = blocked.get("un_comtrade") or {}
+    body = f"""
+<section><h1>Data: real MRIO tables and licences</h1>
+<p class="lead">The world is built on real input–output tables. Raw data lives outside git and is not
+published here: this page shows only metadata, coverage and licences.</p></section>
+{_disclaimer_box_en()}
+<section>
+  <h2>FIGARO 2019 — the main world</h2>
+  {_table(["Parameter", "Value"], [
+      ["Source", esc(figaro_source.get("name") or world["source"] or "Eurostat FIGARO")],
+      ["Size", f'{fmt_int(world["countries"])} × {fmt_int(world["industries"])} '
+               f'(countries × industries; {esc(world["sectors"])} sectors)'],
+      ["Year", esc(world["year"])],
+      ["Units", esc(world["units"])],
+      ["GDP coverage of named countries", fmt_pct(world["figaro_share"])],
+      ["Coverage including the ROW aggregate", "100%"],
+      ["Z cells", fmt_int(world["cells"]) + " (sparse storage)"],
+      ["Licence", esc(figaro_source.get("licence") or "Eurostat re-use policy (open data)")],
+      ["Canonical JSON", fmt_int(world["bytes"]) + " bytes, SHA-256 "
+                         + esc(str(world["sha256"])[:12]) + "…"],
+  ])}
+  <p class="muted">Third party: data is not committed, only derived metrics are published.</p>
+</section>
+<section>
+  <h2>WIOD 2016 — the second world</h2>
+  {_table(["Dataset", "Year", "Countries × industries", "GDP coverage", "Licence"], wiod_rows)}
+  <p>Coverage range across datasets: {fmt_pct(world["wiod_min"], 1)}–{fmt_pct(world["wiod_max"], 1)}.
+  WIOD contains negative cells (inventory changes, value added), so schema v1.1 with signed
+  adjustments is used — base y and va stay non-negative.</p>
+</section>
+<section>
+  <h2>Sources: statuses</h2>
+  {_table(["Source", "Status", "Why", "What to do"], [
+      ["OECD ICIO 2016 (auto: 71×34, 1995–2011)", "AVAILABLE_AUTO_2016",
+       "Official per-year OECD archives (2016 edition) retrieved via Internet Archive; "
+       "D1 PASS 2000–2011, world value-added coverage 95.4%; 1995–1999 fail only on one "
+       "negative final-demand cell",
+       "2025 release (60+×45, 1995–2022) — browser download only (docs/130)"],
+      ["Eora MRIO", esc(eora.get("status") or "BLOCKED_LICENCE"),
+       "Only an academic licence with registration is free; commercial use requires purchase",
+       "Do not use without a licence; the Eora parser is not implemented in this wave"],
+      ["UN Comtrade", esc(comtrade.get("status") or "AVAILABLE_API"),
+       "Not an MRIO: trade flows without an industry matrix",
+       "Requires an HS → industry bridge; a separate decision"],
+  ])}
+</section>
+<section>
+  <h2>What must not be published</h2>
+  <ul>
+    <li>Raw third-party datasets (FIGARO/WIOD/OECD/Eora/Comtrade) and their values — only under the
+    source licence; they never enter the repository or this site.</li>
+    <li>Derived aggregates may be published: coverage, totals, shares, top lists, validation
+    residuals — those are shown above.</li>
+    <li>The research world must not be presented as an official forecast or an admitted model.</li>
+  </ul>
+</section>
+"""
+    return page("Data", "data", body, generated_at, lang="en")
+
+
+def render_methodology_en(context: dict, generated_at: str) -> str:
+    v5 = _v5_figures(context)
+    v4 = _v4_figures(context)
+    feed = context["feed"]
+    criteria_rows = [
+        ["C1", "Relative loss (RMSE/CRPS) against the comparator",
+         f'{_badge("PASS") if v5["c1_pass"] else _badge("FAIL")} '
+         f'{fmt(v5["c1_w1_rmse"])} / {fmt(v5["c1_w1_crps"])} (W1, threshold 0.97)'],
+        ["C2", "Romano–Wolf: significance of the improvement", _badge("PASS") if v5["c2_pass"]
+         else _badge("FAIL")],
+        ["C3", "Model Confidence Set", "not implemented (non-gating)"],
+        ["C4", "Recession robustness (RMSE and CRPS)", _badge("FAIL")
+         + f' RMSE {fmt(v5["c4_rmse"])}, CRPS {_badge("PASS")} {fmt(v5["c4_crps"])}'],
+        ["C5", "Secondary facts", _badge("PASS") if v5["c5_pass"] else _badge("FAIL")],
+        ["C6", "Forward journal: 12 resolved forecasts, ≥4 periods",
+         "not passed: 0 of 12"],
+    ]
+    tiers = [
+        ["CANDIDATE", "the candidate passed some criteria, no admission", "T1 CPI — here",
+         f'{esc(feed["candidate"])}'],
+        ["SHADOW_TEST", "shadow track on the live journal, no right to use", "current",
+         esc(v4["candidate"] or "ENSEMBLE_REGIME_V4")],
+        ["LIMITED_DEPLOYMENT", "limited use after C1–C6", "not reached", "—"],
+        ["ACTIVE", "an admitted model", "not reached", "—"],
+    ]
+    body = f"""
+<section><h1>Methodology and statuses</h1>
+<p class="lead">AMFE keeps forecast accuracy and admission apart. Criteria C1–C6 are checked by a
+frozen protocol on labelled windows and the forward journal; this site does not assign statuses.</p>
+</section>
+{_disclaimer_box_en()}
+<section>
+  <h2>Protocols</h2>
+  <ul>
+    <li><strong>Protocol v5</strong> — the current frozen evaluation protocol for T1 CPI (version
+    {esc(feed["protocol"]["version"])}); an extended C4 on reconstructed 1990–1996 data and the
+    forward journal.</li>
+    <li><strong>Protocol v4</strong> — the previous frozen version; v4 results are preserved and not
+    rewritten.</li>
+    <li>The frozen chain is protocol → R3 specification → NF-SIM thresholds → comparator composition.
+    Hashes are verified and tools fail closed on a mismatch.</li>
+  </ul>
+</section>
+<section>
+  <h2>Admission criteria C1–C6</h2>
+  {_table(["Criterion", "What it checks", "Current T1 h=1 result"], criteria_rows)}
+</section>
+<section>
+  <h2>Status ladder</h2>
+  {_table(["Status", "Meaning", "State", "Candidate"], tiers)}
+  <p class="muted">Statuses are assigned by the protocol and by a human, not by this site. The site is
+  a showcase of registered results.</p>
+</section>
+<section>
+  <h2>Limitations</h2>
+  <ul>
+    <li>C4 FAIL on RMSE: the ensemble is worse than the comparator in recessions; CRPS PASS does not
+    compensate for RMSE.</li>
+    <li>C6 not passed: 0 of 12 resolved forecasts, at least 4 distinct target periods are needed; the
+    gate cannot be accelerated.</li>
+    <li>conditional_data_class = true: part of C4 relies on reconstructed data, not on REAL_TIME.</li>
+    <li>World model: scenarios are comparative statics without prices, substitution or dynamics; GVAR
+    and SFC are not fully calibrated.</li>
+    <li>Raw third-party data is not published; the site contains only derived metrics.</li>
+  </ul>
+</section>
+"""
+    return page("Methodology", "methodology", body, generated_at, lang="en")
+
+
+def render_docs_en(context: dict, generated_at: str) -> str:
+    rows = [[f'<a href="../../{esc(link["file"])}">{esc(link["title"])}</a>', esc(link["file"])]
+            for link in context["doc_links"]]
+    body = f"""
+<section><h1>Project documents</h1>
+<p class="lead">Key documents: data, core, scenarios, protocols, support and publication. The links
+point to repository files.</p></section>
+{_disclaimer_box_en()}
+<section>
+  {_table(["Document", "File"], rows)}
+</section>
+<section>
+  <h2>Primary sources of the numbers on this site</h2>
+  <ul>
+    <li><code>build/product/forecast_latest.json</code> — the T1 CPI forecast and its status.</li>
+    <li><code>build/world/report_index.json</code>, <code>build/world/reports/*.json</code> — world
+    scenarios.</li>
+    <li><code>protocols/first_real_evaluation_report_v5.json</code>,
+    <code>protocols/regime_v4_candidate_evaluation_report.json</code> — criteria.</li>
+    <li><code>build/shadow/shadow_status.json</code> — the shadow track and C6 progress.</li>
+    <li><code>data/mrio/**/manifest.json</code> — FIGARO/WIOD coverage (metadata).</li>
+  </ul>
+</section>
+"""
+    return page("Documents", "docs", body, generated_at, lang="en")
+
+
 CSS = """/* AMFE static site: no external resources, no JavaScript, no frameworks. */
 :root {
   color-scheme: light dark;
@@ -897,6 +1428,17 @@ body {
 }
 .site-header nav a:hover, .site-header nav a:focus { color: var(--fg); }
 .site-header nav a.active { color: var(--accent); border-bottom-color: var(--accent); }
+.lang-switch { display: flex; gap: 0.35rem; margin-left: auto; align-items: center; font-size: 0.85rem; }
+.lang-switch a, .lang-switch .current {
+  display: inline-block;
+  padding: 0.05rem 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  text-decoration: none;
+}
+.lang-switch .current { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.lang-switch a { color: var(--muted); }
+.lang-switch a:hover, .lang-switch a:focus { color: var(--fg); }
 main { padding: 1.5rem 0 2.5rem; }
 h1 { font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.3rem); line-height: 1.2; margin: 0.4rem 0 0.8rem; }
 h2 { font-size: clamp(1.15rem, 1rem + 0.6vw, 1.5rem); margin: 2rem 0 0.7rem; }
@@ -949,11 +1491,17 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
 }
 """
 
-RENDERERS = {
+RENDERERS_RU = {
     "index": render_index, "model": render_model, "forecast": render_forecast,
     "scenarios": render_scenarios, "data": render_data, "methodology": render_methodology,
     "docs": render_docs,
 }
+RENDERERS_EN = {
+    "index": render_index_en, "model": render_model_en, "forecast": render_forecast_en,
+    "scenarios": render_scenarios_en, "data": render_data_en, "methodology": render_methodology_en,
+    "docs": render_docs_en,
+}
+LANGUAGES = (("ru", RENDERERS_RU), ("en", RENDERERS_EN))
 
 
 # ---------------------------------------------------------------------------------------- build
@@ -961,16 +1509,18 @@ def build_site(root: Path = ROOT, out_dir: Path | None = None,
                generated_at: str | None = None) -> list[Path]:
     generated_at = generated_at or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     context = load_context(Path(root))
-    documents = {name: renderer(context, generated_at) for name, renderer in RENDERERS.items()}
-    documents["style"] = CSS
     out_dir = Path(out_dir) if out_dir is not None else Path(root) / "site"
     assets = out_dir / "assets"
     assets.mkdir(parents=True, exist_ok=True)
     written: list[Path] = []
-    for name in PAGES:
-        path = out_dir / f"{name}.html"
-        path.write_text(documents[name], encoding="utf-8", newline="\n")
-        written.append(path)
+    for lang, renderers in LANGUAGES:
+        target_dir = out_dir if lang == "ru" else out_dir / lang
+        target_dir.mkdir(parents=True, exist_ok=True)
+        for name in PAGES:
+            document = renderers[name](context, generated_at)
+            path = target_dir / f"{name}.html"
+            path.write_text(document, encoding="utf-8", newline="\n")
+            written.append(path)
     style_path = assets / "style.css"
     style_path.write_text(CSS, encoding="utf-8", newline="\n")
     written.append(style_path)
@@ -978,7 +1528,8 @@ def build_site(root: Path = ROOT, out_dir: Path | None = None,
 
 
 def main(argv=None) -> int:
-    parser = argparse.ArgumentParser(description="Собрать статический русский сайт AMFE в site/")
+    parser = argparse.ArgumentParser(
+        description="Собрать двуязычный статический сайт AMFE (RU в site/, EN в site/en/)")
     parser.add_argument("--root", default=str(ROOT), help="корень репозитория")
     parser.add_argument("--out-dir", default=None, help="каталог вывода (по умолчанию site/)")
     parser.add_argument("--generated-at", default=None,
@@ -1000,10 +1551,10 @@ def main(argv=None) -> int:
     except SiteBuildError as error:
         print(json.dumps({"ok": False, "error": str(error)}, ensure_ascii=False), file=sys.stderr)
         return 2
-    sizes = {path.name: path.stat().st_size for path in written}
+    relative = [str(path.relative_to(out_dir)).replace("\\", "/") for path in written]
+    sizes = {name: (out_dir / name).stat().st_size for name in relative}
     print(json.dumps({"ok": True, "out_dir": str(out_dir).replace("\\", "/"),
-                      "files": [str(path.relative_to(out_dir)).replace("\\", "/")
-                                for path in written],
+                      "files": relative,
                       "bytes": sizes, "total_bytes": sum(sizes.values())},
                      ensure_ascii=False))
     return 0
