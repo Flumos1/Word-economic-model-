@@ -263,14 +263,20 @@ class WorldTable:
         *diagnostic* dense core only (the sparse pipeline itself keeps them and uses zero columns).
         """
         if level == "country":
-            Zc, yc, xc, vac = self.country_block()
+            Zc, _yc, xc, _vac = self.country_block()
             keep = [index for index, value in enumerate(xc) if float(value) > 0.0]
             if len(keep) != len(xc):
                 dense = _dense(Zc)
                 Zc = [[dense[row][column] for column in keep] for row in keep]
-                yc, xc, vac = yc[keep], xc[keep], vac[keep]
+                xc = xc[keep]
             else:
                 Zc = _dense(Zc)
+            # The diagnostic IODataset must balance exactly: derive y and va from x and Z so that
+            # signed adjustments (fda/vaa) are folded in instead of being dropped.
+            import numpy as _np
+            matrix = _np.asarray(Zc, dtype=float)
+            yc = xc - matrix.sum(axis=1)
+            vac = xc - matrix.sum(axis=0)
             return IODataset(countries=tuple(self.countries[index] for index in keep),
                              industries=("TOTAL",), Z=Zc, y=yc.tolist(), x=xc.tolist(),
                              va=vac.tolist(), units=self.units, tolerance=self.tolerance)
@@ -282,7 +288,10 @@ class WorldTable:
         keep = [index for index, value in enumerate(xi) if float(value) > 0.0]
         if len(keep) != len(xi):
             Zi = [[Zi[row][column] for column in keep] for row in keep]
-            yi, xi, vai = yi[keep], xi[keep], vai[keep]
+            xi = xi[keep]
+        matrix = np.asarray(Zi, dtype=float)
+        yi = xi - matrix.sum(axis=1)
+        vai = xi - matrix.sum(axis=0)
         return IODataset(countries=("WORLD",),
                          industries=tuple(self.industries[index] for index in keep),
                          Z=Zi, y=yi.tolist(), x=xi.tolist(), va=vai.tolist(),

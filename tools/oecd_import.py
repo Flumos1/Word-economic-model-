@@ -974,6 +974,7 @@ def build_document_icio_matrix(path: Path, year: int, source: dict,
         "y": y, "final_demand_adjustments": final_adjustments,
         "va_adjustments": value_added_adjustments,
         "x": x, "va": va, "source": source, "tolerance": float(tolerance),
+        "absolute_tolerance": 1.0,
         "notes": ("values are third-party OECD ICIO data, local only, never committed; "
                   "row identity x = Z*1 + y + fda (INVNT + DISC); "
                   "va is base value added and vaa carries TLS and negative VA cells; "
