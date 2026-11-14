@@ -66,6 +66,9 @@
 **Итоги четырнадцатой волны (14.11.2026, D-167):** русская версия сайта — [site/index.html](site/index.html) (8 страниц, из реальных данных, [docs/132](docs/132_Сайт_русская_версия.md)); WIOD все 15 лет 2000–2014 на диске F: ([docs/129](docs/129_Схема_v1.1_и_WIOD.md)); SFC↔IO: S=I+CA, ΣCA=0 на реальном FIGARO ([docs/133](docs/133_SFC_IO_интеграция.md)); GVAR v2 отложен (файл откатан).
 
 
+
+**Сайт проекта (RU/EN, GitHub Pages):** https://flumos1.github.io/Word-economic-model-/ · EN: https://flumos1.github.io/Word-economic-model-/en/
+
 **Итоги пятнадцатой волны (14.11.2026, D-168):** сайт RU+EN с деплой-workflow ([site/en/index.html](site/en/index.html), [docs/134](docs/134_Деплой_сайта.md)); **OECD ICIO скачан автоматически** — 71 экономика × 34 отрасли, 12 лет D1 PASS, покрытие 95,4% мировой ДС ([docs/130](docs/130_OECD_ICIO.md)); GVAR v2 — улучшения нет, годовой 53-страновой GVAR неустойчив ([docs/128](docs/128_GVAR_на_реальных_данных.md)); сценарии с SFC ([docs/131](docs/131_Сценарные_отчёты_мира.md)).
 
 ## Назначение
