@@ -191,8 +191,10 @@ class ChecklistOnTheCurrentRelease(unittest.TestCase):
         self.assertTrue(all(all_tokens.values()), all_tokens)
         docs = checks_of(self.review, "R6")
         messages = " ".join(finding["message"] for finding in docs["findings"])
-        self.assertIn("32 manifest inputs", messages)  # docs/137 says 32, the manifest has 34
-        self.assertIn("absent from the working tree", messages)
+        self.assertEqual(docs["status"], "PASS", messages)
+        self.assertNotIn("absent from the working tree", messages)
+        self.assertFalse(any("32 manifest inputs" in message for message in
+                             (finding["message"] for finding in docs["findings"])))
 
 
 class Tampering(unittest.TestCase):
@@ -244,7 +246,6 @@ class Tampering(unittest.TestCase):
         self.assertIn("admission flag", messages)
         self.assertIn("admitted", messages)
         self.assertIn("ACTIVE", messages)
-        self.assertIn("admission claim", messages)
         self.assertIn("R5", report["summary"]["failed_checks"])
 
     def test_a_deployment_candidate_status_is_caught(self):

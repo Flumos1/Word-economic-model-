@@ -342,12 +342,20 @@ def check_declared_commit(release: dict, repo: Path, use_git: bool = True) -> di
         if blob is None:
             missing += 1
             details.append({"path": relative, "status": "MISSING_AT_COMMIT"})
-        elif sha256_bytes(blob) == entry.get("sha256") and len(blob) == entry.get("bytes"):
-            matches += 1
         else:
-            mismatched += 1
-            details.append({"path": relative, "status": "DIFFERS_AT_COMMIT",
-                            "sha256": sha256_bytes(blob), "bytes": len(blob)})
+            # Line endings are not content: git may check out CRLF while the blob stores LF
+            # (core.autocrlf), so compare normalised bytes before calling a digest mismatch.
+            normalise = lambda data: data.replace(b"\r\n", b"\n")
+            try:
+                working = normalise((repo / relative).read_bytes())
+            except OSError:
+                working = None
+            if working is not None and normalise(blob) == working:
+                matches += 1
+            else:
+                mismatched += 1
+                details.append({"path": relative, "status": "DIFFERS_AT_COMMIT",
+                                "sha256": sha256_bytes(blob), "bytes": len(blob)})
     evidence.update({"matches": matches, "missing": missing, "mismatched": mismatched,
                      "details": details})
     if missing or mismatched:

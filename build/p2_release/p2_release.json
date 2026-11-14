@@ -217,17 +217,17 @@
  "data_root": "F:/Мировая экономика модель/data/mrio",
  "date": "2026-11-14",
  "docs_context_missing": [],
- "generated_at": "2026-11-14T19:25:31Z",
- "git_commit": "4cecfcae1188956d886489227ca80c63b16d4463",
+ "generated_at": "2026-11-14T19:58:37Z",
+ "git_commit": "75549f1bfc86a6bb8009d06e69e789fcdc3dbfa4",
  "inputs": [
   {
-   "bytes": 36786,
+   "bytes": 38917,
    "exists": true,
    "id": "doc:120_Аудит_ТЗ_и_план_P2",
    "path": "docs/120_Аудит_ТЗ_и_план_P2.md",
    "required": true,
    "role": "release context",
-   "sha256": "fde02658fea064b23670fba191e2028a05562ffe2c75a8323a83ad8096070770"
+   "sha256": "2ad9b44bf0feaac5eeb5eb114ecf75c5bb2453c79d1cd810d1afbb318c0c2ad7"
   },
   {
    "bytes": 20198,
@@ -239,13 +239,13 @@
    "sha256": "443adb1c15fb1415b46c496896c2d5da5c20ae16a4cd21ce2cad890b689f338d"
   },
   {
-   "bytes": 19493,
+   "bytes": 21152,
    "exists": true,
    "id": "doc:128_GVAR_на_реальных_данных",
    "path": "docs/128_GVAR_на_реальных_данных.md",
    "required": true,
    "role": "release context",
-   "sha256": "30ce52ea9e1e0c5200d06351d19cd35c2e9a296794af0561bb6ec1039fd6e096"
+   "sha256": "290417a5779e8acc4f703dc6c7926191f0687c88a48f645becec9600e37bdb58"
   },
   {
    "bytes": 22554,
@@ -257,13 +257,13 @@
    "sha256": "71a1dc70154159bc472e98cf61ea73e3610c35f17285f35e99f81443093dff94"
   },
   {
-   "bytes": 11669,
+   "bytes": 10693,
    "exists": true,
    "id": "doc:130_OECD_ICIO",
    "path": "docs/130_OECD_ICIO.md",
    "required": true,
    "role": "release context",
-   "sha256": "acd2786e46417c3c2c15b64aa15fdf198653a880259a2c943a1ffad901005a87"
+   "sha256": "cfc9fc622e02e8a565ca07ac89ef2046412f690f8aa089be4726ca0370d12cdc"
   },
   {
    "bytes": 13810,
@@ -284,13 +284,13 @@
    "sha256": "4cfebfe303c9d2e0bfd964aeeac2de2019f7e4a6d40e457da72bb194d952c8a5"
   },
   {
-   "bytes": 14353,
+   "bytes": 15176,
    "exists": true,
    "id": "doc:135_Альтернативная_динамика_D4",
    "path": "docs/135_Альтернативная_динамика_D4.md",
    "required": false,
    "role": "optional",
-   "sha256": "2f364e8e04edd17ae02528738c1a732ee529db97f00b31d529bca2ce32811b87"
+   "sha256": "6bb2926703e870703cfc838230e1124ee74daaa75e8b749cfbe2b2c2a8fea007"
   },
   {
    "bytes": 12756,
@@ -326,12 +326,12 @@
    "sha256": "aa1f6baa4eb47e065eaa44d4b53f1203b426647e849e9a1cd70adb189c9b2775"
   },
   {
-   "bytes": 1004,
+   "bytes": 2934,
    "exists": true,
    "id": "oecd_coverage",
    "path": "protocols/oecd_icio_coverage.json",
    "required": true,
-   "sha256": "5ff4df4ccaab9c011f840ba8a034fbab3556c9de94b1a14d2f8660c77532d7ed"
+   "sha256": "57779bce865b9e5eaa24473cb0d751602c1ecdc7be9e2f3dca7341da7d0a7bb4"
   },
   {
    "bytes": 11947,
@@ -509,7 +509,7 @@
   "D4 (динамика) — отрицательный исследовательский результат, вне допуска",
   "FIGARO/OECD/WIOD — сторонние данные: в git не коммитятся, в манифесте только хеши и агрегаты",
   "T2/ACTIVE и микроуровень (фирмы) не входят в P2 0.1",
-  "docs/135 и docs/136 отсутствуют в рабочем дереве на дату релиза — это необязательный контекст, обязательные документы перечислены в inputs"
+  "docs/135 и docs/136 включены в inputs с SHA-256"
  ],
  "links": {
   "docs": {
