@@ -45,9 +45,16 @@ import re
 from dataclasses import dataclass, field
 from typing import Any, Iterable, Mapping, Sequence
 
-#: Schema identifier written into every dataset document and manifest.
-SCHEMA = "amfe.mrio.dataset.v1"
-SCHEMA_VERSION = "1.0.0"
+#: Schema identifier written into every dataset document and manifest (version 1.1 adds signed
+#: adjustments ``final_demand_adjustments`` / ``va_adjustments``; the 1.0.0 identifiers are still
+#: accepted on read, see :data:`SUPPORTED_SCHEMAS`).
+SCHEMA = "amfe.mrio.dataset.v1.1"
+SCHEMA_VERSION = "1.1.0"
+#: Read-only compatibility: documents written before the adjustments existed.
+LEGACY_SCHEMA = "amfe.mrio.dataset.v1"
+LEGACY_SCHEMA_VERSION = "1.0.0"
+SUPPORTED_SCHEMAS = (SCHEMA, LEGACY_SCHEMA)
+SUPPORTED_SCHEMA_VERSIONS = (SCHEMA_VERSION, LEGACY_SCHEMA_VERSION)
 #: The only accepted value base: millions of US dollars, current prices (producer values).
 CANONICAL_UNITS = "USD_mn"
 ALLOWED_UNITS = (CANONICAL_UNITS,)
@@ -313,10 +320,21 @@ class MRIODataset:
     """One MRIO snapshot: countries x industries, one year, one value base (``USD_mn``).
 
     ``Z`` is the inter-industry/inter-country use matrix (``n x n``), ``y`` final demand by
-    ``(country, industry)`` row, ``x`` gross output, ``va`` value added by column.  Optional
-    ``trade_weights`` (bilateral country weights), ``fx`` (national currency per USD) and
-    ``prices`` (deflators/indexes) are carried as metadata; they are never used to change the
-    accounting identities.
+    ``(country, industry)`` row, ``x`` gross output, ``va`` value added by column.
+
+    Schema 1.1 adds two **signed** adjustment vectors so that a source table with negative
+    final-demand or value-added cells (WIOD inventory changes, valuation rows) keeps *exact*
+    accounting identities instead of being rejected:
+
+    ``final_demand_adjustments`` (``fda``):   ``x = Z 1 + y + fda``
+    ``va_adjustments`` (``vaa``):             ``x = 1' Z + va + vaa``
+    global:                                    ``sum(va) + sum(vaa) = sum(y) + sum(fda)``
+
+    ``y``, ``va`` and ``Z`` stay non-negative (the base table); only the adjustments are signed.
+    Empty adjustment tuples are interpreted as zeros, so a 1.0.0 dataset is exactly a 1.1.0
+    dataset with zero adjustments.  Optional ``trade_weights`` (bilateral country weights),
+    ``fx`` (national currency per USD) and ``prices`` (deflators/indexes) are metadata; they are
+    never used to change the accounting identities.
     """
 
     countries: tuple[str, ...]
@@ -332,6 +350,9 @@ class MRIODataset:
     fx: dict = field(default_factory=dict)
     prices: dict = field(default_factory=dict)
     tolerance: float = TOLERANCE
+    final_demand_adjustments: tuple[float, ...] = ()
+    va_adjustments: tuple[float, ...] = ()
+    schema_version: str = SCHEMA_VERSION
 
     # -- normalisation / structural checks ---------------------------------------------
     def __post_init__(self) -> None:
@@ -394,6 +415,33 @@ class MRIODataset:
                               ("prices", self.prices)):
             if not isinstance(mapping, Mapping):
                 raise SchemaError(f"{name} must be a mapping")
+        schema_version = str(self.schema_version)
+        if schema_version not in SUPPORTED_SCHEMA_VERSIONS:
+            raise SchemaError(
+                f"unsupported schema_version {schema_version!r}: supported are "
+                f"{list(SUPPORTED_SCHEMA_VERSIONS)}"
+            )
+        fda = tuple(self.final_demand_adjustments or ())
+        vaa = tuple(self.va_adjustments or ())
+        if fda:
+            if len(fda) != size:
+                raise SchemaError(
+                    f"final_demand_adjustments must have {size} entries, got {len(fda)}")
+            fda = _floats(fda, "final_demand_adjustments")
+        else:
+            fda = tuple(0.0 for _ in range(size))
+        if vaa:
+            if len(vaa) != size:
+                raise SchemaError(f"va_adjustments must have {size} entries, got {len(vaa)}")
+            vaa = _floats(vaa, "va_adjustments")
+        else:
+            vaa = tuple(0.0 for _ in range(size))
+        if schema_version == LEGACY_SCHEMA_VERSION and any(
+                value != 0.0 for value in fda + vaa):
+            raise SchemaError(
+                "schema_version 1.0.0 does not define final_demand_adjustments/va_adjustments; "
+                f"use schema_version {SCHEMA_VERSION} for a signed input"
+            )
 
         object.__setattr__(self, "countries", countries)
         object.__setattr__(self, "industries", industries)
@@ -408,6 +456,9 @@ class MRIODataset:
         object.__setattr__(self, "fx", dict(self.fx))
         object.__setattr__(self, "prices", dict(self.prices))
         object.__setattr__(self, "tolerance", float(self.tolerance))
+        object.__setattr__(self, "final_demand_adjustments", fda)
+        object.__setattr__(self, "va_adjustments", vaa)
+        object.__setattr__(self, "schema_version", schema_version)
 
     # -- accessors --------------------------------------------------------------------
     @property
@@ -438,9 +489,14 @@ class MRIODataset:
         return range(start, start + len(self.industries))
 
     # -- canonical serialisation -------------------------------------------------------
+    def has_adjustments(self) -> bool:
+        """``True`` when at least one signed adjustment differs from zero."""
+        return any(value != 0.0 for value in self.final_demand_adjustments) or any(
+            value != 0.0 for value in self.va_adjustments)
+
     def to_document(self) -> dict:
         """The canonical JSON document (plain types, deterministic key order on write)."""
-        return {
+        document = {
             "schema": SCHEMA,
             "schema_version": SCHEMA_VERSION,
             "countries": list(self.countries),
@@ -451,13 +507,16 @@ class MRIODataset:
             "y": list(self.y),
             "x": list(self.x),
             "va": list(self.va),
+            "final_demand_adjustments": list(self.final_demand_adjustments),
+            "va_adjustments": list(self.va_adjustments),
             "source": dict(self.source),
             "trade_weights": dict(self.trade_weights),
             "fx": dict(self.fx),
             "prices": dict(self.prices),
-            "notes": "canonical AMFE MRIO schema (docs/121); values are third-party data and are "
-                     "never committed to the repository",
+            "notes": "canonical AMFE MRIO schema v1.1 (docs/121, docs/129); values are "
+                     "third-party data and are never committed to the repository",
         }
+        return document
 
     def digest(self) -> str:
         """SHA-256 of the canonical document (floats rounded to 9 decimals for portability)."""
@@ -467,6 +526,7 @@ class MRIODataset:
         """Metadata-only summary safe to print/log (no observation values)."""
         return {
             "schema": SCHEMA,
+            "schema_version": SCHEMA_VERSION,
             "countries": len(self.countries),
             "industries": len(self.industries),
             "years": list(self.years),
@@ -474,6 +534,15 @@ class MRIODataset:
             "cells_Z": self.n * self.n,
             "digest": self.digest(),
             "source": self.source.get("name") if isinstance(self.source, Mapping) else None,
+            "has_adjustments": self.has_adjustments(),
+            "adjustment_cells": {
+                "final_demand": sum(1 for value in self.final_demand_adjustments if value != 0.0),
+                "value_added": sum(1 for value in self.va_adjustments if value != 0.0),
+            },
+            "adjustment_totals": {
+                "final_demand": round(math.fsum(self.final_demand_adjustments), 6),
+                "value_added": round(math.fsum(self.va_adjustments), 6),
+            },
         }
 
 
@@ -499,16 +568,40 @@ def canonical_bytes(document: Mapping) -> bytes:
 
 
 def dataset_from_document(document: Mapping) -> MRIODataset:
-    """Build a dataset from a JSON document; every schema violation raises :class:`SchemaError`."""
+    """Build a dataset from a JSON document; every schema violation raises :class:`SchemaError`.
+
+    Both the current ``amfe.mrio.dataset.v1.1`` documents and legacy ``amfe.mrio.dataset.v1``
+    (1.0.0) documents are accepted; a legacy document simply has zero adjustments.  A legacy
+    document that *does* carry non-zero adjustments is refused instead of being reinterpreted.
+    """
     if not isinstance(document, Mapping):
         raise SchemaError("dataset document must be a JSON object")
-    schema = document.get("schema", SCHEMA)
-    if schema != SCHEMA:
-        raise SchemaError(f"unsupported schema {schema!r}: expected {SCHEMA!r}")
+    schema = document.get("schema", LEGACY_SCHEMA)
+    if schema not in SUPPORTED_SCHEMAS:
+        raise SchemaError(
+            f"unsupported schema {schema!r}: supported are {list(SUPPORTED_SCHEMAS)}")
+    version = document.get("schema_version")
+    if version is None:
+        version = SCHEMA_VERSION if schema == SCHEMA else LEGACY_SCHEMA_VERSION
+    version = str(version)
+    if version not in SUPPORTED_SCHEMA_VERSIONS:
+        raise SchemaError(
+            f"unsupported schema_version {version!r}: supported are "
+            f"{list(SUPPORTED_SCHEMA_VERSIONS)}")
+    if version == LEGACY_SCHEMA_VERSION and schema == SCHEMA:
+        raise SchemaError(
+            f"schema {SCHEMA!r} requires schema_version {SCHEMA_VERSION!r}, got {version!r}")
     required = ("countries", "industries", "years", "Z", "y", "x", "va")
     missing = [key for key in required if key not in document]
     if missing:
         raise SchemaError(f"dataset document misses required fields: {missing}")
+    fda = document.get("final_demand_adjustments") or ()
+    vaa = document.get("va_adjustments") or ()
+    if version == LEGACY_SCHEMA_VERSION and (any(float(value) != 0.0 for value in fda)
+                                             or any(float(value) != 0.0 for value in vaa)):
+        raise SchemaError(
+            "final_demand_adjustments/va_adjustments require schema_version "
+            f"{SCHEMA_VERSION!r}, the document declares {version!r}")
     try:
         return MRIODataset(
             countries=tuple(document["countries"]),
@@ -524,6 +617,9 @@ def dataset_from_document(document: Mapping) -> MRIODataset:
             fx=document.get("fx") or {},
             prices=document.get("prices") or {},
             tolerance=float(document.get("tolerance", TOLERANCE)),
+            final_demand_adjustments=tuple(fda),
+            va_adjustments=tuple(vaa),
+            schema_version=version,
         )
     except (TypeError, ValueError) as exc:
         if isinstance(exc, MRIOError):
@@ -580,9 +676,12 @@ def validate_dataset(dataset: MRIODataset, tolerance: float | None = None,
                      min_industries: int = MIN_INDUSTRIES) -> ValidationReport:
     """Check the accounting identities and (optionally) the P2 scale gate.
 
-    Row balance ``x = Z 1 + y`` and column balance ``x = 1' Z + va`` are checked with a scaled
-    tolerance: ``|residual_i| <= tol * max(1, |x_i|)``.  Country totals are reported for x, y and
-    va so a caller can reconcile them against published aggregates.
+    Row balance ``x = Z 1 + y + fda``, column balance ``x = 1' Z + va + vaa`` and the global
+    identities ``sum(va) + sum(vaa) = sum(y) + sum(fda)`` / ``sum(x) = sum(Z) + sum(y) + sum(fda)``
+    are checked with a scaled tolerance: ``|residual_i| <= tol * max(1, |x_i|)``.  For a 1.0.0
+    dataset the adjustments are zero, so the checks reduce to the schema-1.0 identities.  Country
+    totals are reported for x, y, va and the adjustments so a caller can reconcile them against
+    published aggregates.
     """
     tol = float(dataset.tolerance if tolerance is None else tolerance)
     if tol <= 0:
@@ -591,40 +690,47 @@ def validate_dataset(dataset: MRIODataset, tolerance: float | None = None,
     warnings: list[str] = []
 
     size = dataset.n
+    fda = dataset.final_demand_adjustments
+    vaa = dataset.va_adjustments
     row_residual = []
     column_residual = []
     for row in range(size):
         intermediate = math.fsum(dataset.Z[row])
-        residual = intermediate + dataset.y[row] - dataset.x[row]
+        residual = intermediate + dataset.y[row] + fda[row] - dataset.x[row]
         row_residual.append(residual)
         scale = max(1.0, abs(dataset.x[row]))
         if abs(residual) > tol * scale:
             errors.append(f"row balance violated at {dataset.labels[row]}: "
-                          f"sum(Z)+y-x = {residual:.6e} (|.| > {tol:.1e}*{scale:.3g})")
+                          f"sum(Z)+y+fda-x = {residual:.6e} (|.| > {tol:.1e}*{scale:.3g})")
     for column in range(size):
         intermediate = math.fsum(dataset.Z[row][column] for row in range(size))
-        residual = intermediate + dataset.va[column] - dataset.x[column]
+        residual = intermediate + dataset.va[column] + vaa[column] - dataset.x[column]
         column_residual.append(residual)
         scale = max(1.0, abs(dataset.x[column]))
         if abs(residual) > tol * scale:
             errors.append(f"column balance violated at {dataset.labels[column]}: "
-                          f"sum(Z)+va-x = {residual:.6e} (|.| > {tol:.1e}*{scale:.3g})")
+                          f"sum(Z)+va+vaa-x = {residual:.6e} (|.| > {tol:.1e}*{scale:.3g})")
 
     total_va = math.fsum(dataset.va)
     total_final = math.fsum(dataset.y)
+    total_fda = math.fsum(fda)
+    total_vaa = math.fsum(vaa)
     total_output = math.fsum(dataset.x)
     total_intermediate = math.fsum(math.fsum(row) for row in dataset.Z)
     va_scale = max(1.0, abs(total_va), abs(total_final))
-    global_ok = abs(total_va - total_final) <= tol * va_scale
+    global_difference = (total_va + total_vaa) - (total_final + total_fda)
+    global_ok = abs(global_difference) <= tol * va_scale
     if not global_ok:
-        errors.append(f"global identity violated: sum(va) = {total_va:.6f} != sum(y) = "
-                      f"{total_final:.6f} (difference {total_va - total_final:.6e})")
-    aggregate_residual = total_output - (total_intermediate + total_final)
+        errors.append(
+            f"global identity violated: sum(va)+sum(vaa) = {total_va + total_vaa:.6f} != "
+            f"sum(y)+sum(fda) = {total_final + total_fda:.6f} "
+            f"(difference {global_difference:.6e})")
+    aggregate_residual = total_output - (total_intermediate + total_final + total_fda)
     aggregate_scale = max(1.0, abs(total_output))
     aggregate_ok = abs(aggregate_residual) <= tol * aggregate_scale
     if not aggregate_ok:
         errors.append(f"aggregate output identity violated: sum(x) = {total_output:.6f} != "
-                      f"sum(Z)+sum(y) = {total_intermediate + total_final:.6f} "
+                      f"sum(Z)+sum(y)+sum(fda) = {total_intermediate + total_final + total_fda:.6f} "
                       f"(difference {aggregate_residual:.6e})")
 
     countries = dataset.countries
@@ -634,6 +740,10 @@ def validate_dataset(dataset: MRIODataset, tolerance: float | None = None,
                     for country in countries}
     va_by_country = {country: math.fsum(dataset.va[i] for i in dataset.country_index(country))
                      for country in countries}
+    fda_by_country = {country: math.fsum(fda[i] for i in dataset.country_index(country))
+                      for country in countries}
+    vaa_by_country = {country: math.fsum(vaa[i] for i in dataset.country_index(country))
+                      for country in countries}
     # cross-border intermediate flows: exports leave a country block, imports enter it
     exports_by_country = {}
     imports_by_country = {}
@@ -653,6 +763,7 @@ def validate_dataset(dataset: MRIODataset, tolerance: float | None = None,
 
     min_Z = min((value for row in dataset.Z for value in row), default=0.0)
     min_y = min(dataset.y, default=0.0)
+    min_va = min(dataset.va, default=0.0)
 
     scale_ok, scale_error = check_p2_scale(dataset, min_countries, min_industries)
     if not scale_ok:
@@ -661,11 +772,17 @@ def validate_dataset(dataset: MRIODataset, tolerance: float | None = None,
         else:
             warnings.append(scale_error)
 
+    adjustment_cells = {
+        "final_demand": sum(1 for value in fda if value != 0.0),
+        "value_added": sum(1 for value in vaa if value != 0.0),
+    }
     checks = {
         "schema": True,
+        "schema_version": dataset.schema_version in SUPPORTED_SCHEMA_VERSIONS,
         "dimensions": True,
         "labels_unique": True,
-        "non_negative": min_Z >= -tol and min_y >= -tol,
+        "non_negative": min_Z >= -tol and min_y >= -tol and min_va >= -tol,
+        "adjustments_shape": len(fda) == size and len(vaa) == size,
         "row_balance": not any("row balance" in error for error in errors),
         "column_balance": not any("column balance" in error for error in errors),
         "global_value_added_equals_final_demand": global_ok,
@@ -678,6 +795,7 @@ def validate_dataset(dataset: MRIODataset, tolerance: float | None = None,
         "n": size,
         "years": list(dataset.years),
         "units": dataset.units,
+        "schema_version": dataset.schema_version,
         "max_abs_row_residual": round(max((abs(value) for value in row_residual), default=0.0), 9),
         "max_abs_column_residual": round(max((abs(value) for value in column_residual),
                                              default=0.0), 9),
@@ -688,11 +806,16 @@ def validate_dataset(dataset: MRIODataset, tolerance: float | None = None,
         "total_intermediate": round(total_intermediate, 6),
         "total_final_demand": round(total_final, 6),
         "total_value_added": round(total_va, 6),
-        "global_difference_va_minus_y": round(total_va - total_final, 9),
+        "total_final_demand_adjustments": round(total_fda, 6),
+        "total_value_added_adjustments": round(total_vaa, 6),
+        "adjustment_cells": adjustment_cells,
+        "global_difference_va_minus_y": round(global_difference, 9),
         "global_difference_output": round(aggregate_residual, 9),
         "x_by_country": {country: round(value, 6) for country, value in x_by_country.items()},
         "y_by_country": {country: round(value, 6) for country, value in y_by_country.items()},
         "va_by_country": {country: round(value, 6) for country, value in va_by_country.items()},
+        "fda_by_country": {country: round(value, 6) for country, value in fda_by_country.items()},
+        "vaa_by_country": {country: round(value, 6) for country, value in vaa_by_country.items()},
         "exports_by_country": exports_by_country,
         "imports_by_country": imports_by_country,
         "net_exports_by_country": net_exports_by_country,

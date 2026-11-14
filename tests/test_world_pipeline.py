@@ -281,5 +281,92 @@ class BenchmarkEnvelope(unittest.TestCase):
         self.assertLess(timings["scenario_energy"], timings["factorise"])
 
 
+def write_sparse_table(table, path):
+    """Write a sparse canonical document for ``table`` (the FIGARO storage format)."""
+    import figaro_import as figaro
+    coo = table.Z.tocoo()
+    document = {
+        "Z_sparse": {"rows": coo.row.astype("int64"), "cols": coo.col.astype("int64"),
+                     "values": coo.data.astype("float64")},
+        "schema": "amfe.mrio.dataset.v1", "schema_version": "1.0.0",
+        "countries": list(table.countries), "industries": list(table.industries),
+        "years": list(table.provenance.get("years", [2020])), "units": table.units,
+        "y": table.y, "x": table.x, "va": table.va,
+        "source": {"name": "sparse fixture"}, "fx": {}, "prices": {},
+        "tolerance": table.tolerance, "notes": "test fixture",
+    }
+    return figaro.write_sparse_dataset(document, path)
+
+
+class SparseCanonical(unittest.TestCase):
+    """Sparse Z_sparse storage: fast path, backward compatibility with dense Z, fail-closed."""
+
+    def test_sparse_table_matches_the_dense_table(self):
+        table = small(seed=5)
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "dataset.json"
+            write_sparse_table(table, path)
+            self.assertTrue(wp._is_sparse_dataset(path))
+            restored = wp.table_from_sparse(path)
+            self.assertEqual((restored.Z != table.Z).nnz, 0)
+            np.testing.assert_allclose(restored.x, table.x, rtol=0, atol=1e-12)
+            np.testing.assert_allclose(restored.y, table.y, rtol=0, atol=1e-12)
+            np.testing.assert_allclose(restored.va, table.va, rtol=0, atol=1e-12)
+            self.assertEqual(restored.countries, tuple(sorted(table.countries)))
+            self.assertEqual(restored.provenance["storage"], "sparse")
+            self.assertTrue(wp.validate_table(restored, workers=1)["pass"])
+
+    def test_resolve_table_sparse_fast_path_and_dense_fallback(self):
+        table = small(seed=5)
+        with tempfile.TemporaryDirectory() as tmp:
+            sparse_path = Path(tmp) / "sparse" / "dataset.json"
+            write_sparse_table(table, sparse_path)
+            sparse_table, info = wp.resolve_table(
+                args(dataset=str(sparse_path), root=tmp, no_p2_gate=True))
+            self.assertEqual(info["storage"], "sparse")
+            self.assertEqual((sparse_table.Z != table.Z).nnz, 0)
+            dense_path = Path(tmp) / "dense" / "dataset.json"
+            write_dataset(table.to_canonical_dense(limit=100), dense_path)
+            dense_table, dense_info = wp.resolve_table(
+                args(dataset=str(dense_path), root=tmp, no_p2_gate=True))
+            self.assertEqual(dense_info["storage"], "dense")
+            # the dense canonical writer rounds to 9 decimals; compare like the existing roundtrip
+            self.assertEqual(((dense_table.Z - table.Z) > 1e-6).nnz, 0)
+
+    def test_sparse_pipeline_report_is_deterministic(self):
+        table = small(seed=5)
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "dataset.json"
+            write_sparse_table(table, path)
+            first = wp.run_pipeline(args(dataset=str(path), build=True, solve=True, workers=1,
+                                         no_p2_gate=True))
+            second = wp.run_pipeline(args(dataset=str(path), build=True, solve=True, workers=2,
+                                          no_p2_gate=True))
+        self.assertEqual(first["status"], wp.STATUS_OK)
+        self.assertEqual(first["dataset"]["storage"], "sparse")
+        self.assertTrue(first["validation"]["pass"])
+        self.assertEqual(wp.strip_timings(first), wp.strip_timings(second))
+
+    def test_broken_sparse_document_fails_closed(self):
+        table = small(seed=5)
+        document = {
+            "Z_sparse": {"rows": np.array([0], dtype="int64"),
+                         "cols": np.array([0, 1], dtype="int64"),
+                         "values": np.array([1.0], dtype="float64")},
+            "schema": "amfe.mrio.dataset.v1", "schema_version": "1.0.0",
+            "countries": list(table.countries), "industries": list(table.industries),
+            "years": [2020], "units": table.units,
+            "y": table.y, "x": table.x, "va": table.va,
+            "source": {}, "fx": {}, "prices": {}, "tolerance": table.tolerance,
+        }
+        import figaro_import as figaro
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "broken.json"
+            figaro.write_sparse_dataset(document, path)
+            with self.assertRaises(wp.PipelineError):
+                wp.table_from_sparse(path)
+
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

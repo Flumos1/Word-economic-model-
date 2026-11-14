@@ -32,6 +32,7 @@ import argparse
 import hashlib
 import json
 import math
+import os
 import sys
 import time
 import urllib.parse
@@ -554,6 +555,483 @@ def assemble_document(meta: dict, parsed: dict, usd_per_eur: float,
     }
 
 
+# ----------------------------------------------------------------------------- sparse storage
+SPARSE_KEY = "Z_sparse"
+
+
+def _read_json_array_stream(handle, initial: bytes, key: str, floating: bool):
+    """Read one flat JSON number array (``"key": [ ... ]``) from a binary stream."""
+    marker = b'"' + key.encode("ascii") + b'"'
+    buffer = initial
+    while marker not in buffer:
+        block = handle.read(1 << 20)
+        if not block:
+            raise FigaroError(f"JSON array {key!r} not found")
+        buffer += block
+    buffer = buffer[buffer.index(marker) + len(marker):]
+    while b"[" not in buffer:
+        block = handle.read(1 << 20)
+        if not block:
+            raise FigaroError(f"JSON array {key!r} has no opening bracket")
+        buffer += block
+    buffer = buffer[buffer.index(b"[") + 1:]
+    chunks = []
+    while True:
+        if b"]" in buffer:
+            position = buffer.index(b"]")
+            chunks.append(buffer[:position])
+            buffer = buffer[position + 1:]
+            break
+        chunks.append(buffer)
+        block = handle.read(1 << 20)
+        if not block:
+            raise FigaroError(f"JSON array {key!r} is not terminated")
+        buffer = block
+    raw = b"".join(chunks).strip()
+    if not raw:
+        return np.zeros(0, dtype=np.float64 if floating else np.int64), buffer
+    text = raw.decode("ascii")
+    if floating:
+        return np.fromstring(text, sep=",", dtype=np.float64), buffer
+    return np.fromstring(text, sep=",", dtype=np.float64).astype(np.int64), buffer
+
+
+def read_sparse_document(path: Path) -> tuple[dict, dict]:
+    """Stream ``Z_sparse`` arrays and metadata out of a sparse dataset file.
+
+    The writer puts ``Z_sparse`` first, so the three large arrays are read in bounded chunks
+    (one array at a time) and only then the small metadata block is decoded.
+    """
+    path = Path(path)
+    if not path.is_file():
+        raise FigaroError(f"dataset file not found: {path}")
+    with path.open("rb") as handle:
+        buffer = handle.read(4096)
+        while b'"Z_sparse"' not in buffer:
+            block = handle.read(1 << 20)
+            if not block:
+                raise FigaroError(f"{path}: no Z_sparse block")
+            buffer += block
+        buffer = buffer[buffer.index(b'"Z_sparse"'):]
+        arrays = {}
+        for key, floating in (("rows", False), ("cols", False), ("values", True)):
+            array, buffer = _read_json_array_stream(handle, buffer, key, floating)
+            arrays[key] = array
+        rest = buffer
+        while True:
+            block = handle.read(1 << 20)
+            if not block:
+                break
+            rest += block
+    rest = rest.lstrip()
+    if rest.startswith(b"}"):
+        rest = rest[1:].lstrip()
+    if rest.startswith(b","):
+        rest = rest[1:].lstrip()
+    try:
+        metadata = json.loads(b"{" + rest)
+    except ValueError as exc:
+        raise FigaroError(f"{path}: broken metadata after Z_sparse: {exc!r}") from exc
+    return metadata, arrays
+
+
+def is_sparse_file(path: Path) -> bool:
+    """Cheap format probe: the writer puts ``Z_sparse`` in the first bytes of the file."""
+    try:
+        with Path(path).open("rb") as handle:
+            return b'"Z_sparse"' in handle.read(4096)
+    except OSError:
+        return False
+
+
+def _layout(meta: dict, parsed: dict) -> dict:
+    """Resolve and check the FIGARO dimension layout shared by the dense and sparse assemblers."""
+    if not parsed.get("chunks"):
+        raise FigaroError("no parsed FIGARO slices to assemble")
+    chunk_dimensions = parsed["chunks"][0].get("dimensions") or {}
+    origins = list(chunk_dimensions.get("origins") or meta["origins"])
+    products_used = list(chunk_dimensions.get("products_used") or meta["products_used"])
+    products_available = list(chunk_dimensions.get("products_available")
+                              or meta["products_available"])
+    destinations = list(meta["destinations"])
+    if DOM_CODE not in origins:
+        raise FigaroError("FIGARO origin list has no DOM (domestic value added) block")
+    if ROW_CODE not in destinations or ROW_CODE not in origins:
+        raise FigaroError("FIGARO table has no WRL_REST (rest of world) block")
+    if [code for code in origins if code != DOM_CODE] != destinations:
+        raise FigaroError("origin and destination country lists differ beyond DOM")
+    products = [code for code in products_used if code in products_available]
+    final_codes = [code for code in products_used if code not in products]
+    if not products or set(final_codes) != set(FINAL_DEMAND_CODES):
+        raise FigaroError(f"unexpected FIGARO product/final-demand split: {final_codes}")
+    available = set(products_available)
+    if any(code not in available for code in VALUE_ADDED_CODES):
+        raise FigaroError("FIGARO table misses one of the value-added rows")
+    countries = [ROW_LABEL if code == ROW_CODE else code for code in destinations]
+    industries = list(products)
+    return {
+        "origins": origins, "destinations": destinations, "countries": countries,
+        "industries": industries,
+        "product_use_index": {code: i for i, code in enumerate(products_used)},
+        "product_ava_index": {code: i for i, code in enumerate(products_available)},
+        "dest_index": {code: i for i, code in enumerate(destinations)},
+        "origin_index": {code: i for i, code in enumerate(origins)},
+        "final_positions": [products_used.index(code) for code in FINAL_DEMAND_CODES],
+        "va_positions": [products_available.index(code) for code in VALUE_ADDED_CODES],
+        "product_use_positions": [products_used.index(code) for code in products],
+        "product_ava_positions": [products_available.index(code) for code in products],
+        "n_countries": len(countries), "n_industries": len(industries),
+        "n": len(countries) * len(industries),
+    }
+
+
+def assemble_sparse_document(meta: dict, parsed: dict, usd_per_eur: float,
+                             tolerance: float = DEFAULT_TOLERANCE) -> dict:
+    """Assemble the canonical document with a **sparse** ``Z_sparse`` block (no dense matrix).
+
+    Triplets ``(row, col, value)`` are accumulated into preallocated arrays while the
+    per-destination chunks are consumed, so the peak working set is O(nnz), not O(n^2) Python
+    floats.  ``x``, ``y`` and ``va`` are vectors; the accounting identities are enforced on the
+    vectors and the sparse triplets (see :func:`validate_sparse_document`).
+    """
+    if not math.isfinite(usd_per_eur) or usd_per_eur <= 0:
+        raise FigaroError(f"invalid FX rate USD per EUR: {usd_per_eur!r}")
+    layout = _layout(meta, parsed)
+    origins = layout["origins"]
+    destinations = layout["destinations"]
+    countries = layout["countries"]
+    industries = layout["industries"]
+    n_countries, n_industries = layout["n_countries"], layout["n_industries"]
+    n = layout["n"]
+    dest_index = layout["dest_index"]
+    ava_positions = layout["product_ava_positions"]
+    use_positions = layout["product_use_positions"]
+    final_positions = layout["final_positions"]
+    va_positions = layout["va_positions"]
+    dom_position = layout["origin_index"][DOM_CODE]
+    n_final, n_va = len(final_positions), len(va_positions)
+
+    capacity = n * n
+    rows = np.empty(capacity, dtype=np.int32)
+    cols = np.empty(capacity, dtype=np.int32)
+    values = np.empty(capacity, dtype=np.float64)
+    cursor = 0
+    y_eur = np.zeros(n, dtype=np.float64)
+    va_eur = np.zeros(n, dtype=np.float64)
+    expected_shape = (len(origins), len(layout["product_ava_index"]),
+                      len(layout["product_use_index"]))
+    for chunk in parsed["chunks"]:
+        dest = chunk["dest"]
+        if dest not in dest_index:
+            raise FigaroError(f"parsed slice for unknown destination {dest!r}")
+        array = np.asarray(chunk["array"], dtype=np.float64)
+        if array.shape != expected_shape:
+            raise FigaroError(f"slice {dest}: shape {array.shape} != {expected_shape}")
+        block = array[:, ava_positions, :][:, :, use_positions]
+        column_base = dest_index[dest] * n_industries
+        for position, origin in enumerate(origins):
+            if origin == DOM_CODE:
+                continue
+            country_base = dest_index[origin] * n_industries
+            sub = block[position]
+            ava_idx, use_idx = np.nonzero(sub)
+            count = ava_idx.size
+            if count:
+                if cursor + count > capacity:  # pragma: no cover - n^2 is the exact bound
+                    raise FigaroError("sparse accumulation overflow")
+                rows[cursor:cursor + count] = country_base + ava_idx
+                cols[cursor:cursor + count] = column_base + use_idx
+                values[cursor:cursor + count] = sub[ava_idx, use_idx]
+                cursor += count
+            final = array[position][np.ix_(ava_positions, final_positions)]
+            if n_final:
+                y_eur[country_base:country_base + n_industries] += final.sum(axis=1)
+        domestic = array[dom_position][np.ix_(va_positions, use_positions)]
+        if n_va:
+            va_eur[column_base:column_base + n_industries] += domestic.sum(axis=0)
+
+    rows = rows[:cursor]
+    cols = cols[:cursor]
+    values = values[:cursor]
+    shift = np.maximum(0.0, np.maximum(-y_eur, -va_eur))
+    non_negativity_shift = float(shift.sum())
+    y_eur = y_eur + shift
+    va_eur = va_eur + shift
+
+    values = np.round(values * usd_per_eur, 6)
+    keep = values != 0.0
+    rows, cols, values = rows[keep], cols[keep], values[keep]
+    y = np.round(y_eur * usd_per_eur, 6)
+    va_source = np.round(va_eur * usd_per_eur, 6)
+    row_sum = np.bincount(rows, weights=values, minlength=n)
+    column_sum = np.bincount(cols, weights=values, minlength=n)
+    x = np.round(row_sum + y, 6)
+    va_reconciled = np.round(x - column_sum, 6)
+    column_reconciliation = float(np.abs(va_reconciled - va_source).sum())
+    for _ in range(3):
+        negative_va = np.maximum(0.0, -va_reconciled)
+        if not negative_va.any():
+            break
+        y = np.round(y + negative_va, 6)
+        x = np.round(row_sum + y, 6)
+        va_reconciled = np.round(x - column_sum, 6)
+    va = np.maximum(va_reconciled, 0.0)
+
+    return {
+        "Z_sparse": {"rows": rows, "cols": cols, "values": values},
+        "schema": SCHEMA,
+        "schema_version": SCHEMA_VERSION,
+        "countries": countries,
+        "industries": industries,
+        "years": [int(meta["year"])],
+        "units": CANONICAL_UNITS,
+        "y": y,
+        "x": x,
+        "va": va,
+        "source": {
+            "name": "Eurostat FIGARO - EU inter-country input-output table (product by product)",
+            "provider": "Eurostat",
+            "dataset": DATASET_CODE,
+            "url": meta["url"],
+            "year": int(meta["year"]),
+            "licence": "Eurostat re-use policy (open data, attribution)",
+            "third_party": True,
+            "row_block": f"{ROW_CODE} -> {ROW_LABEL}",
+            "storage": SPARSE_KEY,
+            "non_negativity_shift_usd_mn": round(non_negativity_shift * usd_per_eur, 3),
+            "column_reconciliation_usd_mn": round(column_reconciliation, 3),
+            "retrieved_at": _utc_now(),
+            "value_base": "EUR million, basic prices; converted to USD million with the World Bank "
+                          "official exchange rate (period average)",
+        },
+        "fx": {"EUR_per_USD": round(1.0 / usd_per_eur, 9),
+               "USD_per_EUR": round(usd_per_eur, 9),
+               "source": "World Bank PA.NUS.FCRF, euro area (EMU), period average",
+               "year": int(meta["year"])},
+        "prices": {},
+        "tolerance": float(tolerance),
+        "notes": "FIGARO NAIO_10_FCP_IP3; WRL_REST is carried as the ROW block; DOM is not a "
+                 "country (domestic value-added rows); negative inventory/value-added cells are "
+                 "shifted into y/va/x by the recorded non-negativity shift; Z is stored as sparse "
+                 "triplets in Z_sparse {rows, cols, values}. Third-party data: never commit.",
+    }
+
+
+def _sparse_arrays(document: dict):
+    if SPARSE_KEY not in document:
+        raise FigaroError("document has no Z_sparse block")
+    block = document[SPARSE_KEY]
+    try:
+        rows = np.asarray(block["rows"], dtype=np.int64)
+        cols = np.asarray(block["cols"], dtype=np.int64)
+        values = np.asarray(block["values"], dtype=np.float64)
+    except (KeyError, TypeError, ValueError) as exc:
+        raise FigaroError(f"malformed Z_sparse block: {exc!r}") from exc
+    if not (rows.size == cols.size == values.size):
+        raise FigaroError("Z_sparse rows/cols/values must have the same length")
+    n = len(np.asarray(document["x"]))
+    if rows.size and (int(rows.min()) < 0 or int(rows.max()) >= n
+                      or int(cols.min()) < 0 or int(cols.max()) >= n):
+        raise FigaroError("Z_sparse index outside the matrix")
+    if not np.all(np.isfinite(values)):
+        raise FigaroError("Z_sparse values must be finite")
+    return rows, cols, values, n
+
+
+def validate_sparse_document(document: dict, enforce_p2_scale: bool = True,
+                             tolerance: float | None = None) -> dict:
+    """Validate a sparse canonical document (same identities as ``amfe.mrio.schema``)."""
+    rows, cols, values, n = _sparse_arrays(document)
+    tol = float(document.get("tolerance", DEFAULT_TOLERANCE) if tolerance is None else tolerance)
+    if tol <= 0:
+        raise FigaroError("tolerance must be positive")
+    y = np.asarray(document["y"], dtype=np.float64)
+    x = np.asarray(document["x"], dtype=np.float64)
+    va = np.asarray(document["va"], dtype=np.float64)
+    countries = tuple(document["countries"])
+    industries = tuple(document["industries"])
+    errors: list[str] = []
+    checks: dict = {"schema": True, "dimensions": True, "labels_unique": True}
+    if not (y.size == x.size == va.size == n):
+        errors.append(f"vector lengths differ from n={n}")
+        checks["dimensions"] = False
+    if len(set(countries)) != len(countries) or len(set(industries)) != len(industries):
+        errors.append("country/industry labels are not unique")
+        checks["labels_unique"] = False
+    checks["non_negative"] = bool(
+        (values.size == 0 or float(values.min()) >= -tol)
+        and float(y.min()) >= -tol and float(x.min()) >= -tol and float(va.min()) >= -tol)
+    if not checks["non_negative"]:
+        errors.append("negative Z/y/x/va value below tolerance")
+    row_residual = np.bincount(rows, weights=values, minlength=n) + y - x
+    column_residual = np.bincount(cols, weights=values, minlength=n) + va - x
+    row_scale = np.maximum(1.0, np.abs(x))
+    bad_rows = np.flatnonzero(np.abs(row_residual) > tol * row_scale)
+    bad_columns = np.flatnonzero(np.abs(column_residual) > tol * row_scale)
+    checks["row_balance"] = bad_rows.size == 0
+    checks["column_balance"] = bad_columns.size == 0
+    if bad_rows.size:
+        errors.append(f"row balance violated at {bad_rows.size} sectors")
+    if bad_columns.size:
+        errors.append(f"column balance violated at {bad_columns.size} sectors")
+    total_va, total_y, total_x = float(va.sum()), float(y.sum()), float(x.sum())
+    total_z = float(values.sum())
+    va_scale = max(1.0, abs(total_va), abs(total_y))
+    global_ok = abs(total_va - total_y) <= tol * va_scale
+    aggregate_ok = abs(total_x - (total_z + total_y)) <= tol * max(1.0, abs(total_x))
+    checks["global_value_added_equals_final_demand"] = global_ok
+    checks["aggregate_output_identity"] = aggregate_ok
+    if not global_ok:
+        errors.append(f"global identity violated: sum(va)={total_va:.6f} != sum(y)={total_y:.6f}")
+    if not aggregate_ok:
+        errors.append("aggregate output identity violated")
+    p2_scale = bool(len(countries) >= 10 and len(industries) >= 30)
+    checks["p2_scale"] = p2_scale
+    if not p2_scale:
+        message = (f"P2 scale gate: {len(countries)} countries / {len(industries)} industries "
+                   f"(need 10+ x 30+)")
+        if enforce_p2_scale:
+            errors.append(message)
+    metrics = {
+        "countries": len(countries), "industries": len(industries), "n": n,
+        "years": list(document.get("years", [])), "units": document.get("units"),
+        "cells_Z": n * n, "stored_Z": int(values.size),
+        "stored_share": round(float(values.size) / float(n * n), 6) if n else 0.0,
+        "max_abs_row_residual": round(float(np.max(np.abs(row_residual))) if n else 0.0, 9),
+        "max_abs_column_residual": round(float(np.max(np.abs(column_residual))) if n else 0.0, 9),
+        "max_rel_row_residual": round(float(np.max(np.abs(row_residual) / row_scale)) if n else 0.0, 9),
+        "total_output": round(total_x, 6),
+        "total_intermediate": round(total_z, 6),
+        "total_final_demand": round(total_y, 6),
+        "total_value_added": round(total_va, 6),
+        "global_difference_va_minus_y": round(total_va - total_y, 9),
+        "global_difference_output": round(total_x - (total_z + total_y), 9),
+        "tolerance": tol,
+    }
+    return {"ok": not errors, "checks": checks, "metrics": metrics,
+            "errors": list(errors), "warnings": []}
+
+
+def _write_json_numbers(handle, array, floating: bool, step: int = 20000) -> None:
+    for start in range(0, array.size, step):
+        piece = array[start:start + step]
+        if start:
+            handle.write(",")
+        if floating:
+            # shortest round-trip repr: deterministic and lossless (the values are already
+            # rounded to 6 decimals by the assembler, so this stays compact for FIGARO)
+            handle.write(",".join(repr(float(value)) for value in piece))
+        else:
+            handle.write(",".join(str(int(value)) for value in piece))
+
+
+def write_sparse_dataset(document: dict, path: Path) -> str:
+    """Write a sparse canonical dataset deterministically and return the SHA-256 of the bytes.
+
+    The large arrays are streamed in bounded slices; metadata follows the arrays, so a reader can
+    stream ``Z_sparse`` first and decode the (small) metadata block afterwards.
+    """
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    rows, cols, values = (document[SPARSE_KEY]["rows"], document[SPARSE_KEY]["cols"],
+                          document[SPARSE_KEY]["values"])
+    metadata_keys = ["schema", "schema_version", "countries", "industries", "years", "units",
+                     "y", "x", "va", "source", "fx", "prices", "tolerance", "notes"]
+    with path.open("w", encoding="utf-8", newline="\n") as handle:
+        handle.write('{\n "Z_sparse": {\n')
+        for index, (key, array, floating) in enumerate((("rows", rows, False),
+                                                        ("cols", cols, False),
+                                                        ("values", values, True))):
+            handle.write(f'  "{key}": [')
+            _write_json_numbers(handle, np.asarray(array), floating)
+            handle.write("]" + ("," if index < 2 else "") + "\n")
+        handle.write(" }")
+        for key in metadata_keys:
+            if key not in document:
+                continue
+            value = document[key]
+            if isinstance(value, np.ndarray):
+                value = value.tolist()
+            handle.write(",\n " + json.dumps(key) + ": "
+                         + json.dumps(value, ensure_ascii=False, sort_keys=True))
+        handle.write("\n}\n")
+    return sha256_file(path)
+
+
+def write_sparse_pack(root: Path, document: dict, dataset_id: str,
+                      extra_manifest: dict | None = None,
+                      enforce_p2_scale: bool = True) -> dict:
+    """Validate, write the sparse dataset + manifest and return aggregate metadata."""
+    root = Path(root)
+    out_dir = root / dataset_id
+    out_dir.mkdir(parents=True, exist_ok=True)
+    started = time.monotonic()
+    report = validate_sparse_document(document, enforce_p2_scale=enforce_p2_scale)
+    if not report["ok"]:
+        raise FigaroError("sparse dataset failed validation: "
+                          + "; ".join(report["errors"][:5]))
+    dataset_path = out_dir / "dataset.json"
+    dataset_sha = write_sparse_dataset(document, dataset_path)
+    size = dataset_path.stat().st_size
+    write_seconds = round(time.monotonic() - started, 2)
+    manifest = {
+        "schema": MANIFEST_SCHEMA,
+        "schema_version": SCHEMA_VERSION,
+        "dataset_id": dataset_id,
+        "generated_at": _utc_now(),
+        "status": "AVAILABLE",
+        "p2_requirements": {"min_countries": 10, "min_industries": 30, "units": CANONICAL_UNITS,
+                            "schema": SCHEMA},
+        "dataset": {
+            "path": f"{dataset_id}/dataset.json",
+            "sha256": dataset_sha,
+            "bytes": size,
+            "digest": dataset_sha,
+            "storage": SPARSE_KEY,
+            "countries": report["metrics"]["countries"],
+            "industries": report["metrics"]["industries"],
+            "years": report["metrics"]["years"],
+            "units": report["metrics"]["units"],
+            "cells_Z": report["metrics"]["cells_Z"],
+            "stored_Z": report["metrics"]["stored_Z"],
+            "stored_share": report["metrics"]["stored_share"],
+        },
+        "validation": report,
+        "write_seconds": write_seconds,
+    }
+    if extra_manifest:
+        manifest.update(extra_manifest)
+    manifest_path = out_dir / "manifest.json"
+    manifest_sha = write_manifest(manifest, manifest_path)
+    return {"dataset_path": str(dataset_path), "dataset_sha256": dataset_sha,
+            "dataset_bytes": size, "manifest_path": str(manifest_path),
+            "manifest_sha256": manifest_sha, "dataset_id": dataset_id,
+            "write_seconds": write_seconds, "manifest": manifest,
+            "validation": report}
+
+
+def _sparse_summary(document: dict, validation: dict) -> dict:
+    metrics = validation["metrics"]
+    return {
+        "status": "OK",
+        "dataset_id": None,
+        "storage": SPARSE_KEY,
+        "coverage_named_pct": None,
+        "coverage_with_row_pct": None,
+        "countries": metrics["countries"],
+        "industries": metrics["industries"],
+        "year": int(document["years"][0]),
+        "dataset_bytes": None,
+        "dataset_sha256": None,
+        "stored_Z": metrics["stored_Z"],
+        "stored_share": metrics["stored_share"],
+        "validation_ok": validation["ok"],
+        "max_rel_row_residual": metrics["max_rel_row_residual"],
+        "max_abs_column_residual": metrics["max_abs_column_residual"],
+    }
+
+
+
 # --------------------------------------------------------------------------- GDP, FX, coverage
 def fetch_worldbank(url: str, year: int, path: Path, force: bool = False) -> dict:
     """Fetch one World Bank indicator response and cache it as JSON."""
@@ -697,6 +1175,22 @@ def write_dataset_pack(root: Path, document: dict, dataset_id: str,
             "write_seconds": write_seconds, "manifest": manifest}
 
 
+def peak_memory_mb() -> float:
+    """Peak resident memory of this process in MB (psutil peak_wset if available)."""
+    try:
+        import psutil  # optional dependency, same as tools/world_pipeline.py
+        info = psutil.Process(os.getpid()).memory_info()
+        peak = getattr(info, "peak_wset", None) or getattr(info, "rss", 0)
+        return round(float(peak) / (1024.0 * 1024.0), 1)
+    except Exception:
+        try:
+            import tracemalloc
+            current, peak = tracemalloc.get_traced_memory()
+            return round(float(max(current, peak)) / (1024.0 * 1024.0), 1)
+        except Exception:
+            return 0.0
+
+
 # ------------------------------------------------------------------------------------------- CLI
 def _cache_paths(root: Path, year: int) -> tuple[Path, Path]:
     cache = Path(root) / "cache" / str(year)
@@ -727,9 +1221,30 @@ def run(args) -> dict:
         return {"mode": "coverage", "year": year, "coverage": coverage}
 
     if args.validate_only:
+        path = root / dataset_id / "dataset.json"
+        if is_sparse_file(path):
+            metadata, arrays = read_sparse_document(path)
+            document = dict(metadata)
+            document["Z_sparse"] = arrays
+            validation = validate_sparse_document(document)
+            if not validation["ok"]:
+                raise FigaroError("sparse dataset failed validation: "
+                                  + "; ".join(validation["errors"][:5]))
+            summary = {"status": "OK", "storage": SPARSE_KEY, "dataset": {
+                "schema": metadata.get("schema"),
+                "countries": validation["metrics"]["countries"],
+                "industries": validation["metrics"]["industries"],
+                "years": validation["metrics"]["years"], "units": validation["metrics"]["units"],
+                "stored_Z": validation["metrics"]["stored_Z"],
+                "cells_Z": validation["metrics"]["cells_Z"],
+                "max_rel_row_residual": validation["metrics"]["max_rel_row_residual"],
+                "max_abs_column_residual": validation["metrics"]["max_abs_column_residual"]},
+                "sha256": sha256_file(path), "bytes": path.stat().st_size}
+            print(json.dumps(summary, ensure_ascii=False))
+            return {"mode": "validate", "dataset_id": dataset_id, "summary": summary}
         from amfe.mrio.loaders import load_dataset
         loaded = load_dataset(dataset_id, root=root, strict=True)
-        print(json.dumps({"status": "OK", "dataset": loaded.dataset.describe(),
+        print(json.dumps({"status": "OK", "storage": "Z", "dataset": loaded.dataset.describe(),
                           "sha256": loaded.sha256, "bytes": loaded.size_bytes}, ensure_ascii=False))
         return {"mode": "validate", "dataset_id": dataset_id}
 
@@ -753,22 +1268,40 @@ def run(args) -> dict:
     gdp, fx = load_gdp_and_fx(root, year, force=args.force)
     parsed = parse_year(root, meta, jobs=args.jobs)
     timings["parse_seconds"] = parsed["seconds"]
-    document = assemble_document(meta, parsed, usd_per_eur=fx["usd_per_eur"],
-                                 tolerance=args.tolerance)
-    validation_started = time.monotonic()
-    result = write_dataset_pack(root, document, dataset_id, extra_manifest={
-        "source": document["source"],
-        "fx": document["fx"],
-        "coverage": gdp_coverage(document["countries"], gdp),
+    storage = str(getattr(args, "storage", "sparse"))
+    extra = {
+        "source": None,
+        "fx": None,
+        "coverage": None,
         "figaro": {"dataset": DATASET_CODE, "year": year,
                    "destinations": len(meta["destinations"]),
-                   "products_used": len(document["industries"]),
-                   "rows": len(document["industries"]) + len(VALUE_ADDED_CODES) + 2,
                    "domestic_value_added_rows": list(VALUE_ADDED_CODES),
                    "final_demand_columns": list(FINAL_DEMAND_CODES),
                    "row_block": f"{ROW_CODE} -> {ROW_LABEL}"},
-        "cache": {"dir": f"cache/{year}", "files": len(meta["destinations"]) + 2},
-    })
+        "cache": {"dir": f"cache/{year}", "files": len(meta["destinations"]) + 2}}
+    validation_started = time.monotonic()
+    if storage == "sparse":
+        document = assemble_sparse_document(meta, parsed, usd_per_eur=fx["usd_per_eur"],
+                                            tolerance=args.tolerance)
+        extra.update({"source": document["source"], "fx": document["fx"],
+                      "coverage": gdp_coverage(document["countries"], gdp),
+                      "figaro": dict(extra["figaro"],
+                                     products_used=len(document["industries"]),
+                                     rows=len(document["industries"])
+                                     + len(VALUE_ADDED_CODES) + 2)})
+        result = write_sparse_pack(root, document, dataset_id, extra_manifest=extra)
+        validation = result["validation"]
+    else:
+        document = assemble_document(meta, parsed, usd_per_eur=fx["usd_per_eur"],
+                                     tolerance=args.tolerance)
+        extra.update({"source": document["source"], "fx": document["fx"],
+                      "coverage": gdp_coverage(document["countries"], gdp),
+                      "figaro": dict(extra["figaro"],
+                                     products_used=len(document["industries"]),
+                                     rows=len(document["industries"])
+                                     + len(VALUE_ADDED_CODES) + 2)})
+        result = write_dataset_pack(root, document, dataset_id, extra_manifest=extra)
+        validation = result["manifest"]["validation"]
     validation = result["manifest"]["validation"]
     timings["validation_seconds"] = round(time.monotonic() - validation_started, 2)
     timings["total_seconds"] = round(time.monotonic() - started, 2)
@@ -777,6 +1310,8 @@ def run(args) -> dict:
     summary = {
         "status": "OK",
         "dataset_id": dataset_id,
+        "storage": storage,
+        "peak_memory_mb": peak_memory_mb(),
         "coverage_named_pct": coverage.get("named_share_pct"),
         "coverage_with_row_pct": coverage.get("coverage_with_row_pct"),
         "countries": len(document["countries"]),
@@ -811,6 +1346,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--all", action="store_true", help="download + build + validate + manifest")
     parser.add_argument("--coverage-only", action="store_true", help="GDP coverage report only")
     parser.add_argument("--validate-only", action="store_true", help="validate the written dataset")
+    parser.add_argument("--storage", choices=("sparse", "dense"), default="sparse",
+                        help="canonical Z storage: sparse Z_sparse block (default) or dense Z")
     return parser
 
 

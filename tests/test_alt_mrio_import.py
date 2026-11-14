@@ -148,11 +148,100 @@ class TableMappingTest(unittest.TestCase):
         self.assertEqual(len(importer.WIOD_COUNTRIES), 44)
         self.assertIn("ROW", importer.WIOD_COUNTRIES)
 
-    def test_negative_final_demand_is_rejected_by_the_schema_before_validation(self):
+    def test_negative_final_demand_is_absorbed_into_signed_adjustments(self):
+        """Schema 1.1: a negative final-demand cell is not clipped away, it becomes ``fda``.
+
+        The WIOD situation is simulated exactly: the raw final demand of a row is negative
+        (inventory drawdown) while the row identity ``x = Z 1 + y_raw`` still holds; the column
+        side is rebalanced through ``va`` as in the real release.
+        """
         table = self.table()
-        table["y"][0] = -5.0
-        with self.assertRaises(Exception):
+        row = 0
+        table["y"][row] = -5.0
+        table["x"][row] = sum(table["Z"][row]) + table["y"][row]
+        column = 0
+        table["va"][column] = table["x"][column] - sum(r[column] for r in table["Z"])
+        dataset = importer.build_dataset(table, year=2014, source=importer.SOURCES["wiod_2016"])
+        self.assertEqual(dataset.schema_version, "1.1.0")
+        self.assertEqual(dataset.y[row], 0.0)
+        self.assertEqual(dataset.final_demand_adjustments[row], -5.0)
+        self.assertTrue(dataset.has_adjustments())
+        from amfe.mrio.schema import validate_dataset
+
+        report = validate_dataset(dataset, enforce_p2_scale=False)
+        self.assertTrue(report.ok, report.errors)
+        self.assertAlmostEqual(report.metrics["max_abs_row_residual"], 0.0, places=6)
+        self.assertEqual(report.metrics["adjustment_cells"]["final_demand"], 1)
+        # y/va stay non-negative: the signed input lives only in the adjustments
+        self.assertTrue(all(value >= 0.0 for value in dataset.y))
+        self.assertTrue(all(value >= 0.0 for value in dataset.va))
+
+    def test_negative_value_added_and_column_residual_are_absorbed(self):
+        table = self.table()
+        table["va"][0] = table["va"][0] - 6.0  # break the column balance and make va small
+        dataset = importer.build_dataset(table, year=2014, source=importer.SOURCES["wiod_2016"])
+        from amfe.mrio.schema import validate_dataset
+
+        report = validate_dataset(dataset, enforce_p2_scale=False)
+        self.assertTrue(report.ok, report.errors)
+        self.assertAlmostEqual(report.metrics["max_abs_column_residual"], 0.0, places=6)
+        self.assertNotEqual(dataset.va_adjustments[0], 0.0)
+
+    def test_positive_final_demand_keeps_zero_adjustments(self):
+        table = self.table()
+        dataset = importer.build_dataset(table, year=2014, source=importer.SOURCES["wiod_2016"])
+        self.assertEqual(sum(abs(value) for value in dataset.final_demand_adjustments), 0.0)
+        self.assertEqual(sum(abs(value) for value in dataset.va_adjustments), 0.0)
+        self.assertFalse(dataset.has_adjustments())
+
+    def test_build_dataset_is_deterministic(self):
+        first = importer.build_dataset(self.table(), year=2014,
+                                       source=importer.SOURCES["wiod_2016"])
+        second = importer.build_dataset(self.table(), year=2014,
+                                        source=importer.SOURCES["wiod_2016"])
+        self.assertEqual(first.digest(), second.digest())
+
+    def test_broken_grid_is_still_refused(self):
+        table = self.table()
+        table["row_keys"] = table["row_keys"][:-1]
+        with self.assertRaises(importer.ImportBlocked):
             importer.build_dataset(table, year=2014, source=importer.SOURCES["wiod_2016"])
+
+
+class DatasetIdAndCoverageTest(unittest.TestCase):
+    def test_dataset_id_is_loadable_by_the_production_loader(self):
+        self.assertEqual(importer.dataset_id_for(2014, "wiod_2016"), "wiod_2014")
+        self.assertEqual(importer.dataset_id_for(2000, "wiod_2016"), "wiod_2000")
+        from amfe.mrio.schema import _DATASET_ID
+
+        self.assertRegex(importer.dataset_id_for(2014), _DATASET_ID)
+
+    def test_wb_gdp_coverage_uses_the_cached_world_bank_data(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "wb").mkdir()
+            document = [{"page": 1}, [
+                {"country": {"id": "AAA"}, "date": "2014", "value": 300.0},
+                {"country": {"id": "BBB"}, "date": "2014", "value": 100.0},
+                {"country": {"id": "WLD"}, "date": "2014", "value": 1000.0},
+                {"country": {"id": "AAA"}, "date": "2013", "value": 1.0},
+            ]]
+            (root / "wb" / "wb_NY.GDP.MKTP.CD.json").write_text(json.dumps(document),
+                                                                 encoding="utf-8")
+            coverage = importer.gdp_coverage(2014, ["AAA", "BBB", "ROW"], root)
+            self.assertEqual(coverage["status"], "AVAILABLE")
+            self.assertEqual(coverage["year"], 2014)
+            self.assertAlmostEqual(coverage["named_share_percent"], 40.0)
+            self.assertAlmostEqual(coverage["row_share_percent"], 60.0)
+            self.assertEqual(coverage["named_countries"], 2)
+            self.assertEqual(coverage["missing_from_wb"], [])
+
+    def test_missing_world_bank_cache_is_unavailable_not_invented(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            coverage = importer.gdp_coverage(2014, ["AAA"], Path(tmp))
+            self.assertEqual(coverage["status"], "UNAVAILABLE")
+            self.assertIn("no World Bank cache", coverage["reason"])
+            self.assertNotIn("named_share_percent", coverage)
 
 
 class ReportTest(unittest.TestCase):

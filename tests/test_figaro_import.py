@@ -335,5 +335,80 @@ class CoverageAndCache(unittest.TestCase):
         self.assertIn("c_dest=DE", url)
 
 
+class SparseStorage(unittest.TestCase):
+    """Sparse ``Z_sparse`` path: same numbers as dense, deterministic bytes, fail-closed."""
+
+    def _chunks(self):
+        return [{"dest": dest, "array": fixture_chunk(dest)} for dest in DESTINATIONS]
+
+    def test_sparse_assembly_matches_dense(self):
+        sparse = figaro_import.assemble_sparse_document(
+            fixture_meta(), {"chunks": self._chunks()}, usd_per_eur=2.0)
+        dense = assembled_document()
+        n = len(dense["x"])
+        matrix = np.zeros((n, n), dtype=float)
+        for row, col, value in zip(sparse["Z_sparse"]["rows"],
+                                   sparse["Z_sparse"]["cols"],
+                                   sparse["Z_sparse"]["values"]):
+            matrix[int(row), int(col)] += float(value)
+        np.testing.assert_allclose(matrix, np.asarray(dense["Z"], dtype=float), rtol=0, atol=1e-12)
+        np.testing.assert_allclose(sparse["x"], dense["x"], rtol=0, atol=1e-12)
+        np.testing.assert_allclose(sparse["y"], dense["y"], rtol=0, atol=1e-12)
+        np.testing.assert_allclose(sparse["va"], dense["va"], rtol=0, atol=1e-12)
+        report = figaro_import.validate_sparse_document(sparse, enforce_p2_scale=False)
+        self.assertTrue(report["ok"], report["errors"])
+        self.assertEqual(report["metrics"]["stored_Z"], int(np.count_nonzero(matrix)))
+
+    def test_sparse_writer_reader_roundtrip_is_deterministic(self):
+        document = figaro_import.assemble_sparse_document(
+            fixture_meta(), {"chunks": self._chunks()}, usd_per_eur=2.0)
+        with tempfile.TemporaryDirectory() as base:
+            first = Path(base) / "first.json"
+            second = Path(base) / "second.json"
+            digest = figaro_import.write_sparse_dataset(document, first)
+            again = figaro_import.write_sparse_dataset(document, second)
+            self.assertEqual(digest, again)
+            self.assertEqual(first.read_bytes(), second.read_bytes())
+            self.assertTrue(figaro_import.is_sparse_file(first))
+            metadata, arrays = figaro_import.read_sparse_document(first)
+            self.assertEqual(metadata["countries"], document["countries"])
+            np.testing.assert_array_equal(arrays["rows"], document["Z_sparse"]["rows"])
+            np.testing.assert_array_equal(arrays["cols"], document["Z_sparse"]["cols"])
+            np.testing.assert_allclose(arrays["values"], document["Z_sparse"]["values"])
+            restored = dict(metadata)
+            restored["Z_sparse"] = arrays
+            report = figaro_import.validate_sparse_document(restored, enforce_p2_scale=False)
+            self.assertTrue(report["ok"], report["errors"])
+
+    def test_sparse_validation_and_writer_are_fail_closed(self):
+        document = figaro_import.assemble_sparse_document(
+            fixture_meta(), {"chunks": self._chunks()}, usd_per_eur=2.0)
+        broken = {key: (value.copy() if isinstance(value, np.ndarray) else value)
+                  for key, value in document.items()}
+        broken["Z_sparse"] = {key: (value.copy() if isinstance(value, np.ndarray) else value)
+                              for key, value in document["Z_sparse"].items()}
+        broken["va"] = np.asarray(broken["va"]).copy()
+        broken["va"][0] += 1.0
+        report = figaro_import.validate_sparse_document(broken, enforce_p2_scale=False)
+        self.assertFalse(report["ok"])
+        with tempfile.TemporaryDirectory() as base:
+            with self.assertRaises(figaro_import.FigaroError):
+                figaro_import.write_sparse_pack(Path(base), broken, "figaro_bad",
+                                                enforce_p2_scale=False)
+        shorter = {key: (value.copy() if isinstance(value, np.ndarray) else value)
+                   for key, value in document.items()}
+        shorter["Z_sparse"] = {"rows": document["Z_sparse"]["rows"][:-1],
+                               "cols": document["Z_sparse"]["cols"],
+                               "values": document["Z_sparse"]["values"]}
+        with self.assertRaises(figaro_import.FigaroError):
+            figaro_import.validate_sparse_document(shorter, enforce_p2_scale=False)
+
+    def test_dense_document_is_not_a_sparse_document(self):
+        dense = assembled_document()
+        with self.assertRaises(figaro_import.FigaroError):
+            figaro_import.validate_sparse_document(dense, enforce_p2_scale=False)
+
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

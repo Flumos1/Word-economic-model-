@@ -171,6 +171,27 @@ class WorldTable:
     units: str = UNITS
     tolerance: float = 1e-6
     provenance: dict = field(default_factory=dict)
+    final_demand_adjustments: np.ndarray | None = None
+    va_adjustments: np.ndarray | None = None
+
+    @property
+    def fda(self) -> np.ndarray:
+        """Signed final-demand adjustments (inventory changes etc.); zeros in schema v1.0."""
+        if self.final_demand_adjustments is None:
+            return np.zeros(self.n, dtype=float)
+        return np.asarray(self.final_demand_adjustments, dtype=float)
+
+    @property
+    def vaa(self) -> np.ndarray:
+        """Signed value-added adjustments; zeros in schema v1.0."""
+        if self.va_adjustments is None:
+            return np.zeros(self.n, dtype=float)
+        return np.asarray(self.va_adjustments, dtype=float)
+
+    @property
+    def effective_final_demand(self) -> np.ndarray:
+        """Final demand entering the Leontief equation: ``y + fda``."""
+        return self.y + self.fda
 
     # -- basics ---------------------------------------------------------------------------
     @property
@@ -228,7 +249,7 @@ class WorldTable:
         Zc = (projection @ self.Z @ projection.T).tocsr()
         Zc.sum_duplicates()
         Zc.sort_indices()
-        yc = np.asarray(projection @ self.y).ravel()
+        yc = np.asarray(projection @ (self.y + self.fda)).ravel()
         xc = np.asarray(projection @ self.x).ravel()
         vac = np.asarray(projection @ self.va).ravel()
         return Zc, yc, xc, vac
@@ -261,6 +282,7 @@ class WorldTable:
             "total_output": round(float(self.x.sum()), 6),
             "total_final_demand": round(float(self.y.sum()), 6),
             "total_value_added": round(float(self.va.sum()), 6),
+            "storage": str(self.provenance.get("storage") or "dense"),
             "provenance": dict(sorted(self.provenance.items())),
         }
 
@@ -429,13 +451,141 @@ def table_from_canonical(loaded: LoadedDataset) -> WorldTable:
     Z = Z[order][:, order].tocsr()
     Z.sum_duplicates()
     Z.sort_indices()
+    fda = getattr(dataset, "final_demand_adjustments", None)
+    vaa = getattr(dataset, "va_adjustments", None)
+    fda = None if fda is None else np.asarray(fda, dtype=float)[order]
+    vaa = None if vaa is None else np.asarray(vaa, dtype=float)[order]
     return WorldTable(countries=countries, industries=industries,
                       Z=Z, y=y[order], x=x[order], va=va[order],
                       units=dataset.units, tolerance=float(dataset.tolerance),
+                      final_demand_adjustments=fda, va_adjustments=vaa,
                       provenance={"name": str(loaded.path.name), "dataset_sha256": loaded.sha256,
                                   "path": str(loaded.path), "years": list(dataset.years),
                                   "source": dataset.source.get("name") if dataset.source else None,
                                   "synthetic": False})
+
+
+def table_from_sparse(path) -> WorldTable:
+    """Load a canonical dataset that stores ``Z`` as ``Z_sparse`` triplets (streamed).
+
+    The canonical order of ``countries``/``industries`` is re-mapped to the same sorted,
+    deterministic order as the dense path, so reports never depend on the file order.  Only the
+    three sparse arrays plus the y/x/va vectors are materialised (no dense n x n matrix).
+    """
+    import figaro_import as figaro  # tools/ module: the sparse writer/reader lives there
+
+    path = Path(path)
+    metadata, arrays = figaro.read_sparse_document(path)
+    original_countries = [str(code) for code in metadata["countries"]]
+    original_industries = [str(code) for code in metadata["industries"]]
+    countries = tuple(sorted(original_countries))
+    industries = tuple(sorted(original_industries))
+    n_industries = len(original_industries)
+    n = len(original_countries) * n_industries
+    country_position = {name: index for index, name in enumerate(original_countries)}
+    industry_position = {name: index for index, name in enumerate(original_industries)}
+    order = np.empty(n, dtype=np.int64)
+    position = 0
+    for country in countries:
+        base = country_position[country] * n_industries
+        for industry in industries:
+            order[position] = base + industry_position[industry]
+            position += 1
+    raw_rows = np.asarray(arrays["rows"], dtype=np.int64)
+    raw_cols = np.asarray(arrays["cols"], dtype=np.int64)
+    values = np.asarray(arrays["values"], dtype=np.float64)
+    if not (raw_rows.size == raw_cols.size == values.size):
+        raise PipelineError("Z_sparse rows/cols/values must have the same length")
+    if raw_rows.size and (int(raw_rows.min()) < 0 or int(raw_rows.max()) >= n
+                          or int(raw_cols.min()) < 0 or int(raw_cols.max()) >= n):
+        raise PipelineError("Z_sparse index outside the sparse matrix")
+    if not np.all(np.isfinite(values)):
+        raise PipelineError("Z_sparse values must be finite")
+    # ``order`` maps the new (sorted) position to the original position; permute the matrix and the
+    # vectors with the same map (a vector index, not a row index) so the identities stay aligned.
+    Z = sp.csr_matrix((values, (raw_rows, raw_cols)), shape=(n, n))
+    Z = Z[order][:, order].tocsr()
+    Z.sum_duplicates()
+    Z.sort_indices()
+    y = np.asarray(metadata["y"], dtype=float)[order]
+    x = np.asarray(metadata["x"], dtype=float)[order]
+    va = np.asarray(metadata["va"], dtype=float)[order]
+    fda_raw = metadata.get("final_demand_adjustments")
+    vaa_raw = metadata.get("va_adjustments")
+    fda = None if fda_raw is None else np.asarray(fda_raw, dtype=float)[order]
+    vaa = None if vaa_raw is None else np.asarray(vaa_raw, dtype=float)[order]
+    source = metadata.get("source") or {}
+    provenance = {
+        "name": path.name,
+        "dataset_sha256": sha256_file(path),
+        "path": str(path),
+        "years": list(metadata.get("years", [])),
+        "source": source.get("name") if isinstance(source, dict) else None,
+        "synthetic": False,
+        "storage": "sparse",
+    }
+    return WorldTable(countries=countries, industries=industries, Z=Z, y=y, x=x, va=va,
+                      units=str(metadata.get("units", UNITS)),
+                      tolerance=float(metadata.get("tolerance", 1e-6)),
+                      final_demand_adjustments=fda, va_adjustments=vaa,
+                      provenance=provenance)
+
+
+def _is_sparse_dataset(path) -> bool:
+    import figaro_import as figaro
+    return figaro.is_sparse_file(Path(path))
+
+
+def _candidate_dataset_paths(args):
+    """Yield candidate ``dataset.json`` paths in the same order as :func:`resolve_dataset`."""
+    dataset = getattr(args, "dataset", None)
+    if dataset:
+        candidate = Path(dataset)
+        if candidate.is_file():
+            yield candidate
+            return
+        root = getattr(args, "root", None)
+        if root:
+            candidate = Path(root) / str(dataset) / DATASET_FILENAME
+            if candidate.is_file():
+                yield candidate
+        return
+    roots = []
+    root = getattr(args, "root", None)
+    if root:
+        roots.append(Path(root))
+    env_root = os.environ.get(DATA_ROOT_ENV, "").strip()
+    if env_root:
+        roots.append(Path(env_root))
+    roots.append(ROOT / "data" / "mrio")
+    for candidate_root in roots:
+        try:
+            ids = available_datasets(candidate_root)
+        except MRIOError:
+            continue
+        for dataset_id in ids:
+            candidate = Path(candidate_root) / dataset_id / DATASET_FILENAME
+            if candidate.is_file():
+                yield candidate
+
+
+def resolve_table(args) -> tuple[WorldTable, dict]:
+    """Resolve the pipeline table: sparse ``Z_sparse`` fast path first, dense canonical fallback.
+
+    The sparse path is used only when the file actually carries ``Z_sparse``; an old dense
+    dataset keeps working through :func:`amfe.mrio.loaders.load_dataset` (backward compatibility).
+    A broken sparse dataset fails closed instead of silently falling back to the dense parser.
+    """
+    for path in _candidate_dataset_paths(args):
+        if _is_sparse_dataset(path):
+            table = table_from_sparse(path)
+            return table, {"storage": "sparse",
+                           "path": str(path), "sha256": sha256_file(path),
+                           "bytes": Path(path).stat().st_size}
+    loaded = resolve_dataset(args)
+    return table_from_canonical(loaded), {"storage": "dense", "path": str(loaded.path),
+                                          "sha256": loaded.sha256,
+                                          "bytes": loaded.size_bytes}
 
 
 # ------------------------------------------------------------------------------- parallel checks
@@ -464,10 +614,10 @@ def drop_inactive_sectors(table: WorldTable) -> tuple[WorldTable, dict]:
 
 
 def _country_balance_chunk(task):
-    """Worker: row-side material balance for one country's rows."""
-    Z_block, y_block, x_block = task
+    """Worker: row-side material balance for one country's rows (``x = Z1 + y + fda``)."""
+    Z_block, y_block, x_block, fda_block = task
     row_sums = np.asarray(Z_block.sum(axis=1)).ravel()
-    residual = row_sums + y_block - x_block
+    residual = row_sums + y_block + fda_block - x_block
     return {"max_abs_row_residual": float(np.max(np.abs(residual))) if residual.size else 0.0,
             "min_Z": float(Z_block.data.min()) if Z_block.nnz else 0.0,
             "nnz": int(Z_block.nnz)}
@@ -499,27 +649,35 @@ def validate_table(table: WorldTable, workers: int = 1, tolerance: float | None 
     checks: dict = {}
     n = table.n
     checks["shape"] = bool(table.Z.shape == (n, n) and table.y.size == n
-                           and table.x.size == n and table.va.size == n)
+                           and table.x.size == n and table.va.size == n
+                           and table.fda.size == n and table.vaa.size == n)
     checks["labels"] = bool(len(set(table.countries)) == len(table.countries)
                             and len(set(table.industries)) == len(table.industries)
                             and table.countries == tuple(sorted(table.countries))
                             and table.industries == tuple(sorted(table.industries)))
     checks["finite"] = bool(np.all(np.isfinite(table.y)) and np.all(np.isfinite(table.x))
                             and np.all(np.isfinite(table.va))
+                            and np.all(np.isfinite(table.fda)) and np.all(np.isfinite(table.vaa))
                             and np.all(np.isfinite(table.Z.data)))
     checks["non_negative"] = bool((table.Z.nnz == 0 or float(table.Z.data.min()) >= -tol)
                                   and float(table.y.min()) >= -tol and float(table.va.min()) >= -tol)
     checks["output_non_negative"] = bool(float(table.x.min()) >= -tol)
     p2_scale = bool(table.n_countries >= MIN_COUNTRIES
                     and table.n_industries >= MIN_INDUSTRIES)
-    tasks = [(table.Z[table.country_slice(country)], table.y[table.country_slice(country)],
-              table.x[table.country_slice(country)]) for country in table.countries]
+    tasks = [(table.Z[table.country_slice(country)],
+              table.y[table.country_slice(country)],
+              table.x[table.country_slice(country)],
+              table.fda[table.country_slice(country)]) for country in table.countries]
     chunk_results = _run_chunks(_country_balance_chunk, tasks, workers)
     max_row = max(entry["max_abs_row_residual"] for entry in chunk_results)
-    column_residual = np.asarray(table.Z.sum(axis=0)).ravel() + table.va - table.x
+    column_residual = (np.asarray(table.Z.sum(axis=0)).ravel() + table.va + table.vaa
+                       - table.x)
     max_column = float(np.max(np.abs(column_residual))) if column_residual.size else 0.0
     checks["product_balance"] = bool(max_row <= tol * max(1.0, float(table.x.max())))
     checks["value_added_balance"] = bool(max_column <= tol * max(1.0, float(table.x.max())))
+    global_gap = float(abs((table.va.sum() + table.vaa.sum()) - (table.y.sum() + table.fda.sum())))
+    checks["global_saving_investment"] = bool(
+        global_gap <= tol * max(1.0, abs(float(table.y.sum()))))
     Zc = aggregate_country_parallel(table, workers)
     checks["aggregation_totals"] = bool(abs(float(Zc.sum()) - float(table.Z.sum()))
                                         <= tol * max(1.0, abs(float(table.Z.sum()))))
@@ -562,7 +720,7 @@ class WorldSolver:
             self.factor = spla.splu(sp.identity(self.table.n, format="csc") - self.A.tocsc())
         except RuntimeError as exc:  # singular matrix
             raise PipelineError(f"(I - A) is singular: {exc}") from exc
-        self.baseline_x = self.solve(self.table.y, label="baseline")
+        self.baseline_x = self.solve(self.table.effective_final_demand, label="baseline")
 
     def solve(self, final_demand, label: str = "") -> np.ndarray:
         demand = np.asarray(final_demand, dtype=float).ravel()
@@ -955,10 +1113,11 @@ def run_pipeline(args) -> dict:
                                         workers=workers, timings=timings)
                 report["dataset"] = {"source": "synthetic"}
             else:
-                loaded = resolve_dataset(args)
-                table = table_from_canonical(loaded)
-                report["dataset"] = {"source": "canonical", "file": str(loaded.path),
-                                     "sha256": loaded.sha256, "bytes": loaded.size_bytes}
+                table, dataset_info = resolve_table(args)
+                report["dataset"] = {"source": "canonical", "file": dataset_info["path"],
+                                     "sha256": dataset_info["sha256"],
+                                     "bytes": dataset_info["bytes"],
+                                     "storage": dataset_info["storage"]}
                 report["dataset"]["zero_output_sectors"] = int((table.x <= table.tolerance).sum())
         report["table"] = table.describe()
         with timings.stage("validate"):
@@ -1067,8 +1226,8 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def benchmark(args) -> dict:
-    """Time every stage on the synthetic table (default 60x45) and return the report."""
-    if not args.synthetic:
+    """Time every stage (synthetic 60x45 by default, or the dataset passed with --dataset)."""
+    if not args.synthetic and not getattr(args, "dataset", None):
         args.synthetic = True
     if args.scenario is None:
         args.scenario = "energy"

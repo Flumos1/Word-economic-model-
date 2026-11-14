@@ -426,14 +426,36 @@ def row_keys(frame, label_columns: list) -> tuple[list[str], list[str]]:
     return countries, industries
 
 
+def _split_signed(values):
+    """Split a raw vector into ``(non-negative base, signed adjustment)``.
+
+    ``base = max(value, 0)`` and ``adjustment = min(value, 0)`` so that
+    ``base + adjustment == value`` exactly.  Schema 1.1 keeps ``y``/``va`` non-negative and moves
+    the negative part (WIOD inventory changes, negative value added) into the signed adjustments.
+    """
+    base = [value if value > 0.0 else 0.0 for value in values]
+    adjustment = [value if value < 0.0 else 0.0 for value in values]
+    return base, adjustment
+
+
 def build_dataset(table: dict, *, year: int, source: dict, tolerance: float = 1e-6):
-    """Map a parsed WIOD table dict to the canonical ``amfe.mrio.dataset.v1`` dataset.
+    """Map a parsed WIOD table dict to the canonical ``amfe.mrio.dataset.v1.1`` dataset.
 
     ``table`` carries plain lists: ``row_keys`` [(country, industry)...], ``sector_columns``,
     ``Z`` (rows x sector columns), ``y`` (final demand sum per row), ``x`` (TOT column),
     ``va`` (value-added row over sector columns) and ``go`` (gross-output row, cross-check).
+
+    Negative final demand / value added are not discarded and not clipped silently: they become
+    signed adjustments (``final_demand_adjustments``, ``va_adjustments``), so the accounting
+    identities stay exact:
+
+        x = Z 1 + y + fda,   x = 1' Z + va + vaa,   sum(va) + sum(vaa) = sum(y) + sum(fda)
+
+    The WIOD value-added row does not close every column exactly (the release keeps valuation /
+    transport-margin adjustment rows outside ``VA``); that column residual is absorbed into
+    ``va_adjustments`` as well and reported in ``source['adjustments']``, so no residual is hidden.
     """
-    from amfe.mrio.schema import MRIODataset
+    from amfe.mrio.schema import MRIODataset, SCHEMA_VERSION
 
     keys = table["row_keys"]
     if not keys:
@@ -452,18 +474,54 @@ def build_dataset(table: dict, *, year: int, source: dict, tolerance: float = 1e
         raise ImportBlocked("Z row count differs from the label count")
     if len(table["sector_columns"]) != len(keys):
         raise ImportBlocked("sector column count differs from the label count")
+    size = len(keys)
+    Z = [[float(value) for value in row] for row in table["Z"]]
+    if any(len(row) != size for row in Z):
+        raise ImportBlocked("Z is not square")
+    y_raw = [float(value) for value in table["y"]]
+    va_raw = [float(value) for value in table["va"]]
+    x = [float(value) for value in table["x"]]
+    if not (len(y_raw) == len(va_raw) == len(x) == size):
+        raise ImportBlocked("y/va/x length differs from the label count")
+
+    y, fda = _split_signed(y_raw)
+    va, vaa = _split_signed(va_raw)
+    column_residual = []
+    for column in range(size):
+        intermediate = sum(Z[row][column] for row in range(size))
+        residual = x[column] - intermediate - va_raw[column]
+        column_residual.append(residual)
+        vaa[column] += residual
+    row_residual = [sum(Z[row]) + y_raw[row] - x[row] for row in range(size)]
+
     dataset = MRIODataset(
         countries=tuple(countries), industries=tuple(industries), years=(int(year),),
-        Z=tuple(tuple(float(value) for value in row) for row in table["Z"]),
-        y=tuple(float(value) for value in table["y"]),
-        x=tuple(float(value) for value in table["x"]),
-        va=tuple(float(value) for value in table["va"]),
+        Z=tuple(tuple(row) for row in Z),
+        y=tuple(y), x=tuple(x), va=tuple(va),
         units="USD_mn",
         source={"name": source["name"], "provider": source["provider"],
                 "page": source["page"], "doi": source.get("doi"),
                 "licence": source["licence"], "archive": source.get("archive_name"),
-                "year": int(year), "converted_by": "tools/alt_mrio_import.py"},
+                "year": int(year), "converted_by": "tools/alt_mrio_import.py",
+                "schema_version": SCHEMA_VERSION,
+                "adjustments": {
+                    "final_demand_cells": sum(1 for value in fda if value != 0.0),
+                    "value_added_cells": sum(1 for value in vaa if value != 0.0),
+                    "negative_final_demand_cells": sum(1 for value in y_raw if value < 0.0),
+                    "min_final_demand": round(min(y_raw), 6) if y_raw else 0.0,
+                    "negative_value_added_cells": sum(1 for value in va_raw if value < 0.0),
+                    "min_value_added": round(min(va_raw), 6) if va_raw else 0.0,
+                    "value_added_column_residual_absorbed": round(
+                        sum(1 for value in column_residual if value != 0.0), 0),
+                    "max_abs_value_added_column_residual": round(
+                        max((abs(value) for value in column_residual), default=0.0), 6),
+                    "max_abs_row_residual_before": round(
+                        max((abs(value) for value in row_residual), default=0.0), 9),
+                }},
         tolerance=float(tolerance),
+        final_demand_adjustments=tuple(fda),
+        va_adjustments=tuple(vaa),
+        schema_version=SCHEMA_VERSION,
     )
     return dataset
 
@@ -558,74 +616,302 @@ def read_wiod_year(archive: Path, year: int) -> tuple:
     return table, member, frame
 
 
+#: World Bank GDP (current US$) cache written by the FIGARO track (data/mrio/wb/).
+WB_GDP_FILENAME = "wb/wb_NY.GDP.MKTP.CD.json"
+
+#: Standard ISO-3 -> ISO-2 map for the 43 named WIOD 2016 countries (the World Bank API cache
+#: downloaded for the FIGARO track stores ISO-2 ids).  ``ROW`` is a WIOD aggregate, not a country.
+ISO3_TO_ISO2 = {
+    "AUS": "AU", "AUT": "AT", "BEL": "BE", "BGR": "BG", "BRA": "BR", "CAN": "CA", "CHE": "CH",
+    "CHN": "CN", "CYP": "CY", "CZE": "CZ", "DEU": "DE", "DNK": "DK", "ESP": "ES", "EST": "EE",
+    "FIN": "FI", "FRA": "FR", "GBR": "GB", "GRC": "GR", "HRV": "HR", "HUN": "HU", "IDN": "ID",
+    "IND": "IN", "IRL": "IE", "ITA": "IT", "JPN": "JP", "KOR": "KR", "LTU": "LT", "LUX": "LU",
+    "LVA": "LV", "MEX": "MX", "MLT": "MT", "NLD": "NL", "NOR": "NO", "POL": "PL", "PRT": "PT",
+    "ROU": "RO", "RUS": "RU", "SVK": "SK", "SVN": "SI", "SWE": "SE", "TUR": "TR", "TWN": "TW",
+    "USA": "US",
+}
+
+#: Coverage cache written by ``--coverage`` inside the converted source directory.
+WB_COVERAGE_FILENAME = "wb_gdp_coverage.json"
+WB_API = "https://api.worldbank.org/v2/country/{codes}/indicator/NY.GDP.MKTP.CD?format=json&per_page=20000&date={years}"
+
+
+def _http_get(url: str, timeout: float = 45.0) -> bytes:
+    """GET a URL with a browser-like User-Agent; raises ``URLError``/``HTTPError`` on failure."""
+    request = urllib.request.Request(url, method="GET", headers={"User-Agent": BROWSER_UA})
+    with urllib.request.urlopen(request, timeout=timeout) as response:
+        return response.read()
+
+
+def _wb_payload(document):
+    """The ``[meta, data]`` list of a World Bank API v2 response (plain or wrapped cache)."""
+    if isinstance(document, dict) and "payload" in document:
+        document = document["payload"]
+    if isinstance(document, list) and len(document) > 1 and isinstance(document[1], list):
+        return document[1]
+    return None
+
+
+def _wb_values(rows, year: int) -> dict[str, float]:
+    """``{country_iso: value}`` for one year from World Bank data rows."""
+    values: dict[str, float] = {}
+    for item in rows or []:
+        if not isinstance(item, dict) or str(item.get("date")) != str(int(year)):
+            continue
+        value = item.get("value")
+        if value is None:
+            continue
+        code = str((item.get("country") or {}).get("id", "")).upper()
+        if code:
+            values[code] = float(value)
+    return values
+
+
+def _coverage_cache_path(root: Path | None = None) -> Path:
+    return mrio_data_root(root) / "wiod_2016" / WB_COVERAGE_FILENAME
+
+
+def fetch_gdp_coverage(years, country_codes, root: Path | None = None,
+                       timeout: float = 45.0) -> dict:
+    """Fetch world and named-country GDP (current US$) from the World Bank API and cache it.
+
+    Two requests: the ``WLD`` aggregate and the named ISO-3 countries (``ROW`` is excluded).  The
+    result is written to ``data/mrio/wiod_2016/wb_gdp_coverage.json`` (git-ignored local data, only
+    GDP totals -- no MRIO values).  A network/HTTP failure returns ``status: UNAVAILABLE`` with the
+    reason instead of inventing a number.
+    """
+    years = sorted({int(year) for year in years})
+    codes = sorted({str(code).upper() for code in country_codes
+                    if str(code).upper() not in ("ROW", "TOT", "WLD")})
+    if not years or not codes:
+        raise ImportBlocked("coverage needs at least one year and one country code")
+    date = ";".join(str(year) for year in years)
+    document: dict = {"source": WB_API.format(codes="WLD;" + ";".join(codes), years=date),
+                      "indicator": "NY.GDP.MKTP.CD (current US$)",
+                      "retrieved_at": utc_now(), "years": years, "countries": codes,
+                      "world": {}, "named": {}, "status": "AVAILABLE"}
+    try:
+        world_rows = _wb_payload(json.loads(_http_get(
+            WB_API.format(codes="WLD", years=date), timeout=timeout)))
+        named_rows = _wb_payload(json.loads(_http_get(
+            WB_API.format(codes=";".join(codes), years=date), timeout=timeout)))
+    except Exception as error:  # network/HTTP: report the fact, never fabricate a share
+        document.update({"status": "UNAVAILABLE", "reason": f"{type(error).__name__}: {error}"})
+        write_json(document, _coverage_cache_path(root))
+        return document
+    if world_rows is None or named_rows is None:
+        document.update({"status": "UNAVAILABLE",
+                         "reason": "World Bank response has no data array"})
+        write_json(document, _coverage_cache_path(root))
+        return document
+    for year in years:
+        world = _wb_values(world_rows, year).get("WLD")
+        named = _wb_values(named_rows, year)
+        if world is None or world <= 0:
+            document["world"][str(year)] = None
+            document["named"][str(year)] = named
+            continue
+        document["world"][str(year)] = round(world / 1e6, 3)   # USD million
+        document["named"][str(year)] = {
+            "total_usd_mn": round(sum(named.values()) / 1e6, 3),
+            "share_percent": round(100.0 * sum(named.values()) / world, 4),
+            "countries_found": len(named),
+            "missing": sorted(set(codes) - set(named)),
+        }
+    write_json(document, _coverage_cache_path(root))
+    return document
+
+
+def gdp_coverage(year: int, country_codes, root: Path | None = None) -> dict:
+    """Share of the named countries in world GDP at market prices (World Bank, current US$).
+
+    First the coverage cache written by :func:`fetch_gdp_coverage`; then the raw
+    ``data/mrio/wb/`` World Bank cache (ISO codes must match -- the FIGARO cache stores ISO-2, so
+    this path is a fallback for synthetic tests).  When neither has the year, coverage is
+    ``UNAVAILABLE`` with the reason: it is never estimated or invented.
+    """
+    root_path = mrio_data_root(root)
+    codes = {str(code).upper() for code in country_codes
+             if str(code).upper() not in ("ROW", "TOT")}
+    path = root_path / "wiod_2016" / WB_COVERAGE_FILENAME
+    if path.is_file():
+        try:
+            document = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError) as error:
+            return {"status": "UNAVAILABLE", "year": int(year),
+                    "reason": f"coverage cache unreadable: {error}"}
+        if document.get("status") == "AVAILABLE":
+            world = (document.get("world") or {}).get(str(int(year)))
+            named = (document.get("named") or {}).get(str(int(year)))
+            if world and isinstance(named, dict) and named.get("share_percent") is not None:
+                return {
+                    "status": "AVAILABLE",
+                    "year": int(year),
+                    "world_gdp_usd_mn": world,
+                    "named_gdp_usd_mn": named.get("total_usd_mn"),
+                    "named_share_percent": named["share_percent"],
+                    "row_share_percent": round(100.0 - named["share_percent"], 4),
+                    "named_countries": named.get("countries_found"),
+                    "missing_from_wb": named.get("missing", []),
+                    "source": "World Bank NY.GDP.MKTP.CD (current US$); "
+                              "cache data/mrio/wiod_2016/" + WB_COVERAGE_FILENAME,
+                }
+        # the coverage cache exists but is not usable -> fall through to the raw cache
+    raw = root_path / WB_GDP_FILENAME
+    if not raw.is_file():
+        return {"status": "UNAVAILABLE", "year": int(year),
+                "reason": f"no World Bank cache: run --coverage to fetch it ({raw})"}
+    try:
+        rows = _wb_payload(json.loads(raw.read_text(encoding="utf-8")))
+    except (OSError, ValueError) as error:
+        return {"status": "UNAVAILABLE", "year": int(year),
+                "reason": f"World Bank GDP cache unreadable: {error}"}
+    if rows is None:
+        return {"status": "UNAVAILABLE", "year": int(year),
+                "reason": "World Bank JSON has no data array"}
+    values = _wb_values(rows, year)
+    world = values.get("WLD")
+    named = {}
+    missing = []
+    for code in sorted(codes):
+        value = values.get(code) or values.get(ISO3_TO_ISO2.get(code, ""))
+        if value is None:
+            missing.append(code)
+        else:
+            named[code] = value
+    if world is None or world <= 0:
+        panel_total = sum(named.values())
+        if not named:
+            return {"status": "UNAVAILABLE", "year": int(year),
+                    "reason": f"World Bank WORLD aggregate is missing for {year}",
+                    "named_countries": 0, "missing_from_wb": missing}
+        return {
+            "status": "PARTIAL_PROXY",
+            "year": int(year),
+            "panel_gdp_usd_mn": round(panel_total / 1e6, 3),
+            "panel_share_percent": None,
+            "named_countries": len(named),
+            "missing_from_wb": missing,
+            "denominator_note": "the local World Bank cache has no WORLD aggregate and the live "
+                                "API was unreachable, so the share of world GDP is not computed; "
+                                "only the named-country GDP total is reported",
+            "reason": f"World Bank WORLD aggregate is missing for {year}",
+            "source": "World Bank NY.GDP.MKTP.CD (current US$), cached data/mrio/wb/",
+        }
+    named_total = sum(named.values())
+    share = 100.0 * named_total / world
+    return {
+        "status": "AVAILABLE",
+        "year": int(year),
+        "world_gdp_usd_mn": round(world / 1e6, 3),
+        "named_gdp_usd_mn": round(named_total / 1e6, 3),
+        "named_share_percent": round(share, 4),
+        "row_share_percent": round(100.0 - share, 4),
+        "named_countries": len(named),
+        "missing_from_wb": missing,
+        "source": "World Bank NY.GDP.MKTP.CD (current US$), cached data/mrio/wb/",
+    }
+
+
+def dataset_id_for(year: int, source_id: str = "wiod_2016") -> str:
+    """Canonical local dataset id: ``wiod_2016`` -> ``wiod_<year>`` (loadable by AMFE_MRIO_ROOT)."""
+    prefix = "wiod" if source_id.startswith("wiod") else source_id.split("_")[0]
+    return f"{prefix}_{int(year)}"
+
+
 def convert_year(archive: Path, year: int, out_dir: Path, tolerance: float = 1e-6,
-                 source_id: str = "wiod_2016") -> dict:
-    """Parse + map + validate + write one year; returns aggregate metadata (no values)."""
+                 source_id: str = "wiod_2016", dataset_id: str | None = None) -> dict:
+    """Parse + map + validate + write one year; returns aggregate metadata (no values).
+
+    Output (inside the git-ignored ``data/mrio`` root):
+
+    ``<out_dir>/<dataset_id>/dataset.json``   canonical ``amfe.mrio.dataset.v1.1`` (values)
+    ``<out_dir>/<dataset_id>/manifest.json``  aggregate-only manifest (counts, hashes, residuals,
+                                              signed-adjustment statistics, GDP coverage)
+
+    With ``AMFE_MRIO_ROOT=<root>/<source_id>`` the production loader picks ``<dataset_id>`` up as a
+    normal MRIO dataset (``python tools/mrio_data.py --validate``).
+    """
     from amfe.mrio.loaders import write_dataset
-    from amfe.mrio.schema import dataset_to_bytes, validate_dataset
+    from amfe.mrio.schema import SCHEMA_VERSION, validate_dataset
 
     started = time.monotonic()
     table, member, frame = read_wiod_year(archive, year)
     del frame
+    dataset_id = dataset_id or dataset_id_for(year, source_id)
     try:
         dataset = build_dataset(table, year=year, source=SOURCES[source_id],
                                 tolerance=tolerance)
     except Exception as error:  # schema gate before validation: report the exact blockers
-        import numpy as np
-        y = np.asarray(table["y"], dtype=float)
-        va = np.asarray(table["va"], dtype=float)
-        z = np.asarray(table["Z"], dtype=float)
-        x = np.asarray(table["x"], dtype=float)
-        column_residual = z.sum(axis=0) + va - x
         diagnostics = {
             "schema_error": f"{type(error).__name__}: {error}",
-            "negative_final_demand_cells": int(np.sum(y < -1e-6)),
-            "min_final_demand": round(float(np.min(y)), 6),
-            "negative_value_added_cells": int(np.sum(va < -1e-6)),
-            "min_value_added": round(float(np.min(va)), 6),
-            "max_abs_column_residual": round(float(np.max(np.abs(column_residual))), 6),
-            "max_rel_column_residual": round(float(np.max(
-                np.abs(column_residual) / np.maximum(1.0, np.abs(x)))), 9),
+            "negative_final_demand_cells": sum(1 for value in table["y"] if value < -1e-6),
+            "min_final_demand": round(min(table["y"]), 6) if table["y"] else 0.0,
+            "negative_value_added_cells": sum(1 for value in table["va"] if value < -1e-6),
+            "min_value_added": round(min(table["va"]), 6) if table["va"] else 0.0,
             "adjustment_rows": table.get("adjustment_rows"),
         }
         return {"year": int(year), "status": "BLOCKED_CONVERSION", "member": member,
-                "diagnostics": diagnostics,
+                "dataset_id": dataset_id, "diagnostics": diagnostics,
                 "seconds": round(time.monotonic() - started, 1),
                 "countries": len({key[0] for key in table["row_keys"]}),
                 "industries": len({key[1] for key in table["row_keys"]})}
     report = validate_dataset(dataset, enforce_p2_scale=True)
-    description = dataset.describe()
     if not report.ok:
-        import numpy as np
-        y = np.asarray(dataset.y, dtype=float)
-        va = np.asarray(dataset.va, dtype=float)
-        z = np.asarray(dataset.Z, dtype=float)
-        column_residual = z.sum(axis=0) + va - np.asarray(dataset.x, dtype=float)
-        diagnostics = {
-            "negative_final_demand_cells": int(np.sum(y < -tolerance)),
-            "min_final_demand": round(float(np.min(y)), 6),
-            "negative_value_added_cells": int(np.sum(va < -tolerance)),
-            "min_value_added": round(float(np.min(va)), 6),
-            "max_abs_column_residual": round(float(np.max(np.abs(column_residual))), 6),
-            "max_rel_column_residual": round(float(np.max(
-                np.abs(column_residual) / np.maximum(1.0, np.abs(dataset.x)))), 9),
-            "adjustment_rows": table.get("adjustment_rows"),
-        }
         return {"year": int(year), "status": "BLOCKED_CONVERSION", "member": member,
-                "validation": report.as_dict(), "diagnostics": diagnostics,
-                "seconds": round(time.monotonic() - started, 1), "dataset": description}
-    out_dir = Path(out_dir)
-    target = out_dir / f"dataset_{year}.json"
-    digest = write_dataset(dataset, target)
+                "dataset_id": dataset_id, "validation": report.as_dict(),
+                "diagnostics": {"adjustments": dataset.source.get("adjustments")},
+                "seconds": round(time.monotonic() - started, 1)}
+    directory = Path(out_dir) / dataset_id
+    target = directory / "dataset.json"
+    file_sha = write_dataset(dataset, target)
+    description = dataset.describe()
+    coverage = gdp_coverage(int(year), dataset.countries)
+    manifest = {
+        "schema": "amfe.mrio.manifest.v1",
+        "schema_version": SCHEMA_VERSION,
+        "dataset_id": dataset_id,
+        "generated_at": utc_now(),
+        "status": "AVAILABLE",
+        "source": {"source_id": source_id, "name": SOURCES[source_id]["name"],
+                   "provider": SOURCES[source_id]["provider"],
+                   "page": SOURCES[source_id]["page"],
+                   "licence": SOURCES[source_id]["licence"],
+                   "archive": SOURCES[source_id].get("archive_name"),
+                   "member": member,
+                   "converted_by": "tools/alt_mrio_import.py"},
+        "dataset": {
+            "path": str(target), "bytes": target.stat().st_size, "file_sha256": file_sha,
+            "dataset_digest": description["digest"],
+            "countries": description["countries"], "industries": description["industries"],
+            "years": description["years"], "units": description["units"],
+            "schema": description["schema"], "schema_version": description["schema_version"],
+            "cells_Z": description["cells_Z"],
+            "adjustments": dataset.source.get("adjustments"),
+            "has_adjustments": description["has_adjustments"],
+        },
+        "validation": report.as_dict(),
+        "coverage": coverage,
+        "p2_gate": {"min_countries": 10, "min_industries": 30,
+                    "passed": report.checks.get("p2_scale", False)},
+    }
+    manifest_path = directory / "manifest.json"
+    manifest_sha = write_json(manifest, manifest_path)["sha256"]
     summary = {
-        "year": int(year), "status": "AVAILABLE", "member": member,
-        "path": str(target), "bytes": target.stat().st_size, "file_sha256": digest,
+        "year": int(year), "status": "AVAILABLE", "member": member, "dataset_id": dataset_id,
+        "path": str(target), "bytes": target.stat().st_size, "file_sha256": file_sha,
+        "manifest_path": str(manifest_path), "manifest_sha256": manifest_sha,
         "dataset_digest": description["digest"], "countries": description["countries"],
-        "industries": description["industries"],
+        "industries": description["industries"], "years": description["years"],
+        "schema_version": description["schema_version"],
         "checks": report.checks, "validation_ok": report.ok,
         "max_abs_row_residual": report.metrics["max_abs_row_residual"],
         "max_abs_column_residual": report.metrics["max_abs_column_residual"],
         "global_difference_va_minus_y": report.metrics["global_difference_va_minus_y"],
+        "total_final_demand_adjustments": report.metrics["total_final_demand_adjustments"],
+        "total_value_added_adjustments": report.metrics["total_value_added_adjustments"],
+        "adjustment_cells": report.metrics["adjustment_cells"],
+        "coverage": coverage,
         "seconds": round(time.monotonic() - started, 1),
     }
     return summary
@@ -708,7 +994,9 @@ def check_local(root: Path | None = None) -> dict:
     status = {"data_root": str(root_path), "datasets": [], "status": "BLOCKED_DATA"}
     for source_id in SOURCES:
         source_dir = root_path / source_id
-        for path in sorted(source_dir.glob("dataset_*.json")):
+        candidates = sorted(source_dir.glob("*/dataset.json")) + sorted(
+            source_dir.glob("dataset_*.json"))
+        for path in candidates:
             entry = {"source_id": source_id, "path": str(path), "bytes": path.stat().st_size}
             try:
                 loaded = load_dataset(str(path), root=root_path, enforce_p2_scale=True)
@@ -733,6 +1021,47 @@ def write_json(document: dict, path: Path) -> dict:
             "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
 
 
+def update_coverage(root: Path | None = None, fetch_missing: bool = True,
+                    timeout: float = 45.0) -> dict:
+    """Recompute the GDP coverage of every converted dataset and update its manifest.
+
+    Reads each ``<source>/<dataset_id>/manifest.json``, takes the dataset year and the source
+    country list, asks :func:`gdp_coverage` (fetching the World Bank totals once when the cache is
+    absent) and rewrites the manifest with the coverage block.  Only GDP aggregates are stored.
+    """
+    root_path = mrio_data_root(root)
+    results = []
+    for source_id in SOURCES:
+        for manifest_path in sorted((root_path / source_id).glob("*/manifest.json")):
+            try:
+                document = json.loads(manifest_path.read_text(encoding="utf-8"))
+            except (OSError, ValueError) as error:
+                results.append({"manifest": str(manifest_path), "status": "UNREADABLE",
+                                "reason": str(error)})
+                continue
+            dataset = document.get("dataset") or {}
+            years = dataset.get("years") or []
+            if not years:
+                results.append({"manifest": str(manifest_path), "status": "SKIPPED",
+                                "reason": "manifest has no dataset year"})
+                continue
+            year = int(years[0])
+            codes = WIOD_COUNTRIES if source_id.startswith("wiod") else []
+            coverage = gdp_coverage(year, codes, root_path) if codes else {
+                "status": "UNAVAILABLE", "year": year,
+                "reason": "no country-code list for this source"}
+            if coverage["status"] != "AVAILABLE" and codes and fetch_missing:
+                fetch_gdp_coverage([year], codes, root_path, timeout=timeout)
+                coverage = gdp_coverage(year, codes, root_path)
+            document["coverage"] = coverage
+            written = write_json(document, manifest_path)
+            results.append({"source_id": source_id, "manifest": str(manifest_path),
+                            "dataset_id": document.get("dataset_id"), "year": year,
+                            "coverage": coverage, "manifest_sha256": written["sha256"]})
+    return {"action": "coverage", "generated_at": utc_now(), "data_root": str(root_path),
+            "datasets": results}
+
+
 # --------------------------------------------------------------------------------- CLI
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description="Full-world MRIO acquisition and WIOD converter")
@@ -747,6 +1076,10 @@ def main(argv=None) -> int:
     parser.add_argument("--jobs", type=int, default=1, help="conversion processes")
     parser.add_argument("--tolerance", type=float, default=1e-6,
                         help="relative tolerance of the accounting identities")
+    parser.add_argument("--coverage", action="store_true",
+                        help="recompute World Bank GDP coverage of the converted datasets")
+    parser.add_argument("--no-fetch", action="store_true",
+                        help="with --coverage: do not call the World Bank API")
     parser.add_argument("--check", action="store_true", help="local dataset status")
     parser.add_argument("--all", action="store_true", help="probe, download, convert, report")
     parser.add_argument("--report", action="store_true", help="write the BLOCKED/readiness report")
@@ -796,7 +1129,7 @@ def main(argv=None) -> int:
             if not archive.is_file():
                 raise ImportBlocked(f"archive not downloaded: {archive}; run --download first")
             years = [int(year) for year in (args.years or ["2014"])]
-            out_dir = root / source_id / "canonical"
+            out_dir = root / source_id
             results = convert_years(archive, years, out_dir, jobs=args.jobs,
                                     tolerance=args.tolerance, source_id=source_id)
             output["action"] = "convert"
@@ -805,6 +1138,10 @@ def main(argv=None) -> int:
                 output["status"] = "AVAILABLE"
             else:
                 output["status"] = "BLOCKED_DATA"
+        if args.coverage:
+            output["action"] = "coverage"
+            output["coverage"] = update_coverage(args.root, fetch_missing=not args.no_fetch,
+                                                timeout=args.timeout)
         if args.check:
             output["action"] = "check"
             output["local"] = check_local(args.root)
@@ -814,7 +1151,7 @@ def main(argv=None) -> int:
             output["report_file"] = write_json(document, report_dir / "blocked.json")
             output["action"] = output.get("action") or "report"
         if not any((args.probe, args.download, args.inspect, args.convert, args.check,
-                    args.report, args.all)):
+                    args.coverage, args.report, args.all)):
             parser.print_help()
             return 0
         output.setdefault("status", "OK")

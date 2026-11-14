@@ -192,27 +192,159 @@ class Weights(unittest.TestCase):
         # the largest economy carries the largest weight from every other country
         self.assertEqual(max(weights["USA"], key=weights["USA"].get), "JPN")
 
-    def test_mrio_weights_are_read_when_present_and_are_read_only(self):
-        panel = synthetic_panel()
-        countries = ("USA", "CHN", "DEU")
+    def test_figaro_export_matrix_and_trade_weights(self):
         with tempfile.TemporaryDirectory() as directory:
-            path = Path(directory) / "dataset.json"
-            path.write_text(json.dumps({"trade_weights": {
-                "USA": {"CHN": 0.7, "DEU": 0.3},
-                "CHN": {"USA": 0.6, "DEU": 0.4},
-                "DEU": {"USA": 0.5, "CHN": 0.5},
-            }}), encoding="utf-8")
-            before = path.read_bytes()
-            weights, source = gr.build_weights(panel, countries, YEARS, mrio_paths=(path,))
-            after = path.read_bytes()
-        self.assertEqual(source["method"], "MRIO_TRADE_WEIGHTS")
-        self.assertEqual(before, after)
-        self.assertAlmostEqual(weights["USA"]["CHN"], 0.7, places=12)
-        # a missing file falls back to the GDP proxy
-        weights, source = gr.build_weights(panel, countries, YEARS,
-                                           mrio_paths=(Path("/nonexistent/dataset.json"),))
-        self.assertEqual(source["method"], "GDP_SHARE_PROXY")
-        self.assertAlmostEqual(math.fsum(weights["USA"].values()), 1.0, places=12)
+            root = Path(directory)
+            path = write_figaro_fixture(
+                root / "dataset.json", ["US", "DE", "FR", "ROW"], ["A", "B"],
+                {("US", "DE"): 4.0, ("US", "FR"): 12.0, ("US", "ROW"): 100.0,
+                 ("DE", "US"): 2.0, ("FR", "US"): 3.0})
+            exports = gr.figaro_export_matrix(path)
+            self.assertEqual(exports["countries"], ["US", "DE", "FR", "ROW"])
+            self.assertEqual(exports["industries"], 2)
+            self.assertEqual(len(exports["sha256"]), 64)
+            us = exports["countries"].index("US")
+            de = exports["countries"].index("DE")
+            fr = exports["countries"].index("FR")
+            self.assertAlmostEqual(exports["exports"][us][de], 4.0 * 4, places=9)   # 2x2 cells
+            self.assertAlmostEqual(exports["exports"][us][fr], 12.0 * 4, places=9)
+            weights, source = gr.figaro_trade_weights(
+                ["USA", "DEU", "FRA"], dataset_path=path, cache_dir=root)
+            self.assertEqual(source["method"], "FIGARO_TRADE_WEIGHTS_2019")
+            self.assertAlmostEqual(weights["USA"]["DEU"], 0.25, places=12)   # 16 / (16 + 48)
+            self.assertAlmostEqual(weights["USA"]["FRA"], 0.75, places=12)   # 48 / 64
+            for code, row in weights.items():
+                self.assertAlmostEqual(math.fsum(row.values()), 1.0, places=12)
+                self.assertNotIn(code, row, "self weight must be zero")
+                self.assertNotIn("ROW", row, "ROW must not be a named partner")
+            again, _ = gr.figaro_trade_weights(["USA", "DEU", "FRA"], dataset_path=path,
+                                              cache_dir=root)
+            self.assertEqual(weights, again)
+            self.assertTrue((root / "weights_figaro.json").is_file())
+
+    def test_build_weights_figaro_fallback_and_modes(self):
+        panel = synthetic_panel()
+        countries = ("USA", "DEU", "CHN")
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            path = write_figaro_fixture(
+                root / "dataset.json", ["US", "DE", "ROW"], ["A"],
+                {("US", "DE"): 5.0, ("US", "ROW"): 50.0, ("DE", "US"): 2.0})
+            weights, source = gr.build_weights(panel, countries, YEARS, mode="figaro",
+                                              figaro_path=path, cache_dir=root)
+            self.assertEqual(source["method"], "FIGARO_TRADE_WEIGHTS_2019")
+            self.assertEqual(source["detail"]["mode"], "figaro")
+            self.assertEqual(source["detail"]["mrio_rows"], 2)
+            self.assertEqual(source["detail"]["gdp_fallback_rows"], ["CHN"])
+            self.assertNotIn("CHN", source["detail"]["covered_iso3"])
+            for code in countries:
+                self.assertAlmostEqual(math.fsum(weights[code].values()), 1.0, places=12)
+                self.assertNotIn(code, weights[code])
+            # CHN is not in the table -> its row is the GDP proxy over all three countries
+            self.assertIn("USA", weights["CHN"])
+            # explicit FIGARO mode without the dataset fails closed
+            with self.assertRaises(gr.GVARRealError):
+                gr.build_weights(panel, countries, YEARS, mode="figaro",
+                                 figaro_path=root / "missing.json", cache_dir=root)
+            # auto mode falls back to the GDP proxy
+            weights_auto, source_auto = gr.build_weights(
+                panel, countries, YEARS, mode="auto", figaro_path=root / "missing.json",
+                cache_dir=root)
+            self.assertEqual(source_auto["method"], "GDP_SHARE_PROXY")
+            self.assertEqual(source_auto["mode"], "gdp")
+            self.assertAlmostEqual(math.fsum(weights_auto["USA"].values()), 1.0, places=12)
+            # gdp mode never reads the table
+            _, source_gdp = gr.build_weights(panel, countries, YEARS, mode="gdp",
+                                             figaro_path=path, cache_dir=root)
+            self.assertEqual(source_gdp["method"], "GDP_SHARE_PROXY")
+
+    def test_figaro_weights_fit_gvar_and_are_deterministic(self):
+        panel = synthetic_panel()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            iso2 = {gr.ISO2_TO_ISO3[code[:2]]: code for code in COUNTRIES}
+            table = ["US", "CN", "DE", "FR", "IT", "JP", "ROW"]
+            blocks = {}
+            for exporter in table[:-1]:
+                for importer in table:
+                    if exporter == importer:
+                        blocks[(exporter, importer)] = 100.0
+                    else:
+                        blocks[(exporter, importer)] = 1.0 + 0.1 * table.index(importer)
+            path = write_figaro_fixture(root / "dataset.json", table, ["A"], blocks)
+            weights, source = gr.build_weights(panel, COUNTRIES, YEARS, mode="figaro",
+                                              figaro_path=path, cache_dir=root)
+            self.assertEqual(source["detail"]["mrio_rows"], len(COUNTRIES))
+            self.assertEqual(source["detail"]["gdp_fallback_rows"], [])
+            dataset = gr.build_dataset(panel, COUNTRIES, YEARS, weights)
+            model = GVAR(dataset, lags=1)
+            self.assertIn("stable", model.stability())
+            weights_again, _ = gr.build_weights(panel, COUNTRIES, YEARS, mode="figaro",
+                                               figaro_path=path, cache_dir=root)
+            self.assertEqual(weights, weights_again)
+
+    def test_compare_runs_marks_better_and_counts_wins(self):
+        def make_run(rmse_by_group, better_variable="g", per_country=None):
+            metrics = {model: {group: {variable: {h: {"rmse": 0.0, "mae": 0.0, "n": 1}
+                                                   for h in (1, 2, 3, 4)}
+                                        for variable in ("g", "pi")}
+                               for group in ("US", "EA", "CN", "WORLD")}
+                       for model in ("GVAR_p1", "GVAR_p2", "AR1", "RW")}
+            for group, values in rmse_by_group.items():
+                for variable, per_h in values.items():
+                    for h, value in per_h.items():
+                        metrics["GVAR_p1"][group][variable][h] = {"rmse": value, "mae": value,
+                                                                  "n": 3}
+            for model in ("AR1", "RW"):
+                for group in metrics[model]:
+                    for variable in ("g", "pi"):
+                        for h in (1, 2, 3, 4):
+                            metrics[model][group][variable][h] = {"rmse": 1.0, "mae": 1.0, "n": 3}
+            countries = sorted(per_country or {"USA": {}, "CHN": {}})
+            per = {model: {code: {variable: {h: {"rmse": 2.0 if model == "GVAR_p1" else 1.0,
+                                                 "mae": 1.0, "n": 3}
+                                            for h in (1, 2, 3, 4)}
+                                  for variable in ("g", "pi")} for code in countries}
+                   for model in ("GVAR_p1", "GVAR_p2", "AR1", "RW")}
+            for code, values in (per_country or {}).items():
+                for variable, per_h in values.items():
+                    for h, value in per_h.items():
+                        per["GVAR_p1"][code][variable][h]["rmse"] = value
+            return {"oos": {"metrics": metrics, "per_country": per}}
+
+        figaro = make_run({"WORLD": {"g": {1: 2.0, 2: 3.0, 3: 3.0, 4: 3.0}}},
+                          per_country={"USA": {"g": {1: 1.0, 2: 1.0, 3: 1.0, 4: 1.0}},
+                                       "CHN": {"g": {1: 3.0, 2: 3.0, 3: 3.0, 4: 3.0}}})
+        gdp = make_run({"WORLD": {"g": {1: 2.5, 2: 2.0, 3: 3.0, 4: 2.5}}},
+                       per_country={"USA": {"g": {1: 1.5, 2: 1.5, 3: 1.5, 4: 1.5}},
+                                    "CHN": {"g": {1: 2.0, 2: 2.0, 3: 2.0, 4: 2.0}}})
+        comparison = gr.compare_runs(figaro, gdp)
+        self.assertTrue(comparison["baseline_identical"])
+        self.assertEqual(comparison["aggregate"]["WORLD"]["g"]["1"]["better"], "FIGARO")
+        self.assertEqual(comparison["aggregate"]["WORLD"]["g"]["2"]["better"], "GDP_PROXY")
+        self.assertEqual(comparison["aggregate"]["WORLD"]["g"]["3"]["better"], "TIE")
+        self.assertAlmostEqual(comparison["aggregate"]["WORLD"]["g"]["1"]["delta_rmse"], -0.5,
+                               places=9)
+        self.assertEqual(comparison["per_country"]["g"]["1"]["better_a"], 1)
+        self.assertEqual(comparison["per_country"]["g"]["1"]["better_b"], 1)
+
+
+def write_figaro_fixture(path: Path, countries, industries, blocks) -> Path:
+    """Write a minimal FIGARO-shaped dataset.json: Z is a country-major block matrix."""
+    n = len(countries) * len(industries)
+
+    def index(country, industry):
+        return countries.index(country) * len(industries) + industry
+
+    Z = [[0.0] * n for _ in range(n)]
+    for (exporter, importer), value in blocks.items():
+        for industry_a in range(len(industries)):
+            for industry_b in range(len(industries)):
+                Z[index(exporter, industry_a)][index(importer, industry_b)] = float(value)
+    document = {"countries": list(countries), "industries": list(industries), "Z": Z,
+                "units": "USD_mn", "schema": "amfe.mrio.dataset.v1"}
+    path.write_text(json.dumps(document), encoding="utf-8")
+    return path
 
 
 # ---------------------------------------------------------------------------------------- model

@@ -49,9 +49,9 @@ sys.path.insert(0, str(ROOT / "tools"))
 from amfe.world.gvar import GVAR, GVARError  # noqa: E402
 
 CACHE_DIR = ROOT / "data" / "mrio" / "wb"
+FIGARO_DATASET = ROOT / "data" / "mrio" / "figaro" / "figaro_2019" / "dataset.json"
 REPORT_PATH = CACHE_DIR / "gvar_report.json"
-MRIO_CANDIDATES = (ROOT / "data" / "mrio" / "figaro" / "dataset.json",
-                   ROOT / "data" / "mrio" / "dataset.json")
+WEIGHTS_MODES = ("auto", "figaro", "gdp")
 WB_API = "https://api.worldbank.org/v2/country/{countries}/indicator/{indicator}"
 START_YEAR, END_YEAR = 1995, 2024
 MIN_COUNTRIES = 40
@@ -218,39 +218,225 @@ def gdp_weights(panel: dict, countries, years) -> tuple[dict, dict]:
     return weights, {"method": "GDP_SHARE_PROXY", "gdp_levels": mean_gdp}
 
 
-def mrio_weights(path: Path, countries) -> dict | None:
-    """Read trade weights from an MRIO dataset if the file exists (read-only, never written)."""
-    path = Path(path)
+# ISO2 codes used by the FIGARO/Eurostat table -> ISO3 codes used by the World Bank panel.
+ISO2_TO_ISO3 = {
+    "AL": "ALB", "AR": "ARG", "AT": "AUT", "AU": "AUS", "BE": "BEL", "BG": "BGR", "BR": "BRA",
+    "CA": "CAN", "CH": "CHE", "CN": "CHN", "CY": "CYP", "CZ": "CZE", "DE": "DEU", "DK": "DNK",
+    "EE": "EST", "EL": "GRC", "ES": "ESP", "FI": "FIN", "FR": "FRA", "HR": "HRV", "HU": "HUN",
+    "ID": "IDN", "IE": "IRL", "IN": "IND", "IT": "ITA", "JP": "JPN", "KR": "KOR", "LT": "LTU",
+    "LU": "LUX", "LV": "LVA", "ME": "MNE", "MK": "MKD", "MT": "MLT", "MX": "MEX", "NL": "NLD",
+    "NO": "NOR", "PL": "POL", "PT": "PRT", "RO": "ROU", "RS": "SRB", "RU": "RUS", "SA": "SAU",
+    "SE": "SWE", "SI": "SVN", "SK": "SVK", "TR": "TUR", "UK": "GBR", "US": "USA", "ZA": "ZAF",
+}
+
+
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with Path(path).open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1 << 20), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def figaro_export_matrix(dataset_path: Path) -> dict:
+    """Bilateral export matrix from a FIGARO MRIO ``Z`` table (read-only, block sums).
+
+    ``Z`` is a ``(n_countries*n_industries) x (n_countries*n_industries)`` matrix in country-major
+    order; ``exports[i][j] = sum over industries of Z[block i, block j]`` is the value of products
+    of country ``i`` used by country ``j`` (USD mn, the dataset's units).  The rest-of-world row and
+    column are kept in the matrix but never used as a named GVAR weight (see
+    :func:`figaro_trade_weights`).
+    """
+    path = Path(dataset_path)
     if not path.is_file():
-        return None
+        raise GVARRealError(f"FIGARO dataset not found: {path}")
+    manifest = path.parent / "manifest.json"
+    if manifest.is_file():
+        try:
+            expected_sha = json.loads(manifest.read_text(encoding="utf-8")).get(
+                "dataset", {}).get("sha256")
+        except (OSError, ValueError):
+            expected_sha = None
+        if expected_sha:
+            current_sha = _sha256_file(path)
+            if current_sha != expected_sha:
+                raise GVARRealError(
+                    f"FIGARO dataset {path} is incomplete: sha256 {current_sha[:16]} does not "
+                    f"match manifest {expected_sha[:16]}; the file may be under a concurrent "
+                    "rebuild (retry after it finishes)")
     try:
         document = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, ValueError):
-        return None
-    raw = document.get("trade_weights") if isinstance(document, dict) else None
-    if not isinstance(raw, dict):
-        return None
-    known = set(countries)
-    out = {}
-    for code in countries:
-        row = raw.get(code)
-        if not isinstance(row, dict):
-            return None
-        clean = {str(other): float(value) for other, value in row.items()
-                 if str(other) in known and str(other) != code and float(value) > 0.0}
-        total = math.fsum(clean.values())
+    except (OSError, ValueError) as exc:
+        raise GVARRealError(f"cannot read FIGARO dataset {path}: {exc!r}") from exc
+    countries = document.get("countries")
+    industries = document.get("industries")
+    Z = document.get("Z")
+    Z_sparse = document.get("Z_sparse")
+    if not isinstance(countries, list) or not isinstance(industries, list):
+        raise GVARRealError("FIGARO dataset must provide countries and industries")
+    if Z is None and Z_sparse is None:
+        raise GVARRealError("FIGARO dataset must provide Z (dense) or Z_sparse (schema v1.1)")
+    n_countries, n_industries = len(countries), len(industries)
+    expected = n_countries * n_industries
+    if Z is not None:
+        try:
+            matrix = np.asarray(Z, dtype=float)
+        except (TypeError, ValueError) as exc:
+            raise GVARRealError("FIGARO Z is not a numeric matrix") from exc
+        if matrix.shape != (expected, expected):
+            raise GVARRealError(f"FIGARO Z must be {expected} x {expected}, got {matrix.shape}")
+        if not np.all(np.isfinite(matrix)):
+            raise GVARRealError("FIGARO Z contains non-finite values")
+        if np.any(matrix < 0.0):
+            raise GVARRealError("FIGARO Z contains negative flows")
+        blocks = matrix.reshape(n_countries, n_industries, n_countries, n_industries)
+        exports = blocks.sum(axis=(1, 3))
+        total_intermediate = float(matrix.sum())
+        storage = "dense_Z"
+    else:
+        if not isinstance(Z_sparse, dict):
+            raise GVARRealError("FIGARO Z_sparse must be a mapping rows/cols/values")
+        rows = np.asarray(Z_sparse.get("rows", []), dtype=np.int64)
+        cols = np.asarray(Z_sparse.get("cols", []), dtype=np.int64)
+        values = np.asarray(Z_sparse.get("values", []), dtype=float)
+        if not (rows.size == cols.size == values.size) or rows.size == 0:
+            raise GVARRealError("FIGARO Z_sparse rows/cols/values must have equal non-zero length")
+        if rows.min() < 0 or cols.min() < 0 or rows.max() >= expected or cols.max() >= expected:
+            raise GVARRealError("FIGARO Z_sparse indices are outside the block matrix")
+        if not np.all(np.isfinite(values)):
+            raise GVARRealError("FIGARO Z_sparse contains non-finite values")
+        if np.any(values < 0.0):
+            raise GVARRealError("FIGARO Z_sparse contains negative flows")
+        cell = (rows // n_industries) * n_countries + (cols // n_industries)
+        exports = np.bincount(cell, weights=values, minlength=n_countries * n_countries
+                              ).reshape(n_countries, n_countries)
+        total_intermediate = float(values.sum())
+        storage = "sparse_Z"
+    countries = [str(code) for code in countries]
+    return {"countries": countries,
+            "industries": n_industries,
+            "units": document.get("units", "USD_mn"),
+            "exports": exports.tolist(),
+            "total_intermediate_usd_mn": total_intermediate,
+            "storage": storage,
+            "sha256": _sha256_file(path),
+            "schema": document.get("schema")}
+
+
+def figaro_trade_weights(target_countries, *, dataset_path: Path = FIGARO_DATASET,
+                         cache_dir: Path = CACHE_DIR, refresh: bool = False,
+                         load=figaro_export_matrix) -> tuple[dict, dict]:
+    """Trade weights ``w_ij`` from FIGARO block exports for the countries covered by the table.
+
+    ``w_ij = export_ij / sum_{k != i} export_ik`` over the named partner countries of the target
+    panel (``w_ii = 0``); the rest-of-world block is excluded both as a row and as a partner, so
+    every returned row sums to 1.  Countries of the target panel that the table does not name are
+    *not* in the returned mapping (the caller decides the fallback).  The export matrix is cached
+    under ``data/mrio/wb/weights_figaro.json`` keyed on the dataset SHA-256.
+    """
+    path = Path(dataset_path)
+    directory = Path(cache_dir)
+    directory.mkdir(parents=True, exist_ok=True)
+    cache = directory / "weights_figaro.json"
+    sha = _sha256_file(path) if path.is_file() else None
+    export_document = None
+    if cache.is_file() and not refresh:
+        try:
+            cached = json.loads(cache.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            cached = None
+        if isinstance(cached, dict) and cached.get("dataset_sha256") == sha:
+            export_document = cached
+    if export_document is None:
+        export_document = load(path)
+        export_document["dataset_sha256"] = export_document.get("sha256", sha)
+        export_document["source"] = str(path)
+        cache.write_text(json.dumps(export_document) + "\n", encoding="utf-8")
+    table_countries = [str(code) for code in export_document["countries"]]
+    exports = np.asarray(export_document["exports"], dtype=float)
+    if exports.shape != (len(table_countries), len(table_countries)):
+        raise GVARRealError("cached FIGARO export matrix does not match its country list")
+    index = {code: position for position, code in enumerate(table_countries)}
+    named = [code for code in table_countries if code != "ROW"]
+    iso3_of_table = {code: ISO2_TO_ISO3.get(code) for code in named}
+    covered = sorted({iso3 for iso3 in iso3_of_table.values() if iso3 in set(target_countries)})
+    if len(covered) < 2:
+        raise GVARRealError(
+            "FIGARO covers fewer than two countries of the panel; trade weights are undefined")
+    weights = {}
+    export_totals = {}
+    for iso3 in covered:
+        table_code = next(code for code, mapped in iso3_of_table.items() if mapped == iso3)
+        row = exports[index[table_code]]
+        partners = {}
+        for other in named:
+            other_table = other
+            other_iso3 = iso3_of_table.get(other_table)
+            if other_iso3 is None or other_iso3 not in covered or other_iso3 == iso3:
+                continue
+            value = float(row[index[other_table]])
+            if value > 0.0:
+                partners[other_iso3] = value
+        total = math.fsum(partners.values())
         if total <= 0.0:
-            return None
-        out[code] = {other: value / total for other, value in clean.items()}
-    return out
+            continue
+        weights[iso3] = {other: value / total for other, value in partners.items()}
+        export_totals[iso3] = total
+    if len(weights) < 2:
+        raise GVARRealError("FIGARO export rows are empty for the covered countries")
+    row_share = float(np.max(np.abs(exports.sum(axis=1))))
+    coverage = {
+        "table_countries": len(table_countries),
+        "named_table_countries": len(named),
+        "covered_iso3": covered,
+        "uncovered_iso3": sorted(set(target_countries) - set(covered)),
+        "exports_usd_mn": {code: round(total, 6) for code, total in export_totals.items()},
+        "row_convention": "exports[i][j] = sum_industries Z[block i, block j]; ROW excluded",
+        "dataset_sha256": export_document.get("dataset_sha256") or export_document.get("sha256"),
+        "dataset_path": str(path),
+        "units": export_document.get("units", "USD_mn"),
+        "max_abs_row_total_usd_mn": round(row_share, 6),
+    }
+    return weights, {"method": "FIGARO_TRADE_WEIGHTS_2019", "detail": coverage}
 
 
-def build_weights(panel: dict, countries, years, *, mrio_paths=MRIO_CANDIDATES) -> tuple[dict, dict]:
-    for candidate in mrio_paths:
-        weights = mrio_weights(candidate, countries)
-        if weights is not None:
-            return weights, {"method": "MRIO_TRADE_WEIGHTS", "source": str(candidate)}
-    return gdp_weights(panel, countries, years)
+def build_weights(panel: dict, countries, years, *, mode: str = "auto",
+                  figaro_path: Path = FIGARO_DATASET, cache_dir: Path = CACHE_DIR,
+                  refresh: bool = False,
+                  load=figaro_export_matrix) -> tuple[dict, dict]:
+    """Weights for the GVAR panel: FIGARO trade weights with a GDP fallback, or the GDP proxy.
+
+    ``mode="auto"`` (default): FIGARO if the dataset exists, else the GDP proxy.
+    ``mode="figaro"``: FIGARO rows for covered countries, GDP-proxy rows for the countries the
+    table does not name (the mixed fallback is reported); a missing dataset is a hard failure.
+    ``mode="gdp"``: GDP-share proxy for every country.
+    """
+    if mode not in ("auto", "figaro", "gdp"):
+        raise GVARRealError(f"unknown weights mode {mode!r}")
+    if mode == "gdp":
+        weights, source = gdp_weights(panel, countries, years)
+        source = dict(source, mode="gdp")
+        return weights, source
+    dataset_available = Path(figaro_path).is_file()
+    if not dataset_available:
+        if mode == "figaro":
+            raise GVARRealError(f"FIGARO dataset not found: {figaro_path}")
+        weights, source = gdp_weights(panel, countries, years)
+        return weights, dict(source, mode="gdp", fallback_reason="FIGARO dataset missing")
+    figaro_rows, figaro_source = figaro_trade_weights(
+        countries, dataset_path=figaro_path, cache_dir=cache_dir, refresh=refresh, load=load)
+    gdp_rows, gdp_source = gdp_weights(panel, countries, years)
+    weights = {}
+    for code in countries:
+        if code in figaro_rows:
+            weights[code] = figaro_rows[code]
+        else:
+            weights[code] = gdp_rows[code]
+    detail = dict(figaro_source["detail"])
+    detail.update({"mode": mode, "mrio_rows": len(figaro_rows),
+                   "gdp_fallback_rows": sorted(set(countries) - set(figaro_rows)),
+                   "gdp_levels": gdp_source["gdp_levels"]})
+    return weights, {"method": figaro_source["method"], "detail": detail}
 
 
 # -------------------------------------------------------------------------------------- dataset
@@ -448,11 +634,14 @@ def irf_report(model: GVAR, groups: dict, *, horizons: int = 8, shock_country: s
 # ------------------------------------------------------------------------------------------ run
 def run(*, refresh: bool = False, cache_dir: Path = CACHE_DIR, lags_list=(1, 2), max_h: int = 4,
         n_origins: int = 15, countries=COUNTRIES, start: int = START_YEAR, end: int = END_YEAR,
-        mrio_paths=MRIO_CANDIDATES) -> dict:
+        weights_mode: str = "auto", figaro_path: Path = FIGARO_DATASET,
+        load_figaro=figaro_export_matrix) -> dict:
     panel = load_indicators(countries, cache_dir=cache_dir, refresh=refresh, start=start, end=end)
     sample = choose_sample(panel, countries, start=start, end=end)
     kept, years = sample["countries"], sample["years"]
-    weights, weight_source = build_weights(panel, kept, years, mrio_paths=mrio_paths)
+    weights, weight_source = build_weights(panel, kept, years, mode=weights_mode,
+                                           figaro_path=figaro_path, cache_dir=cache_dir,
+                                           refresh=refresh, load=load_figaro)
     dataset = build_dataset(panel, kept, years, weights)
     fits = {}
     for lags in lags_list:
@@ -475,11 +664,11 @@ def run(*, refresh: bool = False, cache_dir: Path = CACHE_DIR, lags_list=(1, 2),
                    "years": sample["n_years"], "countries": sample["n_countries"],
                    "country_codes": kept},
         "weights": {"source": weight_source["method"], "detail": weight_source},
+        "weights_summary": weights_summary(weights, kept),
         "fits": fits,
         "irf": irf,
         "oos": oos,
         "limits": [
-            "World Bank API is not bilateral: default weights are a GDP-share proxy, not trade",
             "annual WDI data, 30 observations at most; short samples weaken the VARX estimates",
             "no vintages / point-in-time data: GDP and CPI are revised",
             "the GVAR prototype is a reduced-form model; no identification beyond Cholesky",
@@ -487,6 +676,76 @@ def run(*, refresh: bool = False, cache_dir: Path = CACHE_DIR, lags_list=(1, 2),
         ],
     }
     return report
+
+
+def weights_summary(weights: dict, countries, *, top: int = 5) -> dict:
+    """Top trade partners and row checks for a few reference countries (report metadata)."""
+    selected = [code for code in ("USA", "DEU", "CHN", "JPN") if code in weights]
+    out = {"top_partners": {}, "row_sums": {}, "zero_self": True}
+    for code in selected:
+        row = weights[code]
+        ordered = sorted(row.items(), key=lambda item: (-item[1], item[0]))
+        out["top_partners"][code] = [[partner, round(value, 6)] for partner, value in ordered[:top]]
+        out["row_sums"][code] = round(math.fsum(row.values()), 12)
+        out["zero_self"] = out["zero_self"] and code not in row
+    out["max_row_gap"] = round(max(abs(math.fsum(row.values()) - 1.0)
+                                   for row in weights.values()), 12)
+    return out
+
+
+def compare_runs(figaro: dict, gdp: dict, *, label_a: str = "FIGARO",
+                 label_b: str = "GDP_PROXY") -> dict:
+    """Paired OOS comparison of two runs that differ only in the GVAR weights."""
+    a, b = figaro["oos"]["metrics"], gdp["oos"]["metrics"]
+    groups = tuple(name for name in ("US", "EA", "CN", "WORLD") if name in a["GVAR_p1"])
+    aggregate = {}
+    horizons = sorted({int(key) for key in a["GVAR_p1"][groups[0]]["g"]})
+    for group in groups:
+        aggregate[group] = {}
+        for variable in ("g", "pi"):
+            aggregate[group][variable] = {}
+            for h in horizons:
+                ea = a["GVAR_p1"][group][variable][h]
+                eb = b["GVAR_p1"][group][variable][h]
+                delta = ea["rmse"] - eb["rmse"]
+                aggregate[group][variable][str(h)] = {
+                    "rmse_a": round(ea["rmse"], 6), "rmse_b": round(eb["rmse"], 6),
+                    "mae_a": round(ea["mae"], 6), "mae_b": round(eb["mae"], 6),
+                    "delta_rmse": round(delta, 6), "better": (label_a if delta < -1e-12
+                                                              else label_b if delta > 1e-12
+                                                              else "TIE")}
+    per_country = {}
+    pa, pb = figaro["oos"]["per_country"]["GVAR_p1"], gdp["oos"]["per_country"]["GVAR_p1"]
+    countries = sorted(pa)
+    for variable in ("g", "pi"):
+        per_country[variable] = {}
+        for h in horizons:
+            better_a = better_b = ties = 0
+            deltas = []
+            for code in countries:
+                ea = pa[code][variable][h]["rmse"]
+                eb = pb[code][variable][h]["rmse"]
+                deltas.append(ea - eb)
+                if ea < eb - 1e-12:
+                    better_a += 1
+                elif eb < ea - 1e-12:
+                    better_b += 1
+                else:
+                    ties += 1
+            deltas.sort()
+            median = float(np.median(deltas)) if deltas else float("nan")
+            per_country[variable][str(h)] = {"better_a": better_a, "better_b": better_b,
+                                             "ties": ties, "median_delta_rmse": round(median, 6)}
+    baseline_identical = json.dumps(a.get("AR1"), sort_keys=True) == json.dumps(
+        b.get("AR1"), sort_keys=True) and json.dumps(a.get("RW"), sort_keys=True) == json.dumps(
+        b.get("RW"), sort_keys=True)
+    return {"label_a": label_a, "label_b": label_b,
+            "primary_model": "GVAR_p1", "aggregate": aggregate,
+            "per_country": per_country,
+            "baseline_identical": baseline_identical,
+            "note": ("delta_rmse = RMSE(a) - RMSE(b); negative favours the FIGARO weights. "
+                     "AR(1) and RW do not depend on the weights and are identical by "
+                     "construction.")}
 
 
 def digest(report: dict) -> str:
@@ -518,22 +777,63 @@ def main(argv=None) -> int:
     parser.add_argument("--lags", default="1,2", help="GVAR lag orders to compare (default 1,2)")
     parser.add_argument("--max-h", type=int, default=4, help="OOS horizon (default 4)")
     parser.add_argument("--origins", type=int, default=15, help="number of rolling OOS origins")
+    parser.add_argument("--weights", choices=WEIGHTS_MODES, default="auto",
+                        help="auto: FIGARO if the dataset exists else GDP; figaro: require FIGARO "
+                             "(GDP fallback rows for uncovered countries); gdp: proxy only")
+    parser.add_argument("--figaro", default=str(FIGARO_DATASET), help="FIGARO dataset.json path")
     parser.add_argument("--cache-dir", default=str(CACHE_DIR))
     parser.add_argument("--report", default=str(REPORT_PATH))
-    parser.add_argument("--out-summary", action="store_true", help="print only the compact summary")
     args = parser.parse_args(argv)
     lags_list = tuple(sorted({int(part) for part in args.lags.split(",") if part.strip()}))
-    report = run(refresh=args.refresh, cache_dir=Path(args.cache_dir), lags_list=lags_list,
-                 max_h=args.max_h, n_origins=args.origins)
+    figaro_path = Path(args.figaro)
+    figaro_available = figaro_path.is_file()
+    if args.weights == "figaro" and not figaro_available:
+        raise SystemExit(f"FIGARO dataset not found: {figaro_path}")
+    modes = ["gdp"] if args.weights == "gdp" else (
+        ["figaro", "gdp"] if figaro_available else ["gdp"])
+    runs = {}
+    for mode in modes:
+        runs[mode] = run(refresh=args.refresh, cache_dir=Path(args.cache_dir),
+                         lags_list=lags_list, max_h=args.max_h, n_origins=args.origins,
+                         weights_mode=mode, figaro_path=figaro_path)
+    primary = runs["figaro"] if "figaro" in runs else runs["gdp"]
+    report = {
+        "report_id": "AMFE-GVAR-REAL-WB",
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "source": "World Bank WDI via api.worldbank.org (no key); FIGARO 2019 via Eurostat "
+                  "re-use policy; open data, attribution required",
+        "indicators": dict(INDICATORS),
+        "weights_mode": primary["weights"]["source"],
+        "sample": primary["sample"],
+        "weights": primary["weights"],
+        "weights_summary": primary["weights_summary"],
+        "runs": runs,
+        "comparison": (compare_runs(runs["figaro"], runs["gdp"])
+                       if "figaro" in runs and "gdp" in runs else None),
+        "limits": primary["limits"] + [
+            "FIGARO weights are a single 2019 table applied to the whole 1995-2024 sample",
+            "trade weights are an input, not estimated; time-invariant by construction",
+            "the FIGARO table covers 42 of the 53 World Bank countries; the rest use the GDP "
+            "proxy rows (reported in weights.detail.gdp_fallback_rows)",
+        ],
+    }
     report["report_sha256"] = digest({k: v for k, v in report.items() if k != "report_sha256"})
     path = Path(args.report)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(report, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
-    summary = {"sample": report["sample"], "fits": report["fits"],
-               "weights": report["weights"]["source"],
-               "irf": report["irf"]["response"].get("WORLD", {}).get("g"),
-               "metrics": _summary(report), "report": str(path),
-               "report_sha256": report["report_sha256"]}
+    summary = {
+        "weights_mode": report["weights_mode"],
+        "weights_detail": {key: value for key, value in report["weights"]["detail"].get("detail", {}).items()
+                           if key in ("mode", "mrio_rows", "gdp_fallback_rows",
+                                      "dataset_sha256", "covered_iso3")},
+        "weights_summary": report["weights_summary"],
+        "sample": report["sample"],
+        "fits": {mode: run_report["fits"] for mode, run_report in runs.items()},
+        "irf": {mode: run_report["irf"]["response"].get("WORLD", {}).get("g")
+                for mode, run_report in runs.items()},
+        "metrics": {mode: _summary(run_report) for mode, run_report in runs.items()},
+        "comparison": report["comparison"],
+        "report": str(path), "report_sha256": report["report_sha256"]}
     print(json.dumps(summary, ensure_ascii=False, indent=1))
     return 0
 
