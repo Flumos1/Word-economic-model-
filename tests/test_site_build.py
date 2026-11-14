@@ -209,10 +209,10 @@ class SiteBuild(unittest.TestCase):
 
     def test_docs_page_links_are_local_and_resolve(self):
         page = self.texts["docs.html"]
-        targets = re.findall(r'href="(\.\./docs/[^"]+)"', page)
+        targets = re.findall(r'href="(docs/[^"]+)"', page)
         self.assertGreaterEqual(len(targets), 10)
         for target in targets:
-            local = (ROOT / target[3:]).resolve()
+            local = (ROOT / "site" / target).resolve()
             self.assertTrue(local.is_file(), target)
         for number in ("120", "125", "129", "131"):
             self.assertRegex(page, rf"docs/{number}_")
@@ -284,10 +284,10 @@ class SiteBuild(unittest.TestCase):
         for value in ("-253 452", "-2 859 371", "RESEARCH_ONLY"):
             self.assertIn(value, scenarios)
         page = self.texts["en/docs.html"]
-        targets = re.findall(r'href="(\.\./\.\./docs/[^"]+)"', page)
+        targets = re.findall(r'href="(\.\./docs/[^"]+)"', page)
         self.assertGreaterEqual(len(targets), 10)
         for target in targets:
-            local = (ROOT / target[6:]).resolve()
+            local = (ROOT / "site" / "en" / target).resolve()
             self.assertTrue(local.is_file(), target)
 
     # ------------------------------------------------------------------------- licence hygiene
@@ -350,7 +350,7 @@ class SiteBuild(unittest.TestCase):
             self.assertEqual(completed.returncode, 0, completed.stderr)
             summary = json.loads(completed.stdout)
             self.assertTrue(summary["ok"])
-            self.assertEqual(len(summary["files"]), len(REQUIRED_FILES))
+            self.assertEqual(len(summary["files"]), len(REQUIRED_FILES) + len(site_build.DOC_FILES))
             for name in REQUIRED_FILES:
                 self.assertTrue((Path(out) / name).is_file(), name)
 

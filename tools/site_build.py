@@ -200,7 +200,8 @@ def _doc_links() -> list[dict]:
         heading = next((line[2:].strip() for line in content.splitlines()
                         if line.startswith("# ")), None)
         title = heading.split(". ", 1)[-1] if heading else DOC_TITLES[relative]
-        links.append({"file": relative, "title": title, "href": f"../{relative}"})
+        links.append({"file": relative, "title": title, "href": relative,
+                      "href_en": f"../{relative}"})
     return links
 
 
@@ -1343,7 +1344,7 @@ frozen protocol on labelled windows and the forward journal; this site does not 
 
 
 def render_docs_en(context: dict, generated_at: str) -> str:
-    rows = [[f'<a href="../../{esc(link["file"])}">{esc(link["title"])}</a>', esc(link["file"])]
+    rows = [[f'<a href="../{esc(link["file"])}">{esc(link["title"])}</a>', esc(link["file"])]
             for link in context["doc_links"]]
     body = f"""
 <section><h1>Project documents</h1>
@@ -1524,6 +1525,16 @@ def build_site(root: Path = ROOT, out_dir: Path | None = None,
     style_path = assets / "style.css"
     style_path.write_text(CSS, encoding="utf-8", newline="\n")
     written.append(style_path)
+    # The documentation page links project docs; GitHub Pages serves only this directory, so the
+    # linked documents are copied next to the pages (site/docs/...) to keep the links resolving
+    # both locally and on the deployed site.
+    docs_dir = out_dir / "docs"
+    docs_dir.mkdir(parents=True, exist_ok=True)
+    for relative in DOC_FILES:
+        source = Path(root) / relative
+        target = docs_dir / Path(relative).name
+        target.write_text(source.read_text(encoding="utf-8"), encoding="utf-8", newline="\n")
+        written.append(target)
     return written
 
 
