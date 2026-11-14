@@ -655,7 +655,7 @@ def render_index(context: dict, generated_at: str) -> str:
   <ul class="links">
     <li><a href="model.html">Модель</a> — архитектура: данные MRIO → IO/SFC → GVAR → сценарии.</li>
     <li><a href="forecast.html">Прогноз</a> — продукт T1 CPI: интервалы, C4/C6, теневой трек.</li>
-    <li><a href="scenarios.html">Сценарии</a> — 7 отчётов energy/import/FX с топ-странами и отраслями.</li>
+    <li><a href="scenarios.html">Сценарии</a> — 8 отчётов energy/import/FX с топ-странами и отраслями.</li>
     <li><a href="data.html">Данные</a> — FIGARO, WIOD, OECD, Eora: покрытие и лицензии.</li>
     <li><a href="methodology.html">Методология</a> — протоколы, статусы допуска C1–C6 и ограничения.</li>
     <li><a href="docs.html">Документы</a> — ключевые документы проекта.</li>
@@ -846,7 +846,7 @@ def render_scenarios(context: dict, generated_at: str) -> str:
 </div>"""
     body = f"""
 <section><h1>Сценарии мира: сравнительная статика на реальном FIGARO 2019</h1>
-<p class="lead">Семь сценариев: энергетический шок, рост импортных издержек и FX pass-through для
+<p class="lead">Восемь сценариев: энергетический шок −5% и +50%, рост импортных издержек и FX pass-through для
 DE и FR. Это не прогноз: сценарии показывают, как шок расходится по цепочкам поставок при
 фиксированной технологии.</p></section>
 {_disclaimer_box()}
@@ -860,6 +860,7 @@ DE и FR. Это не прогноз: сценарии показывают, к�
 </section>
 <section>
   <h2>Топ-5 стран и отраслей</h2>
+  <p class="muted">Те же 8 сценариев рассчитаны на OECD ICIO 2011 (71 экономика × 34 отрасли, 95,4% мировой ДС): energy +50% +2,74 трлн, import +10% −4,61 трлн, FX USA −20% +0,67 трлн USD; SFC PASS — см. <a href="docs/131_Сценарные_отчёты_мира.md">docs/131</a>.</p>
   <p>Суммы по модулю изменения выпуска; ROW — агрегат «остального мира» FIGARO.</p>
   {tops}
 </section>
@@ -1312,7 +1313,7 @@ def render_scenarios_en(context: dict, generated_at: str) -> str:
 </div>"""
     body = f"""
 <section><h1>World scenarios: comparative statics on real FIGARO 2019</h1>
-<p class="lead">Seven scenarios: an energy shock, higher import costs and FX pass-through for DE and FR.
+<p class="lead">Eight scenarios: an energy shock (−5% and +50%), higher import costs and FX pass-through for DE and FR.
 This is not a forecast: the scenarios show how a shock propagates through supply chains under fixed
 technology.</p></section>
 {_disclaimer_box_en()}
@@ -1326,6 +1327,7 @@ technology.</p></section>
 </section>
 <section>
   <h2>Top-5 countries and industries</h2>
+  <p class="muted">The same 8 scenarios are computed on OECD ICIO 2011 (71 economies × 34 industries, 95.4% of world value added): energy +50% +2.74 trn, import +10% −4.61 trn, FX USA −20% +0.67 trn USD; SFC PASS — see <a href="../docs/131_Сценарные_отчёты_мира.md">docs/131</a>.</p>
   <p>Sums over the absolute output change; ROW is the FIGARO rest-of-world aggregate.</p>
   {tops}
 </section>

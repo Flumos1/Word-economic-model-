@@ -36,7 +36,7 @@ def small_table():
 
 
 def small_specs(table):
-    return wr.scenario_specs(energy_share=0.05, energy_industries=table.industries[:3],
+    return wr.scenario_specs(energy_shares=(0.05,), energy_industries=table.industries[:3],
                              import_shares=(0.10,), fx_countries=(table.countries[0],),
                              fx_shares=(0.10,))
 
@@ -58,18 +58,22 @@ def forbidden_keys(node, path=""):
 
 class SpecsAndTopLists(unittest.TestCase):
     def test_scenario_specs_order_ids_and_parameters(self):
-        specs = wr.scenario_specs(energy_share=0.05, energy_industries=("CPA_B", "CPA_D35"),
+        specs = wr.scenario_specs(energy_shares=(0.05, -0.50),
+                                  energy_industries=("CPA_B", "CPA_D35"),
                                   import_shares=(0.10, 0.20), fx_countries=("DE", "FR"),
                                   fx_shares=(0.10, 0.20))
         ids = [spec["id"] for spec in specs]
-        self.assertEqual(ids, ["energy_minus5", "import_plus10", "import_plus20",
-                               "fx_minus10_DE", "fx_minus20_DE",
+        self.assertEqual(ids, ["energy_minus5", "energy_plus50", "import_plus10",
+                               "import_plus20", "fx_minus10_DE", "fx_minus20_DE",
                                "fx_minus10_FR", "fx_minus20_FR"])
         self.assertEqual(specs[0]["parameters"]["industries"], ["CPA_B", "CPA_D35"])
-        self.assertEqual(specs[3]["parameters"]["currency_change"], -0.10)
-        self.assertEqual(specs[3]["parameters"]["pass_through"], 0.10)
+        self.assertEqual(specs[1]["parameters"]["share"], -0.50)
+        self.assertEqual(specs[4]["parameters"]["currency_change"], -0.10)
+        self.assertEqual(specs[4]["parameters"]["pass_through"], 0.10)
         with self.assertRaises(wr.ReportError):
-            wr.scenario_specs(energy_share=1.5)
+            wr.scenario_specs(energy_shares=(1.5,))
+        with self.assertRaises(wr.ReportError):
+            wr.scenario_specs(energy_shares=(0.0,))
         with self.assertRaises(wr.ReportError):
             wr.scenario_specs(import_shares=(0.0,))
 

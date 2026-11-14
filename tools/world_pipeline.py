@@ -892,7 +892,7 @@ def _finish_scenario(table: WorldTable, solver: WorldSolver, name: str, scenario
         "scenario": name,
         "feasible": True,
         "baseline": {"total_output": round(float(np.sum(baseline_x)), 6),
-                     "total_final_demand": round(float(np.sum(table.y)), 6)},
+                     "total_final_demand": round(float(np.sum(table.effective_final_demand)), 6)},
         "result": {"total_output": round(float(np.sum(scenario_x)), 6),
                    "total_delta_output": round(float(delta_x.sum()), 6),
                    "max_abs_delta_output": round(float(np.abs(delta_x).max()), 6),
@@ -910,21 +910,30 @@ def _finish_scenario(table: WorldTable, solver: WorldSolver, name: str, scenario
 
 def scenario_energy(table: WorldTable, solver: WorldSolver, *, share: float = 0.05,
                     industries=None, timings: Timings | None = None) -> dict:
-    """Energy demand shock: ``delta_y = -share * y`` on the energy sectors, then solve."""
+    """Energy demand shock: ``delta_y = -share * y`` on the energy sectors, then solve.
+
+    Positive ``share`` cuts energy demand (-5%), negative ``share`` raises it (+50% for -0.50).
+    """
     timings = timings or Timings()
-    if not 0.0 < float(share) <= 1.0:
-        raise PipelineError("energy share must be in (0, 1]")
+    if not -1.0 < float(share) < 1.0 or abs(float(share)) < 1e-12:
+        raise PipelineError("energy share must be in (-1, 1) and non-zero")
     selected = resolve_energy_industries(table, industries)
     with timings.stage("scenario_energy"):
         mask = _sector_indices(table, selected)
+        base_demand = table.effective_final_demand
+        # Shocks apply only where demand is positive: a cut cannot drive a cell below zero, and
+        # negative signed adjustments (inventory changes) are not "energy demand" to be reduced.
+        shocked = mask[base_demand[mask] > 0.0]
+        if shocked.size == 0:
+            raise PipelineError("energy scenario: selected industries have no positive demand")
         delta_y = np.zeros(table.n)
-        delta_y[mask] = -float(share) * table.y[mask]
-        scenario_y = table.y + delta_y
-        if float(scenario_y.min()) < -table.tolerance:
+        delta_y[shocked] = -float(share) * base_demand[shocked]
+        scenario_y = base_demand + delta_y
+        if float(scenario_y[shocked].min()) < -table.tolerance:
             raise PipelineError("energy scenario drives final demand negative")
         scenario_x = solver.solve(scenario_y, label="energy")
         extra = {"parameters": {"share": float(share), "industries": list(selected),
-                                "sectors_shocked": int(mask.size)},
+                                "sectors_shocked": int(shocked.size)},
                  "delta_final_demand": _delta_aggregates(table, delta_y),
                  "total_delta_final_demand": round(float(delta_y.sum()), 6)}
         return _finish_scenario(table, solver, "energy", scenario_x, solver.baseline_x,
@@ -963,7 +972,7 @@ def scenario_import(table: WorldTable, solver: WorldSolver, *, share: float = 0.
             factor = spla.splu(sp.identity(table.n, format="csc") - A_new.tocsc())
         except RuntimeError as exc:
             raise PipelineError(f"import scenario: (I - A') is singular: {exc}") from exc
-        scenario_x = np.asarray(factor.solve(table.y), dtype=float)
+        scenario_x = np.asarray(factor.solve(table.effective_final_demand), dtype=float)
         if not np.all(np.isfinite(scenario_x)) or float(scenario_x.min()) < 0.0:
             raise PipelineError("import scenario produced an infeasible solution")
         reference = country_shock_reference(table, share)
@@ -976,7 +985,7 @@ def scenario_import(table: WorldTable, solver: WorldSolver, *, share: float = 0.
                                 "productive_after": True},
                  "country_block_reference": reference}
         return _finish_scenario(table, solver, "import", scenario_x, solver.baseline_x,
-                                table.y, timings, extra, technology=A_new)
+                                table.effective_final_demand, timings, extra, technology=A_new)
 
 
 def country_shock_reference(table: WorldTable, share: float) -> dict:
@@ -985,7 +994,8 @@ def country_shock_reference(table: WorldTable, share: float) -> dict:
     block = np.asarray(dataset.Z, dtype=float)
     xc = np.asarray(dataset.x, dtype=float)
     Ablock = block / xc[np.newaxis, :]
-    cross = np.ones_like(Ablock) - np.eye(table.n_countries)
+    members = len(dataset.countries)
+    cross = np.ones_like(Ablock) - np.eye(members)
     delta_A = -float(share) * Ablock * cross
     try:
         shocked = LeontiefCore(tuple(tuple(row) for row in (Ablock + delta_A)),
@@ -1032,7 +1042,7 @@ def scenario_fx(table: WorldTable, solver: WorldSolver, *, country: str | None =
             factor = spla.splu(sp.identity(table.n, format="csc") - A_new.tocsc())
         except RuntimeError as exc:
             raise PipelineError(f"FX scenario: (I - A') is singular: {exc}") from exc
-        scenario_x = np.asarray(factor.solve(table.y), dtype=float)
+        scenario_x = np.asarray(factor.solve(table.effective_final_demand), dtype=float)
         if not np.all(np.isfinite(scenario_x)) or float(scenario_x.min()) < 0.0:
             raise PipelineError("FX scenario produced an infeasible solution")
         sfc = sfc_fx_check(table, country, float(pass_through))
@@ -1042,7 +1052,7 @@ def scenario_fx(table: WorldTable, solver: WorldSolver, *, country: str | None =
                                 "productive_after": True},
                  "sfc_check": sfc}
         return _finish_scenario(table, solver, "fx", scenario_x, solver.baseline_x,
-                                table.y, timings, extra, technology=A_new)
+                                table.effective_final_demand, timings, extra, technology=A_new)
 
 
 def sfc_fx_check(table: WorldTable, country: str, pass_through: float) -> dict:

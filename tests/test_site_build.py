@@ -197,13 +197,13 @@ class SiteBuild(unittest.TestCase):
         self.assertIn("44 × 56", data)
         self.assertIn("84.7%", data)
         self.assertIn("89.0%", data)
-        self.assertIn("7", index)
+        self.assertIn("8", index)
 
     def test_all_scenarios_are_present(self):
         scenarios = text_of(self.texts["scenarios.html"])
         for scenario in self.world["scenarios"]:
             self.assertIn(str(scenario["id"]), scenarios)
-        for value in ("-253 452", "-2 859 371", "-5 560 552", "CPA_D35", "RESEARCH_ONLY"):
+        for value in ("-253 452", "2 534 517", "-2 859 371", "-5 560 552", "CPA_D35", "RESEARCH_ONLY"):
             self.assertIn(value, scenarios)
         self.assertIn("сравнительная статика", scenarios.lower())
 
@@ -319,7 +319,7 @@ class SiteBuild(unittest.TestCase):
             self.assertNotIn("<img", page, name)
             self.assertNotIn("canvas", page.lower(), name)
         scenarios = text_of(self.texts["scenarios.html"])
-        for value in ("-253 452", "-2 859 371", "-5 560 552"):
+        for value in ("-253 452", "2 534 517", "-2 859 371", "-5 560 552"):
             self.assertIn(value, scenarios)
 
     def test_meta_tags_and_crawler_files(self):

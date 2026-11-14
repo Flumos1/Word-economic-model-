@@ -105,23 +105,37 @@ def parse_list(text, cast=str) -> tuple:
     return tuple(cast(part.strip()) for part in str(text).split(",") if part.strip())
 
 
-def scenario_specs(energy_share=0.05, energy_industries=None,
+def _energy_spec(share: float, industries) -> dict:
+    """One signed energy-demand spec: positive share = cut, negative = increase (e.g. +50%)."""
+    share = float(share)
+    if not -1.0 < share < 1.0 or abs(share) < 1e-12:
+        raise ReportError(f"energy share must be in (-1, 1) and non-zero, got {share}")
+    size = int(round(abs(share) * 100))
+    if share > 0:
+        scenario_id = "energy_minus5" if abs(share - 0.05) < 1e-12 else f"energy_minus{size}"
+        description = (f"сокращение конечного спроса на {size}% в энергетических отраслях "
+                       f"{', '.join(industries)}")
+    else:
+        scenario_id = f"energy_plus{size}"
+        description = (f"рост конечного спроса на {size}% в энергетических отраслях "
+                       f"{', '.join(industries)} (обратный энергетический шок)")
+    return {
+        "id": scenario_id,
+        "type": "energy",
+        "parameters": {"share": share, "industries": list(industries)},
+        "description": description,
+    }
+
+
+def scenario_specs(energy_shares=0.05, energy_industries=None,
                    import_shares=DEFAULT_IMPORT_SHARES,
                    fx_countries=DEFAULT_FX_COUNTRIES, fx_shares=DEFAULT_FX_SHARES) -> list[dict]:
-    """Declared scenario list, in fixed order: energy, import, fx (country-major)."""
+    """Declared scenario list, in fixed order: energy (several), import, fx (country-major)."""
     industries = tuple(energy_industries or DEFAULT_ENERGY_INDUSTRIES)
     if not industries:
         raise ReportError("energy industries must not be empty")
-    if not 0.0 < float(energy_share) <= 1.0:
-        raise ReportError("energy share must be in (0, 1]")
-    specs = [{
-        "id": "energy_minus5" if abs(float(energy_share) - 0.05) < 1e-12
-              else f"energy_minus{int(round(float(energy_share) * 100))}",
-        "type": "energy",
-        "parameters": {"share": float(energy_share), "industries": list(industries)},
-        "description": (f"сокращение конечного спроса на {float(energy_share) * 100:.0f}% в "
-                        f"энергетических отраслях {', '.join(industries)}"),
-    }]
+    shares = energy_shares if isinstance(energy_shares, (list, tuple)) else (energy_shares,)
+    specs = [_energy_spec(share, industries) for share in shares]
     for share in import_shares:
         share = float(share)
         if not 0.0 < share < 1.0:
@@ -942,7 +956,7 @@ def run(args) -> dict:
         energy_industries = explicit_energy or DEFAULT_ENERGY_INDUSTRIES
         fx_countries = explicit_fx or DEFAULT_FX_COUNTRIES
     specs = scenario_specs(
-        energy_share=float(getattr(args, "energy_share", 0.05)),
+        energy_shares=parse_list(getattr(args, "energy_share", None), float) or (0.05,),
         energy_industries=energy_industries,
         import_shares=parse_list(getattr(args, "import_shares", None), float)
         or DEFAULT_IMPORT_SHARES,
@@ -1000,8 +1014,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--root", default=str(DEFAULT_ROOT), help="MRIO data root")
     parser.add_argument("--dataset", default=DEFAULT_DATASET, help="canonical dataset id")
     parser.add_argument("--out", default=str(DEFAULT_OUT), help="output directory (build/world)")
-    parser.add_argument("--energy-share", dest="energy_share", type=float, default=0.05,
-                        help="energy final-demand shock size (default 0.05 = -5%%)")
+    parser.add_argument("--energy-share", dest="energy_share", default="0.05",
+                        help="energy shock size(s), comma-separated: 0.05 = -5%% demand, "
+                             "-0.50 = +50%% demand (default 0.05)")
     parser.add_argument("--energy-industries", dest="energy_industries", default=None,
                         help="comma-separated energy industries (default CPA_B,CPA_C19,CPA_D35)")
     parser.add_argument("--import-shares", dest="import_shares", default=None,
