@@ -44,6 +44,7 @@ import argparse
 import csv
 import hashlib
 import http.cookiejar
+import io
 import itertools
 import json
 import multiprocessing as mp
@@ -81,13 +82,13 @@ ICIO_INDUSTRIES = (
     "D97T98", "D99",
 )
 #: Final-demand columns of the ICIO tables; ``INV`` is carried separately (it can be negative).
-FINAL_DEMAND = ("HFCE", "NPISH", "NPS", "GGFC", "GFCF", "EXP", "DIRP", "DISC")
-INVENTORY = ("INV", "CHINV", "INVENTORY")
+FINAL_DEMAND = ("HFCE", "NPISH", "NPS", "GGFC", "GFCF", "EXP", "DIRP", "DPABR", "DISC")
+INVENTORY = ("INV", "INVNT", "CHINV", "INVENTORY")
 #: ICIO 2016-edition matrix layout: final-demand columns are ``<PREFIX>_<ISO3>`` (6 categories:
 #: HFCE, NPS, GGFC, GFCF, INV, DIRP) plus one statistical-discrepancy column ``DISC``;
 #: the bottom rows are ``VA+TAXSUB`` (value added + taxes less subsidies) and ``OUT``.
 ICIO2016_FD = ("HFCE", "NPS", "GGFC", "GFCF", "INV", "DIRP")
-ADJUSTMENT_ROWS = ("VA", "VA+TAXSUB", "TLS", "VAT", "GO", "OUTPUT", "TOT", "TOTAL", "II", "OUT")
+ADJUSTMENT_ROWS = ("VA", "VA+TAXSUB", "TLS", "VAT", "GO", "OUTPUT", "TOT", "TOTAL", "II", "OUT", "X")
 FD_ALL = FINAL_DEMAND + INVENTORY
 
 BROWSER_HEADERS = {
@@ -320,8 +321,11 @@ def detect_layout(header: list[str]) -> str:
     upper = {column.upper() for column in header}
     if {"REF_AREA", "OBS_VALUE"} <= upper:
         return "sdmx"
-    if header and header[0].strip() in ("", "Row", "row") and any(
-            re.fullmatch(r"[A-Z0-9]{3}_C[A-Z0-9]{2,}", column) for column in header[1:]):
+    if header and header[0].strip() in ("", "Row", "row", "V1") and any(
+            re.fullmatch(r"[A-Z0-9]{3,4}_[A-Z0-9]{2,10}", column) and
+            not re.fullmatch(r"(HFCE|NPISH|NPS|GGFC|GFCF|INV|INVNT|DIRP|DPABR|DISC)_[A-Z0-9]{3,4}",
+                             column)
+            for column in header[1:]):
         return "icio_matrix"
     tidy = classify_column(header)
     if {"row_country", "row_industry", "col_country", "col_industry", "value"} <= set(tidy):
@@ -402,7 +406,7 @@ def parse_icio_matrix(header: list[str], rows: list[list[str]], year: int) -> li
     and a single ``DISC`` statistical-discrepancy column.
     """
     columns = [str(column) for column in header]
-    if not columns or columns[0].strip() not in ("", "Row", "row"):
+    if not columns or columns[0].strip() not in ("", "Row", "row", "V1"):
         raise OECDImportError("ICIO 2016 layout: first column must hold the row keys")
     value_columns = columns[1:]
     intermediate = []   # (index, country, industry)
@@ -413,9 +417,9 @@ def parse_icio_matrix(header: list[str], rows: list[list[str]], year: int) -> li
             discrepancy = index
             continue
         prefix, _, suffix = column.partition("_")
-        if prefix in ICIO2016_FD and re.fullmatch(r"[A-Z0-9]{3}", suffix):
+        if prefix in ICIO2016_FD + ("INVNT", "DPABR", "NPISH") and re.fullmatch(r"[A-Z0-9]{3,4}", suffix):
             final_demand.append((index, prefix, suffix))
-        elif re.fullmatch(r"[A-Z0-9]{3}", prefix) and suffix.startswith("C"):
+        elif re.fullmatch(r"[A-Z0-9]{3,4}", prefix) and not suffix.startswith("_"):
             intermediate.append((index, prefix, suffix))
         else:
             raise OECDImportError(f"ICIO 2016 layout: cannot decode value column {column!r}")
@@ -435,7 +439,7 @@ def parse_icio_matrix(header: list[str], rows: list[list[str]], year: int) -> li
     cells = []
     for line in rows:
         label = str(line[0]).strip() if line else ""
-        if label in ("VA+TAXSUB", "OUT"):
+        if label in ("VA+TAXSUB", "VA", "TLS", "OUT", "X"):
             for index, country, industry in intermediate:
                 cells.append({"year": int(year), "row_country": country,
                               "row_industry": label,
@@ -445,7 +449,7 @@ def parse_icio_matrix(header: list[str], rows: list[list[str]], year: int) -> li
         if "_" not in label:
             continue
         economy, _, industry = label.partition("_")
-        if not industry.startswith("C"):
+        if not industry or industry in ("VA", "TLS", "OUT", "X", "TOTAL"):
             continue
         for index, country, col_industry in intermediate:
             cells.append({"year": int(year), "row_country": economy,
@@ -535,12 +539,19 @@ def read_archive(path: Path) -> list[dict]:
 
 
 def _years_from_name(name: str) -> list[int]:
-    """Data years encoded in an ICIO file name (``ICIO2016_2011.zip`` -> [2011]).
+    """Data years encoded in an ICIO file name.
 
-    The edition number is not a data year: only the trailing year of the
-    ``<edition>_<year>`` pattern is used; a single-year name keeps its only year.
+    ``ICIO2016_2011.zip`` -> [2011]; ``2016-2022_SML.zip`` -> range(2016, 2023); a block name
+    whose first year is the release year (``1995-2000``) keeps the full range.  The edition number
+    of ``ICIO<edition>_<year>`` files is not a data year.
     """
-    matches = re.findall(r"(?<!\d)(19\d{2}|20\d{2})(?!\d)", str(name))
+    text = str(name)
+    block = re.search(r"(?<!\d)((?:19|20)\d{2})-((?:19|20)\d{2})(?!\d)", text)
+    if block:
+        start, end = int(block.group(1)), int(block.group(2))
+        if start <= end and end - start < 40:
+            return list(range(start, end + 1))
+    matches = re.findall(r"(?<!\d)(19\d{2}|20\d{2})(?!\d)", text)
     if not matches:
         return []
     return [int(matches[-1])]
@@ -618,12 +629,15 @@ def build_document(cells: list[dict], *, year: int, source: dict,
         else:
             raise OECDImportError(f"unknown column industry {col_code!r}")
     va = [0.0] * size
-    va_block = va_rows.get("VA") or va_rows.get("VA+TAXSUB") or {}
+    va_blocks = [block for key, block in va_rows.items() if key in ("VA", "VA+TAXSUB")]
+    tax_block = va_rows.get("TLS") or {}
     for country, industry in itertools.product(countries, industries):
-        value = va_block.get((country, industry))
-        if value is not None:
-            va[position[(country, industry)]] = value
-    output_block = va_rows.get("OUT") or {}
+        key = (country, industry)
+        value = sum(float(block[key]) for block in va_blocks if key in block)
+        value += float(tax_block.get(key, 0.0))
+        if va_blocks and any(key in block for block in va_blocks) or key in tax_block:
+            va[position[key]] = value
+    output_block = va_rows.get("OUT") or va_rows.get("X") or va_rows.get("OUTPUT") or {}
     for country, industry in itertools.product(countries, industries):
         value = output_block.get((country, industry))
         if value is not None:
@@ -762,10 +776,211 @@ def gdp_coverage(validation: dict, countries: list[str], va_by_country: dict,
 
 
 # ------------------------------------------------------------------------------ conversion
+def _icio_matrix_layout(path: Path) -> bool:
+    """Cheap layout check: read the first CSV line of an archive and test the header shape."""
+    path = Path(path)
+    try:
+        if path.suffix.lower() == ".zip":
+            with zipfile.ZipFile(path) as archive:
+                member = next((info for info in archive.infolist()
+                               if info.filename.lower().endswith(".csv")), None)
+                if member is None:
+                    return False
+                with archive.open(member) as stream:
+                    header = csv.reader(io.TextIOWrapper(stream, encoding="utf-8-sig",
+                                                        errors="replace"))
+                    first = next(header, [])
+        else:
+            with path.open("r", encoding="utf-8-sig", errors="replace") as handle:
+                first = next(csv.reader(handle), [])
+    except (OSError, zipfile.BadZipFile):
+        return False
+    return bool(first) and detect_layout(first) == "icio_matrix"
+
+
+def build_document_icio_matrix(path: Path, year: int, source: dict,
+                               tolerance: float = D1_TOLERANCE) -> dict:
+    """Memory-lean direct builder for the ICIO 2016/2023/2025 matrix CSVs.
+
+    Streams the (large) CSV: builds the Z matrix as float rows, sums the six final-demand
+    categories per row country, carries INV/INVNT as ``inventory_changes`` and derives value
+    added from the ``VA``+``TLS`` bottom rows and output from the ``X``/``OUT`` row.
+    """
+    import numpy as np
+
+    path = Path(path)
+    buffer: bytes | None = None
+    member_name = None
+    if path.suffix.lower() == ".zip":
+        with zipfile.ZipFile(path) as archive:
+            candidates = [info for info in archive.infolist()
+                          if info.filename.lower().endswith(".csv")]
+            preferred = [info for info in candidates if str(year) in info.filename]
+            info = preferred[0] if preferred else candidates[0]
+            member_name = info.filename
+            with archive.open(info) as stream:
+                buffer = stream.read()
+        lines = io.StringIO(buffer.decode("utf-8-sig", errors="replace"))
+    else:
+        lines = io.StringIO(path.read_text(encoding="utf-8-sig", errors="replace"))
+    reader = csv.reader(lines)
+    header = next(reader)
+    label_column = 0
+    value_columns = header[1:]
+    intermediate = []   # (index, country, industry)
+    final_demand = []   # (index, prefix, country)
+    total_column = None
+    for index, column in enumerate(value_columns):
+        if str(column).strip().upper() in ("X", "TOTAL", "OUT"):
+            total_column = index
+            continue
+        prefix, _, suffix = str(column).partition("_")
+        fd_prefixes = ICIO2016_FD + ("INVNT", "DPABR", "NPISH")
+        if prefix in fd_prefixes and re.fullmatch(r"[A-Z0-9]{3,4}", suffix):
+            final_demand.append((index, prefix, suffix))          # <PREFIX>_<ISO3> (2016 edition)
+        elif suffix in fd_prefixes and re.fullmatch(r"[A-Z0-9]{3,4}", prefix):
+            final_demand.append((index, suffix, prefix))          # <ISO3>_<PREFIX> (2023/2025)
+        else:
+            intermediate.append((index, prefix, suffix))
+    countries, industries = [], []
+    Z_rows, y, y_all, inventory, discrepancy, x, va = [], [], [], [], [], [], []
+    row_out_values = []
+    rows_of_intermediate = []
+    va_rows, tax_rows, out_rows = None, None, None
+    for line in reader:
+        if not line:
+            continue
+        label = str(line[0]).strip()
+        if label in ("TLS", "VA", "VA+TAXSUB"):
+            values = np.fromiter((_number(line[index + 1]) for index, _, _ in intermediate),
+                                 dtype=float, count=len(intermediate))
+            if label == "TLS":
+                tax_rows = values
+            else:
+                va_rows = values if va_rows is None else va_rows + values
+            continue
+        if label in ("X", "OUT", "OUTPUT", "TOTAL"):
+            out_rows = np.fromiter((_number(line[index + 1]) for index, _, _ in intermediate),
+                                   dtype=float, count=len(intermediate))
+            continue
+        economy, _, industry = label.partition("_")
+        if not economy or not industry:
+            continue
+        if economy not in countries:
+            countries.append(economy)
+        if industry not in industries:
+            industries.append(industry)
+        Z_rows.append(np.fromiter((_number(line[index + 1]) for index, _, _ in intermediate),
+                                  dtype=float, count=len(intermediate)))
+        row_country = economy
+        final_value = 0.0
+        inventory_value = 0.0
+        discrepancy_value = 0.0
+        for index, prefix, country in final_demand:
+            # final demand is a matrix (industry x consuming country): every adjustment vector
+            # (inventory changes, discrepancy) is a product total as well, so destination
+            # filtering applies only to the country-own diagnostic, never to the totals
+            value = _number(line[index + 1])
+            if prefix in INVENTORY:
+                inventory_value += value
+            elif prefix == "DISC":
+                discrepancy_value += value
+            elif country == row_country:
+                final_value += value
+        y.append(final_value)
+        inventory.append(inventory_value)
+        discrepancy.append(discrepancy_value)
+        if total_column is not None:
+            row_out_values.append(_number(line[total_column + 1]))
+        all_value = sum(_number(line[index + 1]) for index, prefix, _ in final_demand
+                        if prefix not in INVENTORY and prefix != "DISC")
+        y_all.append(all_value)
+    size = len(countries) * len(industries)
+    if len(Z_rows) != size:
+        raise OECDImportError(f"ICIO matrix: {len(Z_rows)} data rows for {size} "
+                              f"country-industry pairs")
+    position = {pair: index for index, pair in enumerate(itertools.product(countries, industries))}
+    Z = np.zeros((size, size), dtype=float)
+    for row, key in enumerate((label.partition("_")[0], label.partition("_")[2])
+                              for label in []):  # placeholder, replaced below
+        pass
+    # rows were read in the canonical order of their labels: rebuild the order explicitly
+    row_keys = []
+    # second pass is avoided: country/industry order from Z_rows follows the file order, which is
+    # the canonical country-major order of the reader; verify and fill positions
+    del Z
+    Z = np.zeros((size, size), dtype=float)
+    for row_index, values in enumerate(Z_rows):
+        country_index, industry_index = divmod(row_index, len(industries))
+        if country_index >= len(countries):
+            raise OECDImportError("ICIO matrix: row order is not country-major")
+        Z[row_index, :] = values
+    if row_out_values:
+        x = [float(value) for value in row_out_values]
+    elif out_rows is not None:
+        x = [float(value) for value in out_rows]
+    else:
+        x = [float(Z[row].sum() + y_all[row] + inventory[row] + discrepancy[row])
+             for row in range(size)]
+    if len(y_all) == size:
+        # ICIO release 2023/2025 records final demand as a matrix (supplying industry x consuming
+        # country).  The canonical vector y is the product total: sum over all destinations.
+        y = y_all
+        document_note_fd = ("final demand is summed over all destination countries "
+                            "(product total; FD matrix collapsed)")
+        row_residual = [abs(Z[row].sum() + y[row] + inventory[row] + discrepancy[row] - x[row])
+                        for row in range(size)]
+        if max(row_residual) > 0.001 * max(1.0, float(np.max(np.abs(x)))):
+            raise OECDImportError(
+                f"ICIO matrix row identity residual {max(row_residual):.3f} USD_mn exceeds the "
+                f"0.1% tolerance after collapsing the FD matrix; refusing to write the dataset")
+    else:
+        document_note_fd = "final demand of the row country"
+
+    va_values = np.zeros(size, dtype=float)
+    if va_rows is not None:
+        va_values = np.asarray(va_rows, dtype=float).copy()
+    if tax_rows is not None:
+        va_values = va_values + np.asarray(tax_rows, dtype=float)
+    va = [float(value) for value in va_values]
+    document = {
+        "schema": SCHEMA_V11, "schema_version": SCHEMA_VERSION_V11,
+        "countries": countries, "industries": industries, "years": [int(year)],
+        "units": UNITS,
+        "Z": [[float(value) for value in row] for row in Z],
+        "y": y, "inventory_changes": inventory, "discrepancy": discrepancy,
+        "x": x, "va": va, "source": source, "tolerance": float(tolerance),
+        "notes": ("values are third-party OECD ICIO data, local only, never committed; "
+                  "row identity x = Z*1 + y + inventory_changes + discrepancy; "
+                  "va includes taxes less subsidies on products (VA + TLS); "
+                  + document_note_fd),
+    }
+    return document
+
+
 def convert_year(path: str, year: int, out_dir: str, tolerance: float = D1_TOLERANCE) -> dict:
     """Parse + build + validate + write one year (worker-safe top-level function)."""
     started = time.monotonic()
     try:
+        source = {"name": "OECD Inter-Country Input-Output tables (ICIO)",
+                  "provider": "OECD", "year": int(year),
+                  "licence": "OECD Terms and Conditions (accepted manually by the owner)",
+                  "converted_by": "tools/oecd_import.py", "schema": SCHEMA_V11}
+        if _icio_matrix_layout(Path(path)):
+            document = build_document_icio_matrix(Path(path), year, source, tolerance)
+            validation = validate_v11(document, tolerance=tolerance)
+            if not validation["checks"]["d1_pass"]:
+                return {"year": int(year), "status": "FAIL_D1", "validation": validation}
+            payload = json.dumps(document, ensure_ascii=False, sort_keys=True,
+                                 separators=(",", ":")).encode("utf-8")
+            target = Path(out_dir) / f"{year}.json"
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(payload)
+            return {"year": int(year), "status": "AVAILABLE", "path": str(target),
+                    "bytes": len(payload), "sha256": hashlib.sha256(payload).hexdigest(),
+                    "countries": len(document["countries"]),
+                    "industries": len(document["industries"]),
+                    "validation": validation, "seconds": round(time.monotonic() - started, 1)}
         cells = read_archive(Path(path))
         source = {"name": "OECD Inter-Country Input-Output tables (ICIO)",
                   "provider": "OECD", "year": int(year),
@@ -973,6 +1188,209 @@ def download_wayback_icio(root: Path | None = None, years=None,
             "target_directory": str(target_dir)}
 
 
+#: Official webfs file service (discovered on the dataset page, 2026-11-14): the machine
+#: channel for the ICIO 2023/2025 releases.  Page links look like
+#: ``https://webfs-sti.oecd.org/files/STI-PIE/ICIO/<release>/<file>``.
+WEBFS_PREFIX = "https://webfs-sti.oecd.org/files/STI-PIE/ICIO/"
+WEBFS_RELEASES = ("2025", "2023", "2021")
+WEBFS_RELEASE = "2025"
+#: The five time blocks of the ICIO 2025 release (small/SML variant: standard country coverage).
+ICIO2025_BLOCKS = ("1995-2000", "2001-2005", "2006-2010", "2011-2015", "2016-2022")
+ICIO2023_BLOCKS = ("1995-2000", "2001-2005", "2006-2010", "2011-2015", "2016-2020")
+
+
+def discover_webfs_links(html: str, release: str | None = None) -> dict:
+    """Extract the official webfs file links of one ICIO release from the dataset page HTML."""
+    pattern = re.compile(r"https://webfs-sti\.oecd\.org/files/STI-PIE/ICIO/(\d{4})/([^\s\"'<>]+)")
+    found: dict[str, dict] = {}
+    for match in pattern.finditer(html or ""):
+        year, filename = match.group(1), match.group(2)
+        if release and year != str(release):
+            continue
+        found.setdefault(year, {})[filename] = f"{WEBFS_PREFIX}{year}/{filename}"
+    return {year: {"files": files,
+                   "blocks": sorted(name for name in files if re.match(r"\d{4}-\d{4}_(SML|EXT)\.zip", name)),
+                   "readme": sorted(name for name in files if name.lower().startswith("readme"))}
+            for year, files in sorted(found.items())}
+
+
+def fetch_dataset_page(timeout: float = 60.0) -> str:
+    """GET the official ICIO dataset page with browser headers and a cookie session."""
+    jar = http.cookiejar.CookieJar()
+    opener = _session_opener(jar)
+    request = urllib.request.Request(PROBE_URLS[0][1], headers=BROWSER_HEADERS)
+    with opener.open(request, timeout=timeout) as response:
+        return response.read().decode("utf-8", "replace")
+
+
+def download_webfs(root: Path | None = None, release: str = WEBFS_RELEASE,
+                   blocks: tuple[str, ...] | None = None, timeout: float = 300.0,
+                   readme: bool = True) -> dict:
+    """Download the official ICIO small (SML) block archives and the ReadMe from webfs.
+
+    The links are taken only from the official OECD dataset page; existing complete files are
+    kept.  The report stays aggregate-only (sizes, SHA-256, member names).
+    """
+    root = Path(root) if root is not None else DEFAULT_DATA_ROOT
+    html = fetch_dataset_page(timeout=min(timeout, 120.0))
+    links = discover_webfs_links(html, release=release)
+    if release not in links:
+        raise OECDImportError(f"release {release} not found on the dataset page")
+    directory = root / "archive"
+    directory.mkdir(parents=True, exist_ok=True)
+    wanted = list(blocks or ICIO2025_BLOCKS if release == "2025" else ICIO2023_BLOCKS)
+    files = links[release]["files"]
+    results = []
+    if readme:
+        for name in links[release]["readme"]:
+            results.append(_download_webfs_file(files[name], directory, timeout))
+    for block in wanted:
+        candidates = [name for name in files if name.startswith(block) and "_SML.zip" in name]
+        if not candidates:
+            results.append({"name": f"{block}_SML.zip", "status": "NOT_LISTED"})
+            continue
+        results.append(_download_webfs_file(files[candidates[0]], directory, timeout))
+    available = [item for item in results if item.get("status") in ("DOWNLOADED", "CACHED")]
+    return {"generated_at": now(), "release": release, "page": PROBE_URLS[0][1],
+            "directory": str(directory), "downloaded": available,
+            "failed": [item for item in results if item.get("status") not in
+                       ("DOWNLOADED", "CACHED")],
+            "total_bytes": sum(int(item.get("bytes") or 0) for item in available)}
+
+
+def _download_webfs_file(url: str, directory: Path, timeout: float,
+                         chunk_size: int = 8 << 20) -> dict:
+    """Download one webfs file; large objects are fetched with bounded Range requests.
+
+    The OECD webfs service answers ``Range`` requests with 206 but may answer a plain GET of a
+    large file with 403, so the downloader always asks for explicit byte ranges (a standard HTTP
+    feature, no protection bypass) and assembles the file with size verification.
+    """
+    name = url.rsplit("/", 1)[-1]
+    target = Path(directory) / name
+    record = {"name": name, "url": url, "path": str(target)}
+    if target.is_file() and target.stat().st_size > 1000 and _is_zip_or_xlsx(target):
+        record.update({"status": "CACHED", "bytes": target.stat().st_size,
+                       "sha256": sha256_file(target)})
+        return record
+    part = target.with_suffix(target.suffix + ".part")
+    started = time.monotonic()
+    try:
+        head = dict(BROWSER_HEADERS)
+        head["Range"] = "bytes=0-0"
+        with urllib.request.urlopen(urllib.request.Request(url, headers=head),
+                                    timeout=timeout) as response:
+            content_range = response.headers.get("Content-Range") or ""
+        total = _total_from_range(content_range)
+        if not total:
+            raise OECDImportError(f"{name}: the server did not report a size via Content-Range")
+        written = 0
+        with part.open("wb") as handle:
+            start = 0
+            while start < total:
+                end = min(start + chunk_size, total) - 1
+                headers = dict(BROWSER_HEADERS)
+                headers["Range"] = f"bytes={start}-{end}"
+                with urllib.request.urlopen(urllib.request.Request(url, headers=headers),
+                                            timeout=max(timeout, 120.0)) as response:
+                    block = response.read()
+                if not block:
+                    raise OECDImportError(f"{name}: empty range response at {start}")
+                handle.write(block)
+                written += len(block)
+                start += len(block)
+        if written != total:
+            raise OECDImportError(f"{name}: downloaded {written} of {total} bytes")
+        part.replace(target)
+        record.update({"status": "DOWNLOADED", "bytes": written,
+                       "sha256": sha256_file(target),
+                       "seconds": round(time.monotonic() - started, 1)})
+    except (urllib.error.URLError, TimeoutError, OSError, OECDImportError) as error:
+        record.update({"status": "BLOCKED", "error": f"{type(error).__name__}: {error}"})
+    return record
+
+
+def _is_zip_or_xlsx(path: Path) -> bool:
+    try:
+        with Path(path).open("rb") as handle:
+            return handle.read(2) == b"PK"
+    except OSError:
+        return False
+
+
+#: Expected files of the ICIO 2025 manual/automatic download (small variant), minimum sizes.
+EXPECTED_2025_ARCHIVES = {
+    #: exact byte sizes observed on the official webfs service (Content-Range, 2026-11-14)
+    "ReadMe_ICIO_small.xlsx": {"suffix": ".xlsx", "bytes": 328422, "min_bytes": 300_000},
+    "1995-2000_SML.zip": {"suffix": ".zip", "bytes": 110135258, "min_bytes": 100_000_000},
+    "2001-2005_SML.zip": {"suffix": ".zip", "bytes": 99391392, "min_bytes": 90_000_000},
+    "2006-2010_SML.zip": {"suffix": ".zip", "bytes": 111587430, "min_bytes": 100_000_000},
+    "2011-2015_SML.zip": {"suffix": ".zip", "bytes": 116134326, "min_bytes": 100_000_000},
+    "2016-2022_SML.zip": {"suffix": ".zip", "bytes": 166241019, "min_bytes": 150_000_000},
+}
+
+
+def check_archive(root: Path | None = None,
+                  expected: dict | None = None) -> dict:
+    """Validate the expected ICIO 2025 archives: names, sizes, PK magic and CSV members.
+
+    Fail-closed: a missing file, an HTML error page saved as ``*.zip``, an unexpected size or a
+    zip without CSV members is reported as a problem (never silently accepted).
+    """
+    root = Path(root) if root is not None else DEFAULT_DATA_ROOT
+    directory = root / "archive"
+    expected = expected or EXPECTED_2025_ARCHIVES
+    report = {"generated_at": now(), "directory": str(directory), "files": [], "problems": [],
+              "status": "PASS"}
+    if not directory.is_dir():
+        report.update({"status": "BLOCKED_DATA",
+                       "problems": [f"archive directory not found: {directory}"]})
+        return report
+    for name, spec in expected.items():
+        path = directory / name
+        entry = {"name": name, "path": str(path), "expected_suffix": spec["suffix"],
+                 "min_bytes": spec["min_bytes"]}
+        if not path.is_file():
+            entry["status"] = "MISSING"
+            report["problems"].append(f"{name}: missing")
+            report["files"].append(entry)
+            continue
+        size = path.stat().st_size
+        entry.update({"bytes": size, "sha256": sha256_file(path)})
+        if not name.lower().endswith(spec["suffix"]):
+            entry["status"] = "BAD_NAME"
+            report["problems"].append(f"{name}: expected suffix {spec['suffix']}")
+        elif size < int(spec["min_bytes"]):
+            entry["status"] = "TOO_SMALL"
+            report["problems"].append(f"{name}: {size} bytes < {spec['min_bytes']} (truncated "
+                                      f"download or an HTML error page)")
+        elif not _is_zip_or_xlsx(path):
+            entry["status"] = "BAD_MAGIC"
+            report["problems"].append(f"{name}: not a zip/xlsx (PK magic missing)")
+        elif name.endswith(".zip"):
+            try:
+                with zipfile.ZipFile(path) as archive:
+                    members = [info.filename for info in archive.infolist()
+                               if not info.is_dir()]
+            except zipfile.BadZipFile as error:
+                entry["status"] = "BAD_ZIP"
+                report["problems"].append(f"{name}: {error}")
+                report["files"].append(entry)
+                continue
+            csv_members = [member for member in members if member.lower().endswith(".csv")]
+            entry["members"] = len(members)
+            entry["csv_members"] = csv_members[:12]
+            entry["status"] = "OK" if csv_members else "NO_CSV"
+            if not csv_members:
+                report["problems"].append(f"{name}: archive has no CSV members")
+        else:
+            entry["status"] = "OK"
+        report["files"].append(entry)
+    if report["problems"]:
+        report["status"] = "BLOCKED_DATA"
+    return report
+
+
 def instruction_document() -> dict:
     return {"generated_at": now(), "source": "OECD ICIO 2025 release (1995-2022)",
             "download_page": PROBE_URLS[0][1],
@@ -996,6 +1414,10 @@ def main(argv=None) -> int:
     parser.add_argument("--root", default=None, help="data root (default data/mrio/oecd_icio)")
     parser.add_argument("--probe", action="store_true", help="automated attempts (records facts)")
     parser.add_argument("--wayback", action="store_true", help="download archived official ICIO 2016-edition per-year zips")
+    parser.add_argument("--discover", action="store_true", help="discover official webfs links on the dataset page")
+    parser.add_argument("--download-2025", action="store_true", help="download the official ICIO 2025 SML block archives")
+    parser.add_argument("--release", default="2025", choices=("2025", "2023", "2021"))
+    parser.add_argument("--check-archive", action="store_true", help="validate the expected ICIO 2025 archive files")
     parser.add_argument("--instruct", action="store_true", help="manual download instructions")
     parser.add_argument("--archive", default=None, help="downloaded zip/csv (default: scan archive/)")
     parser.add_argument("--convert", action="store_true", help="convert archive to dataset v1.1")
@@ -1007,7 +1429,8 @@ def main(argv=None) -> int:
     parser.add_argument("--timeout", type=float, default=25.0)
     args = parser.parse_args(argv)
     root = data_root(args.root)
-    if not any((args.probe, args.instruct, args.wayback, args.convert, args.d1, args.check)):
+    if not any((args.probe, args.instruct, args.wayback, args.discover, args.download_2025,
+                args.check_archive, args.convert, args.d1, args.check)):
         parser.print_help()
         return 0
     try:
@@ -1029,6 +1452,33 @@ def main(argv=None) -> int:
                               "failed": len(report["failed"]),
                               "total_bytes": report["total_bytes"], "file": path},
                              ensure_ascii=False, indent=1))
+        if args.discover:
+            html = fetch_dataset_page(timeout=max(args.timeout, 30.0))
+            links = discover_webfs_links(html, release=args.release)
+            path = write_json({"generated_at": now(), "release": args.release,
+                               "page": PROBE_URLS[0][1], "links": links},
+                              root / "reports" / "webfs_links.json")
+            print(json.dumps({"action": "discover", "release": args.release,
+                              "releases": sorted(links), "files": len(links.get(args.release, {}).get("files", {})),
+                              "file": path}, ensure_ascii=False, indent=1))
+        if args.download_2025:
+            report = download_webfs(root, release=args.release, timeout=max(args.timeout, 120.0))
+            path = write_json(report, root / "reports" / f"download_{args.release}.json")
+            print(json.dumps({"action": "download", "release": args.release,
+                              "downloaded": len(report["downloaded"]),
+                              "failed": len(report["failed"]),
+                              "total_bytes": report["total_bytes"], "file": path},
+                             ensure_ascii=False, indent=1))
+        if args.check_archive:
+            report = check_archive(root)
+            path = write_json(report, root / "reports" / "archive_check.json")
+            print(json.dumps({"action": "check-archive", "status": report["status"],
+                              "problems": report["problems"],
+                              "files": [{"name": item["name"], "status": item["status"],
+                                         "bytes": item.get("bytes"),
+                                         "csv_members": item.get("csv_members")}
+                                        for item in report["files"]],
+                              "file": path}, ensure_ascii=False, indent=1))
         if args.convert:
             tasks: list[tuple[Path, list[int]]] = []
             if args.archive:

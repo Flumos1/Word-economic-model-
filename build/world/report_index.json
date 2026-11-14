@@ -1,0 +1,359 @@
+{
+  "checks": {
+    "all_feasible": true,
+    "all_sfc_pass": true,
+    "all_validations_pass": true,
+    "max_abs_material_residual": 1.0245e-08,
+    "scenario_count": 8
+  },
+  "dashboard": {
+    "html": "dashboard.html",
+    "md": "dashboard.md"
+  },
+  "dataset": {
+    "bytes": 94457216,
+    "cells_Z": 10240000,
+    "countries": 50,
+    "dataset_id": "figaro_2019",
+    "fallback": {
+      "loader": "world_reports._load_sparse_document",
+      "path": "Z_sparse rows/cols/values (read-only)",
+      "reason": "loader refused the sparse schema-1.1 document: dataset document misses required fields: ['Z']"
+    },
+    "industries": 64,
+    "provenance_note": "third-party FIGARO data; read-only, never committed",
+    "schema": "amfe.mrio.dataset.v1.1",
+    "sectors": 3200,
+    "sha256": "70789f089788f2c70c319ecd48cd23d8e30e912d3ef1237a3c0fad70b11d74c1",
+    "source": "Eurostat FIGARO",
+    "stored_Z": 5146560,
+    "stored_share": 0.502594,
+    "total_final_demand": 85733601.605,
+    "total_output": 169599264.169,
+    "total_value_added": 85733601.605,
+    "units": "USD_mn",
+    "years": [
+      2019
+    ]
+  },
+  "limitations": [
+    "сравнительная статика x'=(I-A')^-1 y', без цен, замещения, динамики и обратных связей;",
+    "сценарии не меняют y (кроме energy) и не меняют технологию (кроме import/fx);",
+    "FX: изменение курса интерпретируется как pass-through в стоимость импортных затрат (количественная модель, ценового замещения нет);",
+    "отчёт агрегатный: страновые и отраслевые суммы, без сырых Z/x/y и без per-sector значений;",
+    "данные FIGARO — третья сторона (Eurostat), не коммитятся; статус исследовательский, не допуск."
+  ],
+  "scenarios": [
+    {
+      "checks": {
+        "feasible": true,
+        "sfc_block_pass": true,
+        "sfc_pass": null,
+        "validation_pass": true
+      },
+      "description": "сокращение конечного спроса на 5% в энергетических отраслях CPA_B, CPA_C19, CPA_D35",
+      "file_json": "reports/energy_minus5.json",
+      "file_md": "reports/energy_minus5.md",
+      "headline": {
+        "largest_country": "US",
+        "largest_country_including_row": "ROW",
+        "largest_industry": "CPA_D35",
+        "max_abs_material_residual": 5.821e-09,
+        "relative_delta_output": -0.001494415,
+        "rest_of_world_delta_output": -57987.801,
+        "total_delta_output": -253451.709
+      },
+      "id": "energy_minus5",
+      "parameters": {
+        "industries": [
+          "CPA_B",
+          "CPA_C19",
+          "CPA_D35"
+        ],
+        "share": 0.05
+      },
+      "type": "energy"
+    },
+    {
+      "checks": {
+        "feasible": true,
+        "sfc_block_pass": true,
+        "sfc_pass": null,
+        "validation_pass": true
+      },
+      "description": "рост конечного спроса на 50% в энергетических отраслях CPA_B, CPA_C19, CPA_D35 (обратный энергетический шок)",
+      "file_json": "reports/energy_plus50.json",
+      "file_md": "reports/energy_plus50.md",
+      "headline": {
+        "largest_country": "US",
+        "largest_country_including_row": "ROW",
+        "largest_industry": "CPA_D35",
+        "max_abs_material_residual": 6.286e-09,
+        "relative_delta_output": 0.014944151,
+        "rest_of_world_delta_output": 579878.009,
+        "total_delta_output": 2534517.094
+      },
+      "id": "energy_plus50",
+      "parameters": {
+        "industries": [
+          "CPA_B",
+          "CPA_C19",
+          "CPA_D35"
+        ],
+        "share": -0.5
+      },
+      "type": "energy"
+    },
+    {
+      "checks": {
+        "feasible": true,
+        "sfc_block_pass": true,
+        "sfc_pass": null,
+        "validation_pass": true
+      },
+      "description": "снятие 10% межстрановых (импортных) коэффициентов затрат: импортозамещение в сравнительной статике",
+      "file_json": "reports/import_plus10.json",
+      "file_md": "reports/import_plus10.md",
+      "headline": {
+        "largest_country": "CN",
+        "largest_country_including_row": "ROW",
+        "largest_industry": "CPA_B",
+        "max_abs_material_residual": 1.0245e-08,
+        "relative_delta_output": -0.016859574,
+        "rest_of_world_delta_output": -501224.509,
+        "total_delta_output": -2859371.397
+      },
+      "id": "import_plus10",
+      "parameters": {
+        "share": 0.1
+      },
+      "type": "import"
+    },
+    {
+      "checks": {
+        "feasible": true,
+        "sfc_block_pass": true,
+        "sfc_pass": null,
+        "validation_pass": true
+      },
+      "description": "снятие 20% межстрановых (импортных) коэффициентов затрат: импортозамещение в сравнительной статике",
+      "file_json": "reports/import_plus20.json",
+      "file_md": "reports/import_plus20.md",
+      "headline": {
+        "largest_country": "CN",
+        "largest_country_including_row": "ROW",
+        "largest_industry": "CPA_B",
+        "max_abs_material_residual": 5.588e-09,
+        "relative_delta_output": -0.032786414,
+        "rest_of_world_delta_output": -976105.328,
+        "total_delta_output": -5560551.76
+      },
+      "id": "import_plus20",
+      "parameters": {
+        "share": 0.2
+      },
+      "type": "import"
+    },
+    {
+      "checks": {
+        "feasible": true,
+        "sfc_block_pass": true,
+        "sfc_pass": true,
+        "validation_pass": true
+      },
+      "description": "обесценение валюты DE на 10%: импортные затраты +10% (pass-through)",
+      "file_json": "reports/fx_minus10_DE.json",
+      "file_md": "reports/fx_minus10_DE.md",
+      "headline": {
+        "largest_country": "US",
+        "largest_country_including_row": "ROW",
+        "largest_industry": "CPA_G46",
+        "max_abs_material_residual": 7.451e-09,
+        "relative_delta_output": 0.000954385,
+        "rest_of_world_delta_output": 18481.386,
+        "total_delta_output": 161863.001
+      },
+      "id": "fx_minus10_DE",
+      "parameters": {
+        "country": "DE",
+        "currency_change": -0.1,
+        "pass_through": 0.1
+      },
+      "type": "fx"
+    },
+    {
+      "checks": {
+        "feasible": true,
+        "sfc_block_pass": true,
+        "sfc_pass": true,
+        "validation_pass": true
+      },
+      "description": "обесценение валюты DE на 20%: импортные затраты +20% (pass-through)",
+      "file_json": "reports/fx_minus20_DE.json",
+      "file_md": "reports/fx_minus20_DE.md",
+      "headline": {
+        "largest_country": "US",
+        "largest_country_including_row": "ROW",
+        "largest_industry": "CPA_G46",
+        "max_abs_material_residual": 7.451e-09,
+        "relative_delta_output": 0.001911155,
+        "rest_of_world_delta_output": 37008.163,
+        "total_delta_output": 324130.478
+      },
+      "id": "fx_minus20_DE",
+      "parameters": {
+        "country": "DE",
+        "currency_change": -0.2,
+        "pass_through": 0.2
+      },
+      "type": "fx"
+    },
+    {
+      "checks": {
+        "feasible": true,
+        "sfc_block_pass": true,
+        "sfc_pass": true,
+        "validation_pass": true
+      },
+      "description": "обесценение валюты FR на 10%: импортные затраты +10% (pass-through)",
+      "file_json": "reports/fx_minus10_FR.json",
+      "file_md": "reports/fx_minus10_FR.md",
+      "headline": {
+        "largest_country": "DE",
+        "largest_country_including_row": "ROW",
+        "largest_industry": "CPA_G46",
+        "max_abs_material_residual": 3.725e-09,
+        "relative_delta_output": 0.000717327,
+        "rest_of_world_delta_output": 17070.821,
+        "total_delta_output": 121658.109
+      },
+      "id": "fx_minus10_FR",
+      "parameters": {
+        "country": "FR",
+        "currency_change": -0.1,
+        "pass_through": 0.1
+      },
+      "type": "fx"
+    },
+    {
+      "checks": {
+        "feasible": true,
+        "sfc_block_pass": true,
+        "sfc_pass": true,
+        "validation_pass": true
+      },
+      "description": "обесценение валюты FR на 20%: импортные затраты +20% (pass-through)",
+      "file_json": "reports/fx_minus20_FR.json",
+      "file_md": "reports/fx_minus20_FR.md",
+      "headline": {
+        "largest_country": "DE",
+        "largest_country_including_row": "ROW",
+        "largest_industry": "CPA_G46",
+        "max_abs_material_residual": 5.239e-09,
+        "relative_delta_output": 0.001435453,
+        "rest_of_world_delta_output": 34160.648,
+        "total_delta_output": 243451.836
+      },
+      "id": "fx_minus20_FR",
+      "parameters": {
+        "country": "FR",
+        "currency_change": -0.2,
+        "pass_through": 0.2
+      },
+      "type": "fx"
+    }
+  ],
+  "schema": "amfe.world.scenario_index.v1",
+  "sfc": {
+    "assumptions": [
+      "final demand is stored by producing country block; absorption convention A_c = FD_c",
+      "final-goods destination is not identified by the dataset; CA is the intermediate-trade balance",
+      "consumption/investment are not identified; S = I + CA holds for any split, the share only sets the magnitudes",
+      "opening net foreign assets are zero unless supplied; no behavioural equations",
+      "the SFC frame treats the NFA position as the only asset; domestic assets net to zero"
+    ],
+    "checks": {
+      "current_account_disagreement_max_abs": 5.587935447692871e-09,
+      "gdp_sum_minus_final_demand_sum": 1.4901161193847656e-08,
+      "global_current_account_sum": -8.64383764564991e-09,
+      "net_foreign_assets_closing_sum": -3.524291969370097e-12,
+      "net_foreign_assets_opening_sum": 0.0,
+      "saving_investment_identity_max_abs": 4.6566128730773926e-09,
+      "sfc_identity_residual": 0.0,
+      "sfc_net_worth_residual": 0.0,
+      "sfc_pass": true
+    },
+    "countries": 50,
+    "current_account": {
+      "top_deficit": [
+        [
+          "CN",
+          -323450.847579
+        ],
+        [
+          "MX",
+          -121559.450874
+        ],
+        [
+          "FR",
+          -91583.921274
+        ],
+        [
+          "IN",
+          -75942.209343
+        ],
+        [
+          "US",
+          -64762.758595
+        ]
+      ],
+      "top_surplus": [
+        [
+          "SA",
+          193056.593219
+        ],
+        [
+          "RU",
+          187356.240677
+        ],
+        [
+          "ROW",
+          163033.42677
+        ],
+        [
+          "UK",
+          115420.625353
+        ],
+        [
+          "DE",
+          113149.673138
+        ]
+      ]
+    },
+    "investment_share": 0.2,
+    "note": "baseline IO accounting block: the same for every scenario; scenarios change gross output, not the identities (docs/133 conventions: A_c = FD_c, CA is the intermediate-trade balance)",
+    "pass": true,
+    "schema": "amfe.world.sfc_block.v1",
+    "source": {
+      "investment_share": 0.2,
+      "kind": "computed_from_table",
+      "module": "amfe.world.sfc_io",
+      "pipeline_report": "build\\world\\pipeline\\energy\\world_pipeline_report.json"
+    },
+    "totals": {
+      "current_account": -0.0,
+      "final_demand": 85733601.604502,
+      "gdp": 85733601.604502,
+      "investment": 17146720.3209,
+      "net_foreign_assets": -0.0,
+      "savings": 17146720.3209
+    },
+    "units": "USD_mn"
+  },
+  "status": "RESEARCH_ONLY",
+  "status_note": "Исследовательский отчёт, не допуск: сравнительная статика на реальной таблице FIGARO; это не прогноз, не admission и не SHADOW_TEST",
+  "timings_ms": {
+    "peak_memory_mb": 1399.1,
+    "total": 126034.322
+  }
+}

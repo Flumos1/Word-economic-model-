@@ -41,6 +41,7 @@ LOSS_ALERT = 1.10
 LOSS_WARN = 1.00
 MIN_RESOLVED_FOR_LOSS_ALERT = 6
 RELEASE_WEEKS_PER_MONTH = 2.5  # CPI + payrolls, sometimes GDP/claims
+CALENDAR_SCHEMA = "AMFE-C6-CALENDAR/1.0.0"
 
 
 class ShadowTrackError(RuntimeError):
@@ -190,6 +191,19 @@ def build_status(root: Path, candidate_id: str, target: str, horizon: int,
     }
 
 
+def attach_calendar(document: dict) -> dict:
+    """Return a copy of the status document with the C6 calendar block (docs/139).
+
+    Backward compatible: without ``--with-calendar`` the status document keeps exactly the old
+    shape; the calendar is an estimate of the release weeks and gate date, not a journal row.
+    """
+    import c6_calendar  # local import: tools/ on sys.path; avoids import cycles
+
+    with_calendar = dict(document)
+    with_calendar["calendar"] = c6_calendar.build_calendar(document)
+    return with_calendar
+
+
 def render_markdown(document: dict) -> str:
     cand = document["candidate"]
     c6 = document["c6"]
@@ -270,6 +284,8 @@ def main(argv=None) -> int:
     parser.add_argument("--out-dir", default=None)
     parser.add_argument("--date", default=None, help="report date YYYY-MM-DD (default: today)")
     parser.add_argument("--generated-at", default=None)
+    parser.add_argument("--with-calendar", dest="with_calendar", action="store_true",
+                        help="attach the C6 calendar block (tools/c6_calendar.py, docs/139)")
     args = parser.parse_args(argv)
     root = Path(args.root)
     out_dir = Path(args.out_dir) if args.out_dir else root / "build" / "shadow"
@@ -280,6 +296,8 @@ def main(argv=None) -> int:
     except ShadowTrackError as exc:
         print(json.dumps({"ok": False, "error": str(exc)}, ensure_ascii=False))
         return 1
+    if getattr(args, "with_calendar", False):
+        document = attach_calendar(document)
     out_dir.mkdir(parents=True, exist_ok=True)
     markdown = render_markdown(document)
     latest = out_dir / "shadow_status.json"
@@ -291,6 +309,8 @@ def main(argv=None) -> int:
     print(json.dumps({"ok": True, "out_dir": str(out_dir), "date": document["date"],
                       "candidate": document["candidate"]["id"], "status": document["status"],
                       "n_resolved": document["c6"]["n_resolved"],
+                      "gate_date": ((document.get("calendar") or {})
+                                    .get("projection", {}).get("gate_date")),
                       "alerts": [a["code"] for a in document["alerts"]],
                       "files": [f"{document['date']}.md", f"{document['date']}.json",
                                 "shadow_status.json"]}, ensure_ascii=False))

@@ -611,8 +611,10 @@ def build_manifest(repo: Path = ROOT, data_root: Path | None = None,
             "D4 (динамика) — отрицательный исследовательский результат, вне допуска",
             "FIGARO/OECD/WIOD — сторонние данные: в git не коммитятся, в манифесте только хеши и агрегаты",
             "T2/ACTIVE и микроуровень (фирмы) не входят в P2 0.1",
-            "docs/135 и docs/136 отсутствуют в рабочем дереве на дату релиза — это "
-            "необязательный контекст, обязательные документы перечислены в inputs",
+            ("docs/135 и docs/136 включены в inputs с SHA-256"
+             if not [pattern for pattern in OPTIONAL_DOCS if not sorted(repo.glob(pattern))] else
+             "docs/135 и docs/136 отсутствуют в рабочем дереве на дату релиза — это "
+             "необязательный контекст, обязательные документы перечислены в inputs"),
         ],
         "reproduce": [
             "python tools/world_pipeline.py --dataset data/mrio/figaro/figaro_2019/dataset.json "

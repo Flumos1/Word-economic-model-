@@ -21,5 +21,14 @@ GDPNowcastDataReleaseDates*.xlsx
 build/*
 !build/p2_release/
 !build/p2_release/p2_release.json
+!build/world/
+build/world/*
+!build/world/report_index.json
+!build/world_oecd/
+build/world_oecd/*
+!build/world_oecd/report_index.json
+!build/shadow/
+build/shadow/*
+!build/shadow/shadow_status.json
 # MRIO datasets (third-party, never in git)
 /data/mrio/

@@ -304,6 +304,87 @@ class InstructionTest(unittest.TestCase):
         self.assertIn("d1_pass", text)
 
 
+class Webfs2025Test(unittest.TestCase):
+    page = """<a href="https://webfs-sti.oecd.org/files/STI-PIE/ICIO/2025/ReadMe_ICIO_small.xlsx">r</a>
+    <a href="https://webfs-sti.oecd.org/files/STI-PIE/ICIO/2025/1995-2000_SML.zip">a</a>
+    <a href="https://webfs-sti.oecd.org/files/STI-PIE/ICIO/2025/2016-2022_SML.zip">b</a>
+    <a href="https://webfs-sti.oecd.org/files/STI-PIE/ICIO/2023/2016-2020_SML.zip">c</a>"""
+
+    def test_discover_webfs_links_by_release(self):
+        links = oecd.discover_webfs_links(self.page)
+        self.assertIn("2025", links)
+        self.assertIn("2023", links)
+        self.assertEqual(links["2025"]["readme"], ["ReadMe_ICIO_small.xlsx"])
+        self.assertIn("2016-2022_SML.zip", links["2025"]["files"])
+        only_2023 = oecd.discover_webfs_links(self.page, release="2023")
+        self.assertEqual(sorted(only_2023), ["2023"])
+
+    def test_expected_2025_archives_have_five_blocks_and_readme(self):
+        expected = oecd.EXPECTED_2025_ARCHIVES
+        self.assertIn("ReadMe_ICIO_small.xlsx", expected)
+        blocks = [name for name in expected if "_SML.zip" in name]
+        self.assertEqual(len(blocks), 5)
+        self.assertEqual(sorted(oecd.ICIO2025_BLOCKS), sorted(
+            name.split("_")[0] for name in blocks))
+
+    def test_check_archive_passes_on_valid_fixtures(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            directory = Path(tmp) / "archive"
+            directory.mkdir()
+            (directory / "ReadMe_ICIO_small.xlsx").write_bytes(b"PK\x03\x04readme")
+            for block in oecd.ICIO2025_BLOCKS:
+                path = directory / f"{block}_SML.zip"
+                with zipfile.ZipFile(path, "w") as archive:
+                    archive.writestr(f"{block}.csv", "V1,AAA_A01\n1,2\n")
+            expected = {name: {"suffix": spec["suffix"], "min_bytes": 1}
+                        for name, spec in oecd.EXPECTED_2025_ARCHIVES.items()}
+            report = oecd.check_archive(Path(tmp), expected=expected)
+            self.assertEqual(report["status"], "PASS", report["problems"])
+
+    def test_check_archive_is_fail_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            directory = Path(tmp) / "archive"
+            directory.mkdir()
+            (directory / "1995-2000_SML.zip").write_bytes(b"<html>error page</html>")
+            expected = {"1995-2000_SML.zip": {"suffix": ".zip", "min_bytes": 100},
+                        "2016-2022_SML.zip": {"suffix": ".zip", "min_bytes": 100}}
+            report = oecd.check_archive(Path(tmp), expected=expected)
+            self.assertEqual(report["status"], "BLOCKED_DATA")
+            statuses = {item["name"]: item["status"] for item in report["files"]}
+            self.assertEqual(statuses["1995-2000_SML.zip"], "TOO_SMALL")
+            self.assertEqual(statuses["2016-2022_SML.zip"], "MISSING")
+
+    def test_2025_style_matrix_rows_and_fd_orientation(self):
+        # <ISO3>_<INDUSTRY> intermediate columns, <ISO3>_<FD> final-demand columns, OUT column
+        header = ["V1", "AAA_A01", "AAA_B05", "BBB_A01", "BBB_B05",
+                  "AAA_HFCE", "AAA_INVNT", "AAA_DPABR", "BBB_HFCE", "BBB_INVNT",
+                  "BBB_DPABR", "OUT"]
+        rows = [
+            ["AAA_A01", "10", "1", "2", "0", "3", "0", "0", "2", "0", "0", "18"],
+            ["AAA_B05", "0", "5", "0", "1", "1", "0", "0", "0", "0", "0", "7"],
+            ["BBB_A01", "1", "0", "6", "2", "0", "0", "0", "3", "-1", "0", "11"],
+            ["BBB_B05", "0", "2", "0", "4", "0", "0", "0", "1", "0", "1", "8"],
+            ["TLS", "1", "0", "1", "0", "", "", "", "", "", "", ""],
+            ["VA", "6", "1", "3", "2", "", "", "", "", "", "", ""],
+            ["OUT", "18", "7", "11", "8", "", "", "", "", "", "", ""],
+        ]
+        import io as _io
+        buffer = _io.StringIO()
+        writer = csv.writer(buffer, lineterminator="\n")
+        writer.writerow(header)
+        for row in rows:
+            writer.writerow(row)
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "2019_SML.csv"
+            path.write_text(buffer.getvalue(), encoding="utf-8")
+            document = oecd.build_document_icio_matrix(path, 2019, {"name": "test"})
+            self.assertEqual(document["countries"], ["AAA", "BBB"])
+            self.assertEqual(document["industries"], ["A01", "B05"])
+            self.assertEqual(document["x"][:2], [18.0, 7.0])
+            self.assertEqual(document["inventory_changes"][2], -1.0)
+            self.assertEqual(document["discrepancy"], [0.0, 0.0, 0.0, 0.0])
+
+
 class WaybackTest(unittest.TestCase):
     def test_playback_url_is_built_from_a_snapshot(self):
         snapshot = ("http://web.archive.org/web/20210310170654/"

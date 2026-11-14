@@ -1,0 +1,55 @@
+{
+ "schema": "AMFE-SHADOW-TRACK/1.0.0",
+ "generated_at": "2026-11-14T09:30:00Z",
+ "date": "2026-11-14",
+ "candidate": {
+  "id": "ENSEMBLE_REGIME_V4",
+  "status": "SHADOW_TEST",
+  "status_label": "SHADOW_TEST_CONDITIONAL_DATA_CLASS",
+  "conditional_data_class": true,
+  "report": {
+   "file": "protocols/regime_v4_candidate_evaluation_report.json",
+   "sha256": "dc39ce8aab10ae838a36e3a6bfe1dfdf6714642edf5e9e5443a72937b6adb945"
+  }
+ },
+ "pair": {
+  "target": "T1_CPI_YOY",
+  "horizon": 1
+ },
+ "journal": {
+  "rows_total": 11,
+  "rows_candidate": 1,
+  "first_registered_at": "2026-11-14T09:15:00Z",
+  "last_registered_at": "2026-11-14T09:15:00Z",
+  "last_vintage_week": "2026-W46",
+  "days_since_last_row": 0
+ },
+ "c6": {
+  "n_resolved": 0,
+  "min_forecasts": 12,
+  "count_met": false,
+  "distinct_target_periods": 1,
+  "min_distinct_target_periods": 4,
+  "distinct_periods_met": false,
+  "cumulative_relative_loss": {},
+  "coverage": null,
+  "coverage_met": true,
+  "pass": false
+ },
+ "alerts": [],
+ "status": "STARTING",
+ "projection": {
+  "release_weeks_per_month": 2.5,
+  "rows_remaining": 12,
+  "months_to_min_forecasts": 4.8,
+  "estimated_gate_date": "2027-05-07",
+  "assumption": "weekly rows only in weeks with a first data release; about one month of resolution lag after the target period"
+ },
+ "rules": {
+  "suspend_loss": 1.1,
+  "warn_loss": 1.0,
+  "suspend_coverage": "outside the nominal tolerance after >= 6 resolved",
+  "suspend_cadence_days": 35,
+  "reference": "docs/119, protocol v5 (C6)"
+ }
+}
