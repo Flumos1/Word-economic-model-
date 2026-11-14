@@ -217,8 +217,8 @@
  "data_root": "F:/Мировая экономика модель/data/mrio",
  "date": "2026-11-14",
  "docs_context_missing": [],
- "generated_at": "2026-11-14T20:47:27Z",
- "git_commit": "1d08a91ae1d618c6e6dbd6c6a6859a107e96495b",
+ "generated_at": "2026-11-14T21:10:41Z",
+ "git_commit": "55a6f31e57ab89f0043ae121ffe151bad86a4ee1",
  "inputs": [
   {
    "bytes": 40436,
