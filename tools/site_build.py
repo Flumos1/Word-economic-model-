@@ -68,6 +68,9 @@ DOC_FILES = (
     "docs/129_Схема_v1.1_и_WIOD.md",
     "docs/130_OECD_ICIO.md",
     "docs/131_Сценарные_отчёты_мира.md",
+    "docs/135_Альтернативная_динамика_D4.md",
+    "docs/136_Мезо_микро_труд_домохозяйства.md",
+    "docs/137_P2_0.1_релиз.md",
     "docs/119_Регламент_теневого_трека.md",
     "docs/113_Продуктовый_пакет.md",
     "docs/114_Публикационный_пакет.md",
@@ -85,11 +88,14 @@ DOC_TITLES = {
     "docs/129_Схема_v1.1_и_WIOD.md": "Схема v1.1 и WIOD",
     "docs/130_OECD_ICIO.md": "OECD ICIO",
     "docs/131_Сценарные_отчёты_мира.md": "Сценарные отчёты мира",
+    "docs/135_Альтернативная_динамика_D4.md": "Альтернативная динамика D4",
+    "docs/136_Мезо_микро_труд_домохозяйства.md": "Мезо/микро: труд и домохозяйства",
+    "docs/137_P2_0.1_релиз.md": "P2 0.1 — релиз",
     "docs/119_Регламент_теневого_трека.md": "Регламент теневого трека",
     "docs/113_Продуктовый_пакет.md": "Продуктовый пакет",
     "docs/114_Публикационный_пакет.md": "Публикационный пакет",
 }
-SCENARIO_IDS = ("energy_minus5", "import_plus10", "import_plus20",
+SCENARIO_IDS = ("energy_minus5", "energy_plus50", "import_plus10", "import_plus20",
                 "fx_minus10_DE", "fx_minus20_DE", "fx_minus10_FR", "fx_minus20_FR")
 TOP_SCENARIOS = ("energy_minus5", "import_plus10", "fx_minus20_DE")
 
@@ -1518,6 +1524,49 @@ point to repository files.</p></section>
     return page("Documents", "docs", body, generated_at, lang="en")
 
 
+def _p2_release() -> dict:
+    """Optional P2 0.1 release manifest (build artefact); empty when the release was not built."""
+    try:
+        return read_json(ROOT / "build" / "p2_release" / "p2_release.json", "P2 0.1 manifest")
+    except SiteBuildError:
+        return {}
+
+
+def _p2_release_table(lang: str = "ru") -> str:
+    """D1–D6 status table from the optional P2 0.1 manifest (fail-soft when absent)."""
+    release = _p2_release()
+    if not release:
+        return ('<p class="muted">Манифест P2 0.1 ещё не собран: '
+                '<code>python tools/p2_release.py</code>.</p>' if lang == "ru" else
+                '<p class="muted">The P2 0.1 manifest has not been built yet: '
+                '<code>python tools/p2_release.py</code>.</p>')
+    titles_ru = {"D1": "Данные", "D2": "Статическое ядро", "D3": "SFC",
+                 "D4": "Динамика", "D5": "Сценарии", "D6": "Интеграция"}
+    titles_en = {"D1": "Data", "D2": "Static core", "D3": "SFC",
+                 "D4": "Dynamics", "D5": "Scenarios", "D6": "Integration"}
+    titles = titles_ru if lang == "ru" else titles_en
+    rows = []
+    for criterion in release.get("criteria") or []:
+        key = str(criterion.get("id") or "")
+        rows.append([esc(key), _badge(str(criterion.get("status") or "—")),
+                     esc(titles.get(key, ""))])
+    admitted = "Да" if release.get("admission") else ("Нет" if lang == "ru" else "No")
+    if lang == "ru":
+        intro = (f'<p>Релиз <strong>{esc(release.get("release") or "P2 0.1")}</strong> '
+                 f'(версия {esc(release.get("version") or "0.1")}, {esc(release.get("date") or "—")}) — '
+                 f'<strong>{esc(release.get("status") or "RESEARCH_RELEASE")}</strong>; допуск модели: '
+                 f'<strong>{admitted}</strong>. D4 — честно отрицательный (RESEARCH_ONLY), не допуск. '
+                 f'Подробности: <a href="docs/137_P2_0.1_релиз.md">docs/137</a>.</p>')
+    else:
+        intro = (f'<p>Release <strong>{esc(release.get("release") or "P2 0.1")}</strong> '
+                 f'(version {esc(release.get("version") or "0.1")}, {esc(release.get("date") or "—")}) — '
+                 f'<strong>{esc(release.get("status") or "RESEARCH_RELEASE")}</strong>; model '
+                 f'admission: <strong>{admitted}</strong>. D4 is an honest negative (RESEARCH_ONLY), '
+                 f'not an admission. Details: <a href="../docs/137_P2_0.1_релиз.md">docs/137</a>.</p>')
+    return intro + _table(["D", "Статус" if lang == "ru" else "Status",
+                           "Критерий" if lang == "ru" else "Criterion"], rows)
+
+
 def render_status(context: dict, generated_at: str) -> str:
     feed = context["feed"]
     shadow = context["shadow"]
@@ -1545,6 +1594,10 @@ def render_status(context: dict, generated_at: str) -> str:
       ["Мировая модель (FIGARO 2019 / OECD 2016 / WIOD 2016)", "RESEARCH_ONLY",
        "Сценарии сравнительной статики, не прогноз и не допуск."],
   ])}
+</section>
+<section>
+  <h2>P2 0.1 — релиз исследовательского мира</h2>
+  {_p2_release_table("ru")}
 </section>
 <section>
   <h2>Прогресс C6 (forward-журнал)</h2>
@@ -1614,6 +1667,10 @@ statuses and does not recompute the model: it publishes registered results.</p><
       ["World model (FIGARO 2019 / OECD 2016 / WIOD 2016)", "RESEARCH_ONLY",
        "Comparative-statics scenarios, not a forecast and not an admission."],
   ])}
+</section>
+<section>
+  <h2>P2 0.1 — research-world release</h2>
+  {_p2_release_table("en")}
 </section>
 <section>
   <h2>C6 progress (forward journal)</h2>

@@ -34,6 +34,7 @@ from __future__ import annotations
 
 import argparse
 import gc
+import os
 import hashlib
 import html
 import json
@@ -976,8 +977,34 @@ def run(args) -> dict:
     elapsed_ms = (time.perf_counter() - started) * 1000.0
     index = build_index(reports, dataset_meta, elapsed_ms, wp.peak_memory_mb(), out_dir,
                         sfc_block=sfc_block)
+    labor_block = None
+    if getattr(args, "labor", False):
+        from amfe.world import labor as labor_layer
+        labor_root = Path(getattr(args, "labor_root", None)
+                          or os.environ.get("AMFE_MRIO_ROOT", "")
+                          or DEFAULT_ROOT) / "labor"
+        labor_data = labor_layer.load_labor(
+            path=labor_root / "sea_normalized.json")
+        years = list(dataset_meta.get("years") or [labor_data.years[-1]])
+        requested = int(years[0]) if years else labor_data.years[-1]
+        year = requested if requested in labor_data.years else labor_data.years[-1]
+        labor_block = labor_layer.build_labor_block(
+            labor_data, year,
+            io_dataset={"countries": table.countries, "industries": table.industries,
+                        "x": [float(value) for value in table.x], "units": table.units})
+        labor_block["dataset_year"] = requested
+        labor_block["year_used"] = year
+        labor_block["year_note"] = (None if year == requested else
+                                    f"labor data covers {labor_data.years[0]}-{labor_data.years[-1]}; "
+                                    f"used {year}")
+        index["labor"] = labor_block
     paths = write_outputs(reports, index, out_dir,
                           dashboard=not getattr(args, "no_dashboard", False))
+    if labor_block is not None:
+        labor_path = out_dir / "labor.json"
+        labor_path.write_text(json.dumps(labor_block, ensure_ascii=False,
+                                         sort_keys=True, indent=1) + "\n", encoding="utf-8")
+        paths["labor"] = {"json": str(labor_path)}
     return {"index": index, "reports": reports, "paths": paths}
 
 
@@ -1004,6 +1031,14 @@ def _print_summary(result: dict) -> None:
               f"S=I+CA max={sfc['checks']['saving_investment_identity_max_abs']:.3e}; "
               f"SFC {'PASS' if sfc['checks']['sfc_pass'] else 'FAIL'}")
     print(f"  время {index['timings_ms']['total']:.0f} мс, пик {index['timings_ms']['peak_memory_mb']} МБ")
+    labor = index.get("labor")
+    if labor:
+        top = labor.get("top_countries_by_labor_share") or []
+        print(f"  труд (--labor): labor share ВВП {labor['labor_share_of_gdp']:.4f} "
+              f"(с самозанятыми {labor['labor_share_of_gdp_incl_self_employed']:.4f}), "
+              f"занятость {labor['world']['persons_engaged_million']:,.1f} млн; "
+              f"топ: {top[0]['country']} {top[0]['labor_share']:.3f}"
+              if top else f"  труд (--labor): labor share {labor['labor_share_of_gdp']}")
     print(f"  индекс: {result['paths']['index']}")
     print(f"  дашборд: {result['paths']['dashboard']['html']}")
 
@@ -1033,6 +1068,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--seed", type=int, default=20261114)
     parser.add_argument("--foreign-entries", dest="foreign_entries", type=int, default=8)
     parser.add_argument("--json", action="store_true", help="print the report index as JSON")
+    parser.add_argument("--labor", action="store_true",
+                        help="add the labor/household block from the WIOD SEA layer (docs/136)")
+    parser.add_argument("--labor-root", dest="labor_root", default=None,
+                        help="MRIO data root holding labor/sea_normalized.json "
+                             "(default $AMFE_MRIO_ROOT or --root)")
     parser.add_argument("--no-dashboard", dest="no_dashboard", action="store_true",
                         help="write reports and the index but skip the dashboard")
     parser.add_argument("--sfc", action="store_true",

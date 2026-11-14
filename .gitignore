@@ -18,6 +18,8 @@ GDPNowcastDataReleaseDates*.xlsx
 # local scratch (Lead runs)
 .tmp-test/
 # generated artefacts
-build/
+build/*
+!build/p2_release/
+!build/p2_release/p2_release.json
 # MRIO datasets (third-party, never in git)
 /data/mrio/

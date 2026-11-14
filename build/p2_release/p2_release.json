@@ -1,0 +1,706 @@
+{
+ "admission": false,
+ "admission_statement": "P2 0.1 — исследовательский релиз. Ни один кандидат не допущен: T1 ENSEMBLE_INVERSE_MSE остаётся CANDIDATE (C4 FAIL), ENSEMBLE_REGIME_V4 — SHADOW_TEST с conditional_data_class=true. Релиз не является допуском, прогнозом или инвестиционной рекомендацией.",
+ "criteria": [
+  {
+   "evidence": {
+    "figaro": {
+     "bytes": 94457216,
+     "countries": 50,
+     "gdp_coverage_named_pct": 87.2771,
+     "industries": 64,
+     "sha256": "70789f089788f2c70c319ecd48cd23d8e30e912d3ef1237a3c0fad70b11d74c1"
+    },
+    "oecd": {
+     "d1_pass_period": "2000-2011",
+     "economies": 71,
+     "gdp_coverage_max_pct": 95.47,
+     "gdp_coverage_min_pct": 95.35,
+     "industries": 34,
+     "period": "1995-2011"
+    },
+    "wiod": {
+     "countries": 44,
+     "gdp_coverage_max_pct": 89.8466,
+     "gdp_coverage_min_pct": 84.3824,
+     "industries": 56,
+     "years": 15
+    }
+   },
+   "id": "D1",
+   "limitations": [
+    "FIGARO: RoW is the FIGARO WRL_REST aggregate; EUR->USD at the annual average rate",
+    "OECD: 34 industries / 2011 release; OECD 1995-1999 refused (negative final demand cell)",
+    "WIOD: 44x56, current prices; negative inventory/VA cells handled by schema v1.1 adjustments"
+   ],
+   "rationale": "FIGARO 2019, OECD ICIO (2000-2011) и WIOD (2000-2014) сконвертированы в каноническую схему; покрытие по ВВП выше 80% на всех трёх источниках, тождества и P2-гейт валидатора PASS, манифесты с SHA-256.",
+   "status": "PASS",
+   "title": "Данные готовы: реальные MRIO, покрытие ≥80% ВВП, идентичности"
+  },
+  {
+   "evidence": {
+    "figaro": {
+     "all_validations_pass": true,
+     "max_abs_material_residual": 1.0245e-08,
+     "sectors": 3200,
+     "status": "RESEARCH_ONLY"
+    },
+    "oecd": {
+     "all_validations_pass": true,
+     "max_abs_material_residual": 9.08e-09,
+     "sectors": 2414,
+     "status": "RESEARCH_ONLY"
+    }
+   },
+   "id": "D2",
+   "limitations": [
+    "сравнительная статика без цен/замещения/динамики (docs/127, docs/131)",
+    "агрегация по странам/отраслям проверяется по итогам, а не по каждой ячейке Z"
+   ],
+   "rationale": "Пайплайн world_pipeline.py проходит валидацию на реальных FIGARO 2019 и OECD ICIO 2011: все сценарии feasible, материальные балансы сходятся, решатель x=(I-A)^-1 y воспроизводим; A строится из реальных Z.",
+   "status": "PASS",
+   "title": "Статическое ядро: A=Z/x, продуктивность, solve, агрегация"
+  },
+  {
+   "evidence": {
+    "figaro": {
+     "checks": {
+      "current_account_disagreement_max_abs": 5.587935447692871e-09,
+      "gdp_sum_minus_final_demand_sum": 1.4901161193847656e-08,
+      "global_current_account_sum": -8.64383764564991e-09,
+      "net_foreign_assets_closing_sum": -3.524291969370097e-12,
+      "net_foreign_assets_opening_sum": 0.0,
+      "saving_investment_identity_max_abs": 4.6566128730773926e-09,
+      "sfc_identity_residual": 0.0,
+      "sfc_net_worth_residual": 0.0,
+      "sfc_pass": true
+     },
+     "pass": true
+    },
+    "oecd": {
+     "checks": {
+      "current_account_disagreement_max_abs": 1.1959999999016873,
+      "gdp_sum_minus_final_demand_sum": 8.124000012874603,
+      "global_current_account_sum": 2.1827872842550278e-09,
+      "net_foreign_assets_closing_sum": 1.362252532999264e-10,
+      "net_foreign_assets_opening_sum": 0.0,
+      "saving_investment_identity_max_abs": 1.1959999999016873,
+      "sfc_identity_residual": 0.0,
+      "sfc_net_worth_residual": 0.0,
+      "sfc_pass": true
+     },
+     "pass": true
+    }
+   },
+   "id": "D3",
+   "limitations": [
+    "final-goods destination, consumption/investment split are not identified by the dataset; assumptions are listed in docs/133"
+   ],
+   "rationale": "SFC-блок проходит на FIGARO 2019 и OECD 2011: балансы S=I+CA и ΣCA=0, согласование потоков/запасов; это бухгалтерский блок, не поведенческая модель.",
+   "status": "PASS",
+   "title": "SFC: счета стран, S=I+CA, ΣCA=0, шаг потоков/запасов"
+  },
+  {
+   "evidence": {
+    "gvar": {
+     "baseline_better_cells": 28,
+     "baselines": [
+      "AR1",
+      "RW"
+     ],
+     "cells": 32,
+     "countries": 53,
+     "oos_negative": true,
+     "primary": "GVAR_YEAR",
+     "primary_better_cells": 4,
+     "report_id": "AMFE-GVAR-REAL-YBY",
+     "year_weights_mean_delta_rmse": 0.020518,
+     "years": 30
+    }
+   },
+   "id": "D4",
+   "limitations": [
+    "annual WDI data, at most 30 observations; rolling estimates use 16-27 years only",
+    "the nearest-vintage rule can pick a FUTURE MRIO vintage for a given target year (e.g. 2005 -> 2007, 2010 -> 2014, 2015-2018 -> 2019): structural look-ahead in the weights is disclosed but not corrected",
+    "trade weights are an input, not estimated; FIGARO 2019 and WIOD 2000-2014 are the only available vintages (2000-2014 are yearly WIOD tables)",
+    "panel countries absent from a vintage use the GDP-share proxy (rows reported per year)",
+    "no vintages / point-in-time data: GDP and CPI are revised, which flatters all models",
+    "the GVAR prototype is reduced-form; identification is at most a Cholesky ordering",
+    "aggregates are GDP-weighted means of member forecasts, not separate equations",
+    "lag selection uses equation-by-equation BIC/AIC; the estimated companion is often explosive on 16-27 annual observations, so a pre-registered stability projection (uniform shrink of the lag coefficients to max|lambda| = 0.98) is applied and its scale is recorded per origin: OOS numbers are conditional on that projection",
+    "research OOS run only: not connected to admission, registry or candidates",
+    "D4 — research-only: динамика не входит в допуск и не используется сценариями P2 0.1"
+   ],
+   "rationale": "GVAR OOS отрицательный: на 32 ячейках GVAR лучше AR(1)/RW только в 4 против 28; честно зафиксированный отрицательный результат, вне допуска",
+   "status": "RESEARCH_ONLY",
+   "title": "Динамика: GVAR на реальных рядах, стабильность, OOS"
+  },
+  {
+   "evidence": {
+    "scenarios": [
+     {
+      "all_feasible": true,
+      "all_sfc_pass": true,
+      "all_validations_pass": true,
+      "bytes": 94457216,
+      "dataset": "figaro",
+      "max_abs_material_residual": 1.0245e-08,
+      "max_scenario_headline_residual": 1.0245e-08,
+      "scenario_count": 8,
+      "sha256": "70789f089788f2c70c319ecd48cd23d8e30e912d3ef1237a3c0fad70b11d74c1",
+      "status": "RESEARCH_ONLY"
+     },
+     {
+      "all_feasible": true,
+      "all_sfc_pass": true,
+      "all_validations_pass": true,
+      "bytes": 29150115,
+      "dataset": "oecd",
+      "max_abs_material_residual": 9.08e-09,
+      "max_scenario_headline_residual": 9.08e-09,
+      "scenario_count": 8,
+      "sha256": "fc753c37bf3f59006a66e1bd9152a6ecb9875773ccb5ad697cdf6eb36dafa6aa",
+      "status": "RESEARCH_ONLY"
+     }
+    ]
+   },
+   "id": "D5",
+   "limitations": [
+    "сравнительная статика; без цен, замещения, динамики и обратных связей",
+    "отчёты агрегатные: страновые и отраслевые суммы, без сырых Z/x/y"
+   ],
+   "rationale": "Полный набор из 8 сценариев прогнан на FIGARO 2019 (3200 секторов) и OECD ICIO 2011 (2414 секторов); отчёты «страна × отрасль» JSON/MD, балансы сходятся, SFC-блок PASS.",
+   "status": "PASS",
+   "title": "Сценарии/отчёты: энергия +50%, импорт +10%, FX −20% на двух мирах"
+  },
+  {
+   "evidence": {
+    "docs_optional_present": [
+     "docs/135_Альтернативная_динамика_D4.md",
+     "docs/136_Мезо_микро_труд_домохозяйства.md"
+    ],
+    "docs_required": [
+     "docs/120_Аудит_ТЗ_и_план_P2.md",
+     "docs/125_Реальный_MRIO_FIGARO.md",
+     "docs/128_GVAR_на_реальных_данных.md",
+     "docs/129_Схема_v1.1_и_WIOD.md",
+     "docs/130_OECD_ICIO.md",
+     "docs/131_Сценарные_отчёты_мира.md",
+     "docs/133_SFC_IO_интеграция.md"
+    ],
+    "missing": [],
+    "pipeline": "tools/world_pipeline.py",
+    "tests_present": [
+     "test_world_pipeline.py",
+     "test_figaro_import.py",
+     "test_p2_release.py"
+    ]
+   },
+   "id": "D6",
+   "limitations": [
+    "P2 0.1 не включает T2/ACTIVE и микроуровень (фирмы); это research-release",
+    "релиз не является допуском: T1 CANDIDATE, regime SHADOW_TEST (conditional)"
+   ],
+   "rationale": "world_pipeline.py (data -> core -> scenarios -> report) воспроизводим на FIGARO и OECD, покрыт тестами, документирован (docs/120,125,127-133); настоящий манифест — релизный артефакт P2 0.1.",
+   "status": "PASS",
+   "title": "Интеграция: один пайплайн, тесты, docs, воспроизводимый релиз"
+  }
+ ],
+ "criteria_summary": {
+  "D1": "PASS",
+  "D2": "PASS",
+  "D3": "PASS",
+  "D4": "RESEARCH_ONLY",
+  "D5": "PASS",
+  "D6": "PASS"
+ },
+ "data_root": "F:/Мировая экономика модель/data/mrio",
+ "date": "2026-11-14",
+ "docs_context_missing": [],
+ "generated_at": "2026-11-14T19:25:31Z",
+ "git_commit": "4cecfcae1188956d886489227ca80c63b16d4463",
+ "inputs": [
+  {
+   "bytes": 36786,
+   "exists": true,
+   "id": "doc:120_Аудит_ТЗ_и_план_P2",
+   "path": "docs/120_Аудит_ТЗ_и_план_P2.md",
+   "required": true,
+   "role": "release context",
+   "sha256": "fde02658fea064b23670fba191e2028a05562ffe2c75a8323a83ad8096070770"
+  },
+  {
+   "bytes": 20198,
+   "exists": true,
+   "id": "doc:125_Реальный_MRIO_FIGARO",
+   "path": "docs/125_Реальный_MRIO_FIGARO.md",
+   "required": true,
+   "role": "release context",
+   "sha256": "443adb1c15fb1415b46c496896c2d5da5c20ae16a4cd21ce2cad890b689f338d"
+  },
+  {
+   "bytes": 19493,
+   "exists": true,
+   "id": "doc:128_GVAR_на_реальных_данных",
+   "path": "docs/128_GVAR_на_реальных_данных.md",
+   "required": true,
+   "role": "release context",
+   "sha256": "30ce52ea9e1e0c5200d06351d19cd35c2e9a296794af0561bb6ec1039fd6e096"
+  },
+  {
+   "bytes": 22554,
+   "exists": true,
+   "id": "doc:129_Схема_v1.1_и_WIOD",
+   "path": "docs/129_Схема_v1.1_и_WIOD.md",
+   "required": true,
+   "role": "release context",
+   "sha256": "71a1dc70154159bc472e98cf61ea73e3610c35f17285f35e99f81443093dff94"
+  },
+  {
+   "bytes": 11669,
+   "exists": true,
+   "id": "doc:130_OECD_ICIO",
+   "path": "docs/130_OECD_ICIO.md",
+   "required": true,
+   "role": "release context",
+   "sha256": "acd2786e46417c3c2c15b64aa15fdf198653a880259a2c943a1ffad901005a87"
+  },
+  {
+   "bytes": 13810,
+   "exists": true,
+   "id": "doc:131_Сценарные_отчёты_мира",
+   "path": "docs/131_Сценарные_отчёты_мира.md",
+   "required": true,
+   "role": "release context",
+   "sha256": "0f359956fd6a7ff7fdb2afb8a98c57e9e99b384aa7ab9aaf6432040c1814d569"
+  },
+  {
+   "bytes": 13499,
+   "exists": true,
+   "id": "doc:133_SFC_IO_интеграция",
+   "path": "docs/133_SFC_IO_интеграция.md",
+   "required": true,
+   "role": "release context",
+   "sha256": "4cfebfe303c9d2e0bfd964aeeac2de2019f7e4a6d40e457da72bb194d952c8a5"
+  },
+  {
+   "bytes": 14353,
+   "exists": true,
+   "id": "doc:135_Альтернативная_динамика_D4",
+   "path": "docs/135_Альтернативная_динамика_D4.md",
+   "required": false,
+   "role": "optional",
+   "sha256": "2f364e8e04edd17ae02528738c1a732ee529db97f00b31d529bca2ce32811b87"
+  },
+  {
+   "bytes": 12756,
+   "exists": true,
+   "id": "doc:136_Мезо_микро_труд_домохозяйства",
+   "path": "docs/136_Мезо_микро_труд_домохозяйства.md",
+   "required": false,
+   "role": "optional",
+   "sha256": "356e47222452e44b261a19c700a9a55dfe2bbe1a97316d204112622526b28017"
+  },
+  {
+   "bytes": 5052,
+   "exists": true,
+   "id": "figaro_manifest",
+   "path": "F:/Мировая экономика модель/data/mrio/figaro/figaro_2019/manifest.json",
+   "required": true,
+   "sha256": "0cd3f00b80015ac9c739ed0c721e8569450a58721845bca38a0ce3e3dfd64f2d"
+  },
+  {
+   "bytes": 12117,
+   "exists": true,
+   "id": "figaro_report_index",
+   "path": "build/world/report_index.json",
+   "required": true,
+   "sha256": "671ef7658dde7c49334e1595ba7e6f3e7dddb83f9c13f0e490842fe32c7c4fa2"
+  },
+  {
+   "bytes": 358576,
+   "exists": true,
+   "id": "gvar_report",
+   "path": "F:/Мировая экономика модель/data/mrio/cache/gvar_real/gvar_v2_report.json",
+   "required": false,
+   "sha256": "aa1f6baa4eb47e065eaa44d4b53f1203b426647e849e9a1cd70adb189c9b2775"
+  },
+  {
+   "bytes": 1004,
+   "exists": true,
+   "id": "oecd_coverage",
+   "path": "protocols/oecd_icio_coverage.json",
+   "required": true,
+   "sha256": "5ff4df4ccaab9c011f840ba8a034fbab3556c9de94b1a14d2f8660c77532d7ed"
+  },
+  {
+   "bytes": 11947,
+   "exists": true,
+   "id": "oecd_report_index",
+   "path": "build/world_oecd/report_index.json",
+   "required": false,
+   "sha256": "f9942dfc3917f78ba12982cb445297f5ad439d19afb0d01726e31280e492e163"
+  },
+  {
+   "bytes": 55029,
+   "exists": true,
+   "id": "protocol_v4",
+   "path": "protocols/evaluation_protocol_v4.json",
+   "required": false,
+   "sha256": "bd965f4d9f23151b4ccfd27202f0669d0a7807e642639ed18c0b864bf68dedc9"
+  },
+  {
+   "bytes": 64752,
+   "exists": true,
+   "id": "protocol_v5",
+   "path": "protocols/evaluation_protocol_v5.json",
+   "required": true,
+   "sha256": "48c2f6a18a28cefc9645cb8aa7b934f68adbcfc6cea1178d04b27918be2bab45"
+  },
+  {
+   "bytes": 30741,
+   "exists": true,
+   "id": "regime_report",
+   "path": "protocols/regime_v4_candidate_evaluation_report.json",
+   "required": true,
+   "sha256": "dc39ce8aab10ae838a36e3a6bfe1dfdf6714642edf5e9e5443a72937b6adb945"
+  },
+  {
+   "bytes": 30714,
+   "exists": true,
+   "id": "report_v5",
+   "path": "protocols/first_real_evaluation_report_v5.json",
+   "required": true,
+   "sha256": "2fd655e13dfdbf2b682cb1bda9fd4be8abb1301702087cc95d93a9858dbaa289"
+  },
+  {
+   "bytes": 1512,
+   "exists": true,
+   "id": "shadow_status",
+   "path": "build/shadow/shadow_status.json",
+   "required": true,
+   "sha256": "2c109f2066e1b12f3131b023a07c64e3c660331569bef38f9de0651e392fb3ae"
+  },
+  {
+   "bytes": 11835,
+   "exists": true,
+   "id": "wiod_manifest_wiod_2000",
+   "path": "F:/Мировая экономика модель/data/mrio/wiod_2016/wiod_2000/manifest.json",
+   "required": true,
+   "sha256": "b3595c07d8914349a7708e573d65e664493a3c1eb45d08648fd4a726f6cab626"
+  },
+  {
+   "bytes": 11830,
+   "exists": true,
+   "id": "wiod_manifest_wiod_2001",
+   "path": "F:/Мировая экономика модель/data/mrio/wiod_2016/wiod_2001/manifest.json",
+   "required": true,
+   "sha256": "94e2bb704472c6d4b3a1c20ea3e8f6c527e960afa2a4d7b1d259be3132246a60"
+  },
+  {
+   "bytes": 11841,
+   "exists": true,
+   "id": "wiod_manifest_wiod_2002",
+   "path": "F:/Мировая экономика модель/data/mrio/wiod_2016/wiod_2002/manifest.json",
+   "required": true,
+   "sha256": "4af69c0ac6d14c6f87f6d451d9a3c91a59257c65e897abb0b6e82fc3cc875229"
+  },
+  {
+   "bytes": 11856,
+   "exists": true,
+   "id": "wiod_manifest_wiod_2003",
+   "path": "F:/Мировая экономика модель/data/mrio/wiod_2016/wiod_2003/manifest.json",
+   "required": true,
+   "sha256": "8b6bbeecd8747b90da37ecf9bf0acd8dd614112ede46ce1a2e98c91a77d7557b"
+  },
+  {
+   "bytes": 11872,
+   "exists": true,
+   "id": "wiod_manifest_wiod_2004",
+   "path": "F:/Мировая экономика модель/data/mrio/wiod_2016/wiod_2004/manifest.json",
+   "required": true,
+   "sha256": "b664bdf79cda7dfa7e9d1e3b4a49bfb1fde6ef22cab84553746f15511df7c965"
+  },
+  {
+   "bytes": 11876,
+   "exists": true,
+   "id": "wiod_manifest_wiod_2005",
+   "path": "F:/Мировая экономика модель/data/mrio/wiod_2016/wiod_2005/manifest.json",
+   "required": true,
+   "sha256": "c537de40aecbfd5a986ec2d0605e73a48f7175de034082ff1121fdaf8981847a"
+  },
+  {
+   "bytes": 11913,
+   "exists": true,
+   "id": "wiod_manifest_wiod_2006",
+   "path": "F:/Мировая экономика модель/data/mrio/wiod_2016/wiod_2006/manifest.json",
+   "required": true,
+   "sha256": "5c964ede04a4dfdd19954218409fbaefea160c5ef1ba27c3b798f1224cb47697"
+  },
+  {
+   "bytes": 11893,
+   "exists": true,
+   "id": "wiod_manifest_wiod_2007",
+   "path": "F:/Мировая экономика модель/data/mrio/wiod_2016/wiod_2007/manifest.json",
+   "required": true,
+   "sha256": "522d6167410b457b997c9228f3ef6557b2fbc8a632961b4db492e6ac538d56dd"
+  },
+  {
+   "bytes": 11938,
+   "exists": true,
+   "id": "wiod_manifest_wiod_2008",
+   "path": "F:/Мировая экономика модель/data/mrio/wiod_2016/wiod_2008/manifest.json",
+   "required": true,
+   "sha256": "0117b1ab6510513d1811f6111f307ef1790607a6285383706d27b4d54fd4d19b"
+  },
+  {
+   "bytes": 11994,
+   "exists": true,
+   "id": "wiod_manifest_wiod_2009",
+   "path": "F:/Мировая экономика модель/data/mrio/wiod_2016/wiod_2009/manifest.json",
+   "required": true,
+   "sha256": "4a4a12e40a0366d7c129be07e917c20638b677c05089f1fa861562aa1fb3b25a"
+  },
+  {
+   "bytes": 11923,
+   "exists": true,
+   "id": "wiod_manifest_wiod_2010",
+   "path": "F:/Мировая экономика модель/data/mrio/wiod_2016/wiod_2010/manifest.json",
+   "required": true,
+   "sha256": "4a87c0a20ab9e728fb3c70cca7a8aabefa5673313d9331b0d7910291729fb8a9"
+  },
+  {
+   "bytes": 11930,
+   "exists": true,
+   "id": "wiod_manifest_wiod_2011",
+   "path": "F:/Мировая экономика модель/data/mrio/wiod_2016/wiod_2011/manifest.json",
+   "required": true,
+   "sha256": "113a0476bde4ebb7c2847c296d63999682489b0b8df108c9f78066a4966b6a2e"
+  },
+  {
+   "bytes": 11979,
+   "exists": true,
+   "id": "wiod_manifest_wiod_2012",
+   "path": "F:/Мировая экономика модель/data/mrio/wiod_2016/wiod_2012/manifest.json",
+   "required": true,
+   "sha256": "9e848daa7948d4c3c21a784e384d5082e3eb2600601fffe00ca221c9ac87b600"
+  },
+  {
+   "bytes": 11974,
+   "exists": true,
+   "id": "wiod_manifest_wiod_2013",
+   "path": "F:/Мировая экономика модель/data/mrio/wiod_2016/wiod_2013/manifest.json",
+   "required": true,
+   "sha256": "53d07d8471ab520500555a231702f6c898272e00161471e7ac4fdb28d780da90"
+  },
+  {
+   "bytes": 11976,
+   "exists": true,
+   "id": "wiod_manifest_wiod_2014",
+   "path": "F:/Мировая экономика модель/data/mrio/wiod_2016/wiod_2014/manifest.json",
+   "required": true,
+   "sha256": "d851fcbd5f2442616c6320868de6ce064c409886d88aedfe3d71c420c8bed567"
+  }
+ ],
+ "limitations": [
+  "P2 0.1 — research release, не допуск модели и не прогнозный продукт",
+  "допущенной модели нет: T1 CANDIDATE, regime SHADOW_TEST (conditional_data_class=true)",
+  "сценарии — сравнительная статика без цен, замещения, динамики и обратных связей",
+  "D4 (динамика) — отрицательный исследовательский результат, вне допуска",
+  "FIGARO/OECD/WIOD — сторонние данные: в git не коммитятся, в манифесте только хеши и агрегаты",
+  "T2/ACTIVE и микроуровень (фирмы) не входят в P2 0.1",
+  "docs/135 и docs/136 отсутствуют в рабочем дереве на дату релиза — это необязательный контекст, обязательные документы перечислены в inputs"
+ ],
+ "links": {
+  "docs": {
+   "optional": [
+    "docs/135_Альтернативная_динамика_D4.md",
+    "docs/136_Мезо_микро_труд_домохозяйства.md"
+   ],
+   "required": [
+    "docs/120_Аудит_ТЗ_и_план_P2.md",
+    "docs/125_Реальный_MRIO_FIGARO.md",
+    "docs/128_GVAR_на_реальных_данных.md",
+    "docs/129_Схема_v1.1_и_WIOD.md",
+    "docs/130_OECD_ICIO.md",
+    "docs/131_Сценарные_отчёты_мира.md",
+    "docs/133_SFC_IO_интеграция.md"
+   ]
+  },
+  "repository": "https://github.com/Flumos1/Word-economic-model-",
+  "site": "https://flumos1.github.io/Word-economic-model-/"
+ },
+ "release": "P2 0.1",
+ "reproduce": [
+  "python tools/world_pipeline.py --dataset data/mrio/figaro/figaro_2019/dataset.json --build --solve",
+  "python tools/world_reports.py --root <data_root> --dataset figaro_2019 --out build/world",
+  "python tools/world_reports.py --root <data_root> --dataset oecd_icio/2011 --out build/world_oecd",
+  "python tools/p2_release.py --data-root <data_root>"
+ ],
+ "schema": "AMFE-P2-RELEASE/1.0.0",
+ "status": "RESEARCH_RELEASE",
+ "version": "0.1",
+ "world": {
+  "candidates": {
+   "admitted": false,
+   "note": "no candidate is admitted; CANDIDATE and SHADOW_TEST are not deployment statuses",
+   "regime": {
+    "candidate": "ENSEMBLE_REGIME_V4",
+    "conditional_data_class": true,
+    "horizon": 1,
+    "protocol_version": "5.0.1",
+    "stages": {
+     "CANDIDATE_to_SHADOW_TEST": true,
+     "LIMITED_DEPLOYMENT_to_ACTIVE": false,
+     "SHADOW_TEST_to_LIMITED_DEPLOYMENT": false
+    },
+    "status": "SHADOW_TEST",
+    "status_label": "SHADOW_TEST_CONDITIONAL_DATA_CLASS",
+    "target": "T1_CPI_YOY"
+   },
+   "shadow": {
+    "alerts": [],
+    "c6_min_forecasts": 12,
+    "c6_pass": false,
+    "c6_resolved": 0,
+    "candidate": "ENSEMBLE_REGIME_V4",
+    "journal_rows": 11,
+    "status": "STARTING"
+   },
+   "t1": {
+    "c4_pass": false,
+    "c6_pass": false,
+    "candidate": "ENSEMBLE_INVERSE_MSE",
+    "conditional_data_class": true,
+    "horizon": 1,
+    "protocol_version": "5.0.1",
+    "status": "CANDIDATE",
+    "status_label": "CANDIDATE",
+    "target": "T1_CPI_YOY"
+   }
+  },
+  "figaro": {
+   "bytes": 94457216,
+   "cells_Z": 10240000,
+   "countries": 50,
+   "dataset_id": "figaro_2019",
+   "gdp_coverage_named_pct": 87.2771,
+   "gdp_coverage_with_row_pct": 100.0,
+   "industries": 64,
+   "max_abs_column_residual": 3e-09,
+   "sectors": 3200,
+   "sha256": "70789f089788f2c70c319ecd48cd23d8e30e912d3ef1237a3c0fad70b11d74c1",
+   "source": "Eurostat FIGARO (NAIO_10_FCP_IP3, product-by-product, 2019)",
+   "stored_Z": 5146560,
+   "total_output": 169599264.16917,
+   "total_value_added": 85733601.604502,
+   "units": "USD_mn",
+   "validation_ok": true,
+   "years": [
+    2019
+   ]
+  },
+  "gvar": {
+   "baseline_better_cells": 28,
+   "baselines": [
+    "AR1",
+    "RW"
+   ],
+   "cells": 32,
+   "countries": 53,
+   "limits": [
+    "annual WDI data, at most 30 observations; rolling estimates use 16-27 years only",
+    "the nearest-vintage rule can pick a FUTURE MRIO vintage for a given target year (e.g. 2005 -> 2007, 2010 -> 2014, 2015-2018 -> 2019): structural look-ahead in the weights is disclosed but not corrected",
+    "trade weights are an input, not estimated; FIGARO 2019 and WIOD 2000-2014 are the only available vintages (2000-2014 are yearly WIOD tables)",
+    "panel countries absent from a vintage use the GDP-share proxy (rows reported per year)",
+    "no vintages / point-in-time data: GDP and CPI are revised, which flatters all models",
+    "the GVAR prototype is reduced-form; identification is at most a Cholesky ordering",
+    "aggregates are GDP-weighted means of member forecasts, not separate equations",
+    "lag selection uses equation-by-equation BIC/AIC; the estimated companion is often explosive on 16-27 annual observations, so a pre-registered stability projection (uniform shrink of the lag coefficients to max|lambda| = 0.98) is applied and its scale is recorded per origin: OOS numbers are conditional on that projection",
+    "research OOS run only: not connected to admission, registry or candidates"
+   ],
+   "note": "research OOS only: not connected to admission, registry or candidates",
+   "oos_negative": true,
+   "primary": "GVAR_YEAR",
+   "primary_better_cells": 4,
+   "report_available": true,
+   "report_id": "AMFE-GVAR-REAL-YBY",
+   "year_weights_mean_delta_rmse": 0.020518,
+   "year_weights_other_better_cells": 22,
+   "year_weights_primary_better_cells": 10,
+   "years": 30
+  },
+  "oecd": {
+   "cells_Z": 5827396,
+   "countries_named": 63,
+   "d1_fail_period": "1995-1999 (one negative final-demand cell; datasets not written)",
+   "d1_pass_period": "2000-2011",
+   "dataset_bytes": 29150115,
+   "dataset_sha256": "fc753c37bf3f59006a66e1bd9152a6ecb9875773ccb5ad697cdf6eb36dafa6aa",
+   "economies": 71,
+   "gdp_coverage_max_pct": 95.47,
+   "gdp_coverage_min_pct": 95.35,
+   "industries": 34,
+   "period": "1995-2011",
+   "report_index_available": true,
+   "sectors": 2414,
+   "source": "OECD ICIO 2016 (ISIC Rev.3)",
+   "status": "AVAILABLE_AUTO_2016",
+   "stored_Z": 2849371,
+   "units": "USD_mn"
+  },
+  "scenarios": [
+   {
+    "all_feasible": true,
+    "all_sfc_pass": true,
+    "all_validations_pass": true,
+    "bytes": 94457216,
+    "dataset": "figaro",
+    "max_abs_material_residual": 1.0245e-08,
+    "max_scenario_headline_residual": 1.0245e-08,
+    "scenario_count": 8,
+    "sha256": "70789f089788f2c70c319ecd48cd23d8e30e912d3ef1237a3c0fad70b11d74c1",
+    "status": "RESEARCH_ONLY"
+   },
+   {
+    "all_feasible": true,
+    "all_sfc_pass": true,
+    "all_validations_pass": true,
+    "bytes": 29150115,
+    "dataset": "oecd",
+    "max_abs_material_residual": 9.08e-09,
+    "max_scenario_headline_residual": 9.08e-09,
+    "scenario_count": 8,
+    "sha256": "fc753c37bf3f59006a66e1bd9152a6ecb9875773ccb5ad697cdf6eb36dafa6aa",
+    "status": "RESEARCH_ONLY"
+   }
+  ],
+  "wiod": {
+   "countries": 44,
+   "gdp_coverage_max_pct": 89.8466,
+   "gdp_coverage_min_pct": 84.3824,
+   "industries": 56,
+   "max_abs_column_residual": 0.0,
+   "source": "WIOD 2016 release (current prices, USD_mn)",
+   "validation_ok": true,
+   "year_count": 15,
+   "years": [
+    2000,
+    2001,
+    2002,
+    2003,
+    2004,
+    2005,
+    2006,
+    2007,
+    2008,
+    2009,
+    2010,
+    2011,
+    2012,
+    2013,
+    2014
+   ]
+  }
+ }
+}
