@@ -1,0 +1,110 @@
+{
+ "schema": "amfe.mrio.dataset.v1",
+ "schema_version": "1.0.0",
+ "countries": [
+  "AA",
+  "AA"
+ ],
+ "industries": [
+  "i1",
+  "i2",
+  "i3"
+ ],
+ "years": [
+  2020
+ ],
+ "units": "USD_mn",
+ "Z": [
+  [
+   5,
+   3,
+   1,
+   2,
+   1,
+   0
+  ],
+  [
+   2,
+   4,
+   2,
+   1,
+   0,
+   1
+  ],
+  [
+   1,
+   2,
+   3,
+   0,
+   1,
+   1
+  ],
+  [
+   1,
+   0,
+   2,
+   4,
+   2,
+   1
+  ],
+  [
+   0,
+   1,
+   1,
+   2,
+   5,
+   2
+  ],
+  [
+   1,
+   1,
+   0,
+   1,
+   2,
+   4
+  ]
+ ],
+ "y": [
+  30,
+  25,
+  20,
+  18,
+  15,
+  12
+ ],
+ "x": [
+  42,
+  35,
+  28,
+  28,
+  26,
+  21
+ ],
+ "va": [
+  32,
+  24,
+  19,
+  18,
+  15,
+  12
+ ],
+ "source": {
+  "name": "synthetic AMFE MRIO fixture (not third-party data)",
+  "url": "tests/fixtures/mrio/README.txt",
+  "licence": "project-internal test fixture",
+  "retrieved_at": "2026-11-14",
+  "third_party": false
+ },
+ "trade_weights": {
+  "AA->BB": 0.5,
+  "BB->AA": 0.5
+ },
+ "fx": {
+  "AA": 1.0,
+  "BB": 1.0
+ },
+ "prices": {
+  "AA": 1.0,
+  "BB": 1.0
+ }
+}

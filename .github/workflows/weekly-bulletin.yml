@@ -1,0 +1,62 @@
+name: Weekly bulletin (support mode)
+
+# P2 support loop: every Friday rebuild the product pack, the weekly bulletin and the shadow track
+# from the committed artefacts, then publish them as run artifacts.  The workflow is read-only with
+# respect to the repository: it NEVER commits, pushes, tags or rewrites the append-only journal.  All
+# inputs (registry, protocols, reports) are committed, so no private data artifacts and no secrets are
+# needed.  Manual checklist and support boundaries: docs/124.
+
+on:
+  schedule:
+    - cron: '0 7 * * 5'   # every Friday, 07:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: weekly-bulletin
+  cancel-in-progress: false
+
+jobs:
+  weekly-bulletin:
+    name: Rebuild product pack, weekly bulletin and shadow track
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout (read-only)
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install the runtime dependency (numpy)
+        run: python -m pip install --quiet numpy
+
+      - name: Build the product pack (build/product)
+        run: python tools/product_pack.py
+
+      - name: Build the weekly bulletin (build/bulletin)
+        run: python tools/weekly_bulletin.py --date "$(date -u +%F)"
+
+      - name: Update the shadow track (build/shadow)
+        run: python tools/shadow_track.py --date "$(date -u +%F)"
+
+      - name: Maintenance guard (journal, freshness, track alerts)
+        if: always()
+        run: python tools/maintenance_check.py --date "$(date -u +%F)"
+
+      - name: Upload the weekly publication artefacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: amfe-weekly-bulletin-${{ github.run_id }}
+          path: |
+            build/product/
+            build/bulletin/
+            build/shadow/
+            build/maintenance/
+          retention-days: 90
+          if-no-files-found: warn
