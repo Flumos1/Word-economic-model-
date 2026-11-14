@@ -28,6 +28,11 @@ FEED = ROOT / "build" / "product" / "forecast_latest.json"
 JOURNAL = ROOT / "registry" / "forecasts.jsonl"
 REPORT = ROOT / "protocols" / "first_real_evaluation_report_v5.json"
 REGIME = ROOT / "protocols" / "regime_candidate_evaluation_report.json"
+PIN = ROOT / "protocols" / "evaluation_protocol_v5.sha256"
+PROTOCOL_VERSION = json.loads(
+    (ROOT / "protocols" / "evaluation_protocol_v5.json").read_text(encoding="utf-8"))["version"]
+PROTOCOL_SHA = PIN.read_text(encoding="utf-8").split()[0]
+JOURNAL_ROWS = len([line for line in JOURNAL.read_text(encoding="utf-8").splitlines() if line])
 PROTOCOL = ROOT / "protocols" / "evaluation_protocol_v5.json"
 
 SOURCE_FILES = (
@@ -193,7 +198,7 @@ class WeeklyBulletin(unittest.TestCase):
         self.assertEqual(document["hashes"]["protocol"], feed["protocol"]["sha256"])
         self.assertEqual(document["hashes"]["report"], feed["source_hashes"]["report"])
         self.assertEqual(document["hashes"]["journal"], feed["source_hashes"]["journal"])
-        self.assertEqual(document["versions"]["protocol"]["version"], "5.0.0")
+        self.assertEqual(document["versions"]["protocol"]["version"], PROTOCOL_VERSION)
         self.assertEqual(document["versions"]["protocol"]["status"], "FROZEN")
         self.assertEqual(document["versions"]["r3"]["version"], "1.0.1")
         self.assertEqual(document["versions"]["nf_sim"]["study_id"], "NF-SIM")
@@ -260,7 +265,7 @@ class WeeklyBulletin(unittest.TestCase):
         self.assertEqual(self.document["changes"], [])
         note = self.document["changes_note"]
         self.assertIn("Первый выпуск", note)
-        self.assertIn("5 строк", note)
+        self.assertIn(f"{JOURNAL_ROWS} строк", note)
         self.assertIn("2026-11", note)
         self.assertIn("Первый выпуск", self.markdown)
         self.assertIn("Изменений прогноза нет", self.markdown)
@@ -276,9 +281,11 @@ class WeeklyBulletin(unittest.TestCase):
 
     def test_markdown_has_the_required_numbers(self):
         text = self.markdown
-        for token in ("CANDIDATE", "conditional_data_class", "5.0.0", "FROZEN", "1.0.1",
-                      "NF-SIM", "41d6823e", "5191b062", "f057e2a5", "50da8670", "b7a7466c",
-                      "8d30b84a", "ENSEMBLE_INVERSE_MSE", "2026-11", "T1_CPI_YOY",
+        report_sha = self.document["hashes"]["report"][:8]
+        journal_sha = self.document["hashes"]["journal"][:8]
+        for token in ("CANDIDATE", "conditional_data_class", PROTOCOL_VERSION, "FROZEN", "1.0.1",
+                      "NF-SIM", PROTOCOL_SHA[:8], "5191b062", "f057e2a5", "50da8670", report_sha,
+                      journal_sha, "ENSEMBLE_INVERSE_MSE", "2026-11", "T1_CPI_YOY",
                       "3.6257", "3.2737", "4.1029", "2.7936", "4.5035", "2.4579", "4.7971",
                       "RW", "EQUAL_WEIGHT_POINT", "EQUAL_WEIGHT_DENSITY",
                       "C1 PASS", "C2 PASS", "C5 PASS", "1.0775", "1.099", "1.067", "0.9303",

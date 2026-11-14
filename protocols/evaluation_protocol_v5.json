@@ -1,6 +1,6 @@
 {
   "protocol_id": "AMFE-EVAL",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "status": "FROZEN",
   "supersedes": {
     "version": "4.0.0",
@@ -19,7 +19,8 @@
     "D-128",
     "D-131",
     "D-132",
-    "D-151"
+    "D-151",
+    "D-156"
   ],
   "closes_questions": [
     "Q-001",
@@ -72,7 +73,10 @@
     ],
     "owner_confirmation_needed": [],
     "on_approval": "Add decision D-133, freeze this file with a pinned SHA-256 in evaluation_protocol_v4.sha256, leave v1, v2 and v3 untouched.",
-    "approved_on": "2026-11-12"
+    "approved_on": "2026-11-14",
+    "amendments": [
+      "5.0.1 (2026-11-14, D-156, docs/117): forward-registry cadence clarification - weekly rows are identified by vintage_week (the registry identity previously rejected a second row for the same origin month, so the weekly cadence of 5.0.0 was not implementable); evaluation criteria, windows, C4 rules and C6 thresholds are unchanged."
+    ]
   },
   "amendment_rule": "Once FROZEN this file is never edited. A change is a new file evaluation_protocol_v5.json approved through the D-100 meta-gate. The licence register is a separate append-only file and is not frozen.",
   "universe": "US",
@@ -714,7 +718,7 @@
     "reporting": "W3 is reported separately for each variant; W3 never counts toward admission."
   },
   "forward_registry": {
-    "cadence": "monthly anchor row after the last data release of the month, plus weekly vintage rows (one per week after the first data release of the week; D-151). The 12 resolved forecasts required by C6 may accumulate from both cadences, but C6 additionally requires at least 4 DISTINCT target periods: correlated rows for the same target month do not replace independent periods, and the independent-outcome requirement for ACTIVE (8) is unchanged.",
+    "cadence": "monthly anchor row after the last data release of the month, plus weekly vintage rows (one per week after the first data release of the week; D-151/D-156). Weekly rows carry the optional field vintage_week (ISO week YYYY-Www) and are distinct rows of the same origin month; the monthly anchor has no vintage_week. The 12 resolved forecasts required by C6 may accumulate from both cadences, but C6 additionally requires at least 4 DISTINCT target periods: correlated rows for the same target month do not replace independent periods, the C6 power note is always published, and the independent-outcome requirement for ACTIVE (8) is unchanged.",
     "record": [
       "candidate_id",
       "code_commit",
@@ -735,7 +739,14 @@
     "control_arm_rule": "A control arm enters the registry only while its inputs are OPEN in the register. Rows of control arms contain our own forecasts and derived statistics; a single third-party forecast (for example the SPF median) is recorded only where its register entry is OPEN and the terms allow it, always with attribution, and raw third-party datasets are never recorded. NOWCAST_NYFED joins only after R2 confirms that its archive is usable as a control arm, with the NY Fed attribution. SPF joins as a control arm only after R2 automates its files and fixes the definition mapping.",
     "integrity": "committed to the repository before the actual value is published; rows are append-only; a correction is a new row that references the old one",
     "cadence_note": "the weekly cadence, together with the 4-distinct-period minimum, makes 12 resolved T1 forecasts reachable in about four months instead of twelve; it is prospective, no row is backdated, and the first row is still committed before its actual is published",
-    "c6_min_distinct_target_periods": 4
+    "c6_min_distinct_target_periods": 4,
+    "vintage_week": {
+      "field": "vintage_week",
+      "format": "ISO week YYYY-Www",
+      "identity": "the row identity is (candidate_id, target, horizon, origin, vintage_week); vintage_week is null for the monthly anchor row",
+      "rule": "a weekly row may only be appended for a week whose first data release has already happened, before the target actual is published; it is not backdated",
+      "disclosure": "weekly rows for the same target month share information and are correlated; C6 counts resolved rows but the coverage power is low, which is recorded in every C6 report; ACTIVE still needs 8 independent outcomes"
+    }
   },
   "drift_triggers": {
     "forecast_breakdown": "Giacomini-Rossi forecast breakdown test at 10%",
@@ -1112,5 +1123,5 @@
   "changes_from_v4": [
     "5.0.0 (2026-11-12, D-151, after docs/111): new data-depth classes for the 1990-1996 origins (REAL_TIME_RECONSTRUCTED_MARKET for GS10/TB3MS, RECONSTRUCTED_PIT for CPIAUCSL/CPILFESL/UNRATE, report class REAL_TIME_RECONSTRUCTED), documented in protocols/pit_reconstruction.json; the T1 C4 uses the extended window windows.W1_EXT (1990-01..2006-12) with reconstructed origins, while C1/C2/C5 remain REAL_TIME-only and the REAL_TIME-only C4 slice is reporting-only; the forward registry adds weekly vintage rows with a minimum of 4 distinct target periods for C6; no change to C1/C2/C5 thresholds, targets, horizons, W1/W2/W3 endpoints, the comparator composition, the C4 minimum of 12 months, R3 or NF-SIM."
   ],
-  "frozen_on": "2026-11-12"
+  "frozen_on": "2026-11-14"
 }

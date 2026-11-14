@@ -148,6 +148,24 @@ class RegistryJournal(unittest.TestCase):
         for label, record in bad_cases.items():
             self.assertNotEqual(registry.validate_record(record), [], label)
 
+    def test_weekly_vintage_rows_are_distinct_identity(self):
+        # v5 5.0.1 (D-156): a weekly row of the same origin month is a distinct row
+        anchor = good_record(origin="2026-11")
+        registry.append_record(anchor, self.journal)
+        weekly = good_record(origin="2026-11", vintage_week="2026-W46")
+        self.assertEqual(registry.validate_record(weekly), [])
+        registry.append_record(weekly, self.journal)
+        rows, problems = registry.validate_journal(self.journal)
+        self.assertEqual(problems, [])
+        self.assertEqual(len(rows), 2)
+        self.assertIsNone(rows[0].get("vintage_week"))
+        self.assertEqual(rows[1]["vintage_week"], "2026-W46")
+        # a malformed week is rejected and a duplicate week is a duplicate identity
+        self.assertNotEqual(registry.validate_record(good_record(vintage_week="2026-46")), [])
+        with self.assertRaises(registry.RegistryError):
+            registry.append_record(good_record(origin="2026-11", vintage_week="2026-W46"),
+                                   self.journal)
+
     def test_canonical_lines_and_lf(self):
         registry.append_record(good_record(), self.journal)
         raw = self.journal.read_bytes()

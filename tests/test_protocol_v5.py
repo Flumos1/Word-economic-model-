@@ -86,10 +86,11 @@ class TestProtocolV5(unittest.TestCase):
     # -- identity and scope ---------------------------------------------------------------
     def test_identity(self):
         self.assertEqual(self.v5["protocol_id"], "AMFE-EVAL")
-        self.assertEqual(self.v5["version"], "5.0.0")
+        self.assertIn(self.v5["version"], {"5.0.0", "5.0.1"})
         self.assertIn(self.v5["status"], {"PROPOSED", "FROZEN"})
         self.assertEqual(self.v5["supersedes"]["version"], "4.0.0")
         self.assertIn("D-151", self.v5["decision_ids"])
+        self.assertIn("D-156", self.v5["decision_ids"])
         self.assertEqual(self.v5["meta_gate"]["reference"], "D-100")
         self.assertIn(self.v5["meta_gate"]["stage"], {"PROPOSED", "APPROVED"})
         self.assertTrue(any("D-151" in d.get("decision", "") for d in self.v5["meta_gate"]["owner_decisions"]))
@@ -182,6 +183,11 @@ class TestProtocolV5(unittest.TestCase):
         self.assertEqual(fr["record"], self.v4["forward_registry"]["record"])
         self.assertEqual(fr["control_arms"], self.v4["forward_registry"]["control_arms"])
         self.assertEqual(fr["integrity"], self.v4["forward_registry"]["integrity"])
+        # 5.0.1 (D-156): weekly rows carry vintage_week, the monthly anchor does not
+        week = fr["vintage_week"]
+        self.assertEqual(week["field"], "vintage_week")
+        self.assertIn("vintage_week", week["identity"])
+        self.assertIn("correlated", week["disclosure"])
 
     # -- frozen artifacts are unchanged ---------------------------------------------------
     def test_frozen_artifacts_unchanged(self):

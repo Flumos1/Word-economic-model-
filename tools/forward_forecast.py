@@ -363,7 +363,8 @@ def control_arm_forecasts(target: str, origin: str, horizon: int, mode: str,
 def build_record(candidate_id: str, target: str, horizon: int, origin: str, *,
                  commit: str, vintage: str, scoring: str, point=None, quantiles=None,
                  event_probability=None, registered_at: str | None = None,
-                 control_arm: bool = False, notes: str = "") -> dict:
+                 control_arm: bool = False, notes: str = "",
+                 vintage_week: str | None = None) -> dict:
     """Assemble one protocol row; no validation here (tools/registry.py validates)."""
     row: dict = {
         "candidate_id": candidate_id,
@@ -383,6 +384,9 @@ def build_record(candidate_id: str, target: str, horizon: int, origin: str, *,
         row["point"] = float(point)
     if control_arm:
         row["control_arm"] = True
+    if vintage_week:
+        row["vintage_week"] = vintage_week
+        notes = (notes + f"; vintage week {vintage_week}").strip("; ")
     if notes:
         row["notes"] = notes
     return row
@@ -391,7 +395,8 @@ def build_record(candidate_id: str, target: str, horizon: int, origin: str, *,
 def forecast_rows(candidates: list[str], targets: list[tuple[str, int]], origin: str,
                   mode: str, *, commit: str, vintage: str, scoring: str,
                   registered_at: str | None, data_class: str,
-                  info: dict, pre_origin: bool) -> list[dict]:
+                  info: dict, pre_origin: bool,
+                  vintage_week: str | None = None) -> list[dict]:
     run, known = _dispatcher()
     from amfe.forecast.data import month_end_of
 
@@ -413,14 +418,15 @@ def forecast_rows(candidates: list[str], targets: list[tuple[str, int]], origin:
                     scoring=scoring, point=result.get("point"),
                     quantiles=result.get("quantiles"),
                     event_probability=result.get("probability"),
-                    registered_at=registered_at, notes=notes_base))
+                    registered_at=registered_at, notes=notes_base,
+                    vintage_week=vintage_week))
             for arm in control_arm_forecasts(target, origin, horizon, mode, known):
                 rows.append(build_record(
                     arm["candidate_id"], target, horizon, origin, commit=commit, vintage=vintage,
                     scoring=scoring, point=arm.get("point"), quantiles=arm.get("quantiles"),
                     event_probability=arm.get("event_probability"),
                     registered_at=registered_at, control_arm=True,
-                    notes=notes_base + "; protocol control arm"))
+                    notes=notes_base + "; protocol control arm", vintage_week=vintage_week))
     return rows
 
 
@@ -434,13 +440,14 @@ def append_rows(rows: list[dict], journal: Path, *, dry_run: bool = False) -> di
                         f"{problem}" for problem in validate_record(row))
     if problems:
         raise ForwardEngineError("invalid record(s): " + "; ".join(problems))
-    existing = {row.get("candidate_id") + "|" + str(row.get("target")) + "|"
-                + str(row.get("horizon")) + "|" + str(row.get("origin")): row
-                for row in read_rows(journal)}
+    def row_key(row: dict) -> str:
+        return ("|".join(str(row.get(field)) for field in
+                         ("candidate_id", "target", "horizon", "origin", "vintage_week")))
+
+    existing = {row_key(row): row for row in read_rows(journal)}
     appended, skipped = [], []
     for row in rows:
-        key = (row["candidate_id"] + "|" + str(row["target"]) + "|" + str(row["horizon"])
-               + "|" + str(row["origin"]))
+        key = row_key(row)
         if key in existing:
             from registry import record_digest
 
@@ -481,6 +488,9 @@ def main(argv=None) -> int:
     parser.add_argument("--registered-at", default=None,
                         help="override the ISO registered_at (only for tests/fixtures)")
     parser.add_argument("--out", default=None, help="write the same rows to this JSON file")
+    parser.add_argument("--vintage-week", default=None,
+                        help="ISO week YYYY-Www for a weekly vintage row (v5.0.1 D-156); the "
+                             "monthly anchor row leaves it empty")
     parser.add_argument("--dry-run", action="store_true", help="validate and print, do not append")
     args = parser.parse_args(argv)
     journal = Path(args.journal)
@@ -522,7 +532,8 @@ def main(argv=None) -> int:
     rows = forecast_rows(candidates, targets, origin_check["origin"], args.mode,
                          commit=commit, vintage=vintage, scoring=scoring,
                          registered_at=args.registered_at, data_class=data_class,
-                         info=info, pre_origin=origin_check["pre_origin"])
+                         info=info, pre_origin=origin_check["pre_origin"],
+                         vintage_week=args.vintage_week)
     outcome = append_rows(rows, journal, dry_run=args.dry_run)
     summary = {
         "origin": origin_check["origin"],

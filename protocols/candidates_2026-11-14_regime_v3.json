@@ -1,0 +1,49 @@
+{
+  "document_id": "AMFE-CANDIDATES",
+  "registered_on": "2026-11-14",
+  "registered_before_evaluation": true,
+  "batch": "wave-8 regime candidate v3",
+  "candidates": [
+    {
+      "id": "ENSEMBLE_REGIME_V3",
+      "description": "risk-off switch (Sahm-like gap >= 0.5 p.p. only): point = BVAR_MINNESOTA point, quantiles = ENSEMBLE_INVERSE_MSE quantiles shifted by (BVAR point - inverse-MSE point), i.e. inverse-MSE shape with BVAR location; inverse-MSE ensemble otherwise",
+      "code_file": "src/amfe/ensemble/regime_v3.py",
+      "code_sha256": "83d6342c2bc3ddc30039972151f9777bca2383080b3c98d44d4943888d36c043",
+      "targets": [
+        "T1_CPI_YOY"
+      ],
+      "horizons": [
+        1
+      ],
+      "members": [
+        "AO",
+        "AR_BIC",
+        "BVAR_MINNESOTA",
+        "RW"
+      ],
+      "registered_before_evaluation": true,
+      "motivation": "v1 (ENSEMBLE_REGIME) fixed the C4 RMSE in recessions (0.9734/0.9035) but failed C4 CRPS (1.0019/1.0133) and C1 W2 (0.9705); v2 (ENSEMBLE_REGIME_V2) recovered C1/C2 but lost C4 RMSE on W1_EXT (1.0277) and still failed C4 CRPS on W2 (1.0019). The two published diagnostics say that BVAR_MINNESOTA gives the better location in recession months and the inverse-MSE distribution gives the better shape, so v3 combines location from the first with shape from the second for the risk-off months",
+      "design_disclosure": "The choice of BVAR_MINNESOTA as the risk-off location and of ENSEMBLE_INVERSE_MSE as the shape is POST-DIAGNOSTIC: it is derived from the C4 diagnostic in the v5 protocol chain and from the published v1/v2 results (docs/112, docs/115), not fixed independently of those outcomes. This is a disclosed researcher degree and it is exactly why v3 is registered as a new candidate instead of changing any criterion. v3 is NOT a re-score of v1 or v2 and does not retract their reports; both remain published with their original numbers. The flag (Sahm-like 3m UNRATE gap >= 0.5 p.p., origin data only), the target/horizon and the evaluation criteria are unchanged; no weight, member, threshold or mapping was tuned against the v3 evaluation result, and the composition rule was fixed before the run. The point/quantile grid are deliberately not forced to share a median: the point is a member average, the grid is a mixture quantile grid, and the location anchor is the BVAR point.",
+      "evaluation_plan": {
+        "protocol": "protocols/evaluation_protocol_v5.json",
+        "extended_c4": true,
+        "data_class": "REAL_TIME_RECONSTRUCTED",
+        "windows": [
+          "W1_EXT (C4)",
+          "W1 REAL_TIME slice (C1/C2/C5)",
+          "W2"
+        ],
+        "criteria": [
+          "C1",
+          "C2",
+          "C4",
+          "C5",
+          "C6"
+        ],
+        "max_origins": null,
+        "cache_dir": ".tmp-test/cache_v3"
+      },
+      "note": "registered before its own evaluation; evaluation report protocols/regime_v3_candidate_evaluation_report.json; v1 and v2 remain published and are not re-scored"
+    }
+  ]
+}

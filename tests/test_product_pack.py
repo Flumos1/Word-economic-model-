@@ -24,6 +24,8 @@ ANOTHER = "2026-11-12T18:30:00Z"
 REPORT = ROOT / "protocols" / "first_real_evaluation_report_v5.json"
 PROTOCOL = ROOT / "protocols" / "evaluation_protocol_v5.json"
 PROTOCOL_PIN = ROOT / "protocols" / "evaluation_protocol_v5.sha256"
+PROTOCOL_SHA = PROTOCOL_PIN.read_text(encoding="utf-8").split()[0]
+PROTOCOL_SHA_SHORT = PROTOCOL_SHA[:8]
 JOURNAL = ROOT / "registry" / "forecasts.jsonl"
 REQUIRED_FILES = ("model_card.md", "forecast_latest.json", "dashboard.html",
                   "dashboard.md", "README.md")
@@ -220,7 +222,7 @@ class ProductPack(unittest.TestCase):
         self.assertIn("CANDIDATE", page)
         self.assertIn("C6", page)
         self.assertIn("1.0775", page)
-        self.assertIn("41d6823e", page)
+        self.assertIn(PROTOCOL_SHA_SHORT, page)
 
     def test_dashboard_markdown_has_the_required_blocks(self):
         text = self.texts["dashboard.md"]
@@ -236,7 +238,8 @@ class ProductPack(unittest.TestCase):
         for token in ("## 1. Назначение", "## 2. Версии и хеши", "## 3. Что подтверждено",
                       "## 4. Что НЕ подтверждено", "## 6. Ограничения", "Дата снимка",
                       "CANDIDATE", "conditional_data_class", "1.0775", "1.099", "1.067",
-                      "0.9303", "41d6823e", "1.0.1", "NF-SIM", "C6", "docs/107", "docs/110"):
+                      "0.9303", PROTOCOL_SHA_SHORT, "1.0.1", "NF-SIM", "C6", "docs/107",
+                      "docs/110"):
             self.assertIn(token, text, token)
 
     def test_readme_states_it_is_not_admission(self):

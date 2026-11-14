@@ -45,6 +45,7 @@ SCHEMA_ID = "AMFE-FORWARD-REGISTRY/1"
 QUANTILES = [round(0.05 * i, 2) for i in range(1, 20)]
 HEX = re.compile(r"^[0-9a-f]{7,64}$")
 MONTH = re.compile(r"^\d{4}-(0[1-9]|1[0-2])$")
+WEEK = re.compile(r"^\d{4}-W(0[1-9]|[1-4][0-9]|5[0-3])$")
 TARGETS = {
     "T1_CPI_YOY": {"horizons": [1, 3, 6, 12], "kind": "quantiles"},
     "T2_GDP_GROWTH": {"horizons": [0, 1, 2, 4], "kind": "quantiles"},
@@ -54,7 +55,8 @@ COMMON_FIELDS = ["candidate_id", "code_commit", "data_vintage_hash", "target", "
                  "origin", "scoring_rule_commit"]
 QUANTILE_FIELDS = ["quantiles_5_to_95_step_5", "point"]
 EVENT_FIELDS = ["event_probability"]
-OPTIONAL_FIELDS = ["point", "registered_at", "correction_of", "notes", "control_arm"]
+OPTIONAL_FIELDS = ["point", "registered_at", "correction_of", "notes", "control_arm",
+                   "vintage_week"]
 
 
 class RegistryError(RuntimeError):
@@ -153,6 +155,9 @@ def validate_record(record: dict) -> list[str]:
             datetime.fromisoformat(str(registered_at))
         except ValueError:
             problems.append("registered_at must be an ISO 8601 date or date-time")
+    vintage_week = record.get("vintage_week")
+    if vintage_week is not None and (not isinstance(vintage_week, str) or not WEEK.fullmatch(vintage_week)):
+        problems.append("vintage_week must be an ISO week string YYYY-Www (v5 D-156)")
     correction = record.get("correction_of")
     if correction is not None and (not isinstance(correction, str) or not re.fullmatch(r"[0-9a-f]{64}", correction)):
         problems.append("correction_of must be the SHA-256 digest of the corrected row")
@@ -166,8 +171,13 @@ def validate_record(record: dict) -> list[str]:
 
 
 def identity(row: dict) -> tuple:
-    """A forecast is identified by the pair, the horizon and the origin."""
-    return (row.get("candidate_id"), row.get("target"), row.get("horizon"), row.get("origin"))
+    """A forecast is identified by the pair, the horizon, the origin and the vintage week.
+
+    v5 5.0.1 (D-156): the weekly vintage row of the same origin month is a distinct row and carries
+    ``vintage_week``; the monthly anchor row has no vintage_week (None).
+    """
+    return (row.get("candidate_id"), row.get("target"), row.get("horizon"), row.get("origin"),
+            row.get("vintage_week"))
 
 
 def read_rows(journal: Path = DEFAULT_JOURNAL) -> list[dict]:

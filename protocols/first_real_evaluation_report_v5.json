@@ -1,6 +1,6 @@
 {
  "report_id": "AMFE-FIRST-REAL-EVALUATION",
- "generated_at": "2026-11-12T18:45:02Z",
+ "generated_at": "2026-11-14T01:19:10Z",
  "candidate": "ENSEMBLE_INVERSE_MSE",
  "target": "T1_CPI_YOY",
  "horizon": 1,
@@ -10,8 +10,8 @@
  "re_evaluation_under_changed_protocol": true,
  "protocol": {
   "file": "protocols/evaluation_protocol_v5.json",
-  "version": "5.0.0",
-  "sha256": "41d6823e9d0925326d1f7823c6e1c06bc7036438b2cd1a452246c577bb153ba4"
+  "version": "5.0.1",
+  "sha256": "48c2f6a18a28cefc9645cb8aa7b934f68adbcfc6cea1178d04b27918be2bab45"
  },
  "r3_specification": {
   "file": "protocols/r3_specification.json",
