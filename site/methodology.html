@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Методология — AMFE</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">AMFE · исследовательская модель мировой экономики</a>
+    <nav aria-label="Основная навигация"><a href="index.html">Главная</a><a href="model.html">Модель</a><a href="forecast.html">Прогноз</a><a href="scenarios.html">Сценарии</a><a href="data.html">Данные</a><a href="methodology.html" class="active">Методология</a><a href="docs.html">Документы</a></nav>
+  </div>
+</header>
+<main class="wrap">
+
+<section><h1>Методология и статусы</h1>
+<p class="lead">AMFE разделяет «прогнозную точность» и «допуск». Критерии C1–C6 проверяются
+замороженным протоколом на размеченных окнах и forward-журнале; сайт статусы не присваивает.</p>
+</section>
+<aside class="callout callout-warn"><p><strong>Не допуск и не инвестиционная рекомендация.</strong> AMFE — исследовательский проект. Статус CANDIDATE означает, что модель не допущена к использованию; цифры ниже — результаты проверок и сценариев, а не совет и не прогноз для сделок.</p></aside>
+<section>
+  <h2>Протоколы</h2>
+  <ul>
+    <li><strong>Протокол v5</strong> — текущий замороженный протокол оценки T1 CPI
+    (версия 5.0.1); расширенный C4 на реконструированных данных
+    1990–1996 и forward-журнал.</li>
+    <li><strong>Протокол v4</strong> — предыдущая замороженная версия; результаты v4 сохранены,
+    оценки не переписываются.</li>
+    <li>Замороженная цепочка: протокол → R3-спецификация → NF-SIM (пороги) → состав компаратора.
+    Хеши сверяются, при расхождении инструменты падают (fail-closed).</li>
+  </ul>
+</section>
+<section>
+  <h2>Критерии допуска C1–C6</h2>
+  <div class="table-wrap"><table>
+<thead><tr><th>Критерий</th><th>Что проверяет</th><th>Текущий результат T1 h=1</th></tr></thead>
+<tbody>
+<tr><td>C1</td><td>Относительная потеря (RMSE/CRPS) против компаратора</td><td><span class="badge">PASS</span> 0.9465 / 0.9670 (W1, порог 0.97)</td></tr>
+<tr><td>C2</td><td>Romano–Wolf: значимость превосходства</td><td><span class="badge">PASS</span></td></tr>
+<tr><td>C3</td><td>Model Confidence Set</td><td>не реализован (негейтящий)</td></tr>
+<tr><td>C4</td><td>Устойчивость в рецессиях (RMSE и CRPS)</td><td><span class="badge">FAIL</span> RMSE 1.0775, CRPS <span class="badge">PASS</span> 0.9303</td></tr>
+<tr><td>C5</td><td>Вторичные факты</td><td><span class="badge">PASS</span></td></tr>
+<tr><td>C6</td><td>Forward-журнал: 12 разрешённых прогнозов, ≥4 периода</td><td>не пройден: 0 из 12</td></tr>
+</tbody></table></div>
+</section>
+<section>
+  <h2>Статусная лестница</h2>
+  <div class="table-wrap"><table>
+<thead><tr><th>Статус</th><th>Значение</th><th>Состояние</th><th>Кандидат</th></tr></thead>
+<tbody>
+<tr><td>CANDIDATE</td><td>кандидат прошёл часть критериев, допуска нет</td><td>T1 CPI — здесь</td><td>ENSEMBLE_INVERSE_MSE</td></tr>
+<tr><td>SHADOW_TEST</td><td>теневой трек на живом журнале, без права использования</td><td>текущий</td><td>ENSEMBLE_REGIME_V4</td></tr>
+<tr><td>LIMITED_DEPLOYMENT</td><td>ограниченное применение после C1–C6</td><td>не достигнут</td><td>—</td></tr>
+<tr><td>ACTIVE</td><td>допущенная модель</td><td>не достигнут</td><td>—</td></tr>
+</tbody></table></div>
+  <p class="muted">Статусы присваиваются протоколом и человеком, а не сайтом. Сайт — витрина
+  зарегистрированных результатов.</p>
+</section>
+<section>
+  <h2>Ограничения</h2>
+  <ul>
+    <li>C4 FAIL по RMSE: ансамбль хуже компаратора в рецессиях; CRPS PASS не компенсирует RMSE.</li>
+    <li>C6 не пройден: 0 из 12 разрешённых прогнозов, нужно ≥4 различных целевых периода;
+    ускорять гейт нельзя.</li>
+    <li>conditional_data_class = true: часть C4 опирается на реконструированные данные, а не на
+    REAL_TIME.</li>
+    <li>Мир: сценарии — сравнительная статика без цен, замещения и динамики; GVAR и SFC
+    откалиброваны не полностью.</li>
+    <li>Сырые сторонние данные не публикуются; сайт содержит только производные метрики.</li>
+  </ul>
+</section>
+
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <p><strong>Дисклеймер.</strong> Это исследовательский артефакт, а не допущенная модель и не инвестиционная рекомендация. Статусы не присваиваются сайтом. Страницы содержат только собственные прогнозы и
+    производные метрики проекта; сырых сторонних данных здесь нет.</p>
+    <p class="muted">Снимок: 2026-11-14T13:18:26Z · статический сайт без JavaScript, фреймворков и
+    внешних ресурсов · собран <code>tools/site_build.py</code>.</p>
+  </div>
+</footer>
+</body>
+</html>

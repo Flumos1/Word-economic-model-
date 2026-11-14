@@ -78,6 +78,7 @@ from amfe.world.io_core import (  # noqa: E402
     final_demand_shock,
 )
 from amfe.world.sfc_core import SFCFrame, SFCError  # noqa: E402
+from amfe.world.sfc_io import SFCIOError, sfc_section  # noqa: E402
 
 PIPELINE_VERSION = "1.0.0"
 DEFAULT_OUT = ROOT / "build" / "world"
@@ -1100,6 +1101,7 @@ def run_pipeline(args) -> dict:
                     "status": STATUS_OK, "workers": workers,
                     "requested": {"build": bool(getattr(args, "build", False)),
                                   "solve": bool(getattr(args, "solve", False)),
+                                  "sfc": bool(getattr(args, "sfc", False)),
                                   "scenario": getattr(args, "scenario", None)}}
     tracemalloc.start()
     started_at = time.perf_counter()
@@ -1144,6 +1146,9 @@ def run_pipeline(args) -> dict:
                 kwargs.update({"country": getattr(args, "country", None),
                                "pass_through": float(getattr(args, "pass_through", 0.10))})
             report["scenario"] = function(table, solver, **kwargs)
+        if getattr(args, "sfc", False):
+            with timings.stage("sfc"):
+                report["sfc"] = sfc_section(table)
         report["timings_ms"] = timings.as_dict()
         report["peak_memory_mb"] = peak_memory_mb()
         report["elapsed_ms"] = round((time.perf_counter() - started_at) * 1000.0, 3)
@@ -1186,6 +1191,13 @@ def _print_summary(report: dict) -> None:
     if scenario:
         print(f"  сценарий {scenario['scenario']}: {scenario['result']['total_delta_output']:,.2f} "
               f"изменения выпуска ({scenario['parameters']})")
+    sfc = report.get("sfc")
+    if sfc:
+        totals = sfc["totals"]
+        print(f"  SFC (--sfc): {sfc['countries']} стран; ВВП={totals['gdp']:,.2f}, "
+              f"FD={totals['final_demand']:,.2f}, CA={totals['current_account']:,.2f}, "
+              f"S={totals['savings']:,.2f}, I={totals['investment']:,.2f}; "
+              f"проверки={'PASS' if sfc['pass'] else 'FAIL'}")
     print("  тайминги, мс:", ", ".join(f"{name} {value:.1f}"
                                        for name, value in report["timings_ms"].items()))
     print(f"  пик памяти: {report['peak_memory_mb']} МБ; всего {report['elapsed_ms']:.0f} мс")
@@ -1220,6 +1232,9 @@ def build_parser() -> argparse.ArgumentParser:
                         help="run build/validate/solve/scenario stage benchmark and print timings")
     parser.add_argument("--out", default=str(DEFAULT_OUT), help="output directory (build/world)")
     parser.add_argument("--json", action="store_true", help="print the report as JSON")
+    parser.add_argument("--sfc", action="store_true",
+                        help="add the SFC <-> IO country accounts block (S=I+CA, net foreign asset "
+                             "period step) to the report (docs/133)")
     parser.add_argument("--no-p2-gate", action="store_true",
                         help="allow a dataset below the P2 scale (tests/fixtures only)")
     return parser
@@ -1249,7 +1264,7 @@ def main(argv=None) -> int:
     except BlockedData as exc:
         print(f"{STATUS_BLOCKED}: {exc}", file=sys.stderr)
         return EXIT_BLOCKED
-    except (PipelineError, MRIOError) as exc:
+    except (PipelineError, MRIOError, SFCIOError) as exc:
         print(f"{STATUS_INVALID}: {exc}", file=sys.stderr)
         return EXIT_INVALID
     path = write_report(report, args.out)

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Документы — AMFE</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">AMFE · исследовательская модель мировой экономики</a>
+    <nav aria-label="Основная навигация"><a href="index.html">Главная</a><a href="model.html">Модель</a><a href="forecast.html">Прогноз</a><a href="scenarios.html">Сценарии</a><a href="data.html">Данные</a><a href="methodology.html">Методология</a><a href="docs.html" class="active">Документы</a></nav>
+  </div>
+</header>
+<main class="wrap">
+
+<section><h1>Документы проекта</h1>
+<p class="lead">Ключевые документы: данные, ядро, сценарии, протоколы, поддержка и публикация.
+Ссылки ведут на файлы репозитория.</p></section>
+<aside class="callout callout-warn"><p><strong>Не допуск и не инвестиционная рекомендация.</strong> AMFE — исследовательский проект. Статус CANDIDATE означает, что модель не допущена к использованию; цифры ниже — результаты проверок и сценариев, а не совет и не прогноз для сделок.</p></aside>
+<section>
+  <div class="table-wrap"><table>
+<thead><tr><th>Документ</th><th>Файл</th></tr></thead>
+<tbody>
+<tr><td><a href="../docs/120_Аудит_ТЗ_и_план_P2.md">Аудит «ТЗ ↔ факт» и план P2: мировая модель 10+ стран × 30+ отраслей</a></td><td>docs/120_Аудит_ТЗ_и_план_P2.md</td></tr>
+<tr><td><a href="../docs/121_Данные_MRIO.md">Данные MRIO: источники, каноническая схема, загрузчик и валидатор</a></td><td>docs/121_Данные_MRIO.md</td></tr>
+<tr><td><a href="../docs/122_IO_SFC_ядро.md">Статическое IO/SFC ядро P2 (10+ стран × 30+ отраслей)</a></td><td>docs/122_IO_SFC_ядро.md</td></tr>
+<tr><td><a href="../docs/123_GVAR_прототип.md">GVAR-прототип: межстрановой VARX с торговыми весами</a></td><td>docs/123_GVAR_прототип.md</td></tr>
+<tr><td><a href="../docs/124_Поддержка_продукта.md">Поддержка продукта: еженедельный CI-контур, maintenance-guard и чек-листы</a></td><td>docs/124_Поддержка_продукта.md</td></tr>
+<tr><td><a href="../docs/125_Реальный_MRIO_FIGARO.md">Реальный MRIO-датасет FIGARO → каноническая схема AMFE (P2, D1-валидация)</a></td><td>docs/125_Реальный_MRIO_FIGARO.md</td></tr>
+<tr><td><a href="../docs/126_Полный_мир_источники.md">Полный мир: альтернативные MRIO-источники (WIOD / OECD ICIO / Eora)</a></td><td>docs/126_Полный_мир_источники.md</td></tr>
+<tr><td><a href="../docs/127_Производительность_мирового_конвейера.md">Производительность мирового конвейера: data → static core → scenarios → report</a></td><td>docs/127_Производительность_мирового_конвейера.md</td></tr>
+<tr><td><a href="../docs/128_GVAR_на_реальных_данных.md">GVAR на реальных межстрановых данных: торговые веса FIGARO vs GDP-прокси</a></td><td>docs/128_GVAR_на_реальных_данных.md</td></tr>
+<tr><td><a href="../docs/129_Схема_v1.1_и_WIOD.md">Схема MRIO v1.1 и WIOD 44×56: второй реальный мир (D1)</a></td><td>docs/129_Схема_v1.1_и_WIOD.md</td></tr>
+<tr><td><a href="../docs/130_OECD_ICIO.md">OECD ICIO 60+: автоматизация, парсер v1.1 и ручная инструкция</a></td><td>docs/130_OECD_ICIO.md</td></tr>
+<tr><td><a href="../docs/131_Сценарные_отчёты_мира.md">Сценарные отчёты «страна × отрасль» на реальном FIGARO</a></td><td>docs/131_Сценарные_отчёты_мира.md</td></tr>
+<tr><td><a href="../docs/119_Регламент_теневого_трека.md">Регламент теневого трека ENSEMBLE_REGIME_V4 (SHADOW_TEST)</a></td><td>docs/119_Регламент_теневого_трека.md</td></tr>
+<tr><td><a href="../docs/113_Продуктовый_пакет.md">Продуктовый пакет: модель-карточка, JSON-фид и статическая панель</a></td><td>docs/113_Продуктовый_пакет.md</td></tr>
+<tr><td><a href="../docs/114_Публикационный_пакет.md">Публикационный пакет: недельный бюллетень MD+JSON и дисклеймеры</a></td><td>docs/114_Публикационный_пакет.md</td></tr>
+</tbody></table></div>
+</section>
+<section>
+  <h2>Первоисточники чисел сайта</h2>
+  <ul>
+    <li><code>build/product/forecast_latest.json</code> — прогноз T1 CPI и его статус.</li>
+    <li><code>build/world/report_index.json</code>, <code>build/world/reports/*.json</code> —
+    сценарии мира.</li>
+    <li><code>protocols/first_real_evaluation_report_v5.json</code>,
+    <code>protocols/regime_v4_candidate_evaluation_report.json</code> — критерии.</li>
+    <li><code>build/shadow/shadow_status.json</code> — теневой трек и прогресс C6.</li>
+    <li><code>data/mrio/**/manifest.json</code> — покрытие FIGARO/WIOD (метаданные).</li>
+  </ul>
+</section>
+
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <p><strong>Дисклеймер.</strong> Это исследовательский артефакт, а не допущенная модель и не инвестиционная рекомендация. Статусы не присваиваются сайтом. Страницы содержат только собственные прогнозы и
+    производные метрики проекта; сырых сторонних данных здесь нет.</p>
+    <p class="muted">Снимок: 2026-11-14T13:18:26Z · статический сайт без JavaScript, фреймворков и
+    внешних ресурсов · собран <code>tools/site_build.py</code>.</p>
+  </div>
+</footer>
+</body>
+</html>

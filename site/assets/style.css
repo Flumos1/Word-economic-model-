@@ -1,0 +1,109 @@
+/* AMFE static site: no external resources, no JavaScript, no frameworks. */
+:root {
+  color-scheme: light dark;
+  --bg: #f7f7f4;
+  --fg: #1d232a;
+  --muted: #5c6670;
+  --card: #ffffff;
+  --line: #d8d8d0;
+  --accent: #0b5c6b;
+  --warn-bg: #fff4e0;
+  --warn-border: #b45309;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14181c;
+    --fg: #e8e6e0;
+    --muted: #a4acb4;
+    --card: #1d242a;
+    --line: #333c44;
+    --accent: #6fc3d2;
+    --warn-bg: #3a2b12;
+    --warn-border: #e0a33a;
+  }
+}
+* { box-sizing: border-box; }
+html { font-size: 16px; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.55;
+}
+.wrap { max-width: 66rem; margin: 0 auto; padding: 0 1.25rem; }
+.site-header {
+  border-bottom: 1px solid var(--line);
+  background: var(--card);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+.site-header .wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+  padding-top: 0.7rem;
+  padding-bottom: 0.7rem;
+}
+.brand { font-weight: 700; color: var(--fg); text-decoration: none; }
+.site-header nav { display: flex; flex-wrap: wrap; gap: 0.35rem 0.9rem; }
+.site-header nav a {
+  color: var(--muted);
+  text-decoration: none;
+  padding: 0.15rem 0.1rem;
+  border-bottom: 2px solid transparent;
+}
+.site-header nav a:hover, .site-header nav a:focus { color: var(--fg); }
+.site-header nav a.active { color: var(--accent); border-bottom-color: var(--accent); }
+main { padding: 1.5rem 0 2.5rem; }
+h1 { font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.3rem); line-height: 1.2; margin: 0.4rem 0 0.8rem; }
+h2 { font-size: clamp(1.15rem, 1rem + 0.6vw, 1.5rem); margin: 2rem 0 0.7rem; }
+h3 { font-size: 1.05rem; margin: 1.4rem 0 0.5rem; }
+p, li { max-width: 60rem; }
+.lead { font-size: 1.08rem; color: var(--muted); }
+section { margin-bottom: 1.6rem; }
+.hero { padding: 1.2rem 0 0.2rem; }
+.badges { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.badge {
+  display: inline-block;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.05rem 0.55rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.badge-warn { background: var(--warn-bg); border-color: var(--warn-border); color: var(--fg); }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 0.9rem;
+  margin: 1rem 0;
+}
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 0.6rem; padding: 0.9rem 1rem; }
+.card-label { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.card-value { font-size: 1.45rem; font-weight: 700; margin: 0.15rem 0 0.25rem; }
+.muted { color: var(--muted); font-size: 0.92rem; }
+.callout { border-left: 4px solid var(--line); padding: 0.7rem 1rem; border-radius: 0.3rem; margin: 1rem 0; }
+.callout-warn { background: var(--warn-bg); border-left-color: var(--warn-border); }
+.table-wrap { overflow-x: auto; margin: 0.9rem 0; border: 1px solid var(--line); border-radius: 0.5rem; }
+table { border-collapse: collapse; width: 100%; font-size: 0.94rem; background: var(--card); }
+caption { text-align: left; padding: 0.55rem 0.7rem; color: var(--muted); font-size: 0.88rem; }
+th, td { text-align: left; vertical-align: top; padding: 0.45rem 0.65rem; border-bottom: 1px solid var(--line); }
+thead th { background: rgba(127, 127, 127, 0.12); font-weight: 600; }
+tbody tr:last-child td { border-bottom: none; }
+.columns { display: grid; grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr)); gap: 1rem; }
+.flow { padding-left: 1.3rem; }
+.flow li { margin-bottom: 0.5rem; }
+.links { padding-left: 1.2rem; }
+.links li { margin-bottom: 0.35rem; }
+a { color: var(--accent); }
+code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 0.9em; }
+.site-footer { border-top: 1px solid var(--line); background: var(--card); padding: 1.1rem 0 1.6rem; }
+.site-footer p { margin: 0.35rem 0; font-size: 0.88rem; }
+@media (max-width: 40rem) {
+  .site-header .wrap { gap: 0.4rem 0.8rem; }
+  .site-header nav { font-size: 0.92rem; }
+}

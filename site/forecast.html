@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Прогноз T1 CPI — AMFE</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">AMFE · исследовательская модель мировой экономики</a>
+    <nav aria-label="Основная навигация"><a href="index.html">Главная</a><a href="model.html">Модель</a><a href="forecast.html" class="active">Прогноз</a><a href="scenarios.html">Сценарии</a><a href="data.html">Данные</a><a href="methodology.html">Методология</a><a href="docs.html">Документы</a></nav>
+  </div>
+</header>
+<main class="wrap">
+
+<section><h1>Прогноз T1 CPI: инфляция США, год к году, h=1</h1>
+<p class="lead">Кандидат ENSEMBLE_INVERSE_MSE, origin 2026-11,
+статус <span class="badge badge-warn">CANDIDATE</span>, conditional_data_class =
+true. Это прогноз исследовательского ансамбля, а не
+допущенная модель.</p></section>
+<aside class="callout callout-warn"><p><strong>Не допуск и не инвестиционная рекомендация.</strong> AMFE — исследовательский проект. Статус CANDIDATE означает, что модель не допущена к использованию; цифры ниже — результаты проверок и сценариев, а не совет и не прогноз для сделок.</p></aside>
+<section>
+  <h2>Точечный прогноз и интервалы</h2>
+  <div class="grid">
+    <div class="card"><div class="card-label">Точка</div>
+      <div class="card-value">3.6257</div></div>
+    <div class="card"><div class="card-label">Медиана (q50)</div>
+      <div class="card-value">3.6843</div></div>
+    <div class="card"><div class="card-label">Протокол</div>
+      <div class="card-value">5.0.1</div>
+      <div class="muted">FROZEN, SHA-256 48c2f6a18a28…</div></div>
+  </div>
+  <div class="table-wrap"><table><caption>Интервалы из 19 квантилей 5%…95%</caption>
+<thead><tr><th>Интервал</th><th>Границы</th><th>Квантили</th></tr></thead>
+<tbody>
+<tr><td>50%</td><td>3.2737 … 4.1029</td><td>q25…q75</td></tr>
+<tr><td>80%</td><td>2.7936 … 4.5035</td><td>q10…q90</td></tr>
+<tr><td>90%</td><td>2.4579 … 4.7971</td><td>q05…q95</td></tr>
+</tbody></table></div>
+  <p><strong>Контрольные плечи (точка):</strong></p>
+  <ul><li>RW: <strong>3.7173</strong></li><li>EQUAL_WEIGHT_POINT: <strong>3.4600</strong></li><li>EQUAL_WEIGHT_DENSITY: <strong>3.4600</strong></li></ul>
+</section>
+<section>
+  <h2>Что подтверждено</h2>
+  <p>Первая реальная оценка протокола v5 по паре T1 h=1:</p>
+  <ul>
+    <li><strong>C1 PASS</strong> — относительная потеря RMSE/CRPS 0.9465 /
+    0.9670 на окне W1 при пороге 0.97.</li>
+    <li><strong>C2 PASS</strong> — скорректированные p-значения Romano–Wolf
+    0.0457 (W1 RMSE) и 0.0084 (W2 CRPS), FWER 0.10.</li>
+    <li><strong>C5 PASS</strong> — кандидат не хуже компаратора на вторичных фактах.</li>
+  </ul>
+</section>
+<section>
+  <h2>Что НЕ подтверждено</h2>
+  <ul>
+    <li><strong>C4 — FAIL по RMSE.</strong> Относительная потеря 1.0775 в
+    рецессионных месяцах W1_EXT (порог ≤ 1.00), условный Giacomini–White отвергает в пользу
+    компаратора (p ≈ 5.3e-07). По CRPS C4 PASS (0.9303), но C4
+    требует прохождения по каждому loss.</li>
+    <li><strong>C6 — нет.</strong> В forward-журнале 0 из
+    12 разрешённых прогнозов; различных целевых периодов
+    1 из
+    4. Гейт C6 физически не может быть пройден до
+    накопления журнала.</li>
+    <li>SHADOW_TEST, LIMITED_DEPLOYMENT и ACTIVE для этого кандидата не достигнуты.</li>
+  </ul>
+</section>
+<section>
+  <h2>Теневой трек: ENSEMBLE_REGIME_V4</h2>
+  <p>Статус кандидата: <span class="badge badge-warn">SHADOW_TEST</span>
+  (SHADOW_TEST_CONDITIONAL_DATA_CLASS), conditional_data_class =
+  true; C1/C2/C4/C5 — PASS, C6 — ожидает журнал.
+  Трек ведёт журнал и считает расстояние до гейта C6.</p>
+  <div class="table-wrap"><table>
+<thead><tr><th>Показатель</th><th>Значение</th></tr></thead>
+<tbody>
+<tr><td>Статус трека</td><td>STARTING</td></tr>
+<tr><td>Строк журнала всего</td><td>11</td></tr>
+<tr><td>Разрешённых прогнозов</td><td>0 / 12</td></tr>
+<tr><td>Различных целевых периодов</td><td>1 / 4</td></tr>
+<tr><td>Ориентир гейта C6</td><td>2027-05-07</td></tr>
+<tr><td>C4 W1 RMSE / CRPS</td><td>0.9734 / 0.9188</td></tr>
+</tbody></table></div>
+  <p class="muted">Новых допусков не присваивается: трек — это мониторинг, а не решение о допуске.</p>
+</section>
+
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <p><strong>Дисклеймер.</strong> Это исследовательский артефакт, а не допущенная модель и не инвестиционная рекомендация. Статусы не присваиваются сайтом. Страницы содержат только собственные прогнозы и
+    производные метрики проекта; сырых сторонних данных здесь нет.</p>
+    <p class="muted">Снимок: 2026-11-14T13:18:26Z · статический сайт без JavaScript, фреймворков и
+    внешних ресурсов · собран <code>tools/site_build.py</code>.</p>
+  </div>
+</footer>
+</body>
+</html>

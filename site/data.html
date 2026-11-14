@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Данные — AMFE</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">AMFE · исследовательская модель мировой экономики</a>
+    <nav aria-label="Основная навигация"><a href="index.html">Главная</a><a href="model.html">Модель</a><a href="forecast.html">Прогноз</a><a href="scenarios.html">Сценарии</a><a href="data.html" class="active">Данные</a><a href="methodology.html">Методология</a><a href="docs.html">Документы</a></nav>
+  </div>
+</header>
+<main class="wrap">
+
+<section><h1>Данные: реальные MRIO и лицензии</h1>
+<p class="lead">Мир строится на реальных таблицах «затраты–выпуск». Сырые данные лежат вне git и
+на сайте не публикуются: здесь только метаданные, покрытие и лицензии.</p></section>
+<aside class="callout callout-warn"><p><strong>Не допуск и не инвестиционная рекомендация.</strong> AMFE — исследовательский проект. Статус CANDIDATE означает, что модель не допущена к использованию; цифры ниже — результаты проверок и сценариев, а не совет и не прогноз для сделок.</p></aside>
+<section>
+  <h2>FIGARO 2019 — основной мир</h2>
+  <div class="table-wrap"><table>
+<thead><tr><th>Параметр</th><th>Значение</th></tr></thead>
+<tbody>
+<tr><td>Источник</td><td>Eurostat FIGARO - EU inter-country input-output table (product by product)</td></tr>
+<tr><td>Размер</td><td>50 × 64 (стран × отраслей; 3200 секторов)</td></tr>
+<tr><td>Год</td><td>2019</td></tr>
+<tr><td>Единицы</td><td>USD_mn</td></tr>
+<tr><td>Покрытие ВВП по поимённым странам</td><td>87.3%</td></tr>
+<tr><td>Покрытие с агрегатом ROW</td><td>100%</td></tr>
+<tr><td>Ячеек Z</td><td>10 240 000 (хранение разреженное)</td></tr>
+<tr><td>Лицензия</td><td>Eurostat re-use policy (open data, attribution)</td></tr>
+<tr><td>Канонический JSON</td><td>94 457 216 байт, SHA-256 70789f089788…</td></tr>
+</tbody></table></div>
+  <p class="muted">Третья сторона: данные не коммитятся, публикуются только производные метрики.</p>
+</section>
+<section>
+  <h2>WIOD 2016 — второй мир</h2>
+  <div class="table-wrap"><table>
+<thead><tr><th>Набор</th><th>Год</th><th>Страны × отрасли</th><th>Покрытие ВВП</th><th>Лицензия</th></tr></thead>
+<tbody>
+<tr><td>wiod_2000</td><td>2000</td><td>44 × 56</td><td>89.0068%</td><td>CC BY 4.0</td></tr>
+<tr><td>wiod_2007</td><td>2007</td><td>44 × 56</td><td>87.3121%</td><td>CC BY 4.0</td></tr>
+<tr><td>wiod_2014</td><td>2014</td><td>44 × 56</td><td>84.6519%</td><td>CC BY 4.0</td></tr>
+</tbody></table></div>
+  <p>Диапазон покрытия по наборам: 84.7%–89.0%.
+  WIOD содержит отрицательные ячейки (запасы, добавленная стоимость), поэтому используется схема
+  v1.1 со знаковыми корректировками — базовые y и va остаются неотрицательными.</p>
+</section>
+<section>
+  <h2>Источники: статусы</h2>
+  <div class="table-wrap"><table>
+<thead><tr><th>Источник</th><th>Статус</th><th>Почему</th><th>Что делать</th></tr></thead>
+<tbody>
+<tr><td>OECD ICIO 2025</td><td>BLOCKED_AUTOMATED</td><td>Небраузерные клиенты получают HTTP 403; условия требуют принятия в браузере</td><td>Скачать вручную в браузере, принять условия, положить в data/mrio/oecd_icio/archive/</td></tr>
+<tr><td>Eora MRIO</td><td>BLOCKED_LICENCE</td><td>Свободная только академическая лицензия с регистрацией; коммерческая — покупка</td><td>Не использовать без лицензии; парсер Eora в этой волне не реализован</td></tr>
+<tr><td>UN Comtrade</td><td>AVAILABLE_API</td><td>Это не MRIO: торговые потоки без отраслевой матрицы</td><td>Нужен мост HS → отрасль; отдельное решение</td></tr>
+</tbody></table></div>
+</section>
+<section>
+  <h2>Что публиковать нельзя</h2>
+  <ul>
+    <li>Сырые сторонние наборы (FIGARO/WIOD/OECD/Eora/Comtrade) и их значения — только по
+    лицензии источника; в репозиторий и на сайт не попадают.</li>
+    <li>Можно публиковать производные агрегаты: покрытие, итоги, доли, топ-списки, остатки
+    валидации — именно они и приведены выше.</li>
+    <li>Нельзя выдавать исследовательский мир за официальный прогноз или допущенную модель.</li>
+  </ul>
+</section>
+
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <p><strong>Дисклеймер.</strong> Это исследовательский артефакт, а не допущенная модель и не инвестиционная рекомендация. Статусы не присваиваются сайтом. Страницы содержат только собственные прогнозы и
+    производные метрики проекта; сырых сторонних данных здесь нет.</p>
+    <p class="muted">Снимок: 2026-11-14T13:18:26Z · статический сайт без JavaScript, фреймворков и
+    внешних ресурсов · собран <code>tools/site_build.py</code>.</p>
+  </div>
+</footer>
+</body>
+</html>

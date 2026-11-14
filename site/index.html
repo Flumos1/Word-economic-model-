@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AMFE: исследовательская модель мировой экономики</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">AMFE · исследовательская модель мировой экономики</a>
+    <nav aria-label="Основная навигация"><a href="index.html" class="active">Главная</a><a href="model.html">Модель</a><a href="forecast.html">Прогноз</a><a href="scenarios.html">Сценарии</a><a href="data.html">Данные</a><a href="methodology.html">Методология</a><a href="docs.html">Документы</a></nav>
+  </div>
+</header>
+<main class="wrap">
+
+<section class="hero">
+  <h1>AMFE: исследовательская модель мировой экономики</h1>
+  <p class="lead">Межстрановая модель «страна × отрасль» на реальных таблицах FIGARO и WIOD,
+  прогнозный ансамбль для инфляции CPI США и сценарные отчёты о распространении шоков по цепочкам
+  поставок. Всё на этой странице — исследование, а не допущенная к применению модель.</p>
+  <p class="badges"><span class="badge badge-warn">CANDIDATE</span> прогноз T1 CPI · <span class="badge badge-warn">SHADOW_TEST</span>
+  теневой трек ENSEMBLE_REGIME_V4 · статусы не присваиваются сайтом</p>
+</section>
+<aside class="callout callout-warn"><p><strong>Не допуск и не инвестиционная рекомендация.</strong> AMFE — исследовательский проект. Статус CANDIDATE означает, что модель не допущена к использованию; цифры ниже — результаты проверок и сценариев, а не совет и не прогноз для сделок.</p></aside>
+<section>
+  <h2>Последний прогноз CPI (T1, год к году, h=1)</h2>
+  <div class="grid">
+    <div class="card"><div class="card-label">Точка</div>
+      <div class="card-value">3.6257</div>
+      <div class="muted">origin 2026-11, кандидат ENSEMBLE_INVERSE_MSE</div></div>
+    <div class="card"><div class="card-label">90% интервал</div>
+      <div class="card-value">[2.4579; 4.7971]</div>
+      <div class="muted">квантили q05…q95, 19 значений</div></div>
+    <div class="card"><div class="card-label">Статус</div>
+      <div class="card-value"><span class="badge badge-warn">CANDIDATE</span></div>
+      <div class="muted">conditional_data_class = true</div></div>
+  </div>
+</section>
+<section>
+  <h2>Мировая модель на реальных данных</h2>
+  <div class="grid">
+    <div class="card"><div class="card-label">FIGARO 2019</div>
+      <div class="card-value">50 × 64</div>
+      <div class="muted">стран × отраслей; 3200 секторов; покрытие ВВП
+      87.3%</div></div>
+    <div class="card"><div class="card-label">WIOD 2016</div>
+      <div class="card-value">44 ×
+      56</div>
+      <div class="muted">стран × отраслей; покрытие ВВП
+      84.7%–89.0%</div></div>
+    <div class="card"><div class="card-label">Сценарии</div>
+      <div class="card-value">7</div>
+      <div class="muted">energy / import / FX на реальном FIGARO; статус
+      RESEARCH_ONLY</div></div>
+  </div>
+</section>
+<section>
+  <h2>Ключевой сценарий</h2>
+  <p>Энергетический шок: сокращение конечного спроса на 5% в энергетических отраслях CPA_B, CPA_C19, CPA_D35.</p>
+  <p>Суммарное изменение выпуска:
+  <strong>-253 452 USD_mn</strong>
+  (-0.149% от базового выпуска);
+  крупнейшая страна — US,
+  крупнейшая отрасль — CPA_D35.</p>
+  <p class="muted">Сравнительная статика, не прогноз. Полные таблицы — на странице
+  <a href="scenarios.html">«Сценарии»</a>.</p>
+</section>
+<section>
+  <h2>Разделы</h2>
+  <ul class="links">
+    <li><a href="model.html">Модель</a> — архитектура: данные MRIO → IO/SFC → GVAR → сценарии.</li>
+    <li><a href="forecast.html">Прогноз</a> — продукт T1 CPI: интервалы, C4/C6, теневой трек.</li>
+    <li><a href="scenarios.html">Сценарии</a> — 7 отчётов energy/import/FX с топ-странами и отраслями.</li>
+    <li><a href="data.html">Данные</a> — FIGARO, WIOD, OECD, Eora: покрытие и лицензии.</li>
+    <li><a href="methodology.html">Методология</a> — протоколы, статусы допуска C1–C6 и ограничения.</li>
+    <li><a href="docs.html">Документы</a> — ключевые документы проекта.</li>
+  </ul>
+</section>
+
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <p><strong>Дисклеймер.</strong> Это исследовательский артефакт, а не допущенная модель и не инвестиционная рекомендация. Статусы не присваиваются сайтом. Страницы содержат только собственные прогнозы и
+    производные метрики проекта; сырых сторонних данных здесь нет.</p>
+    <p class="muted">Снимок: 2026-11-14T13:18:26Z · статический сайт без JavaScript, фреймворков и
+    внешних ресурсов · собран <code>tools/site_build.py</code>.</p>
+  </div>
+</footer>
+</body>
+</html>
