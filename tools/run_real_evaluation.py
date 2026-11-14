@@ -59,6 +59,11 @@ try:
         REGIME_MODULES[regime_candidate_v3.CANDIDATE_ID] = regime_candidate_v3
     except Exception:  # pragma: no cover - module not importable
         pass
+    try:
+        from amfe.ensemble import regime_v4 as regime_candidate_v4  # noqa: E402
+        REGIME_MODULES[regime_candidate_v4.CANDIDATE_ID] = regime_candidate_v4
+    except Exception:  # pragma: no cover - module not importable
+        pass
     REGIME_IDS = tuple(REGIME_MODULES)
 except Exception:  # pragma: no cover - module not importable
     REGIME_MODULES = {}

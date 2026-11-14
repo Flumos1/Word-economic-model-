@@ -1,0 +1,61 @@
+{
+  "document_id": "AMFE-CANDIDATES",
+  "registered_on": "2026-11-14",
+  "registered_before_evaluation": true,
+  "batch": "wave-8 regime candidate v4",
+  "candidates": [
+    {
+      "id": "ENSEMBLE_REGIME_V4",
+      "description": "risk-off switch = (Sahm-like gap >= 0.5 p.p.) AND (12-month mean TB3MS at the origin >= 4.0 p.p.); in risk-off: point = BVAR_MINNESOTA point, quantiles = ENSEMBLE_INVERSE_MSE quantiles shifted by (BVAR point - inverse-MSE point); ENSEMBLE_INVERSE_MSE in full otherwise",
+      "code_file": "src/amfe/ensemble/regime_v4.py",
+      "code_sha256": "42513d251dcf33250495795f9a02c8435a1bfa01a76a32e0a2cd22a1e2530e50",
+      "targets": [
+        "T1_CPI_YOY"
+      ],
+      "horizons": [
+        1
+      ],
+      "members": [
+        "AO",
+        "AR_BIC",
+        "BVAR_MINNESOTA",
+        "RW"
+      ],
+      "registered_before_evaluation": true,
+      "flag": {
+        "sahm_rule": "3-month mean UNRATE minus 12-month low of UNRATE >= 0.5 p.p. (as in v2/v3, unchanged)",
+        "rate_rule": "12-month mean of TB3MS observed at the origin >= 4.0 p.p.",
+        "combination": "risk_off = sahm_rule AND rate_rule",
+        "inputs_available_at_origin": true,
+        "threshold_rationale": "4.0 p.p. is the neutral pre-2008 level of the 12-month TB3MS mean; the condition is a post-diagnostic economic filter, not a result-tuned parameter"
+      },
+      "risk_off_composition": {
+        "point": "BVAR_MINNESOTA point",
+        "quantiles": "ENSEMBLE_INVERSE_MSE quantiles + (BVAR point - inverse-MSE point)",
+        "risk_on": "ENSEMBLE_INVERSE_MSE in full"
+      },
+      "motivation": "v3 (ENSEMBLE_REGIME_V3) passed C4 on both losses and both windows (RMSE 0.9734/0.9035, CRPS 0.9188/0.9329) and passed C1/C5, but failed C2 on W2 (adjusted p 0.2984 RMSE / 0.1494 CRPS). On W2 the Sahm rule stays active in 13 of 18 recession months and in the 2009-2011 tail, where the BVAR recession location does not beat the comparator significantly. The pre-run diagnostic shows that the flagged W2 months are zero-bound months (12-month TB3MS mean falls from 3.07 at 2008-06 to about 0.15 at 2009-12), while the W1_EXT flagged recessions are high-rate ones (1990-91: 5.6-8.0; 2001-09..11: 4.70). The rate condition therefore switches the risk-off branch off exactly where it was unhelpful (2008-09) and keeps it where the v3 C4 pass was earned (1990-91, 2001). Since the inverse-MSE ensemble already passed C4 on W2, no protection in W2 is lost.",
+      "design_disclosure": "POST-DIAGNOSTIC design: the rate condition and its threshold 4.0 were chosen from the diagnostic of the flagged recession months above (TB3MS 12-month mean by origin) and from the published v1/v2/v3 results under the v5 protocol chain, not fixed independently of those outcomes. This is a disclosed researcher degree and is exactly why v4 is registered as a new candidate instead of changing any criterion. v4 is NOT a re-score of v1, v2 or v3, and does not retract their reports: all three remain published with their original numbers. The Sahm leg, target/horizon, evaluation criteria, windows and thresholds are unchanged; no weight, member, threshold or mapping was tuned against the v4 evaluation result, and the full construction (rate condition 12m TB3MS >= 4.0, BVAR location + inverse-MSE shape) was fixed before the run. Hypotheses fixed before the run: H1 C4 RMSE <= 1.00 on W1_EXT and W2; H2 C4 CRPS <= 1.00 on W1_EXT and W2; H3 C1 and C5 stay passed; H4 C2 passes on both windows (the failure v4 exists to remove).",
+      "evaluation_plan": {
+        "protocol": "protocols/evaluation_protocol_v5.json",
+        "extended_c4": true,
+        "data_class": "REAL_TIME_RECONSTRUCTED",
+        "windows": [
+          "W1_EXT (C4)",
+          "W1 REAL_TIME slice (C1/C2/C5)",
+          "W2"
+        ],
+        "criteria": [
+          "C1",
+          "C2",
+          "C4",
+          "C5",
+          "C6"
+        ],
+        "max_origins": null,
+        "cache_dir": ".tmp-test/cache_v4"
+      },
+      "note": "registered before its own evaluation; evaluation report protocols/regime_v4_candidate_evaluation_report.json; v1, v2 and v3 remain published and are not re-scored"
+    }
+  ]
+}

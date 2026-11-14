@@ -282,17 +282,26 @@ def _dispatcher():
     except Exception:  # pragma: no cover - optional tool
         SPF_IDS = ()
         spf_candidate = None
+    try:
+        from amfe.ensemble import regime_v4
+        REGIME_IDS = regime_v4.CANDIDATE_IDS
+        regime_candidate = regime_v4.candidate_forecast
+    except Exception:  # pragma: no cover - optional module
+        REGIME_IDS = ()
+        regime_candidate = None
 
     def run(candidate_id, target, origin, horizon, mode):
         if candidate_id in ENSEMBLE_IDS:
             return ensemble_candidate(candidate_id, target, origin, horizon, mode=mode)
+        if REGIME_IDS and candidate_id in REGIME_IDS:
+            return regime_candidate(candidate_id, target, origin, horizon, mode=mode)
         if SPF_IDS and candidate_id in SPF_IDS:
             return spf_candidate(candidate_id, target, origin, horizon, mode=mode)
         if candidate_id in CANDIDATE_IDS:
             return rw_ar_candidate(candidate_id, target, origin, horizon, mode=mode)
         raise ForwardEngineError(f"unknown candidate {candidate_id!r}")
 
-    return run, set(ENSEMBLE_IDS) | set(CANDIDATE_IDS) | set(SPF_IDS or ())
+    return run, set(ENSEMBLE_IDS) | set(CANDIDATE_IDS) | set(SPF_IDS or ()) | set(REGIME_IDS)
 
 
 def _composition_members(target: str, horizon: int, loss: str) -> list[str]:
@@ -396,7 +405,8 @@ def forecast_rows(candidates: list[str], targets: list[tuple[str, int]], origin:
                   mode: str, *, commit: str, vintage: str, scoring: str,
                   registered_at: str | None, data_class: str,
                   info: dict, pre_origin: bool,
-                  vintage_week: str | None = None) -> list[dict]:
+                  vintage_week: str | None = None,
+                  control_arms: bool = True) -> list[dict]:
     run, known = _dispatcher()
     from amfe.forecast.data import month_end_of
 
@@ -420,13 +430,14 @@ def forecast_rows(candidates: list[str], targets: list[tuple[str, int]], origin:
                     event_probability=result.get("probability"),
                     registered_at=registered_at, notes=notes_base,
                     vintage_week=vintage_week))
-            for arm in control_arm_forecasts(target, origin, horizon, mode, known):
-                rows.append(build_record(
-                    arm["candidate_id"], target, horizon, origin, commit=commit, vintage=vintage,
-                    scoring=scoring, point=arm.get("point"), quantiles=arm.get("quantiles"),
-                    event_probability=arm.get("event_probability"),
-                    registered_at=registered_at, control_arm=True,
-                    notes=notes_base + "; protocol control arm", vintage_week=vintage_week))
+            if control_arms:
+                for arm in control_arm_forecasts(target, origin, horizon, mode, known):
+                    rows.append(build_record(
+                        arm["candidate_id"], target, horizon, origin, commit=commit, vintage=vintage,
+                        scoring=scoring, point=arm.get("point"), quantiles=arm.get("quantiles"),
+                        event_probability=arm.get("event_probability"),
+                        registered_at=registered_at, control_arm=True,
+                        notes=notes_base + "; protocol control arm", vintage_week=vintage_week))
     return rows
 
 
@@ -491,6 +502,9 @@ def main(argv=None) -> int:
     parser.add_argument("--vintage-week", default=None,
                         help="ISO week YYYY-Www for a weekly vintage row (v5.0.1 D-156); the "
                              "monthly anchor row leaves it empty")
+    parser.add_argument("--no-control-arms", action="store_true",
+                        help="book only the candidate rows (the shared control arms are already "
+                             "booked for this week; used for supplementary candidates)")
     parser.add_argument("--dry-run", action="store_true", help="validate and print, do not append")
     args = parser.parse_args(argv)
     journal = Path(args.journal)
@@ -533,7 +547,8 @@ def main(argv=None) -> int:
                          commit=commit, vintage=vintage, scoring=scoring,
                          registered_at=args.registered_at, data_class=data_class,
                          info=info, pre_origin=origin_check["pre_origin"],
-                         vintage_week=args.vintage_week)
+                         vintage_week=args.vintage_week,
+                         control_arms=not args.no_control_arms)
     outcome = append_rows(rows, journal, dry_run=args.dry_run)
     summary = {
         "origin": origin_check["origin"],
