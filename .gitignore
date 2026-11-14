@@ -19,3 +19,5 @@ GDPNowcastDataReleaseDates*.xlsx
 .tmp-test/
 # generated artefacts
 build/
+# MRIO datasets (third-party, never in git)
+/data/mrio/
