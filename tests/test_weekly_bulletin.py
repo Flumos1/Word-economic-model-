@@ -276,8 +276,21 @@ class WeeklyBulletin(unittest.TestCase):
                         "## 2. Последний прогноз", "## 3. Что подтверждено",
                         "## 4. Что не подтверждено",
                         "## 5. Изменение к предыдущей записи журнала",
-                        "## 6. Дисклеймер и ограничения", "## 7. Источники"):
+                        "## 6. Дисклеймер и ограничения",
+                        "## 7. Research candidate: SHADOW_TEST", "## 8. Источники"):
             self.assertIn(heading, self.markdown, heading)
+
+    def test_research_candidate_block(self):
+        document = self.document
+        self.assertIn("research_candidate", document)
+        research = document["research_candidate"]
+        if research is None:
+            self.assertIn("не запущен", self.markdown)
+            return
+        self.assertIn("SHADOW_TEST", research["status"])
+        self.assertEqual(research["id"], "ENSEMBLE_REGIME_V4")
+        self.assertIsNotNone(research["n_resolved"])
+        self.assertIn("ENSEMBLE_REGIME_V4", self.markdown)
 
     def test_markdown_has_the_required_numbers(self):
         text = self.markdown

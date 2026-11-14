@@ -377,6 +377,31 @@ def _changes(rows: list[dict], candidate: str, target: str, horizon: int, origin
     return changes, note, change
 
 
+def _research_candidate(root: Path) -> dict | None:
+    """Optional block: the research candidate currently on SHADOW_TEST (tools/shadow_track.py)."""
+    path = Path(root) / "build" / "shadow" / "shadow_status.json"
+    if not path.exists():
+        return None
+    document = read_json(path, "shadow status")
+    c6 = document.get("c6") or {}
+    return {
+        "id": (document.get("candidate") or {}).get("id"),
+        "status": (document.get("candidate") or {}).get("status"),
+        "status_label": (document.get("candidate") or {}).get("status_label"),
+        "conditional_data_class": bool((document.get("candidate") or {}).get("conditional_data_class")),
+        "track_status": document.get("status"),
+        "n_resolved": c6.get("n_resolved"),
+        "min_forecasts": c6.get("min_forecasts"),
+        "distinct_target_periods": c6.get("distinct_target_periods"),
+        "min_distinct_target_periods": c6.get("min_distinct_target_periods"),
+        "alerts": [{"code": a.get("code"), "severity": a.get("severity"),
+                    "message": a.get("message")} for a in document.get("alerts") or []],
+        "last_registered_at": (document.get("journal") or {}).get("last_registered_at"),
+        "estimated_gate_date": (document.get("projection") or {}).get("estimated_gate_date"),
+        "source": "build/shadow/shadow_status.json",
+    }
+
+
 def build_document(root: Path = ROOT, generated_at: str | None = None,
                    date: str | None = None, allow_build: bool = True) -> dict:
     """Build the bulletin document from the feed, the frozen chain and the journal."""
@@ -433,6 +458,7 @@ def build_document(root: Path = ROOT, generated_at: str | None = None,
         "confirmed": _confirmed(inputs["report"]),
         "not_confirmed": _not_confirmed(feed),
         "near_miss_candidate": _near_miss(context["regime"]),
+        "research_candidate": _research_candidate(Path(root)),
         "versions": versions,
         "hashes": hashes,
         "disclaimer": DISCLAIMER,
@@ -558,9 +584,34 @@ def render_markdown(document: dict) -> str:
         "",
     ])
     lines.extend(f"- {item}" for item in document["limitations"])
+    research = document.get("research_candidate")
     lines.extend([
         "",
-        "## 7. Источники (полные SHA-256, LF-нормализованные)",
+        "## 7. Research candidate: SHADOW_TEST",
+        "",
+    ])
+    if research:
+        lines += [
+            f"- Кандидат: `{research['id']}`; статус **{research['status']}**"
+            + (f" (`{research['status_label']}`)" if research.get("status_label") else "")
+            + f"; `conditional_data_class = {str(research['conditional_data_class']).lower()}`.",
+            f"- Теневой трек: **{research['track_status']}**; разрешённых прогнозов "
+            f"{research['n_resolved']} из {research['min_forecasts']}, различных целевых периодов "
+            f"{research['distinct_target_periods']} из {research['min_distinct_target_periods']}.",
+            f"- Последняя строка кандидата: {research['last_registered_at'] or '—'}; "
+            f"ориентировочная дата гейта C6: {research['estimated_gate_date'] or '—'}.",
+            f"- Алерты: "
+            + (", ".join(f"`{a['code']}` ({a['severity']})" for a in research["alerts"])
+               or "нет")
+            + ".",
+            "- Это отдельный исследовательский кандидат; он не меняет статус публикуемой модели "
+            "и не является допуском. Регламент: docs/119.",
+        ]
+    else:
+        lines.append("- Теневой трек не запущен (нет `build/shadow/shadow_status.json`).")
+    lines.extend([
+        "",
+        "## 8. Источники (полные SHA-256, LF-нормализованные)",
         "",
         f"- `{versions['protocol']['file']}` — {versions['protocol']['version']} "
         f"{versions['protocol']['status']}, `{hashes['protocol']}`;",
