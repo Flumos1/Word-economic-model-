@@ -381,8 +381,36 @@ class Webfs2025Test(unittest.TestCase):
             self.assertEqual(document["countries"], ["AAA", "BBB"])
             self.assertEqual(document["industries"], ["A01", "B05"])
             self.assertEqual(document["x"][:2], [18.0, 7.0])
-            self.assertEqual(document["inventory_changes"][2], -1.0)
-            self.assertEqual(document["discrepancy"], [0.0, 0.0, 0.0, 0.0])
+            # the FD matrix is collapsed over ALL consuming countries: the AAA_A01 row also
+            # carries the BBB_HFCE=2 destination entry
+            self.assertEqual(document["y"][0], 5.0)
+            self.assertEqual(document["final_demand_adjustments"][2], -1.0)
+            self.assertEqual(len(document["va_adjustments"]), 4)
+            looks = [sum(document["Z"][row]) + document["y"][row]
+                     + document["final_demand_adjustments"][row] - document["x"][row]
+                     for row in range(4)]
+            self.assertTrue(all(abs(value) < 1e-9 for value in looks), looks)
+
+
+class Unbalanced2025Test(unittest.TestCase):
+    def test_unbalanced_fd_matrix_is_refused(self):
+        header = ["V1", "AAA_A01", "BBB_A01", "AAA_HFCE", "BBB_HFCE", "OUT"]
+        rows = [["AAA_A01", "10", "1", "3", "0", "18"],   # x=18 but Z+y = 13 -> unbalanced
+                ["BBB_A01", "1", "5", "0", "2", "8"],
+                ["TLS", "0", "0", "", "", ""],
+                ["VA", "4", "2", "", "", ""],
+                ["OUT", "18", "8", "", "", ""]]
+        import io as _io
+        buffer = _io.StringIO()
+        writer = csv.writer(buffer, lineterminator="\n")
+        writer.writerow(header)
+        for row in rows:
+            writer.writerow(row)
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "2019_SML.csv"
+            path.write_text(buffer.getvalue(), encoding="utf-8")
+            with self.assertRaises(oecd.OECDImportError):
+                oecd.build_document_icio_matrix(path, 2019, {"name": "test"})
 
 
 class WaybackTest(unittest.TestCase):
@@ -399,6 +427,12 @@ class WaybackTest(unittest.TestCase):
         self.assertEqual(oecd._years_from_name("ICIO2016_1995.zip"), [1995])
         self.assertEqual(oecd._years_from_name("ICIO2019.csv"), [2019])
         self.assertEqual(oecd._years_from_name("table.csv"), [])
+
+    def test_block_names_expand_to_the_full_year_range(self):
+        self.assertEqual(oecd._years_from_name("2016-2022_SML.zip"),
+                         list(range(2016, 2023)))
+        self.assertEqual(oecd._years_from_name("1995-2000_SML.zip"),
+                         list(range(1995, 2001)))
 
 
 class ProbeTest(unittest.TestCase):

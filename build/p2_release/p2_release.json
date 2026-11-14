@@ -217,17 +217,17 @@
  "data_root": "F:/Мировая экономика модель/data/mrio",
  "date": "2026-11-14",
  "docs_context_missing": [],
- "generated_at": "2026-11-14T19:58:37Z",
- "git_commit": "75549f1bfc86a6bb8009d06e69e789fcdc3dbfa4",
+ "generated_at": "2026-11-14T20:45:31Z",
+ "git_commit": "586ead44b08a14940797498d97f364575b8f1482",
  "inputs": [
   {
-   "bytes": 38917,
+   "bytes": 40436,
    "exists": true,
    "id": "doc:120_Аудит_ТЗ_и_план_P2",
    "path": "docs/120_Аудит_ТЗ_и_план_P2.md",
    "required": true,
    "role": "release context",
-   "sha256": "2ad9b44bf0feaac5eeb5eb114ecf75c5bb2453c79d1cd810d1afbb318c0c2ad7"
+   "sha256": "e83f83929b046f34235f504e4cebd279b9a6423a8e49d8888720730a7d4123cb"
   },
   {
    "bytes": 20198,
@@ -257,13 +257,13 @@
    "sha256": "71a1dc70154159bc472e98cf61ea73e3610c35f17285f35e99f81443093dff94"
   },
   {
-   "bytes": 10693,
+   "bytes": 8451,
    "exists": true,
    "id": "doc:130_OECD_ICIO",
    "path": "docs/130_OECD_ICIO.md",
    "required": true,
    "role": "release context",
-   "sha256": "cfc9fc622e02e8a565ca07ac89ef2046412f690f8aa089be4726ca0370d12cdc"
+   "sha256": "954e473982a0ec4f0fda559d33fcb2b6521519ff391c739b3b1d134afcd2941f"
   },
   {
    "bytes": 13810,
@@ -326,12 +326,12 @@
    "sha256": "aa1f6baa4eb47e065eaa44d4b53f1203b426647e849e9a1cd70adb189c9b2775"
   },
   {
-   "bytes": 2934,
+   "bytes": 2600,
    "exists": true,
    "id": "oecd_coverage",
    "path": "protocols/oecd_icio_coverage.json",
    "required": true,
-   "sha256": "57779bce865b9e5eaa24473cb0d751602c1ecdc7be9e2f3dca7341da7d0a7bb4"
+   "sha256": "75405f263f4d74e0708c28205fe61b5c3728d09ab44fda4942a6e9dd1faa2aa0"
   },
   {
    "bytes": 11947,

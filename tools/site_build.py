@@ -162,6 +162,17 @@ def oecd_source_row(lang: str = "ru") -> list[str]:
     except SiteBuildError:
         coverage = {}
     if coverage:
+        release_2025 = coverage.get("release_2025") or {}
+        if release_2025.get("status") == "AVAILABLE":
+            if lang == "en":
+                return ["OECD ICIO 2025 (auto: 81×50, 1995–2022)", "AVAILABLE_2025",
+                        "Official SML release downloaded from the OECD webfs links (Range download); "
+                        "D1 PASS for 28 years, world value-added coverage 94.6–97.2%",
+                        "2016 edition (71×34, 2000–2011) stays as the fallback dataset (docs/130)"]
+            return ["OECD ICIO 2025 (авто: 81×50, 1995–2022)", "AVAILABLE_2025",
+                    "Официальный SML-релиз скачан по ссылкам webfs OECD (Range); D1 PASS за 28 лет, "
+                    "покрытие мировой ДС 94,6–97,2%",
+                    "Редакция 2016 (71×34, 2000–2011) остаётся запасным датасетом (docs/130)"]
         if lang == "en":
             return ["OECD ICIO 2016 (auto: 71×34, 1995–2011)", "AVAILABLE_AUTO_2016",
                     "Official per-year OECD archives (2016 edition) retrieved via Internet Archive; "
@@ -937,11 +948,7 @@ def render_data(context: dict, generated_at: str) -> str:
 <section>
   <h2>Источники: статусы</h2>
   {_table(["Источник", "Статус", "Почему", "Что делать"], [
-      ["OECD ICIO 2016 (авто: 71×34, 1995–2011)", "AVAILABLE_AUTO_2016",
-       "Официальные per-year архивы OECD (2016 edition) получены через Internet Archive; "
-       "D1 PASS 2000–2011, покрытие мировой ДС 95,4%; 1995–1999 — FAIL только по одной "
-       "отрицательной ячейке спроса",
-       "Релиз 2025 (60+×45, 1995–2022) — только вручную в браузере (docs/130)"],
+      oecd_source_row("ru"),
       ["Eora MRIO", esc(eora.get("status") or "BLOCKED_LICENCE"),
        "Свободная только академическая лицензия с регистрацией; коммерческая — покупка",
        "Не использовать без лицензии; парсер Eora в этой волне не реализован"],
@@ -1404,11 +1411,7 @@ published here: this page shows only metadata, coverage and licences.</p></secti
 <section>
   <h2>Sources: statuses</h2>
   {_table(["Source", "Status", "Why", "What to do"], [
-      ["OECD ICIO 2016 (auto: 71×34, 1995–2011)", "AVAILABLE_AUTO_2016",
-       "Official per-year OECD archives (2016 edition) retrieved via Internet Archive; "
-       "D1 PASS 2000–2011, world value-added coverage 95.4%; 1995–1999 fail only on one "
-       "negative final-demand cell",
-       "2025 release (60+×45, 1995–2022) — browser download only (docs/130)"],
+      oecd_source_row("en"),
       ["Eora MRIO", esc(eora.get("status") or "BLOCKED_LICENCE"),
        "Only an academic licence with registration is free; commercial use requires purchase",
        "Do not use without a licence; the Eora parser is not implemented in this wave"],

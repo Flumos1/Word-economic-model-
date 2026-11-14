@@ -210,7 +210,7 @@ class SiteBuild(unittest.TestCase):
     def test_data_page_lists_sources_and_licences(self):
         data = text_of(self.texts["data.html"])
         for token in ("FIGARO", "WIOD", "OECD", "Eora", "Comtrade", "CC BY 4.0",
-                      "AVAILABLE_AUTO_2016", "BLOCKED_LICENCE"):
+                      "AVAILABLE_2025", "BLOCKED_LICENCE"):
             self.assertIn(token, data)
         self.assertIn("не публикуются", data.lower())
 

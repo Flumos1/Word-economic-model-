@@ -680,21 +680,30 @@ def validate_v11(document: dict, tolerance: float | None = None) -> dict:
     data = document
     Z_rows = [list(map(float, row)) for row in Z]
     y = list(map(float, data["y"]))
-    inventory = list(map(float, data.get("inventory_changes", [0.0] * size)))
-    discrepancy = list(map(float, data.get("discrepancy", [0.0] * size)))
+    inventory = list(map(float, data.get("final_demand_adjustments")
+                         or data.get("inventory_changes", [0.0] * size)))
+    discrepancy = list(map(float, data.get("va_adjustments")
+                           or data.get("discrepancy", [0.0] * size)))
     x = list(map(float, data["x"]))
     va = list(map(float, data["va"]))
     if len(Z_rows) != size or any(len(row) != size for row in Z_rows):
         raise OECDImportError("D1: Z is not countries*industries square")
     if not (len(y) == len(inventory) == len(x) == len(va) == size):
         raise OECDImportError("D1: vector length mismatch")
-    row_residual = [sum(Z_rows[row]) + y[row] + inventory[row] + discrepancy[row] - x[row]
+    # Matrix-release documents (final_demand_adjustments/va_adjustments) split the adjustments:
+    # fda is row-side (inventory + discrepancy) and vaa is column-side (TLS + shifted VA).  The
+    # legacy documents keep discrepancy on the row side, so branch on the declared fields.
+    matrix_release = "final_demand_adjustments" in data
+    row_adjustment = inventory if matrix_release else [
+        inventory[index] + discrepancy[index] for index in range(size)]
+    row_residual = [sum(Z_rows[row]) + y[row] + row_adjustment[row] - x[row]
                     for row in range(size)]
-    column_residual = [sum(Z_rows[row][column] for row in range(size)) + va[column] - x[column]
+    column_residual = [sum(Z_rows[row][column] for row in range(size)) + va[column]
+                       + discrepancy[column] - x[column]
                        for column in range(size)]
     total_x, total_z = sum(x), sum(sum(row) for row in Z_rows)
-    total_y = sum(y) + sum(inventory) + sum(discrepancy)
-    total_va = sum(va)
+    total_y = sum(y) + sum(row_adjustment)
+    total_va = sum(va) + sum(discrepancy)
     scale = max(1.0, abs(total_x))
     checks = {
         "dimensions": {"countries": len(countries), "industries": len(industries), "n": size},
@@ -940,19 +949,34 @@ def build_document_icio_matrix(path: Path, year: int, source: dict,
     va_values = np.zeros(size, dtype=float)
     if va_rows is not None:
         va_values = np.asarray(va_rows, dtype=float).copy()
+    tax_values = np.zeros(size, dtype=float)
     if tax_rows is not None:
-        va_values = va_values + np.asarray(tax_rows, dtype=float)
+        tax_values = np.asarray(tax_rows, dtype=float).copy()
+    # Row side: changes in inventories and the statistical discrepancy are signed final-demand
+    # adjustments.  Column side: taxes less subsidies (TLS) and any negative base VA cells are
+    # signed value-added adjustments, so base va stays non-negative and both identities hold.
+    inventory_values = np.asarray(inventory, dtype=float).copy()
+    discrepancy_values = np.asarray(discrepancy, dtype=float).copy()
+    final_adjustments = inventory_values + discrepancy_values
+    value_added_adjustments = np.asarray(tax_values, dtype=float).copy()
+    negative_va = va_values < 0.0
+    if negative_va.any():
+        value_added_adjustments[negative_va] += va_values[negative_va]
+        va_values[negative_va] = 0.0
+    final_adjustments = [float(value) for value in final_adjustments]
+    value_added_adjustments = [float(value) for value in value_added_adjustments]
     va = [float(value) for value in va_values]
     document = {
         "schema": SCHEMA_V11, "schema_version": SCHEMA_VERSION_V11,
         "countries": countries, "industries": industries, "years": [int(year)],
         "units": UNITS,
         "Z": [[float(value) for value in row] for row in Z],
-        "y": y, "inventory_changes": inventory, "discrepancy": discrepancy,
+        "y": y, "final_demand_adjustments": final_adjustments,
+        "va_adjustments": value_added_adjustments,
         "x": x, "va": va, "source": source, "tolerance": float(tolerance),
         "notes": ("values are third-party OECD ICIO data, local only, never committed; "
-                  "row identity x = Z*1 + y + inventory_changes + discrepancy; "
-                  "va includes taxes less subsidies on products (VA + TLS); "
+                  "row identity x = Z*1 + y + fda (INVNT + DISC); "
+                  "va is base value added and vaa carries TLS and negative VA cells; "
                   + document_note_fd),
     }
     return document
@@ -1520,8 +1544,40 @@ def main(argv=None) -> int:
             print(json.dumps(report, ensure_ascii=False, indent=1))
         if args.check:
             status = check_local(args.root)
-            status["manifest"] = write_json(
-                aggregate_manifest([], [], None), root / "reports" / "manifest.json")
+            manifest_path = root / "reports" / "manifest.json"
+            d1_path = root / "reports" / "d1.json"
+            if d1_path.is_file():
+                d1_report = json.loads(d1_path.read_text(encoding="utf-8"))
+                entries = []
+                for item in d1_report.get("datasets", []):
+                    years = item.get("year") or []
+                    entries.append({
+                        "year": years[0] if years else None,
+                        "path": item.get("path"),
+                        "d1": bool(item.get("d1")),
+                        "coverage_share": round(float(item.get("coverage", {}).get(
+                            "covered_share_of_world_va", 0.0)), 6),
+                        "validation": {"d1_pass": bool(item.get("checks", {}).get("d1_pass")),
+                                       "countries": item.get("checks", {}).get(
+                                           "dimensions", {}).get("countries"),
+                                       "industries": item.get("checks", {}).get(
+                                           "dimensions", {}).get("industries")},
+                    })
+                manifest = {"schema": "amfe.mrio.manifest.v1.1",
+                            "generated_at": now(), "source": "OECD ICIO",
+                            "datasets": entries,
+                            "coverage": {"min": min((e["coverage_share"] for e in entries),
+                                                    default=None),
+                                         "max": max((e["coverage_share"] for e in entries),
+                                                    default=None),
+                                         "gate": 0.80,
+                                         "note": "coverage = named economies' share of world "
+                                                 "value added (RoW residual), World Bank cross-check"},
+                            "note": "aggregate metadata only: no Z matrix and no values"}
+                status["manifest"] = write_json(manifest, manifest_path)
+            else:
+                status["manifest"] = write_json(
+                    aggregate_manifest([], [], None), manifest_path)
             print(json.dumps(status, ensure_ascii=False, indent=1))
         return 0
     except OECDImportError as error:

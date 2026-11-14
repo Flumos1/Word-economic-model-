@@ -23,56 +23,54 @@
  "source": "official OECD per-year archives ICIO2016_<year>.zip retrieved via Internet Archive playback",
  "licence": "OECD Terms; archive copies of official files; raw data not committed",
  "release_2025": {
-  "status": "DISCOVERED_AND_DOWNLOADED_ONE_BLOCK",
-  "channel": "official webfs-sti.oecd.org links published on the OECD dataset page (no protection bypass)",
-  "download_page": "https://www.oecd.org/en/data/datasets/inter-country-input-output-tables.html",
-  "structure_from_readme": "81 economies x 50 industries; HFCE, NPISH, GGFC, GFCF, INVNT, DPABR; TLS, VA, X; current USD million; one CSV per year",
-  "years": "1995-2022 in five blocks (1995-2000, 2001-2005, 2006-2010, 2011-2015, 2016-2022)",
+  "status": "AVAILABLE",
+  "channel": "official webfs-sti.oecd.org links published on the OECD dataset page; Range-based download",
+  "edition": "OECD ICIO 2025 (small/SML variant)",
+  "economies": 81,
+  "industries": 50,
+  "sectors": 4050,
+  "units": "USD_mn",
+  "prices": "current",
+  "period": "1995-2022",
+  "datasets_written": 28,
+  "d1": "D1_PASS for all 28 years (row/column/global identities within 0.1%; max |row| 20.6-172.9 USD_mn)",
+  "coverage_world_value_added_pct_min": 94.6,
+  "coverage_world_value_added_pct_max": 97.2,
+  "fd_convention": "canonical y = FD matrix collapsed over all destination countries; INVNT and DISC -> final_demand_adjustments (row side); TLS and negative VA cells -> va_adjustments (column side)",
   "archives": {
-   "2016-2022_SML.zip": {
-    "bytes": 166241019,
-    "sha256": "46db55c45747e26dde5c1716d072b2aa74ace362a4424491ac646d2ab175befb",
-    "state": "downloaded",
-    "csv_members": [
-     "2016_SML.csv",
-     "2017_SML.csv",
-     "2018_SML.csv",
-     "2019_SML.csv",
-     "2020_SML.csv",
-     "2021_SML.csv",
-     "2022_SML.csv"
-    ]
-   },
-   "ReadMe_ICIO_small.xlsx": {
-    "bytes": 328422,
-    "state": "downloaded"
+   "count": 5,
+   "total_bytes": 604162926,
+   "files": {
+    "1995-2000_SML.zip": {
+     "bytes": 110135258,
+     "csv_members": 6
+    },
+    "2001-2005_SML.zip": {
+     "bytes": 99391392,
+     "csv_members": 5
+    },
+    "2006-2010_SML.zip": {
+     "bytes": 111587430,
+     "csv_members": 5
+    },
+    "2011-2015_SML.zip": {
+     "bytes": 116134326,
+     "csv_members": 5
+    },
+    "2016-2022_SML.zip": {
+     "bytes": 166241019,
+     "csv_members": 7
+    },
+    "ReadMe_ICIO_small.xlsx": {
+     "bytes": 328422
+    }
    }
   },
-  "remaining_archives": [
-   "1995-2000_SML.zip",
-   "2001-2005_SML.zip",
-   "2006-2010_SML.zip",
-   "2011-2015_SML.zip"
-  ],
-  "conversion": {
-   "year": 2019,
-   "parsed": "81 countries x 50 industries (n=4050)",
-   "column_balance": "PASS (max residual 33.93 USD_mn)",
-   "non_negativity": "PASS",
-   "row_balance": "FAIL (max residual 19 506 USD_mn)",
-   "global_totals": {
-    "output": 168481393.3319,
-    "intermediate": 85055695.4518,
-    "final": 83183991.5048,
-    "value_added": 83425730.0199
-   },
-   "dataset_written": false,
-   "reason": "final-demand/TLS aggregation convention of the 2025 release still to be mapped (row identity residual ~0.012%); fail-closed"
-  },
-  "commands": [
-   "python tools/oecd_import.py --root <root> --download-2025",
+  "reproduce": [
+   "python tools/oecd_import.py --root <root> --discover --release 2025",
+   "python tools/oecd_import.py --root <root> --download-2025 --release 2025",
    "python tools/oecd_import.py --root <root> --check-archive",
-   "python tools/oecd_import.py --root <root> --convert --jobs 3",
+   "python tools/oecd_import.py --root <root> --convert --jobs 4",
    "python tools/oecd_import.py --root <root> --d1"
   ],
   "docs": "docs/130_OECD_ICIO.md"
