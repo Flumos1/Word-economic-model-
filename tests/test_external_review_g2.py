@@ -32,6 +32,37 @@ def review(overrides: dict | None = None, abm: dict | None = None) -> dict:
                            abm_document=abm, doc_overrides=overrides)
 
 
+class ProvenanceAllowListTest(unittest.TestCase):
+    """G8: a public-domain derived aggregate is allowed only with a valid provenance sidecar."""
+
+    def test_repository_aggregate_is_allowed_with_provenance(self):
+        result = er._public_domain_aggregates(ROOT)
+        self.assertIn("data/oil/brent_monthly_eia.csv", result["allowed"])
+        self.assertEqual(result["problems"], [])
+
+    def test_missing_or_tampered_provenance_is_reported(self):
+        with tempfile.TemporaryDirectory() as directory:
+            repo = Path(directory)
+            (repo / "data" / "oil").mkdir(parents=True)
+            source = ROOT / "data" / "oil" / "brent_monthly_eia.csv"
+            (repo / "data" / "oil" / "brent_monthly_eia.csv").write_bytes(source.read_bytes())
+            # no metadata at all -> a problem, not an allowed aggregate
+            result = er._public_domain_aggregates(repo)
+            self.assertEqual(result["allowed"], [])
+            self.assertTrue(any("provenance not found" in item["problem"]
+                                for item in result["problems"]))
+            # metadata with a wrong hash -> a problem
+            meta = json.loads((ROOT / "data" / "oil" / "brent_monthly_eia.meta.json")
+                              .read_text(encoding="utf-8"))
+            meta["file_sha256"] = "0" * 64
+            (repo / "data" / "oil" / "brent_monthly_eia.meta.json").write_text(
+                json.dumps(meta, ensure_ascii=False), encoding="utf-8")
+            result = er._public_domain_aggregates(repo)
+            self.assertEqual(result["allowed"], [])
+            self.assertTrue(any("hash does not match" in item["problem"]
+                                for item in result["problems"]))
+
+
 class CoverageTest(unittest.TestCase):
     """The review must verify every track, not just the one whose document is an API contract."""
 

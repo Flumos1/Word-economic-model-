@@ -902,6 +902,43 @@ def check_limitations(repo: Path, docs: dict, documents: dict) -> dict:
 RAW_PATTERNS = (r"^data/mrio/", r"\.zip$", r"\.dta$", r"\.csv$", r"\.xlsx$", r"\.parquet$",
                 r"^data/raw/")
 
+#: Public-domain derived aggregates that may live in git if (and only if) a provenance sidecar
+#: documents the licence, the series and the exact hash.  The project policy (docs/84, docs/160)
+#: forbids raw third-party data in git but allows derived aggregates when the licence permits;
+#: a blanket ``*.csv`` block would wrongly flag such a file, so the exception is explicit.
+PUBLIC_DOMAIN_AGGREGATES = {
+    "data/oil/brent_monthly_eia.csv": "data/oil/brent_monthly_eia.meta.json",
+}
+
+
+def _public_domain_aggregates(repo: Path) -> dict:
+    """Verify allow-listed derived aggregates: meta exists, hash matches, licence is public."""
+    allowed, problems = [], []
+    for relative, meta_relative in PUBLIC_DOMAIN_AGGREGATES.items():
+        path, meta_path = Path(repo) / relative, Path(repo) / meta_relative
+        if not path.is_file():
+            problems.append({"path": relative, "problem": "file not found"})
+            continue
+        if not meta_path.is_file():
+            problems.append({"path": relative, "problem": f"provenance not found: {meta_relative}"})
+            continue
+        try:
+            meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as error:
+            problems.append({"path": relative, "problem": f"provenance unreadable: {error}"})
+            continue
+        if str(meta.get("file", "")) != relative:
+            problems.append({"path": relative, "problem": "provenance names a different file"})
+        elif str(meta.get("file_sha256", "")) != sha256_file(path):
+            problems.append({"path": relative, "problem": "provenance hash does not match the file"})
+        elif "public domain" not in str(meta.get("license", "")).lower():
+            problems.append({"path": relative, "problem": "licence is not public domain"})
+        else:
+            allowed.append(relative)
+    return {"allowed": allowed, "problems": problems,
+            "policy": "public-domain derived aggregates require a provenance sidecar (licence, "
+                      "series, hash); everything else under data/ must stay untracked"}
+
 
 def _tracked_raw_data(repo: Path) -> dict:
     try:
@@ -912,9 +949,12 @@ def _tracked_raw_data(repo: Path) -> dict:
     except (OSError, subprocess.SubprocessError):
         return {"available": False, "files": []}
     tracked = [line.strip() for line in done.stdout.splitlines() if line.strip()]
+    aggregate_check = _public_domain_aggregates(repo)
+    allowed = set(aggregate_check["allowed"])
     hits = [path for path in tracked
-            if any(re.search(pattern, path) for pattern in RAW_PATTERNS)]
-    return {"available": True, "files": hits, "tracked_total": len(tracked)}
+            if any(re.search(pattern, path) for pattern in RAW_PATTERNS) and path not in allowed]
+    return {"available": True, "files": hits, "tracked_total": len(tracked),
+            "public_domain_aggregates": aggregate_check}
 
 
 def _long_numeric_arrays(node, path="", limit=MAX_NUMERIC_LEAF, out=None) -> list:
@@ -937,6 +977,12 @@ def check_raw_data(repo: Path, documents: dict) -> dict:
     findings, evidence = [], {}
     tracked = _tracked_raw_data(repo)
     evidence["git"] = tracked
+    aggregates = tracked.get("public_domain_aggregates") or {}
+    evidence["public_domain_aggregates"] = aggregates
+    for problem in aggregates.get("problems") or []:
+        findings.append(_finding("G8", "cross", "HIGH",
+                                 f"public-domain aggregate fails provenance checks: "
+                                 f"{problem['problem']}", problem))
     if tracked.get("files"):
         findings.append(_finding("G8", "cross", "BLOCKER",
                                  "third-party raw data is tracked by git",

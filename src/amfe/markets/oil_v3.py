@@ -40,7 +40,7 @@ import csv
 import hashlib
 import json
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Mapping, Sequence
 
@@ -618,6 +618,7 @@ class OilV3Report:
     verdict: str
     where_worse: tuple[str, ...]
     data: Mapping = field(default_factory=dict)
+    robustness: Mapping = field(default_factory=dict)
     status: str = RESEARCH_ONLY
     schema: str = REPORT_VERSION
 
@@ -651,6 +652,7 @@ class OilV3Report:
             "comparison": comparison,
             "verdict": self.verdict,
             "where_worse": list(self.where_worse),
+            "robustness": dict(self.robustness),
             "digest": self.digest(),
         }
 
@@ -677,6 +679,64 @@ def apply_criteria(oos: Mapping, reference: Mapping, criteria: Mapping | None = 
                                        oos["peak_change_mae"] < reference["peak_change_mae"]):
         return "OOS_PARTIAL"
     return "OOS_FAIL"
+
+
+def robustness(series: Mapping | None = None, premium_delta: float = 5.0) -> dict:
+    """Post-hoc diagnostics: leave-one-train-out stability and declared-premium sensitivity.
+
+    These are computed **after** the OOS scoring and do not change the pre-registered verdict;
+    they exist to show how much the fitted parameters and the OOS errors depend on single train
+    episodes and on the declared risk premiums (docs/165 §7).
+    """
+    series = series if series is not None else load_series()
+    delta = float(premium_delta)
+    if delta < 0.0:
+        raise OilV3Error("premium_delta must be non-negative")
+    full_fits = {regime: fit_regime(regime, series).params for regime in ("acute", "prolonged")}
+    leave_one_out = {}
+    for regime in ("acute", "prolonged"):
+        train_ids = TRAIN_IDS[regime]
+        local_oos = [episode_id for episode_id in OOS_IDS
+                     if episode(episode_id).regime == regime]
+        rows = []
+        for dropped in train_ids:
+            subset = [episode(item) for item in train_ids if item != dropped]
+            if not subset:
+                rows.append({"dropped": dropped, "status": "NOT_APPLICABLE",
+                             "reason": "no train episodes left for this regime"})
+                continue
+            fitted = fit_regime(regime, series, subset)
+            scores = [score_episode(episode(episode_id), fitted.params, series)
+                      for episode_id in local_oos]
+            if scores:
+                peak_mae = math.fsum(abs(row["peak_change_error"]) for row in scores) / len(scores)
+                path_rmse = math.fsum(row["path_rmse"] for row in scores) / len(scores)
+            else:  # pragma: no cover - a regime without OOS episodes is not configured
+                peak_mae = path_rmse = None
+            rows.append({"dropped": dropped, "params": dict(fitted.params),
+                         "oos_episodes": local_oos,
+                         "oos_peak_change_mae": round(peak_mae, 6) if peak_mae is not None else None,
+                         "oos_path_rmse": round(path_rmse, 6) if path_rmse is not None else None})
+        leave_one_out[regime] = rows
+    sensitivity = []
+    for episode_id in OOS_IDS:
+        target = episode(episode_id)
+        if target.risk_premium <= 0.0:
+            continue
+        params = full_fits[target.regime]
+        for signed_delta in (-delta, delta):
+            premium = max(0.0, target.risk_premium + signed_delta)
+            modified = replace(target, risk_premium=premium)
+            row = score_episode(modified, params, series)
+            sensitivity.append({"episode_id": episode_id, "regime": target.regime,
+                                "base_premium": target.risk_premium, "premium": premium,
+                                "peak_change_error": row["peak_change_error"],
+                                "peak_change_ratio": row["peak_change_ratio"],
+                                "path_rmse": row["path_rmse"]})
+    return {"leave_one_out": leave_one_out, "premium_sensitivity": sensitivity,
+            "premium_delta_usd": delta,
+            "note": ("post-hoc diagnostics computed after the OOS scoring; they do not change the "
+                     "pre-registered verdict and are not used for selection")}
 
 
 def calibrate(series: Mapping | None = None) -> OilV3Report:
@@ -706,10 +766,12 @@ def calibrate(series: Mapping | None = None) -> OilV3Report:
         "demand": dict(DEMAND_PARAMS),
     }
     verdict_value = apply_criteria(oos, reference)
+    diagnostics = robustness(series)
     return OilV3Report(
         protocol=protocol, protocol_sha256=digest,
         fits={"params": fitted_params, "acute": fits["acute"], "prolonged": fits["prolonged"]},
         oos=oos, reference=reference, verdict=verdict_value, where_worse=where_worse,
+        robustness=diagnostics,
         data={key: series[key] for key in ("series_id", "path", "sha256", "observations",
                                            "first_month", "last_month", "source", "license",
                                            "unit", "frequency")})
@@ -778,6 +840,28 @@ def report_markdown(report: OilV3Report) -> str:
         f"{report.oos['order_hits']}/{report.oos['n']} против "
         f"{report.reference['order_hits']}/{report.reference['n']}.",
         f"- Хуже v1 по RMSE пути: {', '.join(report.where_worse) or 'нигде'}.",
+        "",
+        "## Диагностика устойчивости (post-hoc, не влияет на verdict)",
+    ]
+    loo = report.robustness.get("leave_one_out", {})
+    for regime in ("acute", "prolonged"):
+        rows = loo.get(regime) or []
+        if not rows:
+            continue
+        lines.append(f"- **{regime}**: " + "; ".join(
+            (f"без {row['dropped']}: " +
+             (f"εshort={row['params']['elasticity_short']}, εlong={row['params']['elasticity_long']}, "
+              f"OOS peak MAE {row['oos_peak_change_mae']:.2f}, RMSE пути {row['oos_path_rmse']:.2f}"
+              if row.get("status") != "NOT_APPLICABLE" else row.get("reason", "не применимо")))
+            for row in rows))
+    sensitivity = report.robustness.get("premium_sensitivity") or []
+    if sensitivity:
+        lines.append("- Премия ±{:g} USD/bbl: ".format(report.robustness.get("premium_delta_usd", 5.0))
+                     + "; ".join(
+                         f"{row['episode_id']} ({row['base_premium']:g}→{row['premium']:g}): "
+                         f"ошибка пика {row['peak_change_error']:+.2f}, RMSE пути {row['path_rmse']:.2f}"
+                         for row in sensitivity))
+    lines += [
         "",
         "**Ограничения:** 4 train и 4 OOS эпизода; 1990/2019/2022 уже были в предыдущих волнах "
         "(протокол v3 предрегистрирован внутри v3, но не слеп к прошлым раундам); месячные "

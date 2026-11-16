@@ -240,6 +240,51 @@ class ScoringTest(unittest.TestCase):
         self.assertEqual(v3.apply_criteria(bad, reference), "OOS_FAIL")
 
 
+class RobustnessTest(unittest.TestCase):
+    """Post-hoc diagnostics: leave-one-out stability and premium sensitivity (docs/165 §7)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.series = v3.load_series()
+        cls.diagnostics = v3.robustness(cls.series)
+
+    def test_structure(self):
+        self.assertIn("leave_one_out", self.diagnostics)
+        self.assertIn("premium_sensitivity", self.diagnostics)
+        acute = self.diagnostics["leave_one_out"]["acute"]
+        self.assertEqual(len(acute), 1)
+        self.assertEqual(acute[0]["status"], "NOT_APPLICABLE")
+        prolonged = self.diagnostics["leave_one_out"]["prolonged"]
+        self.assertEqual([row["dropped"] for row in prolonged],
+                         ["2002_venezuela", "2011_libya", "2018_iran"])
+        for row in prolonged:
+            self.assertIn("elasticity_short", row["params"])
+            self.assertEqual(row["oos_episodes"], ["1990_gulf", "2022_russia"])
+            self.assertGreaterEqual(row["oos_peak_change_mae"], 0.0)
+            self.assertGreaterEqual(row["oos_path_rmse"], 0.0)
+
+    def test_premium_sensitivity(self):
+        rows = self.diagnostics["premium_sensitivity"]
+        self.assertEqual([row["episode_id"] for row in rows],
+                         ["1990_gulf", "1990_gulf", "2022_russia", "2022_russia"])
+        self.assertEqual(sorted(row["premium"] for row in rows if row["episode_id"] == "1990_gulf"),
+                         [5.0, 15.0])
+        low = next(row for row in rows if row["episode_id"] == "1990_gulf" and row["premium"] == 5.0)
+        high = next(row for row in rows if row["episode_id"] == "1990_gulf" and row["premium"] == 15.0)
+        self.assertLess(low["peak_change_error"], 0.0)
+        self.assertGreater(high["peak_change_error"], 0.0)
+        self.assertLess(low["peak_change_error"], high["peak_change_error"])
+
+    def test_robustness_is_deterministic_and_not_in_digest(self):
+        again = v3.robustness(self.series)
+        self.assertEqual(self.diagnostics, again)
+        first = v3.calibrate(self.series)
+        second = v3.calibrate(self.series)
+        self.assertEqual(first.digest(), second.digest())
+        self.assertIn("robustness", first.as_dict())
+        self.assertIn("post-hoc", first.robustness["note"])
+
+
 class ReportTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
