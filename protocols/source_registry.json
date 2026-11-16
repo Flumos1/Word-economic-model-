@@ -21,10 +21,10 @@
         "frequency": "monthly, quarterly, annual"
       },
       "fields": ["crude oil production", "petroleum stocks", "refinery throughput", "prices", "STEO balances", "natural gas"],
-      "retrieved_at": null,
+      "retrieved_at": "2026-11-16",
       "vintage_support": "partial",
-      "status": "CATALOGUED",
-      "notes": "Primary candidate for replacing the oil module's elasticities/stock assumptions; STEO history allows a limited pseudo-vintage reconstruction, not a full PIT archive."
+      "status": "VERIFIED",
+      "notes": "Monthly Europe Brent spot price (EIA series RBRTE) obtained and pinned in the project: data/oil/brent_monthly_eia.csv, 474 monthly observations 1987-05..2026-10, sha256 0d173df09db3331c7deffa40aaf19f9f58dd718ad0c8ab38483bcb9a33041a79, 3 149 bytes. Source page: https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=PET&s=RBRTE&f=M; public domain (U.S. Government work). Monthly averages only; no intraday or vintage history, API access still requires a key for other series. Used by the oil v3 validation (docs/165)."
     },
     {
       "source_id": "IEA",

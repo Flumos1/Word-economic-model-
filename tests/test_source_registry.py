@@ -53,11 +53,11 @@ class RealRegistry(unittest.TestCase):
     def test_status_and_access_distribution(self):
         counts = sr.counts(document())
         self.assertEqual(counts["sources"], 15)
-        self.assertEqual(counts["by_status"], {"CATALOGUED": 9, "NOT_DOWNLOADED": 4,
-                                               "VERIFIED": 2})
+        self.assertEqual(counts["by_status"], {"CATALOGUED": 8, "NOT_DOWNLOADED": 4,
+                                               "VERIFIED": 3})
         self.assertEqual(counts["by_access"], {"api": 6, "file": 5, "paid": 4})
         self.assertEqual(set(sr.missing(document())["verified"]),
-                         {"OECD_ICIO", "WORLD_BANK"})
+                         {"EIA", "OECD_ICIO", "WORLD_BANK"})
 
     def test_every_record_is_complete_and_https(self):
         for item in sr.sources(document()):
@@ -83,7 +83,7 @@ class RealRegistry(unittest.TestCase):
         self.assertTrue(report["valid"])
         self.assertEqual(report["sources"], 15)
         self.assertEqual(report["errors"], [])
-        self.assertEqual(sorted(report["verified"]), ["OECD_ICIO", "WORLD_BANK"])
+        self.assertEqual(sorted(report["verified"]), ["EIA", "OECD_ICIO", "WORLD_BANK"])
 
 
 class Validation(unittest.TestCase):
@@ -159,7 +159,8 @@ class Views(unittest.TestCase):
     def test_find_filters(self):
         doc = document()
         verified = sr.find(doc, status="VERIFIED")
-        self.assertEqual([item["source_id"] for item in verified], ["OECD_ICIO", "WORLD_BANK"])
+        self.assertEqual([item["source_id"] for item in verified],
+                         ["EIA", "OECD_ICIO", "WORLD_BANK"])
         paid = sr.find(doc, access="paid")
         self.assertEqual({item["status"] for item in paid}, {"NOT_DOWNLOADED"})
         crude = [item["source_id"] for item in sr.find(doc, query="crude")]
@@ -172,7 +173,7 @@ class Views(unittest.TestCase):
             sr.get(doc, "UNKNOWN")
 
     def test_counts_and_license_classes(self):
-        self.assertEqual(sr.counts(document())["by_status"]["VERIFIED"], 2)
+        self.assertEqual(sr.counts(document())["by_status"]["VERIFIED"], 3)
         self.assertEqual(sr.license_class("public domain (U.S. Government work)"), "public_domain")
         self.assertEqual(sr.license_class("CC BY 4.0"), "open_attribution")
         self.assertEqual(sr.license_class("CC BY-NC-SA 3.0 IGO (non-commercial)"),
@@ -247,14 +248,15 @@ class Cli(unittest.TestCase):
         self.assertEqual(code, 0)
         payload = json.loads(output)
         self.assertEqual([item["source_id"] for item in payload["list"]],
-                         ["OECD_ICIO", "WORLD_BANK"])
+                         ["EIA", "OECD_ICIO", "WORLD_BANK"])
 
     def test_missing_and_export(self):
         code, output = self._run("--missing", "--json")
         self.assertEqual(code, 0)
         payload = json.loads(output)
-        self.assertEqual(payload["missing"]["n_pending"], 13)
-        self.assertEqual(payload["missing"]["verified"], ["OECD_ICIO", "WORLD_BANK"])
+        self.assertEqual(payload["missing"]["n_pending"], 12)
+        self.assertEqual(payload["missing"]["verified"],
+                         ["EIA", "OECD_ICIO", "WORLD_BANK"])
         code, output = self._run("--json")
         self.assertEqual(code, 0)
         export = json.loads(output)

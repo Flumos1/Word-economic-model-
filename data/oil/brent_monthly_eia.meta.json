@@ -1,0 +1,17 @@
+{
+  "series_id": "RBRTE",
+  "name": "Europe Brent Spot Price FOB (monthly average)",
+  "source": "U.S. Energy Information Administration (EIA), Spot Prices",
+  "source_url": "https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=PET&s=RBRTE&f=M",
+  "publisher": "U.S. Department of Energy / EIA",
+  "license": "public domain (U.S. Government work)",
+  "retrieved_at": "2026-11-16",
+  "unit": "USD/bbl",
+  "frequency": "monthly average",
+  "coverage": "1987-05 .. 2026-10, 474 monthly observations (blank November/December 2026 not yet published)",
+  "file": "data/oil/brent_monthly_eia.csv",
+  "file_bytes": 3149,
+  "file_sha256": "0d173df09db3331c7deffa40aaf19f9f58dd718ad0c8ab38483bcb9a33041a79",
+  "notes": "Transcribed from the EIA Spot Prices page (RBRTE) and committed as a small public-domain monthly aggregate. Intraday daily values are not stored; the EIA daily series and the FRED/ALFRED mirrors are not vintaged here. Used by the oil v3 validation (docs/165) and registered as EIA VERIFIED in protocols/source_registry.json.",
+  "schema": "AMFE-OIL-BRENT-MONTHLY/1.0.0"
+}

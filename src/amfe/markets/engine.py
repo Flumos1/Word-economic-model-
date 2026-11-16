@@ -118,11 +118,17 @@ class MarketCalibration:
 
 @dataclass(frozen=True)
 class Shock:
-    """Monthly shock flows for the engine (length = horizon in months)."""
+    """Monthly shock flows for the engine (length = horizon in months).
+
+    ``demand_shift`` is an optional exogenous demand shift in mb/d (negative = demand collapse,
+    positive = demand boom) applied to the base demand before the price elasticity; it is how the
+    demand-driven episodes (e.g. 2020) are represented without changing the supply identity.
+    """
 
     lost_supply: tuple[float, ...]
     added_supply: tuple[float, ...] = ()
     strategic_release: tuple[float, ...] = ()
+    demand_shift: tuple[float, ...] = ()
     label: str = ""
 
     def __post_init__(self) -> None:
@@ -132,16 +138,21 @@ class Shock:
         months = len(lost)
         added = tuple(float(v) for v in self.added_supply) or tuple(0.0 for _ in range(months))
         release = tuple(float(v) for v in self.strategic_release) or tuple(0.0 for _ in range(months))
-        if not (len(added) == len(release) == months):
+        shift = tuple(float(v) for v in self.demand_shift) or tuple(0.0 for _ in range(months))
+        if not (len(added) == len(release) == len(shift) == months):
             raise MarketError(f"shock vectors must all have {months} entries; got "
-                              f"lost={months}, added={len(added)}, release={len(release)}")
+                              f"lost={months}, added={len(added)}, release={len(release)}, "
+                              f"demand_shift={len(shift)}")
         for name, vector in (("lost_supply", lost), ("added_supply", added),
                              ("strategic_release", release)):
             if any(value < 0.0 for value in vector):
                 raise MarketError(f"{name} must be non-negative")
+        if any(not math.isfinite(value) for value in shift):
+            raise MarketError("demand_shift must be finite")
         object.__setattr__(self, "lost_supply", lost)
         object.__setattr__(self, "added_supply", added)
         object.__setattr__(self, "strategic_release", release)
+        object.__setattr__(self, "demand_shift", shift)
         object.__setattr__(self, "label", str(self.label))
 
     @property
@@ -231,14 +242,18 @@ class MarketPath:
 
 
 def _clear_month(calibration: MarketCalibration, month: int, available: float,
-                 commercial_stock: float) -> dict:
+                 commercial_stock: float, demand_shift: float = 0.0) -> dict:
     """Find the price that clears ``demand(price) = available + commercial draw``."""
     eps = calibration.elasticity_for_month(month)
     floor = calibration.base_price * calibration.price_floor_fraction
     ceiling = calibration.base_price * calibration.price_ceiling_multiple
+    base_demand = calibration.base_demand + float(demand_shift)
+    if base_demand <= 0.0:
+        raise BalanceError(f"month {month}: base_demand + demand_shift={base_demand:.3f} "
+                           f"is not positive")
 
     def demand_at(price: float) -> float:
-        return calibration.base_demand * (price / calibration.base_price) ** (-eps)
+        return base_demand * (price / calibration.base_price) ** (-eps)
 
     def draw_at(price: float) -> float:
         gap = demand_at(price) - available
@@ -297,7 +312,8 @@ def simulate(calibration: MarketCalibration, shock: Shock) -> MarketPath:
                      + shock.added_supply[month] + release)
         if available <= 0.0:
             raise BalanceError(f"month {month}: supply_available={available:.3f} is not positive")
-        cleared = _clear_month(calibration, month, available, commercial_stock)
+        cleared = _clear_month(calibration, month, available, commercial_stock,
+                               shock.demand_shift[month])
         commercial_stock = max(
             0.0, commercial_stock - cleared["commercial_draw"] * calibration.days_per_month)
         strategic_stock = max(
