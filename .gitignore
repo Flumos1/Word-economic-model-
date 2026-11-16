@@ -16,7 +16,7 @@ GDPNowcastDataReleaseDates*.xlsx
 .env
 
 # local scratch (Lead runs)
-.tmp-test/
+.tmp-*
 # generated artefacts
 build/*
 !build/p2_release/

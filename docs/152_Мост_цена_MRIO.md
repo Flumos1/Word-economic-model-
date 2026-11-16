@@ -3,8 +3,9 @@
 Дата: 2026-11-16. Волна 22, ворота G2, трек «цена → MRIO». Статус: **RESEARCH_ONLY**, допуска
 нет (`admission=false`). Инструмент: [tools/market_bridge.py](../tools/market_bridge.py); тесты:
 [tests/test_market_bridge.py](../tests/test_market_bridge.py); отчёт:
-`build/market_bridge/bridge_report.json` (SHA-256 `ac14add3…`, 52 120 байт), сводка
-`build/market_bridge/bridge_summary.md`. Прогон обоих миров — 53,1 с.
+`build/market_bridge/bridge_report.json` (SHA-256 `da3d297144b7c7f2…`, 52 119 байт; прогон
+2026-11-16T10:56:33Z), сводка
+`build/market_bridge/bridge_summary.md`. Прогон обоих миров — 45,5 с.
 
 > **Короткий ответ.** Мост переводит детерминированный сценарий Ормуза (`oil.brent`,
 > `hormuz_closed_6m`: Brent 75 → пик 168,86 USD/bbl, +93,86 USD/bbl = **+125,1%**) в

@@ -34,11 +34,13 @@ if str(ROOT / "src") not in sys.path:
     sys.path.insert(0, str(ROOT / "src"))
 
 SCHEMA = "amfe.market_client_pack.v1"
+PASSPORTS_SCHEMA = "amfe.market_client_pack.passports.v1"
 REPRO_SCHEMA = "amfe.market_client_pack.repro.v1"
 STATUS = "RESEARCH_ONLY"
 DEFAULT_CLIENT = "Research client"
 DEFAULT_SCENARIO = "hormuz_closed_6m"
 DEFAULT_OUT = ROOT / "build" / "client_pack" / f"market_{DEFAULT_SCENARIO}"
+DEFAULT_REGISTRY = ROOT / "build" / "registry" / "modules.jsonl"
 DISCLAIMER = (
     "Research-only scenario arithmetic, not a forecast, not an admission decision and not "
     "investment advice. The Brent path is produced by the deterministic AMFE market engine from "
@@ -116,6 +118,84 @@ def run_result(module=None, scenario_id: str = DEFAULT_SCENARIO):
     if result.status != STATUS:
         raise MarketPackError(f"unexpected market result status {result.status!r}")
     return module, scenario, result
+
+
+# ------------------------------------------------------------------------------- module passports
+def load_module_passports(registry_path: Path | None = None, module_id: str | None = None) -> dict:
+    """Load module passports from the append-only module registry (fail-closed)."""
+    path = Path(registry_path) if registry_path is not None else DEFAULT_REGISTRY
+    if not path.is_file():
+        raise MarketPackError(
+            f"module registry not found: {path}; run 'python tools/register_modules.py' first")
+    try:
+        from amfe.learning import module_registry
+    except ImportError as exc:  # pragma: no cover - environment without src/amfe/learning
+        raise MarketPackError(f"module registry package unavailable: {exc!r}") from exc
+    try:
+        export = module_registry.export_for_api(path)
+    except Exception as exc:
+        raise MarketPackError(f"cannot read module registry {path}: {exc!r}") from exc
+    modules = list(export.get("modules") or [])
+    if module_id is not None:
+        modules = [item for item in modules if item.get("module_id") == module_id]
+    if not modules:
+        raise MarketPackError(
+            f"module {module_id!r} not found in the registry {path}" if module_id
+            else f"module registry {path} has no passports")
+    return {"path": str(path).replace("\\", "/"), "sha256": _sha256(path),
+            "schema": export.get("schema"), "export": export, "modules": modules}
+
+
+def build_module_passports(out_path: Path, result, client: str, generated_at: str,
+                           registry: dict) -> dict:
+    """Write ``10_Module_Passports.json``: module/version/status/limitations/hashes.
+
+    These are registry metadata only; every number in the pack still comes from ``MarketResult``.
+    """
+    module = next(item for item in registry["modules"]
+                  if item.get("module_id") == result.module_id)
+    passport = {
+        "module_id": module.get("module_id"),
+        "version": module.get("version"),
+        "status": module.get("status"),
+        "kind": module.get("kind"),
+        "limitations": list(module.get("limitations") or []),
+        "code_sha256": module.get("code_sha256"),
+        "code_files": module.get("code_files"),
+        "data_status": module.get("data_status"),
+        "data_sha256": module.get("data_sha256"),
+        "owner": module.get("owner"),
+        "display_name": module.get("display_name"),
+        "created_at": module.get("created_at"),
+        "docs": list(module.get("docs") or []),
+        "tests": list(module.get("tests") or []),
+        "entrypoints": list(module.get("entrypoints") or []),
+        "components": list(module.get("components") or []),
+    }
+    document = {
+        "schema": PASSPORTS_SCHEMA,
+        "kind": "module_passports",
+        "generated_at": generated_at,
+        "client": client,
+        "status": STATUS,
+        "disclaimer": DISCLAIMER,
+        "module_ref": f"{passport['module_id']}@{passport['version']}",
+        "registry": {"path": registry["path"], "sha256": registry["sha256"],
+                     "schema": registry["schema"]},
+        "module": passport,
+        "all_modules": [{
+            "module_id": item.get("module_id"), "version": item.get("version"),
+            "status": item.get("status"), "kind": item.get("kind"),
+            "code_sha256": item.get("code_sha256"),
+            "limitations": list(item.get("limitations") or []),
+        } for item in registry["export"]["modules"]],
+        "numbers_source": "MarketResult (04_Machine_Readable.json): passports carry no scenario "
+                          "numbers and no admission claims",
+        "policy": {"read_only": True, "research_only": True, "no_admission": True,
+                   "passports_are_metadata": True},
+    }
+    _write_json(out_path, document)
+    return passport
 
 
 # ------------------------------------------------------------------------------------ DOCX/PDF
@@ -549,7 +629,8 @@ def build_reproducibility(out_path: Path, result, client: str, generated_at: str
 
 
 # ------------------------------------------------------------------------------------ assemble
-def _readme(client: str, result, generated_at: str, files: list[dict], has_pdf: bool) -> str:
+def _readme(client: str, result, generated_at: str, files: list[dict], has_pdf: bool,
+            passport: dict | None = None) -> str:
     lines = [
         "# AMFE — клиентский пакет по нефтяному сценарию",
         "",
@@ -575,6 +656,7 @@ def _readme(client: str, result, generated_at: str, files: list[dict], has_pdf: 
         "| `07_Reproducibility` | JSON | digest результата, SHA-256 файлов, команда |",
         "| `08_Licence_and_Disclaimer` | DOCX" + (" + PDF" if has_pdf else "") +
         " | условия использования и дисклеймер |",
+        "| `10_Module_Passports` | JSON | модуль/версия/статус/ограничения/хеши из реестра модулей |",
         "",
         "## Ключевые числа",
         "",
@@ -586,6 +668,14 @@ def _readme(client: str, result, generated_at: str, files: list[dict], has_pdf: 
         f"- средняя цена: {_fmt(result.summary['price_mean'])} {result.units};",
         f"- проверок PASS: {sum(1 for value in result.checks.values() if value)}/"
         f"{len(result.checks)}; допущений: {len(result.assumptions)}.",
+        "",
+        "## Модуль (паспорт реестра)",
+        "",
+        (f"- `{passport['module_id']}@{passport['version']}` — статус "
+         f"**{passport['status']}**, kind `{passport['kind']}`, "
+         f"code SHA-256 `{(passport.get('code_sha256') or '')[:16]}…`; ограничения — в "
+         "`10_Module_Passports.json`." if passport else
+         "- паспорт модуля недоступен (реестр не задан)."),
         "",
         "## Воспроизведение",
         "",
@@ -603,13 +693,15 @@ def _readme(client: str, result, generated_at: str, files: list[dict], has_pdf: 
 
 def build_pack(out_dir: Path = DEFAULT_OUT, scenario_id: str = DEFAULT_SCENARIO,
                client: str = DEFAULT_CLIENT, generated_at: str | None = None,
-               make_pdf: bool = True, module=None) -> dict:
+               make_pdf: bool = True, module=None,
+               registry_path: Path | None = None) -> dict:
     """Build the market client package; every number comes from the real MarketResult."""
     if not client or not client.strip():
         raise MarketPackError("client name must not be empty")
     generated_at = generated_at or _now()
     generated = _datetime(generated_at)
     module, _scenario, result = run_result(module, scenario_id)
+    registry = load_module_passports(registry_path, module_id=result.module_id)
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     files: list[dict] = []
@@ -637,6 +729,9 @@ def build_pack(out_dir: Path = DEFAULT_OUT, scenario_id: str = DEFAULT_SCENARIO,
     build_dashboard(out_dir / "05_Dashboard.html", result, client, generated_at)
     for path in (out_dir / "04_Machine_Readable.json", out_dir / "05_Dashboard.html"):
         record(path)
+    passport = build_module_passports(out_dir / "10_Module_Passports.json", result, client,
+                                      generated_at, registry)
+    record(out_dir / "10_Module_Passports.json")
 
     has_pdf = False
     if make_pdf:
@@ -645,7 +740,8 @@ def build_pack(out_dir: Path = DEFAULT_OUT, scenario_id: str = DEFAULT_SCENARIO,
             if pdf is not None:
                 has_pdf = True
                 record(pdf)
-    (out_dir / "README.md").write_text(_readme(client, result, generated_at, files, has_pdf),
+    (out_dir / "README.md").write_text(_readme(client, result, generated_at, files, has_pdf,
+                                              passport),
                                       encoding="utf-8", newline="\n")
     record(out_dir / "README.md")
     command = (f"python tools/market_client_pack.py --scenario {scenario_id} "
@@ -662,6 +758,8 @@ def build_pack(out_dir: Path = DEFAULT_OUT, scenario_id: str = DEFAULT_SCENARIO,
         "module_id": result.module_id,
         "generated_at": generated_at,
         "out": str(out_dir).replace("\\", "/"),
+        "module_passport": {key: passport.get(key) for key in
+                            ("module_id", "version", "status", "kind", "code_sha256")},
         "files": sorted(item["path"] for item in files),
         "pdf": has_pdf,
         "numbers": {
@@ -689,6 +787,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--generated-at", default=None,
                         help="ISO 8601 timestamp YYYY-MM-DDTHH:MM:SSZ (determinism)")
     parser.add_argument("--no-pdf", action="store_true", help="skip LibreOffice PDF conversion")
+    parser.add_argument("--registry", default=str(DEFAULT_REGISTRY),
+                        help="module registry JSONL (default build/registry/modules.jsonl)")
     parser.add_argument("--json", action="store_true", help="print the build summary as JSON")
     return parser
 
@@ -698,7 +798,8 @@ def main(argv=None) -> int:
     out = Path(args.out) if args.out else ROOT / "build" / "client_pack" / f"market_{args.scenario}"
     try:
         summary = build_pack(out, scenario_id=args.scenario, client=args.client,
-                             generated_at=args.generated_at, make_pdf=not args.no_pdf)
+                             generated_at=args.generated_at, make_pdf=not args.no_pdf,
+                             registry_path=Path(args.registry))
     except MarketPackError as error:
         print(json.dumps({"status": "BLOCKED_DATA", "error": str(error)}, ensure_ascii=False),
               file=sys.stderr)

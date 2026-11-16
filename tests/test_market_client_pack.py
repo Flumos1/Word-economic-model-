@@ -55,7 +55,7 @@ class MarketClientPack(unittest.TestCase):
                          "03_Price_Sensitivity.xlsx", "04_Machine_Readable.json",
                          "05_Dashboard.html", "06_Methodology_Appendix.docx",
                          "07_Reproducibility.json", "08_Licence_and_Disclaimer.docx",
-                         "README.md"):
+                         "10_Module_Passports.json", "README.md"):
             self.assertIn(required, names)
         if self.summary["pdf"]:
             for required in ("01_Executive_Summary.pdf", "02_Scenario_Report.pdf",
@@ -133,7 +133,7 @@ class MarketClientPack(unittest.TestCase):
         for name, digest in self.repro["deterministic_artifacts"].items():
             self.assertEqual(hashlib.sha256((self.out / name).read_bytes()).hexdigest(), digest)
         self.assertIn("market_client_pack.py", self.repro["command"])
-        self.assertGreaterEqual(self.repro["file_count"], 10)
+        self.assertGreaterEqual(self.repro["file_count"], 12)
 
     def test_methodology_and_licence_documents(self):
         methodology = docx_text(self.out / "06_Methodology_Appendix.docx")
@@ -182,6 +182,44 @@ class MarketClientPack(unittest.TestCase):
             with self.assertRaises(market_client_pack.MarketPackError):
                 market_client_pack.build_pack(Path(tmp) / "pack2", client="  ",
                                               generated_at=FIXED, make_pdf=False)
+
+    def test_module_passport_file(self):
+        document = read_json(self.out / "10_Module_Passports.json")
+        self.assertEqual(document["schema"], market_client_pack.PASSPORTS_SCHEMA)
+        self.assertEqual(document["kind"], "module_passports")
+        self.assertEqual(document["status"], "RESEARCH_ONLY")
+        self.assertEqual(document["module_ref"], "oil.brent@0.1.0")
+        module = document["module"]
+        for key in ("module_id", "version", "status", "kind", "limitations", "code_sha256"):
+            self.assertIn(key, module)
+        self.assertEqual(module["module_id"], self.result.module_id)
+        self.assertEqual(module["version"], "0.1.0")
+        self.assertEqual(module["status"], "RESEARCH_ONLY")
+        self.assertEqual(len(module["code_sha256"]), 64)
+        self.assertTrue(module["limitations"])
+        self.assertEqual(len(document["all_modules"]), 5)
+        self.assertEqual(document["registry"]["sha256"],
+                         market_client_pack._sha256(market_client_pack.DEFAULT_REGISTRY))
+        self.assertIn("MarketResult", document["numbers_source"])
+        self.assertFalse(document["policy"].get("no_admission") is False)
+        readme = (self.out / "README.md").read_text(encoding="utf-8")
+        self.assertIn("10_Module_Passports", readme)
+        self.assertIn("oil.brent@0.1.0", readme)
+
+    def test_fail_closed_missing_registry(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "pack"
+            missing = Path(tmp) / "no_registry.jsonl"
+            with self.assertRaises(market_client_pack.MarketPackError):
+                market_client_pack.build_pack(out, generated_at=FIXED, make_pdf=False,
+                                              registry_path=missing)
+            self.assertFalse(out.exists())
+            with tempfile.TemporaryDirectory() as repo_tmp:
+                empty = Path(repo_tmp) / "empty.jsonl"
+                empty.write_text("", encoding="utf-8")
+                with self.assertRaises(market_client_pack.MarketPackError):
+                    market_client_pack.build_pack(Path(repo_tmp) / "pack2", generated_at=FIXED,
+                                                  make_pdf=False, registry_path=empty)
 
     def test_cli_help_and_no_pdf_build(self):
         with tempfile.TemporaryDirectory() as tmp:
