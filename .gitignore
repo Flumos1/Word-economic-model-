@@ -21,6 +21,7 @@ GDPNowcastDataReleaseDates*.xlsx
 build/*
 !build/p2_release/
 !build/p2_release/p2_release.json
+!build/p2_release/p2_release_0_2.json
 !build/world/
 build/world/*
 !build/world/report_index.json

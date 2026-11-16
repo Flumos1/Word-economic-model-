@@ -640,6 +640,399 @@ def write_manifest(manifest: dict, path: Path) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
+# ================================================================================== P2 0.2
+# P2 0.2 promotes the OECD ICIO 2025 release (81 economies x 50 industries, 1995-2022) to the
+# main world of the platform.  The 0.2 manifest is a separate, additive artefact: the 0.1
+# builder and its tests stay untouched, and the 0.2 builder is fail-closed on its own artefacts.
+SCHEMA_02 = "AMFE-P2-RELEASE/1.1.0"
+RELEASE_02 = "P2 0.2"
+VERSION_02 = "0.2"
+DEFAULT_RELEASE_02_PATH = "build/p2_release/p2_release_0_2.json"
+REQUIRED_DOCS_02 = ("docs/145_AMFE_2.0_план.md", "docs/146_P2_0.2.md", "docs/130_OECD_ICIO.md")
+REQUIRED_TOOLS_02 = ("tools/world_pipeline.py", "tools/world_reports.py", "tools/p2_release.py")
+REQUIRED_TESTS_02 = ("tests/test_p2_release.py", "tests/test_world_reports.py",
+                     "tests/test_world_pipeline.py")
+OPEN_RELEASE_STATUS = "RESEARCH_RELEASE"
+
+
+def _read_json_02(path: Path, label: str) -> dict:
+    return _read_json(Path(path), label)
+
+
+def collect_inputs_02(repo: Path, data_root: Path, world_out: Path) -> dict:
+    """Load every P2 0.2 artefact (OECD 2025 world) with SHA-256/bytes; fail-closed."""
+    repo, data_root, world_out = Path(repo), Path(data_root), Path(world_out)
+    required = {
+        "oecd_coverage": repo / "protocols" / "oecd_icio_coverage.json",
+        "world_index": world_out / "report_index.json",
+        "world_pipeline": world_out / "world_pipeline_report.json",
+        "oecd_2025_d1": data_root / "oecd_icio_2025" / "reports" / "d1.json",
+        "oecd_2025_manifest": data_root / "oecd_icio_2025" / "reports" / "manifest.json",
+    }
+    documents: dict = {}
+    files: list[dict] = []
+    for key, file_path in required.items():
+        if not Path(file_path).is_file():
+            raise ReleaseError(f"P2 0.2 required artefact missing ({key}): {file_path}")
+        documents[key] = _read_json_02(file_path, key)
+        entry = _artifact(repo, file_path)
+        entry.update({"id": key, "required": True})
+        files.append(entry)
+    optional = {
+        "protocol_v5": repo / "protocols" / "evaluation_protocol_v5.json",
+        "base_0_1_manifest": repo / "build" / "p2_release" / "p2_release.json",
+        "base_0_1_world_index": repo / "build" / "world_oecd" / "report_index.json",
+    }
+    for key, file_path in optional.items():
+        if Path(file_path).is_file():
+            documents[key] = _read_json_02(file_path, key)
+            entry = _artifact(repo, file_path)
+            entry.update({"id": key, "required": False})
+        else:
+            documents[key] = None
+            entry = {"id": key, "path": _rel(file_path, repo), "exists": False,
+                     "sha256": None, "bytes": None, "required": False}
+        files.append(entry)
+    docs = []
+    for pattern in REQUIRED_DOCS_02:
+        entry = _artifact(repo, repo / pattern)
+        entry.update({"id": f"doc:{Path(pattern).stem}", "required": True,
+                      "role": "P2 0.2 release context"})
+        files.append(entry)
+        docs.append(entry["path"])
+    tools = []
+    for pattern in REQUIRED_TOOLS_02:
+        entry = _artifact(repo, repo / pattern)
+        entry.update({"id": f"tool:{Path(pattern).stem}", "required": True})
+        files.append(entry)
+        tools.append(entry["path"])
+    tests = []
+    for pattern in REQUIRED_TESTS_02:
+        entry = _artifact(repo, repo / pattern, required=False)
+        entry.update({"id": f"test:{Path(pattern).stem}", "required": False})
+        files.append(entry)
+        if entry["exists"]:
+            tests.append(entry["path"])
+    documents["docs"] = {"required": docs, "tools": tools, "tests_present": tests}
+    documents["files"] = sorted(files, key=lambda item: item["id"])
+    return documents
+
+
+def _oecd2025_summary(protocol: dict, d1_report: dict, dataset_manifest: dict,
+                      pipeline: dict, index: dict) -> dict:
+    release = protocol.get("release_2025") or {}
+    solve = pipeline.get("solve") or {}
+    core = pipeline.get("core") or {}
+    validation = pipeline.get("validation") or {}
+    dataset = index.get("dataset") or {}
+    pipeline_dataset = pipeline.get("dataset") or {}
+    coverage = dataset_manifest.get("coverage") or {}
+    d1_datasets = d1_report.get("datasets") or []
+    return {
+        "dataset": "OECD ICIO 2025 (small/SML variant)",
+        "economies": release.get("economies"),
+        "industries": release.get("industries"),
+        "sectors": dataset.get("sectors"),
+        "year": (dataset.get("years") or [None])[0],
+        "years_available": release.get("years"),
+        "datasets_written": release.get("datasets_written"),
+        "units": release.get("units") or dataset.get("units"),
+        "dataset_sha256": dataset.get("sha256"),
+        "dataset_bytes": dataset.get("bytes"),
+        "pipeline_dataset_sha256": pipeline_dataset.get("sha256"),
+        "fd_convention": release.get("fd_convention"),
+        "d1": {
+            "status": d1_report.get("status"),
+            "datasets": len(d1_datasets),
+            "coverage_min": coverage.get("min"),
+            "coverage_max": coverage.get("max"),
+            "gate": coverage.get("gate"),
+            "world_bank_countries_matched": (
+                (d1_datasets[0].get("coverage") or {}).get("world_bank_cross_check", {})
+                .get("countries_matched") if d1_datasets else None),
+        },
+        "baseline": {
+            "total_output": solve.get("total_output"),
+            "spectral_radius": solve.get("spectral_radius"),
+            "productive": solve.get("productive"),
+            "max_abs_material_residual": solve.get("max_abs_material_residual"),
+            "stored_A": solve.get("stored_A"),
+        },
+        "core": {
+            "spectral_radius": core.get("spectral_radius"),
+            "hawkins_simon_pass": core.get("hawkins_simon_pass"),
+            "productive": core.get("productive"),
+            "max_abs_balance_residual": core.get("max_abs_balance_residual"),
+        },
+        "validation": {"checks": validation.get("checks"), "ok": validation.get("ok")},
+        "archives": release.get("archives"),
+        "channel": release.get("channel"),
+    }
+
+
+def _scenario_summary_02(index: dict) -> dict:
+    checks = index.get("checks") or {}
+    scenarios = index.get("scenarios") or []
+    scenario_ids = [str(entry.get("id")) for entry in scenarios]
+    headlines = []
+    for entry in scenarios:
+        headline = entry.get("headline") or {}
+        headlines.append({
+            "id": entry.get("id"),
+            "total_delta_output": headline.get("total_delta_output"),
+            "relative_delta_output": headline.get("relative_delta_output"),
+            "largest_country": headline.get("largest_country"),
+            "largest_industry": headline.get("largest_industry"),
+            "max_abs_material_residual": headline.get("max_abs_material_residual"),
+        })
+    return {
+        "dataset": index.get("status"),
+        "scenario_count": checks.get("scenario_count", len(scenarios)),
+        "scenario_ids": scenario_ids,
+        "has_energy_plus50": any("energy_plus50" == name or name.startswith("energy_plus50")
+                                 for name in scenario_ids),
+        "all_feasible": bool(checks.get("all_feasible")),
+        "all_validations_pass": bool(checks.get("all_validations_pass")),
+        "all_sfc_pass": bool(checks.get("all_sfc_pass")),
+        "max_abs_material_residual": checks.get("max_abs_material_residual"),
+        "headlines": headlines,
+        "timings_ms": index.get("timings_ms"),
+    }
+
+
+def _sfc_summary_02(index: dict) -> dict:
+    sfc = index.get("sfc") or {}
+    checks = sfc.get("checks") or {}
+    totals = sfc.get("totals") or {}
+    return {
+        "present": bool(sfc),
+        "pass": bool(sfc.get("pass")),
+        "totals": {"savings": totals.get("savings"), "investment": totals.get("investment"),
+                   "current_account": totals.get("current_account")},
+        "checks": checks,
+        "assumptions": sfc.get("assumptions"),
+        "units": sfc.get("units"),
+    }
+
+
+def build_criteria_02(documents: dict, world: dict) -> list[dict]:
+    """D1-D6 for P2 0.2: OECD 2025 is the main world; D4 stays RESEARCH_ONLY."""
+    oecd = world["oecd_2025"]
+    scenarios = world["scenarios"]
+    sfc = world["sfc"]
+    d1 = oecd["d1"]
+    baseline = oecd["baseline"]
+    core = oecd["core"]
+    criteria: list[dict] = []
+
+    d1_reasons = []
+    if (oecd.get("economies"), oecd.get("industries")) != (81, 50):
+        d1_reasons.append("dataset is not 81x50")
+    if oecd.get("sectors") != 4050:
+        d1_reasons.append("sector count is not 4050")
+    if d1.get("status") != "D1_PASS":
+        d1_reasons.append(f"d1 report status is {d1.get('status')!r}")
+    if not d1.get("datasets"):
+        d1_reasons.append("no converted datasets in the D1 report")
+    if (d1.get("coverage_min") or 0.0) < 0.80:
+        d1_reasons.append("coverage below the 80% gate")
+    if oecd.get("dataset_sha256") != oecd.get("pipeline_dataset_sha256"):
+        d1_reasons.append("dataset SHA-256 differs between the report index and the pipeline")
+    criteria.append({
+        "id": "D1",
+        "title": "Данные готовы: OECD ICIO 2025 (81x50, 1995-2022), покрытие >=80% ВВП, идентичности",
+        "status": "PASS" if not d1_reasons else "FAIL",
+        "rationale": ("OECD ICIO 2025 — основной мир: 81 экономика x 50 отраслей, 28 годовых "
+                      "датасетов 1995-2022, D1 PASS, покрытие мирового ВВП выше 80%, SHA-256 "
+                      "зафиксирован в манифесте данных и в сценарном индексе."),
+        "evidence": oecd,
+        "limitations": d1_reasons + [
+            "остатки идентичностей ненулевые в пределах допуска 0.1% (балансировка исходной таблицы)",
+            "сторонние данные OECD в git не коммитятся: только SHA-256, счётчики и покрытие",
+        ],
+    })
+
+    d2_reasons = []
+    if (baseline.get("spectral_radius") or 1.0) >= 1.0:
+        d2_reasons.append("spectral radius of A is not below 1")
+    if not baseline.get("productive"):
+        d2_reasons.append("pipeline solve did not confirm productiveness")
+    if not core.get("hawkins_simon_pass"):
+        d2_reasons.append("Hawkins-Simon condition failed")
+    validation = oecd.get("validation") or {}
+    validation_checks = validation.get("checks") or {}
+    validation_ok = validation.get("ok")
+    if validation_ok is None:
+        validation_ok = all(bool(value) for value in validation_checks.values()) \
+            if validation_checks else True
+    if not validation_ok:
+        d2_reasons.append("pipeline validation is not ok")
+    if not scenarios.get("all_validations_pass"):
+        d2_reasons.append("scenario materials do not balance")
+    criteria.append({
+        "id": "D2",
+        "title": "Статическое ядро на OECD 2025: A=Z/x, продуктивность, solve, агрегация",
+        "status": "PASS" if not d2_reasons else "FAIL",
+        "rationale": ("world_pipeline.py на OECD 2025 (4050 секторов) подтверждает продуктивность "
+                      "матрицы (rho(A)<1, Hawkins-Simon PASS) и решает x=(I-A)^-1 y; материальные "
+                      "балансы сценариев сходятся."),
+        "evidence": {"baseline": baseline, "core": core,
+                     "validation": oecd.get("validation"),
+                     "scenario_checks": {key: scenarios.get(key) for key in (
+                         "all_feasible", "all_validations_pass", "max_abs_material_residual")}},
+        "limitations": ["сравнительная статика без цен, замещения и динамики (docs/127, docs/131)",
+                        "агрегация проверяется по итогам, а не по каждой ячейке Z"],
+    })
+
+    d3_reasons = []
+    if not sfc.get("present"):
+        d3_reasons.append("SFC block missing")
+    if not sfc.get("pass"):
+        d3_reasons.append("SFC checks failed")
+    criteria.append({
+        "id": "D3",
+        "title": "SFC: счета стран, S=I+CA, sum(CA)=0, шаг потоков/запасов",
+        "status": "PASS" if not d3_reasons else ("PARTIAL" if sfc.get("present") else "FAIL"),
+        "rationale": ("SFC-блок на OECD 2025 проходит S=I+CA и sum(CA)=0; это бухгалтерский "
+                      "блок, а не поведенческая модель."),
+        "evidence": sfc,
+        "limitations": d3_reasons + [
+            "распределение конечного спроса и инвестиционная доля — допущения блока (docs/133)",
+        ],
+    })
+
+    criteria.append({
+        "id": "D4",
+        "title": "Динамика: GVAR OOS — исследовательский слой, вне допуска",
+        "status": "RESEARCH_ONLY",
+        "rationale": ("D4 остаётся RESEARCH_ONLY: динамика не входит в P2 0.2 и не используется "
+                      "сценариями; сохранён честно зафиксированный отрицательный OOS-результат "
+                      "(docs/128, docs/145 §5: «D4 не возвращаем»)."),
+        "evidence": {"status": "RESEARCH_ONLY", "reentry": False,
+                     "source": ["docs/128_GVAR_на_реальных_данных.md", "docs/145_AMFE_2.0_план.md"],
+                     "base_0_1_manifest": (documents.get("base_0_1_manifest") or {}).get("status")},
+        "limitations": ["динамика не влияет на сценарные отчёты и релизный статус",
+                        "возврат D4 в допуск не планируется в P2 0.2"],
+    })
+
+    d5_reasons = []
+    if scenarios.get("scenario_count") != 8:
+        d5_reasons.append(f"scenario count is {scenarios.get('scenario_count')}, expected 8")
+    if not scenarios.get("has_energy_plus50"):
+        d5_reasons.append("mandatory energy_plus50 scenario is missing")
+    if not scenarios.get("all_feasible"):
+        d5_reasons.append("not all scenarios solved")
+    if not scenarios.get("all_validations_pass"):
+        d5_reasons.append("not all scenarios passed validation")
+    if not scenarios.get("all_sfc_pass"):
+        d5_reasons.append("not all scenarios passed SFC")
+    criteria.append({
+        "id": "D5",
+        "title": "Сценарии: 8 сценариев (energy +50%, импорт, FX) + SFC на OECD 2025",
+        "status": "PASS" if not d5_reasons else "FAIL",
+        "rationale": ("На OECD 2025 (2019) прогнаны 8 сценариев: energy_minus5, energy_plus50, "
+                      "import_plus10/20, fx_minus10/20 для USA и DEU; балансы и SFC PASS, отчёты "
+                      "«страна x отрасль» в JSON/MD."),
+        "evidence": {"scenarios": scenarios},
+        "limitations": d5_reasons + [
+            "сравнительная статика; без цен, замещения, динамики и обратных связей",
+            "отчёты агрегатные: страновые/отраслевые суммы, без сырых Z/x/y",
+        ],
+    })
+
+    missing = [path for path in REQUIRED_TOOLS_02 + REQUIRED_TESTS_02 + REQUIRED_DOCS_02
+               if not (Path(ROOT) / path).is_file()]
+    d6_status = "PASS" if not missing else "PARTIAL"
+    criteria.append({
+        "id": "D6",
+        "title": "Интеграция: один пайплайн, тесты, docs, воспроизводимый релиз P2 0.2",
+        "status": d6_status,
+        "rationale": ("Один пайплайн world_pipeline.py -> world_reports.py -> p2_release.py "
+                      "воспроизводит OECD 2025 сценарии и SFC; тесты и docs/146 фиксируют числа "
+                      "и ограничения; релиз — исследовательский, не допуск."),
+        "evidence": {"tools": list(REQUIRED_TOOLS_02), "tests": list(REQUIRED_TESTS_02),
+                     "docs": list(REQUIRED_DOCS_02), "missing": missing,
+                     "manifest_builder": "tools/p2_release.py --release 0.2"},
+        "limitations": ["P2 0.2 не включает T2/ACTIVE, микроуровень и коммерческую эксплуатацию",
+                        "релиз не является допуском: admission=false, ни один кандидат не допущен"],
+    })
+    for criterion in criteria:
+        if criterion["status"] not in STATUSES:
+            raise ReleaseError(f"{criterion['id']}: unknown status {criterion['status']!r}")
+    return criteria
+
+
+def build_manifest_02(repo: Path = ROOT, data_root: Path | None = None,
+                      world_out: Path | None = None, generated_at: str | None = None,
+                      date: str | None = None, git_commit: str | None = None) -> dict:
+    """P2 0.2 release manifest (OECD ICIO 2025 world); deterministic and fail-closed."""
+    repo = Path(repo)
+    data_root = resolve_data_root(data_root)
+    world_out = Path(world_out) if world_out else repo / "build" / "world_oecd_2025"
+    generated_at = generated_at or _now()
+    date = date or generated_at[:10]
+    documents = collect_inputs_02(repo, data_root, world_out)
+    index = documents["world_index"]
+    pipeline = documents["world_pipeline"]
+    protocol = documents["oecd_coverage"]
+    world = {
+        "oecd_2025": _oecd2025_summary(protocol, documents["oecd_2025_d1"],
+                                       documents["oecd_2025_manifest"], pipeline, index),
+        "scenarios": _scenario_summary_02(index),
+        "sfc": _sfc_summary_02(index),
+        "base_0_1": {
+            "release": "P2 0.1",
+            "manifest_present": documents.get("base_0_1_manifest") is not None,
+            "status": (documents.get("base_0_1_manifest") or {}).get("status"),
+            "criteria_summary": (documents.get("base_0_1_manifest") or {}).get("criteria_summary"),
+            "note": "P2 0.1 остаётся базой; P2 0.2 расширяет её миром OECD 2025",
+        },
+    }
+    criteria = build_criteria_02(documents, world)
+    manifest = {
+        "schema": SCHEMA_02,
+        "release": RELEASE_02,
+        "version": VERSION_02,
+        "generated_at": generated_at,
+        "date": date,
+        "git_commit": git_commit or _git_commit(repo),
+        "status": OPEN_RELEASE_STATUS,
+        "admission": False,
+        "admission_statement": (
+            "P2 0.2 — исследовательский релиз на OECD ICIO 2025. Ни один кандидат не допущен и не "
+            "заявляется превосходство: релиз не является допуском, прогнозом или инвестиционной "
+            "рекомендацией. D4 (динамика) остаётся RESEARCH_ONLY."),
+        "data_root": str(data_root).replace("\\", "/"),
+        "world": world,
+        "criteria": criteria,
+        "criteria_summary": {criterion["id"]: criterion["status"] for criterion in criteria},
+        "inputs": documents["files"],
+        "limitations": [
+            "P2 0.2 — research release, не допуск модели и не прогнозный продукт",
+            "допущенной модели нет: релиз не присваивает статусы выше CANDIDATE/SHADOW_TEST",
+            "сценарии — сравнительная статика без цен, замещения, динамики и обратных связей",
+            "D4 (динамика) — RESEARCH_ONLY, отрицательный OOS-результат сохранён",
+            "OECD ICIO 2025 — сторонние данные: в git не коммитятся, в манифесте только хеши",
+            "сценарный прогон выполнен для 2019 года; 2015/2022 не прогонялись в этом релизе",
+            "остатки идентичностей ненулевые в пределах допуска 0.1% (балансировка OECD)",
+        ],
+        "reproduce": [
+            "python tools/oecd_import.py --root <oecd_2025_root> --download-2025 --release 2025",
+            "python tools/oecd_import.py --root <oecd_2025_root> --convert --jobs 4",
+            "python tools/oecd_import.py --root <oecd_2025_root> --d1",
+            "python tools/world_pipeline.py --dataset <oecd_2025_root>/datasets/2019.json --build --solve",
+            "python tools/world_reports.py --root <prepared_root> --dataset oecd_2019 --out "
+            "build/world_oecd_2025 --energy-share 0.05,-0.50 --energy-industries B05,B06,C19,D "
+            "--import-shares 0.10,0.20 --fx-countries USA,DEU --fx-shares 0.10,0.20 --sfc",
+            "python tools/p2_release.py --release 0.2 --data-root <mrio_root>",
+        ],
+        "links": {"repository": "https://github.com/Flumos1/Word-economic-model-",
+                  "site": "https://flumos1.github.io/Word-economic-model-/",
+                  "docs": documents["docs"]},
+    }
+    return manifest
+
+
 # ------------------------------------------------------------------------------------------ CLI
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -653,6 +1046,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--date", default=None, help="release date YYYY-MM-DD (default: from timestamp)")
     parser.add_argument("--git-commit", default=None,
                         help="override the git commit (tests/deterministic rebuilds)")
+    parser.add_argument("--release", default="0.1", choices=("0.1", "0.2"),
+                        help="release line: 0.1 (base) or 0.2 (OECD ICIO 2025 world)")
+    parser.add_argument("--world-out", default=None,
+                        help="P2 0.2 scenario output directory (default build/world_oecd_2025)")
     parser.add_argument("--json", action="store_true", help="print the manifest to stdout")
     return parser
 
@@ -660,11 +1057,22 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv=None) -> int:
     args = build_parser().parse_args(argv)
     repo = Path(args.repo)
-    out = Path(args.out) if args.out else repo / "build" / "p2_release" / "p2_release.json"
     try:
-        manifest = build_manifest(repo, data_root=args.data_root,
-                                  generated_at=args.generated_at, date=args.date,
-                                  git_commit=args.git_commit)
+        if getattr(args, "release", "0.1") == "0.2":
+            out = (Path(args.out) if args.out
+                   else repo / DEFAULT_RELEASE_02_PATH)
+            world_out = (Path(args.world_out) if args.world_out
+                         else repo / "build" / "world_oecd_2025")
+            manifest = build_manifest_02(repo, data_root=args.data_root,
+                                         world_out=world_out,
+                                         generated_at=args.generated_at, date=args.date,
+                                         git_commit=args.git_commit)
+        else:
+            out = (Path(args.out) if args.out
+                   else repo / "build" / "p2_release" / "p2_release.json")
+            manifest = build_manifest(repo, data_root=args.data_root,
+                                      generated_at=args.generated_at, date=args.date,
+                                      git_commit=args.git_commit)
         sha = write_manifest(manifest, out)
     except ReleaseError as error:
         print(json.dumps({"status": "BLOCKED_DATA", "error": str(error)}, ensure_ascii=False),

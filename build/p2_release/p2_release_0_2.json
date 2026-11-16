@@ -1,0 +1,732 @@
+{
+ "admission": false,
+ "admission_statement": "P2 0.2 — исследовательский релиз на OECD ICIO 2025. Ни один кандидат не допущен и не заявляется превосходство: релиз не является допуском, прогнозом или инвестиционной рекомендацией. D4 (динамика) остаётся RESEARCH_ONLY.",
+ "criteria": [
+  {
+   "evidence": {
+    "archives": {
+     "count": 5,
+     "files": {
+      "1995-2000_SML.zip": {
+       "bytes": 110135258,
+       "csv_members": 6
+      },
+      "2001-2005_SML.zip": {
+       "bytes": 99391392,
+       "csv_members": 5
+      },
+      "2006-2010_SML.zip": {
+       "bytes": 111587430,
+       "csv_members": 5
+      },
+      "2011-2015_SML.zip": {
+       "bytes": 116134326,
+       "csv_members": 5
+      },
+      "2016-2022_SML.zip": {
+       "bytes": 166241019,
+       "csv_members": 7
+      },
+      "ReadMe_ICIO_small.xlsx": {
+       "bytes": 328422
+      }
+     },
+     "total_bytes": 604162926
+    },
+    "baseline": {
+     "max_abs_material_residual": 26471.485900003696,
+     "productive": true,
+     "spectral_radius": 0.593807523563,
+     "stored_A": 9778368,
+     "total_output": 168480917.490438
+    },
+    "channel": "official webfs-sti.oecd.org links published on the OECD dataset page; Range-based download",
+    "core": {
+     "hawkins_simon_pass": true,
+     "max_abs_balance_residual": 2.3283064365386963e-10,
+     "productive": true,
+     "spectral_radius": 0.581383375695
+    },
+    "d1": {
+     "coverage_max": 0.971832,
+     "coverage_min": 0.945961,
+     "datasets": 28,
+     "gate": 0.8,
+     "status": "D1_PASS",
+     "world_bank_countries_matched": 54
+    },
+    "dataset": "OECD ICIO 2025 (small/SML variant)",
+    "dataset_bytes": 94661541,
+    "dataset_sha256": "c3ac04b6c8337e34ef16e9f7f55c0808dd481fcae7bebfaa1ed819c44b80673d",
+    "datasets_written": 28,
+    "economies": 81,
+    "fd_convention": "canonical y = FD matrix collapsed over all destination countries; INVNT and DISC -> final_demand_adjustments (row side); TLS and negative VA cells -> va_adjustments (column side)",
+    "industries": 50,
+    "pipeline_dataset_sha256": "c3ac04b6c8337e34ef16e9f7f55c0808dd481fcae7bebfaa1ed819c44b80673d",
+    "sectors": 4050,
+    "units": "USD_mn",
+    "validation": {
+     "checks": {
+      "aggregation_totals": true,
+      "finite": true,
+      "global_saving_investment": true,
+      "labels": true,
+      "non_negative": true,
+      "output_non_negative": true,
+      "product_balance": true,
+      "shape": true,
+      "value_added_balance": true
+     },
+     "ok": null
+    },
+    "year": 2019,
+    "years_available": null
+   },
+   "id": "D1",
+   "limitations": [
+    "остатки идентичностей ненулевые в пределах допуска 0.1% (балансировка исходной таблицы)",
+    "сторонние данные OECD в git не коммитятся: только SHA-256, счётчики и покрытие"
+   ],
+   "rationale": "OECD ICIO 2025 — основной мир: 81 экономика x 50 отраслей, 28 годовых датасетов 1995-2022, D1 PASS, покрытие мирового ВВП выше 80%, SHA-256 зафиксирован в манифесте данных и в сценарном индексе.",
+   "status": "PASS",
+   "title": "Данные готовы: OECD ICIO 2025 (81x50, 1995-2022), покрытие >=80% ВВП, идентичности"
+  },
+  {
+   "evidence": {
+    "baseline": {
+     "max_abs_material_residual": 26471.485900003696,
+     "productive": true,
+     "spectral_radius": 0.593807523563,
+     "stored_A": 9778368,
+     "total_output": 168480917.490438
+    },
+    "core": {
+     "hawkins_simon_pass": true,
+     "max_abs_balance_residual": 2.3283064365386963e-10,
+     "productive": true,
+     "spectral_radius": 0.581383375695
+    },
+    "scenario_checks": {
+     "all_feasible": true,
+     "all_validations_pass": true,
+     "max_abs_material_residual": 1.7229e-08
+    },
+    "validation": {
+     "checks": {
+      "aggregation_totals": true,
+      "finite": true,
+      "global_saving_investment": true,
+      "labels": true,
+      "non_negative": true,
+      "output_non_negative": true,
+      "product_balance": true,
+      "shape": true,
+      "value_added_balance": true
+     },
+     "ok": null
+    }
+   },
+   "id": "D2",
+   "limitations": [
+    "сравнительная статика без цен, замещения и динамики (docs/127, docs/131)",
+    "агрегация проверяется по итогам, а не по каждой ячейке Z"
+   ],
+   "rationale": "world_pipeline.py на OECD 2025 (4050 секторов) подтверждает продуктивность матрицы (rho(A)<1, Hawkins-Simon PASS) и решает x=(I-A)^-1 y; материальные балансы сценариев сходятся.",
+   "status": "PASS",
+   "title": "Статическое ядро на OECD 2025: A=Z/x, продуктивность, solve, агрегация"
+  },
+  {
+   "evidence": {
+    "assumptions": [
+     "final demand is stored by producing country block; absorption convention A_c = FD_c",
+     "final-goods destination is not identified by the dataset; CA is the intermediate-trade balance",
+     "consumption/investment are not identified; S = I + CA holds for any split, the share only sets the magnitudes",
+     "opening net foreign assets are zero unless supplied; no behavioural equations",
+     "the SFC frame treats the NFA position as the only asset; domestic assets net to zero"
+    ],
+    "checks": {
+     "current_account_disagreement_max_abs": 93.555300001055,
+     "gdp_sum_minus_final_demand_sum": 357.87880001962185,
+     "global_current_account_sum": -1.05355866253376e-08,
+     "net_foreign_assets_closing_sum": -4.511235829340876e-11,
+     "net_foreign_assets_opening_sum": 0.0,
+     "saving_investment_identity_max_abs": 93.555300001055,
+     "sfc_identity_residual": 0.0,
+     "sfc_net_worth_residual": 0.0,
+     "sfc_pass": true
+    },
+    "pass": true,
+    "present": true,
+    "totals": {
+     "current_account": -0.0,
+     "investment": 16685074.42822,
+     "savings": 16685432.30702
+    },
+    "units": "USD_mn"
+   },
+   "id": "D3",
+   "limitations": [
+    "распределение конечного спроса и инвестиционная доля — допущения блока (docs/133)"
+   ],
+   "rationale": "SFC-блок на OECD 2025 проходит S=I+CA и sum(CA)=0; это бухгалтерский блок, а не поведенческая модель.",
+   "status": "PASS",
+   "title": "SFC: счета стран, S=I+CA, sum(CA)=0, шаг потоков/запасов"
+  },
+  {
+   "evidence": {
+    "base_0_1_manifest": "RESEARCH_RELEASE",
+    "reentry": false,
+    "source": [
+     "docs/128_GVAR_на_реальных_данных.md",
+     "docs/145_AMFE_2.0_план.md"
+    ],
+    "status": "RESEARCH_ONLY"
+   },
+   "id": "D4",
+   "limitations": [
+    "динамика не влияет на сценарные отчёты и релизный статус",
+    "возврат D4 в допуск не планируется в P2 0.2"
+   ],
+   "rationale": "D4 остаётся RESEARCH_ONLY: динамика не входит в P2 0.2 и не используется сценариями; сохранён честно зафиксированный отрицательный OOS-результат (docs/128, docs/145 §5: «D4 не возвращаем»).",
+   "status": "RESEARCH_ONLY",
+   "title": "Динамика: GVAR OOS — исследовательский слой, вне допуска"
+  },
+  {
+   "evidence": {
+    "scenarios": {
+     "all_feasible": true,
+     "all_sfc_pass": true,
+     "all_validations_pass": true,
+     "dataset": "RESEARCH_ONLY",
+     "has_energy_plus50": true,
+     "headlines": [
+      {
+       "id": "energy_minus5",
+       "largest_country": "USA",
+       "largest_industry": "D",
+       "max_abs_material_residual": 1.5832e-08,
+       "relative_delta_output": -0.001289624,
+       "total_delta_output": -217277.043
+      },
+      {
+       "id": "energy_plus50",
+       "largest_country": "USA",
+       "largest_industry": "D",
+       "max_abs_material_residual": 8.382e-09,
+       "relative_delta_output": 0.01289624,
+       "total_delta_output": 2172770.429
+      },
+      {
+       "id": "import_plus10",
+       "largest_country": "CHN",
+       "largest_industry": "G",
+       "max_abs_material_residual": 6.519e-09,
+       "relative_delta_output": -0.015884062,
+       "total_delta_output": -2676161.418
+      },
+      {
+       "id": "import_plus20",
+       "largest_country": "CHN",
+       "largest_industry": "G",
+       "max_abs_material_residual": 6.985e-09,
+       "relative_delta_output": -0.030936647,
+       "total_delta_output": -5212234.597
+      },
+      {
+       "id": "fx_minus10_USA",
+       "largest_country": "CHN",
+       "largest_industry": "G",
+       "max_abs_material_residual": 1.7229e-08,
+       "relative_delta_output": 0.001636954,
+       "total_delta_output": 275795.458
+      },
+      {
+       "id": "fx_minus20_USA",
+       "largest_country": "CHN",
+       "largest_industry": "G",
+       "max_abs_material_residual": 8.382e-09,
+       "relative_delta_output": 0.003275493,
+       "total_delta_output": 551858.04
+      },
+      {
+       "id": "fx_minus10_DEU",
+       "largest_country": "CHN",
+       "largest_industry": "G",
+       "max_abs_material_residual": 1.397e-08,
+       "relative_delta_output": 0.001040693,
+       "total_delta_output": 175336.981
+      },
+      {
+       "id": "fx_minus20_DEU",
+       "largest_country": "CHN",
+       "largest_industry": "G",
+       "max_abs_material_residual": 5.472e-09,
+       "relative_delta_output": 0.002083677,
+       "total_delta_output": 351059.862
+      }
+     ],
+     "max_abs_material_residual": 1.7229e-08,
+     "scenario_count": 8,
+     "scenario_ids": [
+      "energy_minus5",
+      "energy_plus50",
+      "import_plus10",
+      "import_plus20",
+      "fx_minus10_USA",
+      "fx_minus20_USA",
+      "fx_minus10_DEU",
+      "fx_minus20_DEU"
+     ],
+     "timings_ms": {
+      "peak_memory_mb": 1852.4,
+      "total": 444836.345
+     }
+    }
+   },
+   "id": "D5",
+   "limitations": [
+    "сравнительная статика; без цен, замещения, динамики и обратных связей",
+    "отчёты агрегатные: страновые/отраслевые суммы, без сырых Z/x/y"
+   ],
+   "rationale": "На OECD 2025 (2019) прогнаны 8 сценариев: energy_minus5, energy_plus50, import_plus10/20, fx_minus10/20 для USA и DEU; балансы и SFC PASS, отчёты «страна x отрасль» в JSON/MD.",
+   "status": "PASS",
+   "title": "Сценарии: 8 сценариев (energy +50%, импорт, FX) + SFC на OECD 2025"
+  },
+  {
+   "evidence": {
+    "docs": [
+     "docs/145_AMFE_2.0_план.md",
+     "docs/146_P2_0.2.md",
+     "docs/130_OECD_ICIO.md"
+    ],
+    "manifest_builder": "tools/p2_release.py --release 0.2",
+    "missing": [],
+    "tests": [
+     "tests/test_p2_release.py",
+     "tests/test_world_reports.py",
+     "tests/test_world_pipeline.py"
+    ],
+    "tools": [
+     "tools/world_pipeline.py",
+     "tools/world_reports.py",
+     "tools/p2_release.py"
+    ]
+   },
+   "id": "D6",
+   "limitations": [
+    "P2 0.2 не включает T2/ACTIVE, микроуровень и коммерческую эксплуатацию",
+    "релиз не является допуском: admission=false, ни один кандидат не допущен"
+   ],
+   "rationale": "Один пайплайн world_pipeline.py -> world_reports.py -> p2_release.py воспроизводит OECD 2025 сценарии и SFC; тесты и docs/146 фиксируют числа и ограничения; релиз — исследовательский, не допуск.",
+   "status": "PASS",
+   "title": "Интеграция: один пайплайн, тесты, docs, воспроизводимый релиз P2 0.2"
+  }
+ ],
+ "criteria_summary": {
+  "D1": "PASS",
+  "D2": "PASS",
+  "D3": "PASS",
+  "D4": "RESEARCH_ONLY",
+  "D5": "PASS",
+  "D6": "PASS"
+ },
+ "data_root": "F:/Мировая экономика модель/data/mrio",
+ "date": "2026-11-16",
+ "generated_at": "2026-11-16T06:30:00Z",
+ "git_commit": "test-commit",
+ "inputs": [
+  {
+   "bytes": 26718,
+   "exists": true,
+   "id": "base_0_1_manifest",
+   "path": "build/p2_release/p2_release.json",
+   "required": false,
+   "sha256": "04ecaf809de73cbc037ba6518af82a9630c2f31b6fd2ccaadd35d80e8a7bce0d"
+  },
+  {
+   "bytes": 11947,
+   "exists": true,
+   "id": "base_0_1_world_index",
+   "path": "build/world_oecd/report_index.json",
+   "required": false,
+   "sha256": "f9942dfc3917f78ba12982cb445297f5ad439d19afb0d01726e31280e492e163"
+  },
+  {
+   "bytes": 8451,
+   "exists": true,
+   "id": "doc:130_OECD_ICIO",
+   "path": "docs/130_OECD_ICIO.md",
+   "required": true,
+   "role": "P2 0.2 release context",
+   "sha256": "954e473982a0ec4f0fda559d33fcb2b6521519ff391c739b3b1d134afcd2941f"
+  },
+  {
+   "bytes": 14097,
+   "exists": true,
+   "id": "doc:145_AMFE_2.0_план",
+   "path": "docs/145_AMFE_2.0_план.md",
+   "required": true,
+   "role": "P2 0.2 release context",
+   "sha256": "b82f353c011df8739153a49ce9e75ff597b7655e74dfa541c352fd4d0bdb1a0b"
+  },
+  {
+   "bytes": 11063,
+   "exists": true,
+   "id": "doc:146_P2_0.2",
+   "path": "docs/146_P2_0.2.md",
+   "required": true,
+   "role": "P2 0.2 release context",
+   "sha256": "f6a5211f8f8365ec54bfc8d804e6eacbe3c30625d7067775510850efe899f395"
+  },
+  {
+   "bytes": 31480,
+   "exists": true,
+   "id": "oecd_2025_d1",
+   "path": "F:/Мировая экономика модель/data/mrio/oecd_icio_2025/reports/d1.json",
+   "required": true,
+   "sha256": "6739a950ff66c7e518ec47f6f61d3e04aad943a6c0c873c671616953d42a6cba"
+  },
+  {
+   "bytes": 8012,
+   "exists": true,
+   "id": "oecd_2025_manifest",
+   "path": "F:/Мировая экономика модель/data/mrio/oecd_icio_2025/reports/manifest.json",
+   "required": true,
+   "sha256": "b1c52dd0618b9eec34a610b8b7af8a50ad36e57b32428db527acf7d580e54688"
+  },
+  {
+   "bytes": 2600,
+   "exists": true,
+   "id": "oecd_coverage",
+   "path": "protocols/oecd_icio_coverage.json",
+   "required": true,
+   "sha256": "75405f263f4d74e0708c28205fe61b5c3728d09ab44fda4942a6e9dd1faa2aa0"
+  },
+  {
+   "bytes": 64752,
+   "exists": true,
+   "id": "protocol_v5",
+   "path": "protocols/evaluation_protocol_v5.json",
+   "required": false,
+   "sha256": "48c2f6a18a28cefc9645cb8aa7b934f68adbcfc6cea1178d04b27918be2bab45"
+  },
+  {
+   "bytes": 22086,
+   "exists": true,
+   "id": "test:test_p2_release",
+   "path": "tests/test_p2_release.py",
+   "required": false,
+   "sha256": "a7ac98cb4dba5ba7f874652e617adedd8d17172b11edeb5cd5584dce7f2501c5"
+  },
+  {
+   "bytes": 18396,
+   "exists": true,
+   "id": "test:test_world_pipeline",
+   "path": "tests/test_world_pipeline.py",
+   "required": false,
+   "sha256": "7d841ad6db526a77fd66e45bca4b1605180312277bb6a3920e3d7389e08aa040"
+  },
+  {
+   "bytes": 21301,
+   "exists": true,
+   "id": "test:test_world_reports",
+   "path": "tests/test_world_reports.py",
+   "required": false,
+   "sha256": "388fc94c5b622a56e0e865d1b465f5046607709cfb7312cd0ad81a621f6c3da4"
+  },
+  {
+   "bytes": 59540,
+   "exists": true,
+   "id": "tool:p2_release",
+   "path": "tools/p2_release.py",
+   "required": true,
+   "sha256": "43ac7cd8a44c357448e3b6ed87b98c5e39759d86a93915bf0410bf0f0b0c58d6"
+  },
+  {
+   "bytes": 66383,
+   "exists": true,
+   "id": "tool:world_pipeline",
+   "path": "tools/world_pipeline.py",
+   "required": true,
+   "sha256": "367484b3c785c27e783e329d030fcbfd6fec2af3170a74c36564337d113fab44"
+  },
+  {
+   "bytes": 59313,
+   "exists": true,
+   "id": "tool:world_reports",
+   "path": "tools/world_reports.py",
+   "required": true,
+   "sha256": "7ce39092f0cacf14abf23c23419d58048e0cb5037c66b9ea6834b3075669d556"
+  },
+  {
+   "bytes": 11786,
+   "exists": true,
+   "id": "world_index",
+   "path": "build/world_oecd_2025/report_index.json",
+   "required": true,
+   "sha256": "4e04e6e15b4ff60669c272f177e9c09a463667309deabd1cc7b43997226f09b7"
+  },
+  {
+   "bytes": 2652,
+   "exists": true,
+   "id": "world_pipeline",
+   "path": "build/world_oecd_2025/world_pipeline_report.json",
+   "required": true,
+   "sha256": "a3b24814519a51b8ef4b3a27616db4921926a2cbb8967a52187bf8287f57d583"
+  }
+ ],
+ "limitations": [
+  "P2 0.2 — research release, не допуск модели и не прогнозный продукт",
+  "допущенной модели нет: релиз не присваивает статусы выше CANDIDATE/SHADOW_TEST",
+  "сценарии — сравнительная статика без цен, замещения, динамики и обратных связей",
+  "D4 (динамика) — RESEARCH_ONLY, отрицательный OOS-результат сохранён",
+  "OECD ICIO 2025 — сторонние данные: в git не коммитятся, в манифесте только хеши",
+  "сценарный прогон выполнен для 2019 года; 2015/2022 не прогонялись в этом релизе",
+  "остатки идентичностей ненулевые в пределах допуска 0.1% (балансировка OECD)"
+ ],
+ "links": {
+  "docs": {
+   "required": [
+    "docs/145_AMFE_2.0_план.md",
+    "docs/146_P2_0.2.md",
+    "docs/130_OECD_ICIO.md"
+   ],
+   "tests_present": [
+    "tests/test_p2_release.py",
+    "tests/test_world_reports.py",
+    "tests/test_world_pipeline.py"
+   ],
+   "tools": [
+    "tools/world_pipeline.py",
+    "tools/world_reports.py",
+    "tools/p2_release.py"
+   ]
+  },
+  "repository": "https://github.com/Flumos1/Word-economic-model-",
+  "site": "https://flumos1.github.io/Word-economic-model-/"
+ },
+ "release": "P2 0.2",
+ "reproduce": [
+  "python tools/oecd_import.py --root <oecd_2025_root> --download-2025 --release 2025",
+  "python tools/oecd_import.py --root <oecd_2025_root> --convert --jobs 4",
+  "python tools/oecd_import.py --root <oecd_2025_root> --d1",
+  "python tools/world_pipeline.py --dataset <oecd_2025_root>/datasets/2019.json --build --solve",
+  "python tools/world_reports.py --root <prepared_root> --dataset oecd_2019 --out build/world_oecd_2025 --energy-share 0.05,-0.50 --energy-industries B05,B06,C19,D --import-shares 0.10,0.20 --fx-countries USA,DEU --fx-shares 0.10,0.20 --sfc",
+  "python tools/p2_release.py --release 0.2 --data-root <mrio_root>"
+ ],
+ "schema": "AMFE-P2-RELEASE/1.1.0",
+ "status": "RESEARCH_RELEASE",
+ "version": "0.2",
+ "world": {
+  "base_0_1": {
+   "criteria_summary": {
+    "D1": "PASS",
+    "D2": "PASS",
+    "D3": "PASS",
+    "D4": "RESEARCH_ONLY",
+    "D5": "PASS",
+    "D6": "PASS"
+   },
+   "manifest_present": true,
+   "note": "P2 0.1 остаётся базой; P2 0.2 расширяет её миром OECD 2025",
+   "release": "P2 0.1",
+   "status": "RESEARCH_RELEASE"
+  },
+  "oecd_2025": {
+   "archives": {
+    "count": 5,
+    "files": {
+     "1995-2000_SML.zip": {
+      "bytes": 110135258,
+      "csv_members": 6
+     },
+     "2001-2005_SML.zip": {
+      "bytes": 99391392,
+      "csv_members": 5
+     },
+     "2006-2010_SML.zip": {
+      "bytes": 111587430,
+      "csv_members": 5
+     },
+     "2011-2015_SML.zip": {
+      "bytes": 116134326,
+      "csv_members": 5
+     },
+     "2016-2022_SML.zip": {
+      "bytes": 166241019,
+      "csv_members": 7
+     },
+     "ReadMe_ICIO_small.xlsx": {
+      "bytes": 328422
+     }
+    },
+    "total_bytes": 604162926
+   },
+   "baseline": {
+    "max_abs_material_residual": 26471.485900003696,
+    "productive": true,
+    "spectral_radius": 0.593807523563,
+    "stored_A": 9778368,
+    "total_output": 168480917.490438
+   },
+   "channel": "official webfs-sti.oecd.org links published on the OECD dataset page; Range-based download",
+   "core": {
+    "hawkins_simon_pass": true,
+    "max_abs_balance_residual": 2.3283064365386963e-10,
+    "productive": true,
+    "spectral_radius": 0.581383375695
+   },
+   "d1": {
+    "coverage_max": 0.971832,
+    "coverage_min": 0.945961,
+    "datasets": 28,
+    "gate": 0.8,
+    "status": "D1_PASS",
+    "world_bank_countries_matched": 54
+   },
+   "dataset": "OECD ICIO 2025 (small/SML variant)",
+   "dataset_bytes": 94661541,
+   "dataset_sha256": "c3ac04b6c8337e34ef16e9f7f55c0808dd481fcae7bebfaa1ed819c44b80673d",
+   "datasets_written": 28,
+   "economies": 81,
+   "fd_convention": "canonical y = FD matrix collapsed over all destination countries; INVNT and DISC -> final_demand_adjustments (row side); TLS and negative VA cells -> va_adjustments (column side)",
+   "industries": 50,
+   "pipeline_dataset_sha256": "c3ac04b6c8337e34ef16e9f7f55c0808dd481fcae7bebfaa1ed819c44b80673d",
+   "sectors": 4050,
+   "units": "USD_mn",
+   "validation": {
+    "checks": {
+     "aggregation_totals": true,
+     "finite": true,
+     "global_saving_investment": true,
+     "labels": true,
+     "non_negative": true,
+     "output_non_negative": true,
+     "product_balance": true,
+     "shape": true,
+     "value_added_balance": true
+    },
+    "ok": null
+   },
+   "year": 2019,
+   "years_available": null
+  },
+  "scenarios": {
+   "all_feasible": true,
+   "all_sfc_pass": true,
+   "all_validations_pass": true,
+   "dataset": "RESEARCH_ONLY",
+   "has_energy_plus50": true,
+   "headlines": [
+    {
+     "id": "energy_minus5",
+     "largest_country": "USA",
+     "largest_industry": "D",
+     "max_abs_material_residual": 1.5832e-08,
+     "relative_delta_output": -0.001289624,
+     "total_delta_output": -217277.043
+    },
+    {
+     "id": "energy_plus50",
+     "largest_country": "USA",
+     "largest_industry": "D",
+     "max_abs_material_residual": 8.382e-09,
+     "relative_delta_output": 0.01289624,
+     "total_delta_output": 2172770.429
+    },
+    {
+     "id": "import_plus10",
+     "largest_country": "CHN",
+     "largest_industry": "G",
+     "max_abs_material_residual": 6.519e-09,
+     "relative_delta_output": -0.015884062,
+     "total_delta_output": -2676161.418
+    },
+    {
+     "id": "import_plus20",
+     "largest_country": "CHN",
+     "largest_industry": "G",
+     "max_abs_material_residual": 6.985e-09,
+     "relative_delta_output": -0.030936647,
+     "total_delta_output": -5212234.597
+    },
+    {
+     "id": "fx_minus10_USA",
+     "largest_country": "CHN",
+     "largest_industry": "G",
+     "max_abs_material_residual": 1.7229e-08,
+     "relative_delta_output": 0.001636954,
+     "total_delta_output": 275795.458
+    },
+    {
+     "id": "fx_minus20_USA",
+     "largest_country": "CHN",
+     "largest_industry": "G",
+     "max_abs_material_residual": 8.382e-09,
+     "relative_delta_output": 0.003275493,
+     "total_delta_output": 551858.04
+    },
+    {
+     "id": "fx_minus10_DEU",
+     "largest_country": "CHN",
+     "largest_industry": "G",
+     "max_abs_material_residual": 1.397e-08,
+     "relative_delta_output": 0.001040693,
+     "total_delta_output": 175336.981
+    },
+    {
+     "id": "fx_minus20_DEU",
+     "largest_country": "CHN",
+     "largest_industry": "G",
+     "max_abs_material_residual": 5.472e-09,
+     "relative_delta_output": 0.002083677,
+     "total_delta_output": 351059.862
+    }
+   ],
+   "max_abs_material_residual": 1.7229e-08,
+   "scenario_count": 8,
+   "scenario_ids": [
+    "energy_minus5",
+    "energy_plus50",
+    "import_plus10",
+    "import_plus20",
+    "fx_minus10_USA",
+    "fx_minus20_USA",
+    "fx_minus10_DEU",
+    "fx_minus20_DEU"
+   ],
+   "timings_ms": {
+    "peak_memory_mb": 1852.4,
+    "total": 444836.345
+   }
+  },
+  "sfc": {
+   "assumptions": [
+    "final demand is stored by producing country block; absorption convention A_c = FD_c",
+    "final-goods destination is not identified by the dataset; CA is the intermediate-trade balance",
+    "consumption/investment are not identified; S = I + CA holds for any split, the share only sets the magnitudes",
+    "opening net foreign assets are zero unless supplied; no behavioural equations",
+    "the SFC frame treats the NFA position as the only asset; domestic assets net to zero"
+   ],
+   "checks": {
+    "current_account_disagreement_max_abs": 93.555300001055,
+    "gdp_sum_minus_final_demand_sum": 357.87880001962185,
+    "global_current_account_sum": -1.05355866253376e-08,
+    "net_foreign_assets_closing_sum": -4.511235829340876e-11,
+    "net_foreign_assets_opening_sum": 0.0,
+    "saving_investment_identity_max_abs": 93.555300001055,
+    "sfc_identity_residual": 0.0,
+    "sfc_net_worth_residual": 0.0,
+    "sfc_pass": true
+   },
+   "pass": true,
+   "present": true,
+   "totals": {
+    "current_account": -0.0,
+    "investment": 16685074.42822,
+    "savings": 16685432.30702
+   },
+   "units": "USD_mn"
+  }
+ }
+}
