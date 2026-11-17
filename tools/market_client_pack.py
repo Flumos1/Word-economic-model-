@@ -497,14 +497,21 @@ def _normalise_office_zip(path: Path, moment: datetime) -> None:
     differ by a second and break byte-for-byte reproducibility.  Rewriting the archive with the
     pack's ``generated_at`` timestamp makes the artefact deterministic without changing content.
     """
+    import re
     import zipfile
 
     date_time = moment.timetuple()[:6]
+    stamp = moment.strftime("%Y-%m-%dT%H:%M:%SZ").encode("utf-8")
     with zipfile.ZipFile(path, "r") as source:
         entries = [(info, source.read(info.filename)) for info in source.infolist()]
     tmp = path.with_name(path.name + ".tmp")
     with zipfile.ZipFile(tmp, "w", zipfile.ZIP_DEFLATED) as target:
         for info, data in entries:
+            if info.filename == "docProps/core.xml":
+                # openpyxl/python-docx stamp dcterms:modified with the wall clock at save time;
+                # pin both document dates to the pack's generated_at.
+                data = re.sub(rb"(<dcterms:(?:created|modified)[^>]*>)[^<]*(</dcterms:(?:created|modified)>)",
+                              rb"\g<1>" + stamp + rb"\g<2>", data)
             new_info = zipfile.ZipInfo(info.filename, date_time=date_time)
             new_info.compress_type = zipfile.ZIP_DEFLATED
             new_info.external_attr = info.external_attr
