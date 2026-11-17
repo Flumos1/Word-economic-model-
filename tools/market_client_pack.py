@@ -490,6 +490,28 @@ def build_xlsx(out_path: Path, result, generated: datetime) -> None:
 
 
 # ----------------------------------------------------------------------------------------- JSON
+def _normalise_office_zip(path: Path, moment: datetime) -> None:
+    """Rewrite a DOCX/XLSX zip with fixed entry timestamps.
+
+    python-docx/openpyxl stamp zip entries with the current clock, so two identical rebuilds can
+    differ by a second and break byte-for-byte reproducibility.  Rewriting the archive with the
+    pack's ``generated_at`` timestamp makes the artefact deterministic without changing content.
+    """
+    import zipfile
+
+    date_time = moment.timetuple()[:6]
+    with zipfile.ZipFile(path, "r") as source:
+        entries = [(info, source.read(info.filename)) for info in source.infolist()]
+    tmp = path.with_name(path.name + ".tmp")
+    with zipfile.ZipFile(tmp, "w", zipfile.ZIP_DEFLATED) as target:
+        for info, data in entries:
+            new_info = zipfile.ZipInfo(info.filename, date_time=date_time)
+            new_info.compress_type = zipfile.ZIP_DEFLATED
+            new_info.external_attr = info.external_attr
+            target.writestr(new_info, data)
+    tmp.replace(path)
+
+
 def build_machine_json(out_path: Path, result, client: str, generated_at: str,
                        files: list[dict]) -> None:
     document = {
@@ -719,10 +741,12 @@ def build_pack(out_dir: Path = DEFAULT_OUT, scenario_id: str = DEFAULT_SCENARIO,
     for name, builder in docx_builders:
         path = out_dir / name
         builder(path)
+        _normalise_office_zip(path, generated)
         record(path)
 
     xlsx_path = out_dir / "03_Price_Sensitivity.xlsx"
     build_xlsx(xlsx_path, result, generated)
+    _normalise_office_zip(xlsx_path, generated)
     record(xlsx_path)
 
     build_machine_json(out_dir / "04_Machine_Readable.json", result, client, generated_at, files)
