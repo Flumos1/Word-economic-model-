@@ -1,0 +1,222 @@
+{
+ "schema": "amfe.pit_prereg_evaluation.v1",
+ "status": "PROVISIONAL",
+ "admission": false,
+ "preregistration": {
+  "file": "pit_preregistration_0_3.json",
+  "preregistration_id": "AMFE-PIT-PREREG-0.3",
+  "version": "0.3.0",
+  "status": "PROPOSED",
+  "sha256": "026bab7df83c5a0b8e75b4c1d29897961087eea90f0424af96fad70ff0022263",
+  "content_sha256": "f86bfe9ef9c63cb14bf96493abcec6fce58d2f9fe92cf4972e2fa916372a6066"
+ },
+ "pins": {
+  "protocol_v5": {
+   "file": "protocols\\evaluation_protocol_v5.json",
+   "sha256": "48c2f6a18a28cefc9645cb8aa7b934f68adbcfc6cea1178d04b27918be2bab45",
+   "match": true
+  },
+  "protocol_v4": {
+   "file": "protocols\\evaluation_protocol_v4.json",
+   "sha256": "bd965f4d9f23151b4ccfd27202f0669d0a7807e642639ed18c0b864bf68dedc9",
+   "match": true
+  },
+  "reconstruction_dossier": {
+   "file": "protocols\\pit_reconstruction.json",
+   "sha256": "8154e31966fb3aa6d563c30dca5935d6279ea0adcd378f05dc5f85265a01dc9b",
+   "match": true
+  },
+  "coverage_audit": {
+   "file": "data\\reconstructed\\g4_coverage.json",
+   "tree_digest": "726f5666a67dfe10fbbab59bff3e60d32e4040883926ef9f892ab7d84c0f60c1",
+   "match": true
+  }
+ },
+ "pins_ok": true,
+ "candidates": [
+  {
+   "report_file": "protocols\\prereg_eval_ENSEMBLE_INVERSE_MSE_T1_h1_v5.json",
+   "candidate": "ENSEMBLE_INVERSE_MSE",
+   "target": "T1_CPI_YOY",
+   "horizon": 1,
+   "data_class": "REAL_TIME_RECONSTRUCTED",
+   "conditional_data_class": true,
+   "admission_status": "CANDIDATE",
+   "windows": {
+    "w1_ext_origins_total": 202,
+    "w1_ext_origins_real_time": 121,
+    "w1_ext_origins_reconstructed": 81,
+    "first_real_vintage": "1996-12-31",
+    "w1_origins": 121,
+    "w2_origins": 156,
+    "w1_data_class": "REAL_TIME_RECONSTRUCTED",
+    "w2_data_class": "REAL_TIME",
+    "w1_ext_data_class": "REAL_TIME_RECONSTRUCTED"
+   },
+   "reconstructed_origin_share": 0.40099,
+   "criteria": {
+    "C1": true,
+    "C2": true,
+    "C5": true,
+    "C4_W1_EXT": "FAIL",
+    "conditional_data_class": false
+   },
+   "c4_w1_ext_relative_loss": 1.0774564457828197,
+   "c4_w1_ext_recession_origins": 16,
+   "c4_extended": {
+    "data_class": "REAL_TIME_RECONSTRUCTED",
+    "origins": 202,
+    "source": "extended_window"
+   },
+   "c4_leave_one_episode_out": {
+    "1990_91": {
+     "origins": 8,
+     "relative_loss_leave_one_out": 0.5131011078053305
+    },
+    "2001": {
+     "origins": 8,
+     "relative_loss_leave_one_out": 0.5025309699219853
+    }
+   },
+   "slices": {
+    "real_time_only": {
+     "window": "W1",
+     "data_class": "REAL_TIME",
+     "c4_status": "FAIL",
+     "relative_loss": 1.1057688402590469,
+     "recession_origins": 16
+    },
+    "reconstructed_excluded": {
+     "window": "W1",
+     "data_class": "REAL_TIME",
+     "c4_status": "FAIL",
+     "relative_loss": 1.1057688402590469,
+     "recession_origins": 16,
+     "note": "W1 starts at the first real vintage"
+    },
+    "tape_free": {
+     "window": "W1",
+     "data_class": "REAL_TIME",
+     "c4_status": "FAIL",
+     "relative_loss": 1.1057688402590469,
+     "recession_origins": 16
+    },
+    "leave_one_episode_out": {
+     "1990_91": {
+      "origins": 8,
+      "relative_loss_leave_one_out": 0.5131011078053305
+     },
+     "2001": {
+      "origins": 8,
+      "relative_loss_leave_one_out": 0.5025309699219853
+     }
+    }
+   },
+   "report_sha256": "e641869837154cb0a4c9e69d5925f0d9898095e6162c6ea5b838159b540a2ef5"
+  },
+  {
+   "report_file": "protocols\\prereg_eval_ENSEMBLE_EQUAL_T1_h1_v5.json",
+   "candidate": "ENSEMBLE_EQUAL",
+   "target": "T1_CPI_YOY",
+   "horizon": 1,
+   "data_class": "REAL_TIME_RECONSTRUCTED",
+   "conditional_data_class": true,
+   "admission_status": "CANDIDATE",
+   "windows": {
+    "w1_ext_origins_total": 198,
+    "w1_ext_origins_real_time": 115,
+    "w1_ext_origins_reconstructed": 83,
+    "first_real_vintage": "1996-12-31",
+    "w1_origins": 115,
+    "w2_origins": 150,
+    "w1_data_class": "REAL_TIME_RECONSTRUCTED",
+    "w2_data_class": "REAL_TIME",
+    "w1_ext_data_class": "REAL_TIME_RECONSTRUCTED"
+   },
+   "reconstructed_origin_share": 0.419192,
+   "criteria": {
+    "C1": false,
+    "C2": false,
+    "C5": true,
+    "C4_W1_EXT": "FAIL",
+    "conditional_data_class": false
+   },
+   "c4_w1_ext_relative_loss": 1.035635378044515,
+   "c4_w1_ext_recession_origins": 16,
+   "c4_extended": {
+    "data_class": "REAL_TIME_RECONSTRUCTED",
+    "origins": 198,
+    "source": "extended_window"
+   },
+   "c4_leave_one_episode_out": {
+    "1990_91": {
+     "origins": 8,
+     "relative_loss_leave_one_out": 0.931602553730924
+    },
+    "2001": {
+     "origins": 8,
+     "relative_loss_leave_one_out": 0.932054771872447
+    }
+   },
+   "slices": {
+    "real_time_only": {
+     "window": "W1",
+     "data_class": "REAL_TIME",
+     "c4_status": "PASS",
+     "relative_loss": 0.9999999999999998,
+     "recession_origins": 16
+    },
+    "reconstructed_excluded": {
+     "window": "W1",
+     "data_class": "REAL_TIME",
+     "c4_status": "PASS",
+     "relative_loss": 0.9999999999999998,
+     "recession_origins": 16,
+     "note": "W1 starts at the first real vintage"
+    },
+    "tape_free": {
+     "window": "W1",
+     "data_class": "REAL_TIME",
+     "c4_status": "PASS",
+     "relative_loss": 0.9999999999999998,
+     "recession_origins": 16
+    },
+    "leave_one_episode_out": {
+     "1990_91": {
+      "origins": 8,
+      "relative_loss_leave_one_out": 0.931602553730924
+     },
+     "2001": {
+      "origins": 8,
+      "relative_loss_leave_one_out": 0.932054771872447
+     }
+    }
+   },
+   "report_sha256": "9ccbb3a5a91ca17fcb2f8577cfbd4f6cb4ba638d03139282efff6463d680c069"
+  }
+ ],
+ "labels": [
+  {
+   "candidate": "ENSEMBLE_INVERSE_MSE",
+   "label": "CANDIDATE",
+   "conditional_data_class": false,
+   "gating_failures": []
+  },
+  {
+   "candidate": "ENSEMBLE_EQUAL",
+   "label": "FAIL",
+   "conditional_data_class": false,
+   "gating_failures": [
+    "C1",
+    "C2"
+   ]
+  }
+ ],
+ "limitations": [
+  "PROVISIONAL: the preregistration is PROPOSED; this is not an admission and not a final result",
+  "C4 on W1_EXT relies on reconstructed origins: a pass is CONDITIONAL_DATA_CLASS, never unconditional",
+  "REAL_TIME-only, reconstructed-excluded and tape-free slices are the REAL_TIME W1 window",
+  "no raw observations, forecasts or third-party values are stored: aggregates and digests only",
+  "T2/T3 are outside this evaluation; no model parameter was tuned"
+ ]
+}
