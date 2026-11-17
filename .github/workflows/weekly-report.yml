@@ -30,7 +30,7 @@ jobs:
       - name: Install the test dependency (numpy)
         # the model/evaluation-load tests import numpy; without it the regression step would fail on
         # import instead of testing the code
-        run: python -m pip install --quiet numpy
+        run: python -m pip install --quiet numpy scipy python-docx openpyxl pyyaml
       - name: Restore the latest private data artifacts (data/raw is git-ignored)
         # Several tests exercise the local PIT layer and skip without data/raw. The dense vintages
         # come from the newest successful data-refresh artifact; the SPF medians (used by the

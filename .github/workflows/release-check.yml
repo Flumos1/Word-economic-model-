@@ -33,7 +33,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install the regression dependencies (numpy, scipy, python-docx, openpyxl, pyyaml)
-        run: python -m pip install --quiet numpy scipy python-docx openpyxl pyyaml
+        run: python -m pip install --quiet numpy scipy python-docx openpyxl pyyaml scipy python-docx openpyxl pyyaml
       - name: Restore the latest private data artifacts (data/raw is git-ignored)
         env:
           GH_TOKEN: ${{ github.token }}
