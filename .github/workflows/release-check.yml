@@ -64,6 +64,7 @@ jobs:
           mkdir -p build
           python tools/register_modules.py || true
           python tools/product_pack.py || true
+          python tools/forecast_api.py || true
       - name: Release checklist (artefacts and full regression)
         id: release_check
         run: |
