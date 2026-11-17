@@ -65,9 +65,6 @@ jobs:
           mkdir -p build
           python tools/register_modules.py || true
           python tools/product_pack.py || true
-          python tools/site_build.py || true
-          python tools/p2_release.py --json > /dev/null || true
-          python tools/external_review.py --out-dir build/external_review || true
       - name: Weekly integration report (deterministic, offline)
         run: |
           mkdir -p build

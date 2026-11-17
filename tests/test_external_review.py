@@ -20,6 +20,8 @@ sys.path.insert(0, str(ROOT / "tools"))
 import external_review as review  # noqa: E402
 
 RELEASE = ROOT / "build" / "p2_release" / "p2_release.json"
+WORLD_REPORTS = ROOT / "build" / "world" / "reports"
+WORLD_REPORTS_AVAILABLE = WORLD_REPORTS.exists() and any(WORLD_REPORTS.glob("*.json"))
 DOC137 = ROOT / "docs" / "137_P2_0.1_релиз.md"
 FIXED_TS = "2026-11-14T22:00:00Z"
 FAST = dict(check_help=False, check_rebuild=False)
@@ -59,6 +61,8 @@ def criteria_of(report: dict) -> dict:
     return report["criteria"]
 
 
+@unittest.skipUnless(WORLD_REPORTS_AVAILABLE,
+                     "real MRIO scenario reports are absent (private FIGARO/OECD data)")
 class ChecklistOnTheCurrentRelease(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -291,6 +295,8 @@ class FailClosedAndDeterminism(unittest.TestCase):
         other.pop("generated_at")
         self.assertEqual(json.dumps(first, sort_keys=True), json.dumps(other, sort_keys=True))
 
+    @unittest.skipUnless(WORLD_REPORTS_AVAILABLE,
+                         "real MRIO scenario reports are absent (private FIGARO/OECD data)")
     def test_cli_help_and_cli_run(self):
         help_done = subprocess.run([sys.executable, str(ROOT / "tools" / "external_review.py"),
                                     "--help"], capture_output=True, text=True, timeout=180)

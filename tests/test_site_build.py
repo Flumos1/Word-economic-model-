@@ -19,6 +19,9 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 import site_build  # noqa: E402
 
+WORLD_REPORTS = ROOT / "build" / "world" / "reports"
+WORLD_REPORTS_AVAILABLE = WORLD_REPORTS.exists() and any(WORLD_REPORTS.glob("*.json"))
+
 FIXED = "2026-11-14T12:00:00Z"
 ANOTHER = "2026-11-14T18:00:00Z"
 
@@ -84,6 +87,8 @@ def minimal_root(base: Path, with_feed: bool = True) -> Path:
     return root
 
 
+@unittest.skipUnless(WORLD_REPORTS_AVAILABLE,
+                     "real MRIO scenario reports are absent (private FIGARO/OECD data)")
 class SiteBuild(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
