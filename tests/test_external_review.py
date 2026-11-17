@@ -21,9 +21,12 @@ import external_review as review  # noqa: E402
 
 RELEASE = ROOT / "build" / "p2_release" / "p2_release.json"
 FIGARO_MANIFEST = ROOT / "data" / "mrio" / "figaro" / "figaro_2019" / "manifest.json"
-if not FIGARO_MANIFEST.exists():
-    raise unittest.SkipTest(
-        "private FIGARO MRIO data are absent in this checkout (data/mrio, git-ignored)")
+
+
+def setUpModule():
+    if not FIGARO_MANIFEST.exists():
+        raise unittest.SkipTest(
+            "private FIGARO MRIO data are absent in this checkout (data/mrio, git-ignored)")
 WORLD_REPORTS = ROOT / "build" / "world" / "reports"
 WORLD_REPORTS_AVAILABLE = WORLD_REPORTS.exists() and any(WORLD_REPORTS.glob("*.json"))
 DOC137 = ROOT / "docs" / "137_P2_0.1_релиз.md"
