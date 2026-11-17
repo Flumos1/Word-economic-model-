@@ -47,6 +47,10 @@ Usage
     python tools/reconstruct_pit.py                # build data/reconstructed + dossier
     python tools/reconstruct_pit.py --no-dossier   # data artefacts only
     python tools/reconstruct_pit.py --data-root DIR --out-root DIR --dossier FILE
+    python tools/reconstruct_pit.py --g4           # G4-A: 19-series lens audit + extended PIT root
+
+The G4-A audit (``--g4``) writes the aggregate coverage report to
+``data/reconstructed/g4_coverage.json`` (git-ignored) and never writes a committed protocol file.
 
 Run from the repository root.  Offline, standard library + numpy only (numpy comes with
 ``amfe.forecast.data``, which is imported read-only for the calendar helpers).
@@ -63,7 +67,7 @@ import shutil
 import statistics
 import sys
 import zipfile
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 import numpy as np
@@ -91,6 +95,93 @@ LATEST_ONLY_SERIES = ("USREC",)
 ALL_OUTPUT_SERIES = RECONSTRUCTED_SERIES + LATEST_ONLY_SERIES
 #: Series whose reconstructed revisions are classified in target units rather than levels.
 TARGET_UNIT_TRANSFORM = {"CPIAUCSL": "cpi_yoy", "CPILFESL": "cpi_yoy", "GDPC1": "gdp_growth"}
+
+# --------------------------------------------------------------------------------------
+# G4-A: full ALFRED-panel PIT coverage audit (docs/166)
+# --------------------------------------------------------------------------------------
+#: The 19 ALFRED series of protocols/data_plan.json v0.4.0 (fallback if the plan is unavailable).
+G4_FALLBACK_SERIES = (
+    "CPIAUCSL", "CPILFESL", "GDPC1", "UNRATE", "GS10", "TB3MS", "USREC",
+    "GCE", "GCEC1", "GPDIC1", "EXPGSC1", "IMPGSC1", "GDPDEF", "A191RL1Q225SBEA",
+    "PCEPILFE", "PAYEMS", "INDPRO", "RSAFS", "PCECC96",
+)
+#: Role of every series in the extended (G4) audit: protocol target/input vs auxiliary regressor.
+G4_ROLES = {
+    "CPIAUCSL": {"role": "T1 target input", "protocol_use": "T1_CPI_YOY target and comparator input"},
+    "CPILFESL": {"role": "T1 comparator input", "protocol_use": "T1 comparator member (core CPI)"},
+    "GDPC1": {"role": "T2 target", "protocol_use": "T2_GDP_GROWTH target and comparator input"},
+    "UNRATE": {"role": "T3 comparator input", "protocol_use": "T3 comparator / labour indicator"},
+    "GS10": {"role": "T3/T1 comparator input", "protocol_use": "T3 PROBIT_SPREAD, T1 comparator"},
+    "TB3MS": {"role": "T3/T1 comparator input", "protocol_use": "T3 PROBIT_SPREAD, T1 comparator"},
+    "USREC": {"role": "T3 label", "protocol_use": "NBER chronology representation for T3 labels"},
+    "GCE": {"role": "auxiliary (nominal government)", "protocol_use": "world-core calibration"},
+    "GCEC1": {"role": "auxiliary (real government)", "protocol_use": "world-core calibration"},
+    "GPDIC1": {"role": "auxiliary (real investment)", "protocol_use": "world-core calibration"},
+    "EXPGSC1": {"role": "auxiliary (real exports)", "protocol_use": "world-core calibration / net exports"},
+    "IMPGSC1": {"role": "auxiliary (real imports)", "protocol_use": "world-core calibration / openness"},
+    "GDPDEF": {"role": "auxiliary (deflator)", "protocol_use": "V2 nominal/real bridge"},
+    "A191RL1Q225SBEA": {"role": "auxiliary (published GDP growth)", "protocol_use": "V2 growth cross-check"},
+    "PCEPILFE": {"role": "auxiliary (core PCE inflation)", "protocol_use": "inflation cross-check"},
+    "PAYEMS": {"role": "auxiliary (labour input)", "protocol_use": "productivity trend"},
+    "INDPRO": {"role": "auxiliary (activity)", "protocol_use": "productivity cross-check"},
+    "RSAFS": {"role": "auxiliary (demand)", "protocol_use": "V2 demand indicator"},
+    "PCECC96": {"role": "auxiliary (real consumption)", "protocol_use": "expenditure identity"},
+}
+
+#: Lens classification of a source archive for the reconstruction window 1990-01..1996-11.
+G4_LENSES = {
+    "ARCHIVED_PIT": "genuine ALFRED vintage columns cover the whole window (first real vintage on "
+                    "or before the window start and at least G4_MIN_ARCHIVED_VINTAGES columns inside)",
+    "TAPE_RECONSTRUCTED": "the archive starts inside the window or is too sparse: the early part is "
+                          "the declared first-print tape (revision class decides usability)",
+    "UNVERIFIED_LATE_ARCHIVE": "the archive starts more than G4_TAPE_MAX_DELAY_MONTHS after the "
+                               "window end (or has no vintage column inside the window and a late "
+                               "start): 1990-1996 cannot be reconstructed honestly and the series is "
+                               "excluded",
+    "LATEST_ONLY": "no vintage archive at all (USREC): only latest.csv is copied",
+    "MISSING_SOURCE": "neither the archive nor latest.csv is available locally",
+}
+#: Minimum genuine vintage columns inside the window for the ARCHIVED_PIT lens.
+G4_MIN_ARCHIVED_VINTAGES = 12
+#: A series whose archive starts within this many months after the window end can still be
+#: tape-reconstructed for 1990-1996 with its measured revision class (the declared first-print tape;
+#: the class rule of protocol v5 data_depth.reconstruction applies).  Later archives are UNVERIFIED.
+G4_TAPE_MAX_DELAY_MONTHS = 12
+#: The merged archive of tools/fetch_data.py starts at the first planned date (1990-03-31); an
+#: archive whose full-history column starts within this many days after the window start is treated
+#: as covering the window (a 2-3 month start gap only, no reconstruction of the window values).
+G4_ARCHIVED_START_TOLERANCE_DAYS = 90
+#: Protocol-v5 reconstruction classes of the series that the protocol itself classes (docs/107,
+#: protocol v5 data_depth.reconstruction).  The audit must not re-invent these.
+G4_PROTOCOL_SERIES_CLASS = {
+    "CPIAUCSL": "RECONSTRUCTED_PIT",
+    "CPILFESL": "RECONSTRUCTED_PIT",
+    "UNRATE": "RECONSTRUCTED_PIT",
+    "GDPC1": "DIAGNOSTIC_ONLY",
+    "GS10": "REAL_TIME_RECONSTRUCTED_MARKET",
+    "TB3MS": "REAL_TIME_RECONSTRUCTED_MARKET",
+    "USREC": "LATEST_TAPE_ONLY",
+}
+#: Relative revision thresholds for auxiliary series (share of the earliest print, window only):
+#: zero; within 0.1% mean / 0.5% max (rounding-like); small up to 1% mean / 5% max; else material.
+G4_AUX_RELATIVE_THRESHOLDS = {
+    "ZERO": "max_rel == 0",
+    "ZERO_WITHIN_ROUNDING": "max_rel <= 0.005 and mean_rel <= 0.001",
+    "SMALL": "mean_rel <= 0.01 and max_rel <= 0.05",
+    "MATERIAL": "otherwise",
+}
+#: Protocol v5 reconstruction classes (protocol v5 ``data_depth.reconstruction.classes``).
+G4_PROTOCOL_CLASS = {
+    "ARCHIVED_PIT": "REAL_TIME",
+    "TAPE_RECONSTRUCTED_EXACT": "REAL_TIME_RECONSTRUCTED_MARKET",
+    "TAPE_RECONSTRUCTED_SMALL": "RECONSTRUCTED_PIT",
+    "TAPE_RECONSTRUCTED_MATERIAL": "DIAGNOSTIC_ONLY",
+    "LATEST_ONLY": "LATEST_TAPE_ONLY",
+    "UNVERIFIED_LATE_ARCHIVE": "NOT_AVAILABLE",
+    "MISSING_SOURCE": "NOT_AVAILABLE",
+}
+G4_COVERAGE_SCHEMA = "amfe.pit_reconstruction_g4_coverage.v1"
+G4_WINDOW_YEARS = tuple(range(1990, 1997))
 
 RECON_START = date(1990, 1, 15)
 RECON_END = date(1996, 11, 15)
@@ -298,12 +389,17 @@ def _archive_readme(series: str, tape_dates: list[date], replaced: list[date], k
     )
 
 
-def tree_digest(root: Path) -> str:
-    """SHA-256 over every file of ``root`` (sorted relative path + file digest)."""
+def tree_digest(root: Path, exclude: tuple[str, ...] = ()) -> str:
+    """SHA-256 over every file of ``root`` (sorted relative path + file digest).
+
+    ``exclude`` lists relative paths (as POSIX) that are skipped, e.g. the coverage report itself
+    when it is written inside the data root (otherwise a rerun would not be deterministic).
+    """
+    excluded = set(exclude)
     lines = [
         f"{path.relative_to(root).as_posix()} {sha256_file(path)}"
         for path in sorted(root.rglob("*"))
-        if path.is_file()
+        if path.is_file() and path.relative_to(root).as_posix() not in excluded
     ]
     return _sha256_bytes(LINE_TERMINATOR.join(lines).encode("utf-8"))
 
@@ -866,6 +962,457 @@ def build_dossier(out_root: Path, facts: dict, data_root: Path,
 
 
 # --------------------------------------------------------------------------------------
+# G4-A coverage audit: lenses, obligations and the extended PIT data root
+# --------------------------------------------------------------------------------------
+def plan_series_ids() -> tuple[str, ...]:
+    """Series ids of protocols/data_plan.json when available, else the declared 19-series fallback."""
+    plan = ROOT / "protocols" / "data_plan.json"
+    try:
+        payload = json.loads(plan.read_text(encoding="utf-8"))
+        ids = [str(entry["id"]) for entry in payload.get("series", []) if entry.get("id")]
+        if ids:
+            return tuple(ids)
+    except (OSError, ValueError, KeyError):
+        pass
+    return tuple(G4_FALLBACK_SERIES)
+
+
+def archive_vintage_dates(path: Path) -> list[date]:
+    """Vintage dates of a merged ALFRED zip (header only reader for the coverage audit)."""
+    _header, _body, columns = read_merged_archive(path)
+    return [d for d, _ in columns]
+
+
+def _read_archive_or_none(series: str, data_root: Path):
+    path = data_root / series / "vintages.zip"
+    if not path.exists():
+        return None
+    try:
+        return read_merged_archive(path)
+    except ReconstructionError:
+        return None
+
+
+def _window_observation(observation: str) -> bool:
+    """Is an observation's reference period inside the reconstruction window?"""
+    d = date.fromisoformat(observation[:10])
+    return RECON_START.year <= d.year <= RECON_END.year
+
+
+def revision_stats_light(series: str, data_root: Path, *,
+                         relative_window: bool = False) -> dict | None:
+    """Earliest-vs-latest revision class of a series (one pass, aggregates only).
+
+    The dossier (:func:`revision_stats`) additionally measures one-vintage steps; the coverage
+    audit only needs the class, so it uses the cheapest sufficient statistics and records the
+    basis.  Only aggregates are returned: n, mean_abs, max and the class label.
+    """
+    archive = _read_archive_or_none(series, data_root)
+    if archive is None:
+        return None
+    _header, body, columns = archive
+    earliest_level: dict[str, float] = {}
+    latest_level: dict[str, float] = {}
+    for vintage_date, position in columns:
+        for row in body:
+            value = _parse_float(row[position] if position < len(row) else "")
+            if value is None:
+                continue
+            observation = row[0].strip()[:10]
+            earliest_level.setdefault(observation, value)
+            latest_level[observation] = value
+    common = sorted(set(earliest_level) & set(latest_level))
+    if relative_window:
+        common = [key for key in common if _window_observation(key)]
+    if not common:
+        return {"revision_class": "MATERIAL", "basis": "no common observations",
+                "n": 0, "mean_abs": None, "max": None}
+    if relative_window:
+        diffs = [abs(latest_level[k] - earliest_level[k]) / max(abs(earliest_level[k]), 1e-12)
+                 for k in common]
+        stats = _stats(diffs, "relative revision (share of earliest print, window only)") or {}
+        peak = round(max(diffs), 9) if diffs else 0.0
+        mean_rel = round(sum(diffs) / len(diffs), 9) if diffs else 0.0
+        if peak == 0.0:
+            cls = "ZERO"
+        elif peak <= 0.005 and mean_rel <= 0.001:
+            cls = "ZERO_WITHIN_ROUNDING"
+        elif mean_rel <= 0.01 and peak <= 0.05:
+            cls = "SMALL"
+        else:
+            cls = "MATERIAL"
+        return {"revision_class": cls,
+                "basis": "relative revision (share of earliest print, window only)",
+                "n": stats.get("n", 0), "mean_abs": stats.get("mean_abs"),
+                "max": stats.get("max")}
+    transform = TARGET_UNIT_TRANSFORM.get(series)
+    if transform is None:
+        diffs = [abs(latest_level[k] - earliest_level[k]) for k in common]
+        basis = "index level (earliest archived print vs last archived print)"
+    else:
+        first = _target_series(series, {k: earliest_level[k] for k in common})
+        last = _target_series(series, {k: latest_level[k] for k in common})
+        shared = sorted(set(first) & set(last))
+        diffs = [abs(last[k] - first[k]) for k in shared]
+        basis = ("target units (CPI y/y pp)" if transform == "cpi_yoy"
+                 else "target units (GDP q/q annualised pp)")
+    stats = _stats(diffs, basis) or {"n": 0, "mean_abs": None, "max": None}
+    return {"revision_class": _classify(diffs), "basis": basis, "n": stats["n"],
+            "mean_abs": stats["mean_abs"], "max": stats["max"]}
+
+
+def classify_series_lens(series: str, data_root: Path) -> dict:
+    """Lens/status of a series for the 1990-01..1996-11 reconstruction window.
+
+    ``lens`` is derived from the source archive alone (dates and counts, no values); the
+    ``revision_class`` of a tape-reconstructed series decides its usability and the protocol-v5
+    class.  Nothing here reads or writes series values into the coverage report.
+    """
+    archive = _read_archive_or_none(series, data_root)
+    latest_exists = (data_root / series / "latest.csv").exists()
+    entry: dict = {"series": series, **G4_ROLES.get(series, {"role": "unknown",
+                                                             "protocol_use": "not declared"}),
+                   "latest_csv_present": latest_exists,
+                   "archive_present": archive is not None}
+    if archive is None:
+        entry.update({
+            "lens": "LATEST_ONLY" if latest_exists else "MISSING_SOURCE",
+            "first_real_vintage": None, "last_real_vintage": None,
+            "real_vintages_total": 0, "real_vintages_in_window": 0,
+            "first_vintage_in_window": None, "last_vintage_in_window": None,
+            "vintage_dates_by_year": {str(year): 0 for year in G4_WINDOW_YEARS},
+            "revision_class": None, "revision_basis": None, "revision_n": 0,
+            "revision_mean_abs": None, "revision_max": None,
+        })
+        entry["protocol_class"] = G4_PROTOCOL_CLASS[entry["lens"]]
+        entry["usage_status"] = ("LABEL_SOURCE_ONLY" if entry["lens"] == "LATEST_ONLY"
+                                 else "EXCLUDED_MISSING_SOURCE")
+        entry["lens_rule"] = G4_LENSES[entry["lens"]]
+        return entry
+    _header, body, columns = archive
+    dates = sorted({d for d, _ in columns})
+    counts = vintage_observation_counts(body, columns)
+    count_by_date = dict(counts)
+    full = full_history_date(counts)
+    dense_start = full if full is not None else (dates[0] if dates else None)
+    window_dates = [d for d in dates if RECON_START <= d <= RECON_END]
+    in_window_by_year = {str(year): 0 for year in G4_WINDOW_YEARS}
+    for d in window_dates:
+        in_window_by_year[str(d.year)] = in_window_by_year.get(str(d.year), 0) + 1
+    first, last = dates[0], dates[-1]
+    tape_limit = add_months(RECON_END, G4_TAPE_MAX_DELAY_MONTHS)
+    start_tolerance = RECON_START + timedelta(days=G4_ARCHIVED_START_TOLERANCE_DAYS)
+    protocol_series = series in G4_PROTOCOL_SERIES_CLASS
+    if protocol_series:
+        lens = "TAPE_RECONSTRUCTED" if first <= tape_limit else "UNVERIFIED_LATE_ARCHIVE"
+    elif (dense_start is not None and dense_start <= start_tolerance
+          and len(window_dates) >= G4_MIN_ARCHIVED_VINTAGES):
+        lens = "ARCHIVED_PIT"
+    elif first <= tape_limit:
+        lens = "TAPE_RECONSTRUCTED"
+    else:
+        lens = "UNVERIFIED_LATE_ARCHIVE"
+    revisions = revision_stats_light(series, data_root,
+                                     relative_window=not protocol_series) or {}
+    entry.update({
+        "lens": lens,
+        "protocol_series": protocol_series,
+        "first_real_vintage": first.isoformat(), "last_real_vintage": last.isoformat(),
+        "real_vintages_total": len(dates),
+        "real_vintages_in_window": len(window_dates),
+        "first_vintage_in_window": window_dates[0].isoformat() if window_dates else None,
+        "last_vintage_in_window": window_dates[-1].isoformat() if window_dates else None,
+        "vintage_dates_by_year": in_window_by_year,
+        "dense_start": dense_start.isoformat() if dense_start is not None else None,
+        "dense_start_observations": count_by_date.get(dense_start, 0) if dense_start else 0,
+        "archive_start_gap_days": (window_dates[0] - RECON_START).days if window_dates else None,
+        "revision_class": revisions.get("revision_class"),
+        "revision_basis": revisions.get("basis"),
+        "revision_n": revisions.get("n", 0),
+        "revision_mean_abs": revisions.get("mean_abs"),
+        "revision_max": revisions.get("max"),
+    })
+    if protocol_series:
+        protocol_class = G4_PROTOCOL_SERIES_CLASS[series]
+        usage_by_class = {
+            "RECONSTRUCTED_PIT": "USABLE_WITH_REAL_TIME_SENSITIVITY",
+            "REAL_TIME_RECONSTRUCTED_MARKET": "USABLE_EXACT_WITH_TAPE_DISCLOSURE",
+            "DIAGNOSTIC_ONLY": "DIAGNOSTIC_ONLY",
+            "LATEST_TAPE_ONLY": "LABEL_SOURCE_ONLY",
+        }
+        entry["protocol_class"] = protocol_class
+        entry["protocol_basis"] = "protocol v5 data_depth.reconstruction (docs/107)"
+        entry["usage_status"] = usage_by_class[protocol_class]
+        if lens == "UNVERIFIED_LATE_ARCHIVE":
+            entry["usage_status"] = "EXCLUDED_NO_IN_WINDOW_VINTAGE"
+    elif lens == "ARCHIVED_PIT":
+        class_key, entry["usage_status"] = "ARCHIVED_PIT", "USABLE_GENUINE_ARCHIVE"
+        entry["protocol_class"] = G4_PROTOCOL_CLASS[class_key]
+    elif lens == "UNVERIFIED_LATE_ARCHIVE":
+        class_key, entry["usage_status"] = "UNVERIFIED_LATE_ARCHIVE", "EXCLUDED_NO_IN_WINDOW_VINTAGE"
+        entry["protocol_class"] = G4_PROTOCOL_CLASS[class_key]
+    else:
+        revision_class = str(revisions.get("revision_class"))
+        if revision_class in ("ZERO", "ZERO_WITHIN_ROUNDING"):
+            class_key, usage = "TAPE_RECONSTRUCTED_EXACT", "USABLE_EXACT_WITH_TAPE_DISCLOSURE"
+        elif revision_class == "SMALL":
+            class_key, usage = "TAPE_RECONSTRUCTED_SMALL", "USABLE_WITH_REAL_TIME_SENSITIVITY"
+        else:
+            class_key, usage = "TAPE_RECONSTRUCTED_MATERIAL", "DIAGNOSTIC_ONLY"
+        entry["protocol_class"] = G4_PROTOCOL_CLASS[class_key]
+        entry["usage_status"] = usage
+    entry["lens_rule"] = G4_LENSES[lens]
+    return entry
+
+
+def _archived_readme(series: str, kept: list[date], rows: int) -> str:
+    return (
+        "-------------------------------------------------------------------\n"
+        f"Series ID: {series}\n"
+        "Genuine ALFRED vintage archive (1972+) copied unchanged for the 1990-1996 audit\n"
+        "Generated by tools/reconstruct_pit.py --g4 -- do not edit by hand.\n"
+        "-------------------------------------------------------------------\n"
+        f"Genuine vintage columns kept: {len(kept)}"
+        + (f" ({kept[0].isoformat()} .. {kept[-1].isoformat()})" if kept else "") + "\n"
+        f"Observation rows: {rows}\n"
+        "Value source: the ALFRED merged archive data/raw/<SERIES>/vintages.zip (verbatim cells).\n"
+        "No tape reconstruction is used for this series: its archive covers the whole window.\n"
+        "Raw third-party observations are never committed; see docs/166.\n"
+    )
+
+
+def build_archived_series(series: str, data_root: Path, out_root: Path) -> dict:
+    """Build a genuine-columns-only archive for the ARCHIVED_PIT lens (no tape columns)."""
+    header_in, body, columns = read_merged_archive(data_root / series / "vintages.zip")
+    kept = [(d, p) for d, p in columns if d <= RECON_END]
+    if not kept:
+        raise ReconstructionError(f"{series}: no genuine vintage column inside the window")
+    dates_out = [d for d, _ in kept]
+    header = ["observation_date"] + [f"{series}_{d:%Y%m%d}" for d in dates_out]
+    rows: list[list[str]] = []
+    for row in body:
+        observation = row[0].strip()[:10]
+        out_row = [observation]
+        for _d, position in kept:
+            out_row.append(row[position].strip() if position < len(row) else "")
+        if any(cell for cell in out_row[1:]):
+            rows.append(out_row)
+    rows.sort(key=lambda item: item[0])
+    payload = render_csv(header, rows)
+    zip_path = out_root / series / "vintages.zip"
+    write_zip(zip_path, [(ZIP_CSV_NAME, payload),
+                         (ZIP_README_NAME, _archived_readme(series, dates_out, len(rows)).encode("utf-8"))])
+    latest_src = data_root / series / "latest.csv"
+    latest_block = None
+    if latest_src.exists():
+        latest_dst = out_root / series / "latest.csv"
+        latest_dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(latest_src, latest_dst)
+        latest_block = {"path": f"{series}/latest.csv", "sha256": sha256_file(latest_dst),
+                        "bytes": latest_dst.stat().st_size}
+    # contract check: a genuine vintage must not expose an observation after its reference period
+    for vintage_date, set_series in load_output_vintages(series, out_root).items():
+        last = set_series.last_index
+        if last is None:
+            raise ReconstructionError(f"{series}: empty vintage {vintage_date.isoformat()}")
+        last_observation = _period_first_date(series, last)
+        if not observation_period_end(series, last_observation.isoformat()) < vintage_date:
+            raise ReconstructionError(
+                f"{series}: vintage {vintage_date.isoformat()} exposes observation "
+                f"{last_observation.isoformat()} after its period end")
+    return {"build_kind": "GENUINE_ARCHIVE", "vintages_zip": {
+                "path": f"{series}/vintages.zip", "sha256": sha256_file(zip_path),
+                "bytes": zip_path.stat().st_size},
+            "genuine_vintage_columns": len(kept),
+            "first_vintage": dates_out[0].isoformat(), "last_vintage": dates_out[-1].isoformat(),
+            "rows": len(rows), "latest_csv": latest_block}
+
+
+def output_vintage_dates(series: str, out_root: Path) -> list[date]:
+    path = out_root / series / "vintages.zip"
+    if not path.exists():
+        return []
+    return archive_vintage_dates(path)
+
+
+def build_g4(data_root=None, out_root=None, coverage_path=None, series=None,
+             generated_at: str | None = None, verbose: bool = True) -> dict:
+    """Build the extended early-PIT data root and the aggregate coverage audit (docs/166).
+
+    Only series whose archive allows an honest 1990-1996 lens are built: ``ARCHIVED_PIT``
+    (genuine columns), ``TAPE_RECONSTRUCTED`` (declared first-print tape, dossier-style) and
+    ``LATEST_ONLY`` (USREC).  ``UNVERIFIED_LATE_ARCHIVE`` and ``MISSING_SOURCE`` series are
+    excluded and listed with their reason.  The coverage report is aggregates only (dates,
+    counts, classes, digests); it never contains a series value.
+    """
+    data_root = Path(data_root) if data_root is not None else ROOT / "data" / "raw"
+    out_root = Path(out_root) if out_root is not None else ROOT / "data" / "reconstructed"
+    if not data_root.is_dir():
+        raise ReconstructionError(f"source data root not found: {data_root}")
+    selected = tuple(series) if series is not None else plan_series_ids()
+    grid = reconstruction_grid()
+    entries: dict[str, dict] = {}
+    excluded: list[dict] = []
+    built: list[str] = []
+    for name in selected:
+        entry = classify_series_lens(name, data_root)
+        build_block = None
+        if entry["lens"] == "ARCHIVED_PIT":
+            try:
+                build_block = build_archived_series(name, data_root, out_root)
+            except ReconstructionError as exc:
+                entry["build_status"] = "BUILD_FAILED"
+                entry["build_error"] = str(exc)[:300]
+        elif entry["lens"] == "TAPE_RECONSTRUCTED":
+            try:
+                facts = build_series(name, data_root, out_root, grid)
+                build_block = {"build_kind": "TAPE_RECONSTRUCTED",
+                               "vintages_zip": facts["vintages_zip"],
+                               "latest_csv": facts["latest_csv"],
+                               "reconstructed_vintages_written": facts["reconstructed_vintages_written"],
+                               "real_vintages_preserved": facts["real_vintages_preserved"],
+                               "rows": facts["rows"],
+                               "full_history_date": facts["tape_override"]["full_history_date"],
+                               "carrier_after_vintage_date":
+                                   facts["tape_override"]["carrier_after_vintage_date"]}
+            except ReconstructionError as exc:
+                entry["build_status"] = "BUILD_FAILED"
+                entry["build_error"] = str(exc)[:300]
+        elif entry["lens"] == "LATEST_ONLY":
+            latest_src = data_root / name / "latest.csv"
+            latest_dst = out_root / name / "latest.csv"
+            latest_dst.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(latest_src, latest_dst)
+            build_block = {"build_kind": "LATEST_ONLY", "vintages_zip": None,
+                           "latest_csv": {"path": f"{name}/latest.csv",
+                                          "sha256": sha256_file(latest_dst),
+                                          "bytes": latest_dst.stat().st_size}}
+        if build_block is None:
+            entry.setdefault("build_status", "EXCLUDED")
+            excluded.append({"series": name, "lens": entry["lens"],
+                             "reason": entry.get("build_error") or entry["lens_rule"],
+                             "first_real_vintage": entry["first_real_vintage"]})
+        else:
+            dates_out = output_vintage_dates(name, out_root)
+            by_year = {str(year): 0 for year in G4_WINDOW_YEARS}
+            for d in dates_out:
+                if 1990 <= d.year <= 1996:
+                    by_year[str(d.year)] = by_year.get(str(d.year), 0) + 1
+            entry["build"] = build_block
+            entry["build_status"] = "BUILT"
+            entry["output_vintage_dates"] = len(dates_out)
+            entry["output_vintage_dates_by_year"] = by_year
+            built.append(name)
+        entries[name] = entry
+
+    coverage_by_year: dict[str, dict] = {}
+    for year in G4_WINDOW_YEARS:
+        key = str(year)
+        present = [name for name in built
+                   if entries[name].get("output_vintage_dates_by_year", {}).get(key, 0) > 0]
+        total = sum(entries[name].get("output_vintage_dates_by_year", {}).get(key, 0) for name in built)
+        coverage_by_year[key] = {"series_with_vintage": len(present), "vintage_columns": total,
+                                 "series": sorted(present)}
+    targets = {
+        "T1_CPI_YOY": {
+            "inputs": {name: {"lens": entries[name]["lens"],
+                              "protocol_class": entries[name]["protocol_class"]}
+                       for name in ("CPIAUCSL", "CPILFESL") if name in entries},
+            "allowed_use": "C4 on W1_EXT only (protocol v5 data_depth.reconstruction); C1/C2/C5 "
+                           "stay REAL_TIME-only; the RECONSTRUCTED_PIT sensitivity slice is mandatory",
+        },
+        "T2_GDP_GROWTH": {
+            "inputs": {name: {"lens": entries[name]["lens"],
+                              "protocol_class": entries[name]["protocol_class"]}
+                       for name in ("GDPC1",) if name in entries},
+            "allowed_use": "no reconstructed GDPC1: T2 keeps the v4 REAL_TIME-only rule and starts "
+                           "at the first real vintage (1996-12); the reconstructed GDP lens is "
+                           "diagnostic only (material revisions)",
+        },
+        "T3_RECESSION": {
+            "inputs": {name: {"lens": entries[name]["lens"],
+                              "protocol_class": entries[name]["protocol_class"]}
+                       for name in ("USREC",) if name in entries},
+            "allowed_use": "labels only; T3 W1 starts 1996-12 (protocol v5) and the NBER "
+                           "announcement dates rule applies (protocols/nber_dates.json)",
+        },
+    }
+    regressors = sorted(name for name in entries
+                        if entries[name]["role"].startswith("auxiliary")
+                        or name in ("UNRATE", "GS10", "TB3MS"))
+    coverage_name = (str(Path(coverage_path).resolve().relative_to(out_root.resolve()).as_posix())
+                     if coverage_path is not None and out_root.resolve() in Path(coverage_path).resolve().parents
+                     else "")
+    coverage = {
+        "schema": G4_COVERAGE_SCHEMA,
+        "document": "data/reconstructed/g4_coverage.json (git-ignored; summary in docs/166)",
+        "status": "AUDIT_ONLY",
+        "generated_at": generated_at or _generated_at(),
+        "generated_by": "tools/reconstruct_pit.py --g4 (offline; deterministic data artefacts)",
+        "sources": {"data_root": str(data_root).replace("\\", "/"),
+                    "archive": "ALFRED merged vintages (data/raw/<SERIES>/vintages.zip)",
+                    "network": False},
+        "window": {"start": RECON_START.isoformat(), "end": RECON_END.isoformat(),
+                   "grid_vintage_dates": len(grid),
+                   "archive_window_definition": "a vintage date counts as inside the window when "
+                                                "it lies in [start, end]"},
+        "lens_rules": dict(G4_LENSES),
+        "min_archived_vintages": G4_MIN_ARCHIVED_VINTAGES,
+        "revision_classification": REVISION_CLASS_RULES,
+        "protocol_classes": dict(G4_PROTOCOL_CLASS),
+        "series": entries,
+        "built_series": sorted(built),
+        "excluded": excluded,
+        "coverage_by_year": coverage_by_year,
+        "targets": targets,
+        "regressors": regressors,
+        "limitations": [
+            "This is a reconstruction audit, not genuine first-release history: only archives whose "
+            "vintage columns lie inside the window are ARCHIVED_PIT; everything else is the declared "
+            "first-print tape with its measured revision class.",
+            "A TAPE_RECONSTRUCTED series whose revision class is MATERIAL is DIAGNOSTIC_ONLY and must "
+            "not be used for an admission-relevant target (this is why T2 keeps the v4 REAL_TIME-only "
+            "rule and does not admit reconstructed GDPC1).",
+            "UNVERIFIED_LATE_ARCHIVE series (archive starts after 1996) are excluded from the early "
+            "PIT root; their latest.csv is not a substitute for a PIT series and is not built.",
+            "The coverage report lists dates, counts and classes only; no series value is written to "
+            "it (licence policy, docs/84).",
+            "The audit is reproducible from the ALFRED archive but the archive itself is a git-ignored "
+            "download; CI can rebuild it from the private data artifact (tools/fetch_data.py).",
+        ],
+        "reproduce": {
+            "build": "python tools/reconstruct_pit.py --g4",
+            "coverage_only": "python tools/reconstruct_pit.py --g4 --quiet",
+            "tests": "python tests/test_reconstruct_pit_g4.py",
+            "readme": "docs/166_Реальные_PIT_1990_1996.md",
+        },
+        "artifacts": {
+            "data_root": str(out_root).replace("\\", "/"),
+            "tree_digest": (tree_digest(out_root, exclude=(coverage_name,) if coverage_name else ())
+                            if out_root.exists() else None),
+            "tree_digest_definition": "sha256 over '<relative path> <sha256>' lines of every file of "
+                                      "the data root, sorted",
+        },
+    }
+    if coverage_path is not None:
+        path = Path(coverage_path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(coverage, ensure_ascii=False, indent=2) + "\n", encoding="utf-8",
+                        newline="\n")
+    if verbose:
+        print(f"G4 data root: {out_root} ({len(built)} series built, {len(excluded)} excluded)")
+        for name in sorted(built):
+            entry = entries[name]
+            print(f"  {name:<16} {entry['lens']:<22} {entry['protocol_class']:<32} "
+                  f"{entry['usage_status']}")
+        for item in excluded:
+            print(f"  EXCLUDED {item['series']:<16} {item['lens']:<24} {item['reason'][:60]}")
+        if coverage_path is not None:
+            print(f"coverage: {Path(coverage_path)}")
+    return coverage
+
+
+# --------------------------------------------------------------------------------------
 # Entry point
 # --------------------------------------------------------------------------------------
 def build(data_root=None, out_root=None, dossier_path=None, generated_at=None,
@@ -921,7 +1468,22 @@ def main(argv=None) -> int:
     parser.add_argument("--generated-at", default=None,
                         help="fixed generated_at stamp for a reproducible dossier (overrides AMFE_GENERATED_AT)")
     parser.add_argument("--quiet", action="store_true")
+    parser.add_argument("--g4", action="store_true",
+                        help="G4-A: audit the 19-series ALFRED panel and build the extended early-PIT "
+                             "data root with the aggregate coverage report (docs/166)")
+    parser.add_argument("--g4-coverage", default=None,
+                        help="coverage JSON path (default: <out-root>/g4_coverage.json)")
+    parser.add_argument("--g4-series", nargs="+", default=None,
+                        help="subset of series ids for the G4 audit (default: protocols/data_plan.json)")
     args = parser.parse_args(argv)
+    if args.g4:
+        out_root = Path(args.out_root) if args.out_root else ROOT / "data" / "reconstructed"
+        coverage_path = (Path(args.g4_coverage) if args.g4_coverage
+                         else out_root / "g4_coverage.json")
+        coverage = build_g4(data_root=args.data_root, out_root=args.out_root,
+                            coverage_path=coverage_path, series=args.g4_series,
+                            generated_at=args.generated_at, verbose=not args.quiet)
+        return 0 if coverage else 1
     dossier_path = args.dossier
     if dossier_path is None:
         dossier_path = ROOT / "protocols" / "pit_reconstruction.json"

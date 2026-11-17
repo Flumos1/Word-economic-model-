@@ -1,0 +1,1 @@
+026bab7df83c5a0b8e75b4c1d29897961087eea90f0424af96fad70ff0022263  pit_preregistration_0_3.json (sha256 of the LF-normalised file)

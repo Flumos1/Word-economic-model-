@@ -1,0 +1,549 @@
+{
+  "schema": "amfe.pit_preregistration.v1",
+  "preregistration_id": "AMFE-PIT-PREREG-0.3",
+  "version": "0.3.0",
+  "status": "PROPOSED",
+  "created_at": "2026-11-17T00:00:00+00:00",
+  "author_track": "G4-A (real PIT series 1990-1996 and extended-window calibration rules)",
+  "title": "PIT data calibration 0.3: 19-series lens audit for 1990-1996 and the rules for using the extended window",
+  "supersedes_lineage": {
+    "0.1": "protocols/pit_reconstruction.json (schema v2, docs/108): the reconstruction build and the revision dossier (no separate preregistration document)",
+    "0.2": "protocols/evaluation_protocol_v5.json data_depth.reconstruction: protocol classes REAL_TIME_RECONSTRUCTED_MARKET / RECONSTRUCTED_PIT and W1_EXT, frozen 2026-11-14",
+    "0.3": "this file: the 19-series lens calibration and the extended-window usage rules; the first machine-readable PIT preregistration",
+    "note": "the numbering follows the calibration lineage (docs/92, docs/98, docs/158 -> here); 0.1/0.2 are documents/protocol sections, not machine-readable files"
+  },
+  "protocol_basis": {
+    "v5": {
+      "file": "protocols/evaluation_protocol_v5.json",
+      "version": "5.0.1",
+      "status": "FROZEN",
+      "frozen_on": "2026-11-14",
+      "sha256": "48c2f6a18a28cefc9645cb8aa7b934f68adbcfc6cea1178d04b27918be2bab45",
+      "role": "current frozen protocol for new evaluations; provides the reconstruction classes, W1_EXT and the admission rules"
+    },
+    "v4": {
+      "file": "protocols/evaluation_protocol_v4.json",
+      "version": "4.0.0",
+      "sha256": "bd965f4d9f23151b4ccfd27202f0669d0a7807e642639ed18c0b864bf68dedc9",
+      "role": "frozen and unchanged; T2 keeps the v4 REAL_TIME-only rule (no reconstructed GDP)"
+    }
+  },
+  "data_basis": {
+    "window": {
+      "start": "1990-01-15",
+      "end": "1996-11-15",
+      "grid": "monthly vintage dates on the 15th (83 dates)",
+      "archive_window_definition": "a vintage date counts as inside the window when it lies in [start, end]"
+    },
+    "series_plan": {
+      "file": "protocols/data_plan.json",
+      "version": "0.4.0",
+      "series_count": 19,
+      "source": "ALFRED merged vintages, tools/fetch_data.py (git-ignored data/raw)"
+    },
+    "reconstruction_dossier": {
+      "file": "protocols/pit_reconstruction.json",
+      "schema": "amfe.pit_reconstruction.v2",
+      "sha256": "8154e31966fb3aa6d563c30dca5935d6279ea0adcd378f05dc5f85265a01dc9b",
+      "role": "reconstruction build facts and revision dossier (docs/108)"
+    },
+    "coverage_audit": {
+      "schema": "amfe.pit_reconstruction_g4_coverage.v1",
+      "tool": "tools/reconstruct_pit.py --g4",
+      "file": "data/reconstructed/g4_coverage.json (git-ignored; audit summary in docs/166)",
+      "audit_date": "2026-11-17",
+      "series_count": 19,
+      "built_series": [
+        "CPIAUCSL",
+        "CPILFESL",
+        "EXPGSC1",
+        "GCE",
+        "GCEC1",
+        "GDPC1",
+        "GDPDEF",
+        "GPDIC1",
+        "GS10",
+        "IMPGSC1",
+        "INDPRO",
+        "PAYEMS",
+        "PCECC96",
+        "TB3MS",
+        "UNRATE",
+        "USREC"
+      ],
+      "excluded_series": [
+        "A191RL1Q225SBEA",
+        "PCEPILFE",
+        "RSAFS"
+      ],
+      "tree_digest": "726f5666a67dfe10fbbab59bff3e60d32e4040883926ef9f892ab7d84c0f60c1",
+      "coverage_by_year": {
+        "1990": {
+          "series_with_vintage": 15,
+          "vintage_columns": 135,
+          "series": [
+            "CPIAUCSL",
+            "CPILFESL",
+            "EXPGSC1",
+            "GCE",
+            "GCEC1",
+            "GDPC1",
+            "GDPDEF",
+            "GPDIC1",
+            "GS10",
+            "IMPGSC1",
+            "INDPRO",
+            "PAYEMS",
+            "PCECC96",
+            "TB3MS",
+            "UNRATE"
+          ]
+        },
+        "1991": {
+          "series_with_vintage": 15,
+          "vintage_columns": 136,
+          "series": [
+            "CPIAUCSL",
+            "CPILFESL",
+            "EXPGSC1",
+            "GCE",
+            "GCEC1",
+            "GDPC1",
+            "GDPDEF",
+            "GPDIC1",
+            "GS10",
+            "IMPGSC1",
+            "INDPRO",
+            "PAYEMS",
+            "PCECC96",
+            "TB3MS",
+            "UNRATE"
+          ]
+        },
+        "1992": {
+          "series_with_vintage": 15,
+          "vintage_columns": 135,
+          "series": [
+            "CPIAUCSL",
+            "CPILFESL",
+            "EXPGSC1",
+            "GCE",
+            "GCEC1",
+            "GDPC1",
+            "GDPDEF",
+            "GPDIC1",
+            "GS10",
+            "IMPGSC1",
+            "INDPRO",
+            "PAYEMS",
+            "PCECC96",
+            "TB3MS",
+            "UNRATE"
+          ]
+        },
+        "1993": {
+          "series_with_vintage": 15,
+          "vintage_columns": 135,
+          "series": [
+            "CPIAUCSL",
+            "CPILFESL",
+            "EXPGSC1",
+            "GCE",
+            "GCEC1",
+            "GDPC1",
+            "GDPDEF",
+            "GPDIC1",
+            "GS10",
+            "IMPGSC1",
+            "INDPRO",
+            "PAYEMS",
+            "PCECC96",
+            "TB3MS",
+            "UNRATE"
+          ]
+        },
+        "1994": {
+          "series_with_vintage": 15,
+          "vintage_columns": 132,
+          "series": [
+            "CPIAUCSL",
+            "CPILFESL",
+            "EXPGSC1",
+            "GCE",
+            "GCEC1",
+            "GDPC1",
+            "GDPDEF",
+            "GPDIC1",
+            "GS10",
+            "IMPGSC1",
+            "INDPRO",
+            "PAYEMS",
+            "PCECC96",
+            "TB3MS",
+            "UNRATE"
+          ]
+        },
+        "1995": {
+          "series_with_vintage": 15,
+          "vintage_columns": 132,
+          "series": [
+            "CPIAUCSL",
+            "CPILFESL",
+            "EXPGSC1",
+            "GCE",
+            "GCEC1",
+            "GDPC1",
+            "GDPDEF",
+            "GPDIC1",
+            "GS10",
+            "IMPGSC1",
+            "INDPRO",
+            "PAYEMS",
+            "PCECC96",
+            "TB3MS",
+            "UNRATE"
+          ]
+        },
+        "1996": {
+          "series_with_vintage": 15,
+          "vintage_columns": 124,
+          "series": [
+            "CPIAUCSL",
+            "CPILFESL",
+            "EXPGSC1",
+            "GCE",
+            "GCEC1",
+            "GDPC1",
+            "GDPDEF",
+            "GPDIC1",
+            "GS10",
+            "IMPGSC1",
+            "INDPRO",
+            "PAYEMS",
+            "PCECC96",
+            "TB3MS",
+            "UNRATE"
+          ]
+        }
+      }
+    },
+    "frozen_thresholds": {
+      "min_full_history_observations": 120,
+      "min_archived_vintages": 12,
+      "tape_max_delay_months": 12,
+      "archived_start_tolerance_days": 90,
+      "revision_classes": {
+        "ZERO": "max_abs == 0 in the classification basis",
+        "ZERO_WITHIN_ROUNDING": "max_abs <= 0.01 and mean_abs <= 0.001 (publication rounding of a rate)",
+        "SMALL": "mean_abs <= 0.05 and max_abs <= 0.5 (usable as RECONSTRUCTED_PIT with sensitivity)",
+        "MATERIAL": "otherwise (not usable for an admission-relevant target without genuine archives)"
+      },
+      "aux_relative_revision_thresholds": {
+        "ZERO": "max_rel == 0",
+        "ZERO_WITHIN_ROUNDING": "max_rel <= 0.005 and mean_rel <= 0.001",
+        "SMALL": "mean_rel <= 0.01 and max_rel <= 0.05",
+        "MATERIAL": "otherwise"
+      },
+      "grid_vintage_day": 15,
+      "inclusion_rule": {
+        "monthly": "period_end < vintage_date",
+        "quarterly": "quarter_end + 1 month < vintage_date",
+        "no_observation_after_vintage": true
+      },
+      "why_frozen": "the lens and class thresholds are calibrated on the archive dates and the measured earliest-vs-latest revisions only; they must not be changed after any extended-window result is seen (see amendment_rule)"
+    },
+    "lens_rules": {
+      "ARCHIVED_PIT": "genuine ALFRED vintage columns cover the whole window (first real vintage on or before the window start and at least G4_MIN_ARCHIVED_VINTAGES columns inside)",
+      "TAPE_RECONSTRUCTED": "the archive starts inside the window or is too sparse: the early part is the declared first-print tape (revision class decides usability)",
+      "UNVERIFIED_LATE_ARCHIVE": "the archive starts more than G4_TAPE_MAX_DELAY_MONTHS after the window end (or has no vintage column inside the window and a late start): 1990-1996 cannot be reconstructed honestly and the series is excluded",
+      "LATEST_ONLY": "no vintage archive at all (USREC): only latest.csv is copied",
+      "MISSING_SOURCE": "neither the archive nor latest.csv is available locally"
+    },
+    "protocol_class_mapping": {
+      "ARCHIVED_PIT": "REAL_TIME",
+      "TAPE_RECONSTRUCTED_EXACT": "REAL_TIME_RECONSTRUCTED_MARKET",
+      "TAPE_RECONSTRUCTED_SMALL": "RECONSTRUCTED_PIT",
+      "TAPE_RECONSTRUCTED_MATERIAL": "DIAGNOSTIC_ONLY",
+      "LATEST_ONLY": "LATEST_TAPE_ONLY",
+      "UNVERIFIED_LATE_ARCHIVE": "NOT_AVAILABLE",
+      "MISSING_SOURCE": "NOT_AVAILABLE"
+    },
+    "protocol_series_classes": {
+      "CPIAUCSL": "RECONSTRUCTED_PIT",
+      "CPILFESL": "RECONSTRUCTED_PIT",
+      "UNRATE": "RECONSTRUCTED_PIT",
+      "GDPC1": "DIAGNOSTIC_ONLY",
+      "GS10": "REAL_TIME_RECONSTRUCTED_MARKET",
+      "TB3MS": "REAL_TIME_RECONSTRUCTED_MARKET",
+      "USREC": "LATEST_TAPE_ONLY"
+    },
+    "series_status": {
+      "A191RL1Q225SBEA": {
+        "role": "auxiliary (published GDP growth)",
+        "protocol_use": "V2 growth cross-check",
+        "lens": "UNVERIFIED_LATE_ARCHIVE",
+        "protocol_class": "NOT_AVAILABLE",
+        "usage_status": "EXCLUDED_NO_IN_WINDOW_VINTAGE",
+        "revision_class": "MATERIAL"
+      },
+      "CPIAUCSL": {
+        "role": "T1 target input",
+        "protocol_use": "T1_CPI_YOY target and comparator input",
+        "lens": "TAPE_RECONSTRUCTED",
+        "protocol_class": "RECONSTRUCTED_PIT",
+        "usage_status": "USABLE_WITH_REAL_TIME_SENSITIVITY",
+        "revision_class": "SMALL"
+      },
+      "CPILFESL": {
+        "role": "T1 comparator input",
+        "protocol_use": "T1 comparator member (core CPI)",
+        "lens": "TAPE_RECONSTRUCTED",
+        "protocol_class": "RECONSTRUCTED_PIT",
+        "usage_status": "USABLE_WITH_REAL_TIME_SENSITIVITY",
+        "revision_class": "SMALL"
+      },
+      "EXPGSC1": {
+        "role": "auxiliary (real exports)",
+        "protocol_use": "world-core calibration / net exports",
+        "lens": "TAPE_RECONSTRUCTED",
+        "protocol_class": "DIAGNOSTIC_ONLY",
+        "usage_status": "DIAGNOSTIC_ONLY",
+        "revision_class": "MATERIAL"
+      },
+      "GCE": {
+        "role": "auxiliary (nominal government)",
+        "protocol_use": "world-core calibration",
+        "lens": "ARCHIVED_PIT",
+        "protocol_class": "REAL_TIME",
+        "usage_status": "USABLE_GENUINE_ARCHIVE",
+        "revision_class": "MATERIAL"
+      },
+      "GCEC1": {
+        "role": "auxiliary (real government)",
+        "protocol_use": "world-core calibration",
+        "lens": "ARCHIVED_PIT",
+        "protocol_class": "REAL_TIME",
+        "usage_status": "USABLE_GENUINE_ARCHIVE",
+        "revision_class": "MATERIAL"
+      },
+      "GDPC1": {
+        "role": "T2 target",
+        "protocol_use": "T2_GDP_GROWTH target and comparator input",
+        "lens": "TAPE_RECONSTRUCTED",
+        "protocol_class": "DIAGNOSTIC_ONLY",
+        "usage_status": "DIAGNOSTIC_ONLY",
+        "revision_class": "MATERIAL"
+      },
+      "GDPDEF": {
+        "role": "auxiliary (deflator)",
+        "protocol_use": "V2 nominal/real bridge",
+        "lens": "TAPE_RECONSTRUCTED",
+        "protocol_class": "DIAGNOSTIC_ONLY",
+        "usage_status": "DIAGNOSTIC_ONLY",
+        "revision_class": "MATERIAL"
+      },
+      "GPDIC1": {
+        "role": "auxiliary (real investment)",
+        "protocol_use": "world-core calibration",
+        "lens": "ARCHIVED_PIT",
+        "protocol_class": "REAL_TIME",
+        "usage_status": "USABLE_GENUINE_ARCHIVE",
+        "revision_class": "MATERIAL"
+      },
+      "GS10": {
+        "role": "T3/T1 comparator input",
+        "protocol_use": "T3 PROBIT_SPREAD, T1 comparator",
+        "lens": "TAPE_RECONSTRUCTED",
+        "protocol_class": "REAL_TIME_RECONSTRUCTED_MARKET",
+        "usage_status": "USABLE_EXACT_WITH_TAPE_DISCLOSURE",
+        "revision_class": "ZERO"
+      },
+      "IMPGSC1": {
+        "role": "auxiliary (real imports)",
+        "protocol_use": "world-core calibration / openness",
+        "lens": "TAPE_RECONSTRUCTED",
+        "protocol_class": "DIAGNOSTIC_ONLY",
+        "usage_status": "DIAGNOSTIC_ONLY",
+        "revision_class": "MATERIAL"
+      },
+      "INDPRO": {
+        "role": "auxiliary (activity)",
+        "protocol_use": "productivity cross-check",
+        "lens": "ARCHIVED_PIT",
+        "protocol_class": "REAL_TIME",
+        "usage_status": "USABLE_GENUINE_ARCHIVE",
+        "revision_class": "MATERIAL"
+      },
+      "PAYEMS": {
+        "role": "auxiliary (labour input)",
+        "protocol_use": "productivity trend",
+        "lens": "ARCHIVED_PIT",
+        "protocol_class": "REAL_TIME",
+        "usage_status": "USABLE_GENUINE_ARCHIVE",
+        "revision_class": "SMALL"
+      },
+      "PCECC96": {
+        "role": "auxiliary (real consumption)",
+        "protocol_use": "expenditure identity",
+        "lens": "ARCHIVED_PIT",
+        "protocol_class": "REAL_TIME",
+        "usage_status": "USABLE_GENUINE_ARCHIVE",
+        "revision_class": "MATERIAL"
+      },
+      "PCEPILFE": {
+        "role": "auxiliary (core PCE inflation)",
+        "protocol_use": "inflation cross-check",
+        "lens": "UNVERIFIED_LATE_ARCHIVE",
+        "protocol_class": "NOT_AVAILABLE",
+        "usage_status": "EXCLUDED_NO_IN_WINDOW_VINTAGE",
+        "revision_class": "MATERIAL"
+      },
+      "RSAFS": {
+        "role": "auxiliary (demand)",
+        "protocol_use": "V2 demand indicator",
+        "lens": "UNVERIFIED_LATE_ARCHIVE",
+        "protocol_class": "NOT_AVAILABLE",
+        "usage_status": "EXCLUDED_NO_IN_WINDOW_VINTAGE",
+        "revision_class": "MATERIAL"
+      },
+      "TB3MS": {
+        "role": "T3/T1 comparator input",
+        "protocol_use": "T3 PROBIT_SPREAD, T1 comparator",
+        "lens": "TAPE_RECONSTRUCTED",
+        "protocol_class": "REAL_TIME_RECONSTRUCTED_MARKET",
+        "usage_status": "USABLE_EXACT_WITH_TAPE_DISCLOSURE",
+        "revision_class": "ZERO_WITHIN_ROUNDING"
+      },
+      "UNRATE": {
+        "role": "T3 comparator input",
+        "protocol_use": "T3 comparator / labour indicator",
+        "lens": "TAPE_RECONSTRUCTED",
+        "protocol_class": "RECONSTRUCTED_PIT",
+        "usage_status": "USABLE_WITH_REAL_TIME_SENSITIVITY",
+        "revision_class": "SMALL"
+      },
+      "USREC": {
+        "role": "T3 label",
+        "protocol_use": "NBER chronology representation for T3 labels",
+        "lens": "LATEST_ONLY",
+        "protocol_class": "LATEST_TAPE_ONLY",
+        "usage_status": "LABEL_SOURCE_ONLY",
+        "revision_class": null
+      }
+    },
+    "excluded_series": [
+      {
+        "series": "A191RL1Q225SBEA",
+        "lens": "UNVERIFIED_LATE_ARCHIVE",
+        "reason": "the archive starts more than G4_TAPE_MAX_DELAY_MONTHS after the window end (or has no vintage column inside the window and a late start): 1990-1996 cannot be reconstructed honestly and the series is excluded",
+        "first_real_vintage": "2014-09-26"
+      },
+      {
+        "series": "PCEPILFE",
+        "lens": "UNVERIFIED_LATE_ARCHIVE",
+        "reason": "the archive starts more than G4_TAPE_MAX_DELAY_MONTHS after the window end (or has no vintage column inside the window and a late start): 1990-1996 cannot be reconstructed honestly and the series is excluded",
+        "first_real_vintage": "2000-09-29"
+      },
+      {
+        "series": "RSAFS",
+        "lens": "UNVERIFIED_LATE_ARCHIVE",
+        "reason": "the archive starts more than G4_TAPE_MAX_DELAY_MONTHS after the window end (or has no vintage column inside the window and a late start): 1990-1996 cannot be reconstructed honestly and the series is excluded",
+        "first_real_vintage": "2001-06-13"
+      }
+    ]
+  },
+  "lens_calibration": {
+    "what_is_calibrated": "the lens/status assignment of every series for 1990-1996 and its usability/protocol class; NOT any model parameter and NOT any forecast",
+    "classification_inputs": "archive vintage dates and counts, dense-start date, measured earliest-vs-latest revisions; no forecast errors and no target outcomes enter the classification",
+    "outcome_free_declaration": "the classification was computed before any extended-window evaluation and does not depend on its results",
+    "protocol_series_rule": "for the series that protocol v5 itself classes (CPIAUCSL, CPILFESL, UNRATE, GDPC1, GS10, TB3MS, USREC) the protocol class is used verbatim; the audit only reproduces it and records the measured revision class next to it",
+    "auxiliary_rule": "auxiliary series are ARCHIVED_PIT when a genuine full-history archive covers the window (start gap <= archived_start_tolerance_days); otherwise the first-print tape is used and the relative window revision class decides the usability"
+  },
+  "extended_window_design": {
+    "windows": {
+      "W1_EXT": {
+        "start": "1990-01",
+        "end": "2006-12",
+        "use": "T1 C4 only: origins before the first real ALFRED vintage (1996-12-31) are reconstructed and flagged (protocol v5)"
+      },
+      "W2": {
+        "start": "2007-01",
+        "end": "2019-12",
+        "use": "held-out OOS window; not used for any selection or tuning"
+      }
+    },
+    "primary_analysis": "T1 C4 on W1_EXT per protocol v5; C1/C2/C5 stay REAL_TIME-only and are never computed on reconstructed origins",
+    "mandatory_sensitivity": [
+      "REAL_TIME-only slice of the C4 (reporting-only, not gating)",
+      "reconstructed-origin-excluded slice (origins before 1996-12 removed)",
+      "leave-one-episode-out: 1990-91 recession, 2001 recession, 2007-09 crisis",
+      "tape-free origins only (origins >= 1996-12)"
+    ],
+    "conditional_data_class": "a C4 pass that depends on reconstructed origins advances the pair to SHADOW_TEST only with the CONDITIONAL_DATA_CLASS label recorded in the report, decision log and model card (protocol v5)",
+    "not_included": {
+      "T2_GDP_GROWTH": "no reconstructed GDPC1 is admitted; T2 keeps the v4 REAL_TIME-only rule and starts at the first real vintage (1996-12)",
+      "T3_RECESSION": "T3 W1 starts 1996-12; the NBER announcement-date rule is unchanged",
+      "model_parameter_tuning": "no parameter grid/search is pre-registered here; any future calibration of model parameters needs its own preregistration version and hash before the computation",
+      "auxiliary_diagnostic_series": "DIAGNOSTIC_ONLY lenses may be reported as context but must not enter an admission-relevant criterion"
+    }
+  },
+  "acceptance_criteria": {
+    "data_acceptance": [
+      "a series may feed an admission-relevant input only through the protocol class of its lens: REAL_TIME, REAL_TIME_RECONSTRUCTED_MARKET or RECONSTRUCTED_PIT",
+      "DIAGNOSTIC_ONLY and NOT_AVAILABLE lenses never enter a target or a comparator minimum",
+      "T1 C4 on W1_EXT requires CPIAUCSL lens in {TAPE_RECONSTRUCTED, ARCHIVED_PIT} and CPILFESL/UNRATE likewise; the measured revision classes are reported next to the result",
+      "T2 requires GDPC1 REAL_TIME only (first real vintage 1996-12); no reconstructed GDP",
+      "T3 labels come from USREC/NBER announcements; USREC has no vintage archive and is used as a label source only",
+      "at least 60 CPI y/y observations and 12 recession-labelled origins in W1_EXT are required for the respective C4; otherwise the C4 is NOT_APPLICABLE, not FAIL"
+    ],
+    "evaluation_criteria": {
+      "C1": "relative loss <= the threshold from protocols/nf_sim_thresholds.json (0.97 for the reported targets); the primary loss is RMSE, CRPS only after the mixture gate",
+      "C2": "one-sided Diebold-Mariano plus full Romano-Wolf stepdown, FWER 0.10",
+      "C4": "protocol v5 C4 rule on W1_EXT with the sensitivity slices above",
+      "C5": "protocol v5 C5 rule unchanged",
+      "overall_labels": [
+        "PASS",
+        "CONDITIONAL",
+        "FAIL"
+      ],
+      "conditional_rule": "a pass that depends on reconstructed origins is CONDITIONAL (CONDITIONAL_DATA_CLASS), never an unconditional PASS",
+      "no_claim_rule": "no significance, ranking or admission claim is made from this preregistration alone; the evaluation report must carry the sha256 of this file and of the coverage audit"
+    },
+    "reporting_requirements": [
+      "report must state the lens/protocol class of every input series used",
+      "report must carry the flags: data_class per origin, reconstructed-origin share",
+      "report must publish the REAL_TIME-only and leave-one-episode-out sensitivities",
+      "report must reference this preregistration sha256 and the coverage tree digest",
+      "aggregates only: no raw series values and no per-origin forecasts are committed"
+    ]
+  },
+  "post_hoc_prohibitions": [
+    "must not change the window dates, the lens thresholds, the revision classes or the series classification after seeing any extended-window result",
+    "must not add, remove or reclassify a series to improve a result",
+    "must not tune a model parameter, threshold or hyperparameter on the held-out W2 or on any origin inspected during an extended-window run",
+    "must not promote a DIAGNOSTIC_ONLY or NOT_AVAILABLE lens series into an admission-relevant input without a new preregistration version and hash",
+    "must not edit or delete this file; a correction is a new version with a new sha256 and a retained previous version",
+    "must not report a reconstructed-origin pass as an unconditional pass (CONDITIONAL_DATA_CLASS is mandatory)"
+  ],
+  "amendment_rule": {
+    "who": "the owner (Lead) only",
+    "how": "a new file protocols/pit_preregistration_0_4.json (or the next free number) with a new sha256 pin; this file stays unchanged in the repository",
+    "requirements": "reason, timestamp, the affected criteria/lenses, and a statement of what did not change; amendments before any extended-window computation are allowed and must be recorded; amendments after computation are a result-changing event and the old results remain in the reports",
+    "no_retroactive": "previous reports are never edited to match a new version"
+  },
+  "reproduce": {
+    "audit": "python tools/reconstruct_pit.py --g4",
+    "tests": "python tests/test_reconstruct_pit_g4.py",
+    "reader_check": "AMFE_DATA_ROOT=data/reconstructed python -c \"from amfe.forecast.data import load_vintages; print(len(load_vintages('CPIAUCSL')))\"",
+    "data_source": "private ALFRED artifact of the data-refresh workflow (tools/fetch_data.py); data/raw and data/reconstructed are git-ignored"
+  },
+  "limitations": [
+    "this is a reconstruction audit; only ARCHIVED_PIT series use genuine archived columns, the tape series carry the declared first-print approximation and its measured revisions",
+    "the merged ALFRED archive starts at the first planned date (1990-03-31 for the dense plan); the 2-3 month start gap of the ARCHIVED_PIT lens is covered by a declared 90-day tolerance",
+    "the auxiliary relative revision class measures genuine archive revisions between the first archived column and the latest one for window observations; it is not a reconstruction error for ARCHIVED_PIT series",
+    "three series (A191RL1Q225SBEA, PCEPILFE, RSAFS) cannot be reconstructed for 1990-1996 and are excluded; their latest.csv is not a PIT substitute",
+    "the coverage report is aggregates only and is git-ignored; the audit summary is in docs/166",
+    "no extended-window evaluation has been run under this preregistration yet; no result is claimed"
+  ],
+  "content_sha256": "f86bfe9ef9c63cb14bf96493abcec6fce58d2f9fe92cf4972e2fa916372a6066"
+}

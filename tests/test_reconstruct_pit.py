@@ -598,7 +598,14 @@ class LocalArtefacts(unittest.TestCase):
             dossier = json.load(handle)
         self.assertEqual(dossier["status"], "PROPOSED")
         root = ROOT / "data" / "reconstructed"
-        self.assertEqual(dossier["artifacts"]["digest"], rp.tree_digest(root))
+        # The committed dossier documents the base six-series build.  A local G4 build may
+        # extend the same root with the additional series, so the digest is recomputed over
+        # the dossier series only (other top-level entries are excluded).
+        documented = set(dossier["artifacts"]["series"])
+        exclude = tuple(path.relative_to(root).as_posix() for path in root.rglob("*")
+                        if path.is_file() and path.relative_to(root).parts[0]
+                        not in documented) if root.exists() else ()
+        self.assertEqual(dossier["artifacts"]["digest"], rp.tree_digest(root, exclude=exclude))
         for series in rp.RECONSTRUCTED_SERIES:
             for name, meta in dossier["artifacts"]["series"][series].items():
                 self.assertEqual(meta["sha256"], rp.sha256_file(root / series / name))
