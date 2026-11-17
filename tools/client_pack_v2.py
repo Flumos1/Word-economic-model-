@@ -1,0 +1,1012 @@
+#!/usr/bin/env python3
+"""Client Pack v2 — one deterministic client package aggregating the real artefacts.
+
+The pack is an *aggregator*, not a model: every number is read from committed/generated artefacts and
+copied (or counted) — nothing is re-estimated, invented or scraped:
+
+* ``build/product/forecast_latest.json`` — the product feed of the scored candidate
+  (status CANDIDATE / RESEARCH_ONLY; no admission is ever claimed);
+* ``build/registry/modules.jsonl`` — the append-only module registry with RESEARCH_ONLY passports;
+* ``build/api/index.json``, ``build/api/scenarios/oil.brent__<scenario>.json`` and
+  ``build/api/forecasts/oil_brent.json`` — the static forecast-API slice and one market scenario
+  (``hormuz_closed_6m`` by default).
+
+Outputs: DOCX executive summary / methodology / licence, XLSX numbers, a static HTML dashboard, a
+machine-readable JSON, a reproducibility manifest and a README. The build is fail-closed: if any
+required artefact is missing, unparsable, of an unexpected status (e.g. an admitted model) or if the
+scenario id is unknown, the tool raises before touching the output directory.
+
+Determinism follows the same approach as ``tools/market_client_pack.py``: the pack's
+``--generated-at`` (or, by default, the newest input timestamp) is used for every document, and the
+DOCX/XLSX zip entries and ``docProps/core.xml`` dates are pinned to it, so two builds with the same
+inputs and the same timestamp are byte-identical.
+
+Usage::
+
+    python tools/client_pack_v2.py --generated-at 2026-11-17T00:00:00Z \
+        --out build/client_pack/v2 --json
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import re
+import shutil
+import sys
+import tempfile
+from datetime import datetime, timezone
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+
+SCHEMA = "amfe.client_pack.v2"
+REPRO_SCHEMA = "amfe.client_pack.repro.v2"
+STATUS = "RESEARCH_ONLY"
+DEFAULT_CLIENT = "Research client"
+DEFAULT_SCENARIO = "hormuz_closed_6m"
+DEFAULT_PACK_NAME = "amfe_client_pack_v2"
+ALLOWED_CANDIDATE_STATUSES = ("CANDIDATE", "RESEARCH_ONLY")
+ALLOWED_MODULE_STATUSES = ("RESEARCH_ONLY",)
+FALLBACK_GENERATED_AT = "2026-11-17T00:00:00Z"
+
+DISCLAIMER = (
+    "Research only. This pack is an aggregation of the AMFE research artefacts, not a forecast, not "
+    "an admission decision and not investment advice. No model is admitted: the published candidate "
+    "keeps the CANDIDATE / RESEARCH_ONLY status, C4 and C6 remain open, and the scenario numbers are "
+    "scenario arithmetic over declared assumptions, not a confidence interval."
+)
+LICENCE = {
+    "research_only": True,
+    "no_admission": True,
+    "no_investment_advice": True,
+    "no_third_party_observations": True,
+    "third_party_data_committed": False,
+    "note": ("Only the project's own forecasts, aggregated metrics and derived statistics are "
+             "published; raw third-party observations stay in the private CI artefacts "
+             "(protocols/licence_register.json, docs/84, docs/90)."),
+    "documents": ["docs/84_Лицензионный_аудит_2_2026-11-12.md",
+                  "docs/89_Релизный_чеклист_этап9.md",
+                  "docs/161_Реестр_API_паспорта.md",
+                  "docs/171_Client_Pack_v2.md"],
+}
+
+INPUT_PATHS = {
+    "product_feed": "product/forecast_latest.json",
+    "registry": "registry/modules.jsonl",
+    "api_index": "api/index.json",
+    "api_forecast": "api/forecasts/oil_brent.json",
+}
+SCENARIO_PATH = "api/scenarios/oil.brent__{scenario}.json"
+MODULE_FIELDS = ("module_id", "display_name", "version", "kind", "status", "owner", "summary",
+                 "limitations", "code_sha256", "data_sha256", "data_status", "components",
+                 "entrypoints", "docs", "tests", "created_at")
+
+
+class ClientPackError(RuntimeError):
+    """Fail-closed aggregation error (missing/corrupt/unsafe input artefact)."""
+
+
+# ---------------------------------------------------------------------------------------- helpers
+def _now() -> str:
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def _canonical_sha256(payload) -> str:
+    canonical = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def _parse_timestamp(value: str, label: str) -> datetime:
+    try:
+        return datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+    except (TypeError, ValueError) as exc:
+        raise ClientPackError(f"{label}: expected YYYY-MM-DDTHH:MM:SSZ, got {value!r}") from exc
+
+
+def _fmt(value, digits: int = 2) -> str:
+    try:
+        return f"{float(value):,.{digits}f}".replace(",", " ")
+    except (TypeError, ValueError):
+        return "—"
+
+
+def _short(value: str | None, size: int = 12) -> str:
+    return (value or "")[:size]
+
+
+def _repo_path(root: Path, path: Path) -> str:
+    try:
+        return str(Path(path).resolve().relative_to(Path(root).resolve())).replace("\\", "/")
+    except ValueError:
+        return str(path).replace("\\", "/")
+
+
+def _read_json(path: Path, label: str) -> dict:
+    if not Path(path).is_file():
+        raise ClientPackError(f"{label}: required artefact is missing: {path}")
+    try:
+        document = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise ClientPackError(f"{label}: cannot parse {path}: {exc!r}") from exc
+    if not isinstance(document, dict):
+        raise ClientPackError(f"{label}: expected a JSON object in {path}")
+    return document
+
+
+def _read_jsonl(path: Path, label: str) -> list[dict]:
+    if not Path(path).is_file():
+        raise ClientPackError(f"{label}: required artefact is missing: {path}")
+    entries = []
+    try:
+        lines = Path(path).read_text(encoding="utf-8").splitlines()
+    except OSError as exc:
+        raise ClientPackError(f"{label}: cannot read {path}: {exc!r}") from exc
+    for number, line in enumerate(lines, start=1):
+        if not line.strip():
+            continue
+        try:
+            entry = json.loads(line)
+        except ValueError as exc:
+            raise ClientPackError(f"{label}: line {number} is not JSON: {exc!r}") from exc
+        if not isinstance(entry, dict) or not entry.get("module_id"):
+            raise ClientPackError(f"{label}: line {number} is not a module passport record")
+        entries.append(entry)
+    if not entries:
+        raise ClientPackError(f"{label}: registry is empty")
+    return entries
+
+
+def _write_json(path: Path, document: dict) -> None:
+    payload = (json.dumps(document, ensure_ascii=False, sort_keys=True, indent=1) + "\n").encode()
+    Path(path).write_bytes(payload)
+
+
+def _normalise_office_zip(path: Path, moment: datetime) -> None:
+    """Pin docx/xlsx zip entry timestamps and docProps/core.xml dates to ``moment``.
+
+    Same normalisation as tools/market_client_pack.py: python-docx/openpyxl stamp the wall clock, so
+    without it two identical rebuilds differ by a second and are not byte-identical.
+    """
+    import zipfile
+
+    date_time = moment.timetuple()[:6]
+    stamp = moment.strftime("%Y-%m-%dT%H:%M:%SZ").encode("utf-8")
+    with zipfile.ZipFile(path, "r") as source:
+        entries = [(info, source.read(info.filename)) for info in source.infolist()]
+    temporary = path.with_name(path.name + ".tmp")
+    with zipfile.ZipFile(temporary, "w", zipfile.ZIP_DEFLATED) as target:
+        for info, data in entries:
+            if info.filename == "docProps/core.xml":
+                data = re.sub(rb"(<dcterms:(?:created|modified)[^>]*>)[^<]*(</dcterms:(?:created|modified)>)",
+                              rb"\g<1>" + stamp + rb"\g<2>", data)
+            new_info = zipfile.ZipInfo(info.filename, date_time=date_time)
+            new_info.compress_type = zipfile.ZIP_DEFLATED
+            new_info.external_attr = info.external_attr
+            target.writestr(new_info, data)
+    temporary.replace(path)
+
+
+# ----------------------------------------------------------------------------------------- inputs
+def load_inputs(inputs_root: Path, scenario_id: str, root: Path) -> dict:
+    """Load and validate every artefact; raises ClientPackError (fail-closed) on any problem."""
+    inputs_root = Path(inputs_root)
+    paths = {key: inputs_root / relative for key, relative in INPUT_PATHS.items()}
+    paths["scenario"] = inputs_root / SCENARIO_PATH.format(scenario=scenario_id)
+    documents = {}
+    for key in ("product_feed", "api_index", "api_forecast", "scenario"):
+        documents[key] = _read_json(paths[key], key)
+    documents["registry"] = _read_jsonl(paths["registry"], "registry")
+
+    feed = documents["product_feed"]
+    _validate_product_feed(feed)
+    registry = documents["registry"]
+    _validate_registry(registry)
+    index = documents["api_index"]
+    if not str(index.get("schema", "")).startswith("amfe.forecast_api."):
+        raise ClientPackError(f"api_index: unexpected schema {index.get('schema')!r}")
+    if index.get("status") != STATUS:
+        raise ClientPackError(f"api_index: status is {index.get('status')!r}, expected {STATUS!r}")
+    for key in ("modules", "endpoints", "scenarios", "forecasts"):
+        if not index.get(key):
+            raise ClientPackError(f"api_index: empty {key!r} section")
+    scenario = documents["scenario"]
+    if scenario.get("status") != STATUS:
+        raise ClientPackError(f"scenario: status is {scenario.get('status')!r}, expected {STATUS!r}")
+    result = scenario.get("result") or {}
+    if not result.get("scenario_id") or not result.get("module_id"):
+        raise ClientPackError("scenario: result has no scenario_id/module_id")
+    if result.get("scenario_id") != scenario_id:
+        raise ClientPackError(f"scenario: result scenario_id {result.get('scenario_id')!r} != "
+                              f"requested {scenario_id!r}")
+    if not result.get("summary") or not isinstance(result.get("price_path"), list):
+        raise ClientPackError("scenario: result has no summary/price_path")
+    forecast = documents["api_forecast"]
+    if forecast.get("status") != STATUS:
+        raise ClientPackError(f"api_forecast: status is {forecast.get('status')!r}, expected {STATUS!r}")
+    if not isinstance(forecast.get("envelope"), dict):
+        raise ClientPackError("api_forecast: envelope is missing")
+    documents["paths"] = paths
+    documents["inputs_root"] = inputs_root
+    documents["root"] = root
+    documents["scenario_id"] = scenario_id
+    return documents
+
+
+def _validate_product_feed(feed: dict) -> None:
+    status = feed.get("status")
+    if status not in ALLOWED_CANDIDATE_STATUSES:
+        raise ClientPackError(
+            f"product_feed: status is {status!r}; the client pack publishes only "
+            f"{'/'.join(ALLOWED_CANDIDATE_STATUSES)} and never an admitted model")
+    for key in ("candidate", "target", "horizon", "origin", "point"):
+        if key not in feed:
+            raise ClientPackError(f"product_feed: required field {key!r} is missing")
+    quantiles = feed.get("quantiles_5_to_95_step_5")
+    if not isinstance(quantiles, list) or len(quantiles) != 19:
+        raise ClientPackError("product_feed: 19 quantiles are required")
+    try:
+        values = [float(value) for value in quantiles]
+    except (TypeError, ValueError) as exc:
+        raise ClientPackError(f"product_feed: non-numeric quantile: {exc!r}") from exc
+    if any(right <= left for left, right in zip(values, values[1:])):
+        raise ClientPackError("product_feed: quantiles are not strictly increasing")
+    if not isinstance(feed.get("protocol"), dict) or not feed["protocol"].get("sha256"):
+        raise ClientPackError("product_feed: protocol reference/digest is missing")
+    if not isinstance(feed.get("c4_status"), dict) or not isinstance(feed.get("c6_status"), dict):
+        raise ClientPackError("product_feed: C4/C6 status blocks are missing")
+
+
+def _validate_registry(entries: list) -> None:
+    for entry in entries:
+        if entry.get("status") not in ALLOWED_MODULE_STATUSES:
+            raise ClientPackError(
+                f"registry: module {entry.get('module_id')!r} has status {entry.get('status')!r}; "
+                f"only {ALLOWED_MODULE_STATUSES} passports are allowed")
+        code = entry.get("code_sha256") or ""
+        if not re.fullmatch(r"[0-9a-f]{64}", code):
+            raise ClientPackError(f"registry: module {entry.get('module_id')!r} has no code digest")
+
+
+def latest_passports(entries: list) -> list:
+    """The append-only registry keeps history: take the latest record per module_id."""
+    latest = {}
+    for entry in entries:
+        latest[entry["module_id"]] = entry
+    return [latest[module_id] for module_id in sorted(latest)]
+
+
+def _default_generated_at(documents: dict) -> str:
+    candidates = []
+    for document in (documents["product_feed"], documents["api_index"],
+                     documents["api_forecast"], documents["scenario"]):
+        value = document.get("generated_at")
+        if value:
+            _parse_timestamp(value, "input generated_at")
+            candidates.append(value)
+    for entry in documents["registry"]:
+        created = entry.get("created_at")
+        if created:
+            candidates.append(f"{created}T00:00:00Z")
+    for value in candidates:
+        _parse_timestamp(value, "input generated_at")
+    return max(candidates) if candidates else FALLBACK_GENERATED_AT
+
+
+# ------------------------------------------------------------------------------------- aggregate
+def build_document(inputs: dict, client: str, generated_at: str) -> dict:
+    feed = inputs["product_feed"]
+    registry = latest_passports(inputs["registry"])
+    scenario = inputs["scenario"]
+    result = scenario["result"]
+    index = inputs["api_index"]
+    forecast = inputs["api_forecast"]
+    envelope = forecast["envelope"]
+    summary = result.get("summary") or {}
+    quantiles = [float(value) for value in feed["quantiles_5_to_95_step_5"]]
+    by_status, by_kind = {}, {}
+    for entry in registry:
+        by_status[entry["status"]] = by_status.get(entry["status"], 0) + 1
+        by_kind[entry["kind"]] = by_kind.get(entry["kind"], 0) + 1
+    scenario_peak = summary.get("price_peak", envelope.get("price_peak"))
+    scenario_mean = summary.get("price_mean", envelope.get("price_mean"))
+    document = {
+        "schema": SCHEMA,
+        "kind": "client_pack",
+        "status": STATUS,
+        "client": client,
+        "generated_at": generated_at,
+        "disclaimer": DISCLAIMER,
+        "admission": {
+            "admitted": False,
+            "candidate_status": feed.get("status"),
+            "note": ("no model is admitted: the product feed publishes a "
+                     f"{feed.get('status')} candidate; C4 pass={feed.get('c4_status', {}).get('pass')}, "
+                     f"C6 status={feed.get('c6_status', {}).get('status')}"),
+        },
+        "summary": {
+            "candidate": feed.get("candidate"),
+            "candidate_status": feed.get("status"),
+            "target": feed.get("target"),
+            "horizon": feed.get("horizon"),
+            "origin": feed.get("origin"),
+            "point": feed.get("point"),
+            "interval_5_95": [quantiles[0], quantiles[-1]],
+            "c4_pass": bool(feed.get("c4_status", {}).get("pass")),
+            "c6_status": feed.get("c6_status", {}).get("status"),
+            "modules_total": len(registry),
+            "modules_statuses": by_status,
+            "scenario_id": result.get("scenario_id"),
+            "scenario_peak": scenario_peak,
+            "scenario_mean": scenario_mean,
+            "api_version": index.get("api_version"),
+            "api_modules": len(index.get("modules") or []),
+            "api_endpoints": len(index.get("endpoints") or []),
+            "sources": len(inputs["paths"]),
+        },
+        "product_feed": {
+            "source": _repo_path(inputs["root"], inputs["paths"]["product_feed"]),
+            "schema_version": feed.get("schema_version"),
+            "generated_at": feed.get("generated_at"),
+            "status": feed.get("status"),
+            "status_label": feed.get("status_label"),
+            "candidate": feed.get("candidate"),
+            "target": feed.get("target"),
+            "horizon": feed.get("horizon"),
+            "origin": feed.get("origin"),
+            "point": feed.get("point"),
+            "quantiles_5_to_95_step_5": quantiles,
+            "controls": feed.get("controls") or {},
+            "c4_status": feed.get("c4_status") or {},
+            "c6_status": feed.get("c6_status") or {},
+            "data_class": feed.get("data_class"),
+            "conditional_data_class": feed.get("conditional_data_class"),
+            "protocol": feed.get("protocol") or {},
+            "report_id": feed.get("report_id"),
+            "source_hashes": feed.get("source_hashes") or {},
+            "limitations": feed.get("limitations") or [],
+            "no_admission": True,
+        },
+        "candidates": {
+            "source": "product feed (forecast_latest.json)",
+            "no_admission": True,
+            "items": [{
+                "candidate": feed.get("candidate"),
+                "status": feed.get("status"),
+                "status_label": feed.get("status_label"),
+                "target": feed.get("target"),
+                "horizon": feed.get("horizon"),
+                "origin": feed.get("origin"),
+                "point": feed.get("point"),
+                "data_class": feed.get("data_class"),
+            }],
+            "registered_candidates_note": ("the pack publishes only the candidate of the product "
+                                           "feed; it does not invent or admit candidates"),
+        },
+        "modules": {
+            "source": _repo_path(inputs["root"], inputs["paths"]["registry"]),
+            "registry_sha256": _sha256(inputs["paths"]["registry"]),
+            "count": len(registry),
+            "by_status": by_status,
+            "by_kind": by_kind,
+            "items": [{field: entry.get(field) for field in MODULE_FIELDS} for entry in registry],
+        },
+        "market_scenario": {
+            "source": _repo_path(inputs["root"], inputs["paths"]["scenario"]),
+            "scenario_id": result.get("scenario_id"),
+            "module_id": result.get("module_id"),
+            "module_version": (scenario.get("module_ref") or {}).get("version"),
+            "status": scenario.get("status"),
+            "commodity": result.get("commodity"),
+            "units": result.get("units"),
+            "horizon_months": result.get("horizon_months"),
+            "scenario": scenario.get("scenario") or {},
+            "summary": summary,
+            "price_path": [float(value) for value in result.get("price_path") or []],
+            "sensitivity": result.get("sensitivity") or [],
+            "assumptions_count": len(result.get("assumptions") or []),
+            "checks": result.get("checks") or {},
+            "result_digest": result.get("digest"),
+            "generated_at": scenario.get("generated_at"),
+        },
+        "forecast_api": {
+            "source": _repo_path(inputs["root"], inputs["paths"]["api_index"]),
+            "schema": index.get("schema"),
+            "api_version": index.get("api_version"),
+            "base_path": index.get("base_path"),
+            "status": index.get("status"),
+            "counts": index.get("counts") or {},
+            "endpoints": [{"method": item.get("method"), "path": item.get("path"),
+                           "description": item.get("description")}
+                          for item in index.get("endpoints") or []],
+            "modules": [{"module_id": item.get("module_id"),
+                         "version": item.get("version"),
+                         "status": item.get("status"),
+                         "kind": item.get("kind")}
+                        for item in index.get("modules") or []],
+            "scenarios": [{"id": item.get("id"), "module": item.get("module"),
+                           "horizon_months": item.get("horizon_months")}
+                          for item in index.get("scenarios") or []],
+            "forecast": {
+                "source": _repo_path(inputs["root"], inputs["paths"]["api_forecast"]),
+                "target": forecast.get("target"),
+                "module_id": forecast.get("module_id"),
+                "status": forecast.get("status"),
+                "no_point_forecast": forecast.get("no_point_forecast"),
+                "result_digest": forecast.get("result_digest"),
+                "assumptions_count": forecast.get("assumptions_count"),
+                "price_peak": envelope.get("price_peak"),
+                "price_mean": envelope.get("price_mean"),
+                "price_trough": envelope.get("price_trough"),
+                "price_peak_month": envelope.get("price_peak_month"),
+            },
+            "generated_at": index.get("generated_at"),
+        },
+        "licence": dict(LICENCE),
+        "sources": [],
+    }
+    for key in ("product_feed", "registry", "api_index", "scenario", "api_forecast"):
+        path = inputs["paths"][key]
+        document["sources"].append({"kind": key, "path": _repo_path(inputs["root"], path),
+                                    "bytes": path.stat().st_size, "sha256": _sha256(path)})
+    source_meta = {
+        "product_feed": (feed.get("schema_version"), feed.get("generated_at")),
+        "registry": ("module_registry.jsonl", None),
+        "api_index": (index.get("schema"), index.get("generated_at")),
+        "scenario": (scenario.get("schema"), scenario.get("generated_at")),
+        "api_forecast": (forecast.get("schema"), forecast.get("generated_at")),
+    }
+    for item in document["sources"]:
+        schema, generated = source_meta[item["kind"]]
+        item["schema"] = schema
+        item["generated_at"] = generated
+    document["document_digest"] = _canonical_sha256(document)
+    return document
+
+
+# ------------------------------------------------------------------------------------------ DOCX
+def _docx():
+    try:
+        import docx  # noqa: F401
+    except ImportError as exc:  # pragma: no cover - dependency-style guard
+        raise ClientPackError("python-docx is required to build the client pack") from exc
+    return docx
+
+
+def _new_document(title: str, client: str, generated_at: str):
+    docx = _docx()
+    document = docx.Document()
+    document.add_heading(title, level=0)
+    document.add_paragraph(f"Клиент: {client} · сформирован: {generated_at} · "
+                           f"статус: {STATUS} (research only)")
+    notice = document.add_paragraph(DISCLAIMER)
+    notice.style = document.styles["Intense Quote"]
+    return document
+
+
+def _table(document, headers: list, rows: list) -> None:
+    if not rows:
+        document.add_paragraph("—")
+        return
+    table = document.add_table(rows=1, cols=len(headers))
+    table.style = "Table Grid"
+    for index, header in enumerate(headers):
+        table.rows[0].cells[index].text = str(header)
+    for row in rows:
+        cells = table.add_row().cells
+        for index, value in enumerate(row):
+            cells[index].text = "" if value is None else str(value)
+
+
+def build_executive(path: Path, data: dict, generated: datetime) -> None:
+    document = _new_document("AMFE — клиентский пакет v2 (executive summary)", data["client"],
+                             data["generated_at"])
+    summary = data["summary"]
+    document.add_heading("Ключевые числа (только из артефактов)", level=1)
+    _table(document, ["Показатель", "Значение"], [
+        ["Кандидат", f"{summary['candidate']} · {summary['candidate_status']}"],
+        ["Цель / горизонт / начало", f"{summary['target']} / h={summary['horizon']} / "
+                                     f"{summary['origin']}"],
+        ["Точечный прогноз (из feed)", _fmt(summary["point"], 4)],
+        ["Интервал 5–95% (из 19 квантилей)", f"{_fmt(summary['interval_5_95'][0], 4)} – "
+                                             f"{_fmt(summary['interval_5_95'][1], 4)}"],
+        ["C4 (рецессионные начала)", "PASS" if summary["c4_pass"] else "FAIL / открыт"],
+        ["C6 (forward-журнал)", summary["c6_status"]],
+        ["Модульные паспорта", f"{summary['modules_total']} · {STATUS}"],
+        ["Рыночный сценарий", f"{summary['scenario_id']} · пик {_fmt(summary['scenario_peak'])}"],
+        ["Forecast API", f"версия {summary['api_version']} · модулей {summary['api_modules']} · "
+                         f"эндпоинтов {summary['api_endpoints']}"],
+        ["Источников в пакете", summary["sources"]],
+    ])
+    document.add_heading("Что означает статус", level=1)
+    document.add_paragraph(
+        "Ни одна модель не допущена: продукт публикует кандидата в статусе CANDIDATE, C4 и C6 "
+        "остаются открытыми (см. docs/076, docs/088). Числа пакета — это значения из артефактов "
+        "product feed и forecast API; пакет ничего не пересчитывает. Это не прогноз и не "
+        "инвестиционная рекомендация.")
+    document.add_heading("Что внутри", level=1)
+    document.add_paragraph(
+        "02_Numbers.xlsx — числа по кандидату, паспортам модулей, рыночному сценарию и API; "
+        "03_Dashboard.html — статическая панель; 04_Machine_Readable.json — машиночитаемая версия; "
+        "05_Methodology_and_Sources.docx — источники и метод; "
+        "06_Licence_and_Disclaimer.docx — лицензии и дисклеймеры; "
+        "07_Reproducibility.json — манифест воспроизводимости; README.md — краткое описание.")
+    document.save(str(path))
+
+
+def build_methodology(path: Path, data: dict, generated: datetime) -> None:
+    document = _new_document("AMFE — методология и источники", data["client"], data["generated_at"])
+    document.add_heading("Источники чисел", level=1)
+    _table(document, ["Артефакт", "Схема / generated_at", "SHA-256 (12)"],
+           [[item["path"], f"{item.get('schema') or '—'} / {item.get('generated_at') or '—'}",
+             _short(item["sha256"])] for item in data["sources"]])
+    document.add_heading("Как строится пакет", level=1)
+    for line in (
+            "1. Инструмент читает четыре артефакта: product feed, реестр модульных паспортов, "
+            "рыночный сценарий и forecast/API срез.",
+            "2. Числа копируются из артефактов; собственные вычисления — только счётчики, длины и "
+            "границы квантилей.",
+            "3. Никаких сырых значений третьих сторон пакет не содержит: в репозиторий идут "
+            "производные статистики и собственные прогнозы.",
+            "4. Сборка fail-closed: отсутствующий/битый артефакт или недопустимый статус "
+            "(например, admitted model) останавливают сборку до записи выходного каталога.",
+    ):
+        document.add_paragraph(line)
+    document.add_heading("Детерминизм", level=1)
+    document.add_paragraph(
+        "Дата пакета фиксируется --generated-at (по умолчанию — самый свежий timestamp входов). "
+        "Zip-входы DOCX/XLSX и даты docProps/core.xml прибиваются к этой дате (тот же подход, что в "
+        "market_client_pack.py), поэтому две сборки на тех же входах байт-идентичны.")
+    document.save(str(path))
+
+
+def build_licence(path: Path, data: dict, generated: datetime) -> None:
+    document = _new_document("AMFE — лицензии и дисклеймер", data["client"], data["generated_at"])
+    document.add_heading("Статус", level=1)
+    document.add_paragraph(f"Пакет: {STATUS}. Допуск модели не присвоен и не подразумевается.")
+    document.add_heading("Ограничения", level=1)
+    for line in (
+            "Ни одна модель не admitted: кандидат остаётся CANDIDATE/RESEARCH_ONLY; C4 открыт, "
+            "C6 недоступен до накопления forward-журнала.",
+            "Сценарий — сценарная арифметика по объявленным допущениям, а не точечный прогноз и "
+            "не доверительный интервал.",
+            "Это не инвестиционная рекомендация и не юридическая консультация.",
+            "Сырые наблюдения третьих сторон не публикуются: только производные статистики и "
+            "собственные прогнозы проекта (см. protocols/licence_register.json, docs/84, docs/90).",
+            "Использование — исследовательское; условия источников — предмет лицензионного "
+            "реестра проекта.",
+    ):
+        document.add_paragraph("• " + line)
+    document.add_heading("Документы", level=1)
+    for item in data["licence"].get("documents", []):
+        document.add_paragraph(item)
+    document.save(str(path))
+
+
+# ----------------------------------------------------------------------------------------- XLSX
+def build_xlsx(path: Path, data: dict, generated: datetime) -> None:
+    try:
+        from openpyxl import Workbook
+    except ImportError as exc:  # pragma: no cover
+        raise ClientPackError("openpyxl is required to build the client pack") from exc
+    workbook = Workbook()
+    summary = data["summary"]
+    sheet = workbook.active
+    sheet.title = "Summary"
+    rows = [
+        ("Клиент", data["client"]), ("Сформирован", data["generated_at"]),
+        ("Статус", data["status"]), ("Кандидат", summary["candidate"]),
+        ("Статус кандидата", summary["candidate_status"]), ("Цель", summary["target"]),
+        ("Горизонт", summary["horizon"]), ("Начало", summary["origin"]),
+        ("Точечный прогноз", summary["point"]),
+        ("Квантиль 5%", summary["interval_5_95"][0]),
+        ("Квантиль 95%", summary["interval_5_95"][1]),
+        ("C4 pass", summary["c4_pass"]), ("C6 статус", summary["c6_status"]),
+        ("Модулей", summary["modules_total"]), ("Сценарий", summary["scenario_id"]),
+        ("Пик сценария", summary["scenario_peak"]), ("Среднее сценария", summary["scenario_mean"]),
+        ("API версия", summary["api_version"]), ("API модулей", summary["api_modules"]),
+        ("API эндпоинтов", summary["api_endpoints"]),
+        ("Digest документа", data["document_digest"]),
+    ]
+    for row_index, (label, value) in enumerate(rows, start=1):
+        sheet.cell(row=row_index, column=1, value=label)
+        sheet.cell(row=row_index, column=2, value=value)
+
+    feed = data["product_feed"]
+    candidates = workbook.create_sheet("Candidate")
+    for row_index, header in enumerate(("Поле", "Значение"), start=1):
+        candidates.cell(row=1, column=row_index, value=header)
+    feed_rows = [("candidate", feed.get("candidate")), ("status", feed.get("status")),
+                 ("target", feed.get("target")), ("horizon", feed.get("horizon")),
+                 ("origin", feed.get("origin")), ("point", feed.get("point")),
+                 ("data_class", feed.get("data_class")),
+                 ("C4 pass", (feed.get("c4_status") or {}).get("pass")),
+                 ("C6 status", (feed.get("c6_status") or {}).get("status")),
+                 ("protocol version", (feed.get("protocol") or {}).get("version")),
+                 ("feed digest", (feed.get("source_hashes") or {}).get("report"))]
+    for row_index, (label, value) in enumerate(feed_rows, start=2):
+        candidates.cell(row=row_index, column=1, value=label)
+        candidates.cell(row=row_index, column=2, value=value)
+
+    modules = workbook.create_sheet("Modules")
+    headers = ("module_id", "version", "kind", "status", "owner", "code_sha256",
+               "data_status", "created_at")
+    for column, header in enumerate(headers, start=1):
+        modules.cell(row=1, column=column, value=header)
+    for row_index, entry in enumerate(data["modules"]["items"], start=2):
+        for column, header in enumerate(headers, start=1):
+            modules.cell(row=row_index, column=column, value=entry.get(header))
+
+    scenario = data["market_scenario"]
+    scenario_sheet = workbook.create_sheet("Scenario_Summary")
+    scenario_rows = [("scenario_id", scenario["scenario_id"]),
+                     ("module_id", scenario["module_id"]),
+                     ("module_version", scenario["module_version"]),
+                     ("commodity", scenario["commodity"]), ("units", scenario["units"]),
+                     ("horizon_months", scenario["horizon_months"]),
+                     ("assumptions", scenario["assumptions_count"]),
+                     ("result_digest", scenario["result_digest"])]
+    for row_index, (label, value) in enumerate(scenario_rows, start=1):
+        scenario_sheet.cell(row=row_index, column=1, value=label)
+        scenario_sheet.cell(row=row_index, column=2, value=value)
+    path_sheet = workbook.create_sheet("Scenario_Path")
+    path_sheet.cell(row=1, column=1, value="month")
+    path_sheet.cell(row=1, column=2, value=f"price, {scenario['units']}")
+    for row_index, price in enumerate(scenario["price_path"], start=2):
+        path_sheet.cell(row=row_index, column=1, value=row_index - 2)
+        path_sheet.cell(row=row_index, column=2, value=float(price))
+    sensitivity_sheet = workbook.create_sheet("Scenario_Sensitivity")
+    variants = scenario["sensitivity"]
+    keys = list(variants[0]) if variants else []
+    for column, key in enumerate(["variant", *keys], start=1):
+        sensitivity_sheet.cell(row=1, column=column, value=key)
+    for row_index, item in enumerate(variants, start=2):
+        sensitivity_sheet.cell(row=row_index, column=1, value=item.get("variant"))
+        for column, key in enumerate(keys, start=2):
+            value = item.get(key)
+            if isinstance(value, (dict, list)):
+                value = json.dumps(value, ensure_ascii=False, sort_keys=True)
+            sensitivity_sheet.cell(row=row_index, column=column, value=value)
+
+    api = workbook.create_sheet("API")
+    api_rows = [("schema", data["forecast_api"]["schema"]),
+                ("api_version", data["forecast_api"]["api_version"]),
+                ("base_path", data["forecast_api"]["base_path"]),
+                ("modules", data["forecast_api"]["counts"].get("modules")),
+                ("endpoints", len(data["forecast_api"]["endpoints"])),
+                ("forecast target", data["forecast_api"]["forecast"]["target"]),
+                ("forecast peak", data["forecast_api"]["forecast"]["price_peak"]),
+                ("forecast mean", data["forecast_api"]["forecast"]["price_mean"]),
+                ("forecast result_digest", data["forecast_api"]["forecast"]["result_digest"])]
+    for row_index, (label, value) in enumerate(api_rows, start=1):
+        api.cell(row=row_index, column=1, value=label)
+        api.cell(row=row_index, column=2, value=value)
+
+    sources = workbook.create_sheet("Sources")
+    for column, header in enumerate(("kind", "path", "schema", "generated_at", "bytes", "sha256"),
+                                    start=1):
+        sources.cell(row=1, column=column, value=header)
+    for row_index, item in enumerate(data["sources"], start=2):
+        for column, key in enumerate(("kind", "path", "schema", "generated_at", "bytes", "sha256"),
+                                     start=1):
+            sources.cell(row=row_index, column=column, value=item.get(key))
+
+    properties = workbook.properties
+    properties.creator = "AMFE"
+    properties.lastModifiedBy = "AMFE client pack v2"
+    properties.created = generated.replace(tzinfo=None)
+    properties.modified = generated.replace(tzinfo=None)
+    workbook.save(str(path))
+
+
+# ------------------------------------------------------------------------------------------ HTML
+_HTML_STYLE = """
+  body { font-family: system-ui, "Segoe UI", sans-serif; max-width: 64rem; margin: 0 auto;
+         padding: 1.5rem; line-height: 1.45; }
+  h1 { font-size: 1.5rem; } h2 { font-size: 1.15rem; margin-top: 2rem; }
+  .meta { color: #666; font-size: 0.9rem; }
+  .banner { border-left: 4px solid #b45309; background: #b4530915; padding: .7rem 1rem;
+            margin: 1rem 0; }
+  .cards { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .card { border: 1px solid #8884; border-radius: 8px; padding: .8rem 1rem; min-width: 12rem; }
+  .card .v { font-size: 1.4rem; font-weight: 600; }
+  table { border-collapse: collapse; width: 100%; margin: .6rem 0; }
+  th, td { border: 1px solid #8884; padding: .35rem .5rem; text-align: left; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  footer { margin-top: 2rem; border-top: 1px solid #8884; padding-top: .7rem;
+           color: #666; font-size: .85rem; }
+"""
+
+
+def build_dashboard(path: Path, data: dict) -> None:
+    summary = data["summary"]
+    module_rows = "".join(
+        f"<tr><td>{item.get('module_id')}</td><td>{item.get('version')}</td>"
+        f"<td>{item.get('kind')}</td><td>{item.get('status')}</td>"
+        f"<td>{item.get('data_status') or '—'}</td></tr>"
+        for item in data["modules"]["items"])
+    endpoint_rows = "".join(
+        f"<tr><td>{item.get('method')}</td><td>{item.get('path')}</td>"
+        f"<td>{item.get('description')}</td></tr>"
+        for item in data["forecast_api"]["endpoints"])
+    path_rows = "".join(f"<tr><td>{index}</td><td class=\"num\">{_fmt(price)}</td></tr>"
+                        for index, price in enumerate(data["market_scenario"]["price_path"]))
+    html = f"""<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AMFE — client pack v2 (research only)</title>
+<style>{_HTML_STYLE}</style>
+</head>
+<body>
+  <h1>AMFE — клиентский пакет v2</h1>
+  <p class="meta">Клиент: {data['client']} · сформирован: {data['generated_at']} ·
+     статус: {STATUS} · сценарий: {summary['scenario_id']}</p>
+  <div class="banner">{DISCLAIMER}</div>
+  <div class="cards">
+    <div class="card"><div>Кандидат</div><div class="v">{summary['candidate']}</div>
+      <div class="meta">{summary['candidate_status']} · C4: {'PASS' if summary['c4_pass'] else 'OPEN'}
+      · C6: {summary['c6_status']}</div></div>
+    <div class="card"><div>Точечный прогноз</div><div class="v">{_fmt(summary['point'], 4)}</div>
+      <div class="meta">{summary['target']}, h={summary['horizon']}, {summary['origin']}</div></div>
+    <div class="card"><div>Сценарий: пик</div>
+      <div class="v">{_fmt(summary['scenario_peak'])}</div>
+      <div class="meta">{summary['scenario_id']}</div></div>
+    <div class="card"><div>Модулей</div><div class="v">{summary['modules_total']}</div>
+      <div class="meta">{STATUS}</div></div>
+    <div class="card"><div>Forecast API</div><div class="v">{summary['api_version']}</div>
+      <div class="meta">модулей {summary['api_modules']} · эндпоинтов {summary['api_endpoints']}</div></div>
+  </div>
+  <h2>Модульные паспорта</h2>
+  <table><tr><th>module_id</th><th>версия</th><th>kind</th><th>статус</th><th>data_status</th></tr>
+  {module_rows}</table>
+  <h2>Рыночный сценарий: путь цены</h2>
+  <table><tr><th>месяц</th><th>цена</th></tr>{path_rows}</table>
+  <h2>Forecast API</h2>
+  <table><tr><th>метод</th><th>путь</th><th>описание</th></tr>{endpoint_rows}</table>
+  <h2>Источники</h2>
+  <ul>{''.join(f"<li>{item['path']} — sha256 {_short(item['sha256'])}</li>" for item in data['sources'])}</ul>
+  <footer>Research only; not a forecast, not an admission decision, not investment advice.
+  Собрано детерминированно из артефактов; сырые наблюдения третьих сторон не публикуются.</footer>
+</body>
+</html>
+"""
+    Path(path).write_text(html, encoding="utf-8", newline="\n")
+
+
+# ---------------------------------------------------------------------------------------- README
+def build_readme(path: Path, data: dict, files: list) -> None:
+    summary = data["summary"]
+    lines = [
+        "# AMFE — Client Pack v2 (research only)",
+        "",
+        f"Клиент: **{data['client']}** · сформирован: `{data['generated_at']}` · "
+        f"статус: **{STATUS}**.",
+        "",
+        "> " + DISCLAIMER,
+        "",
+        "## Что внутри",
+        "",
+        "| Файл | Назначение |",
+        "|---|---|",
+        "| 01_Executive_Summary.docx | Executive summary с ключевыми числами из артефактов |",
+        "| 02_Numbers.xlsx | Числа: кандидат, модульные паспорта, сценарий, forecast API, источники |",
+        "| 03_Dashboard.html | Статическая панель (без скриптов и внешних ссылок) |",
+        "| 04_Machine_Readable.json | Машиночитаемый пакет (числа + источники + лицензия) |",
+        "| 05_Methodology_and_Sources.docx | Методология, источники и их SHA-256 |",
+        "| 06_Licence_and_Disclaimer.docx | Лицензии и дисклеймеры |",
+        "| 07_Reproducibility.json | Манифест воспроизводимости и команда сборки |",
+        "| README.md | Этот файл |",
+        "",
+        "## Ключевые числа (из артефактов)",
+        "",
+        f"- Кандидат: `{summary['candidate']}` · статус **{summary['candidate_status']}** "
+        f"(допуск не присвоен; C4 pass={summary['c4_pass']}, C6={summary['c6_status']}).",
+        f"- Цель: `{summary['target']}`, h={summary['horizon']}, начало `{summary['origin']}`; "
+        f"точечный прогноз {_fmt(summary['point'], 4)}, интервал 5–95% "
+        f"{_fmt(summary['interval_5_95'][0], 4)}–{_fmt(summary['interval_5_95'][1], 4)}.",
+        f"- Модульные паспорта: {summary['modules_total']} ({STATUS}); рыночный сценарий: "
+        f"`{summary['scenario_id']}`, пик {_fmt(summary['scenario_peak'])}.",
+        f"- Forecast API: {summary['api_version']}, модулей {summary['api_modules']}, "
+        f"эндпоинтов {summary['api_endpoints']}.",
+        "",
+        "## Источники",
+        "",
+    ]
+    for item in data["sources"]:
+        lines.append(f"- `{item['path']}` — `{_short(item['sha256'], 16)}` "
+                     f"({item.get('schema') or '—'}, generated_at "
+                     f"{item.get('generated_at') or '—'})")
+    lines += [
+        "",
+        "## Сборка",
+        "",
+        "```",
+        f"python tools/client_pack_v2.py --generated-at {data['generated_at']} "
+        f"--out build/client_pack/v2",
+        "```",
+        "",
+        "Пакет детерминирован при том же `--generated-at`: DOCX/XLSX нормализуются (zip-времена и "
+        "docProps/core.xml), JSON пишется с сортировкой ключей. Сборка fail-closed: при "
+        "отсутствующем/битом артефакте или недопустимом статусе выход не создаётся.",
+        "",
+        "## Ограничения",
+        "",
+        "- Ни одна модель не admitted; C4 открыт, C6 недоступен до накопления forward-журнала.",
+        "- Сценарные числа — сценарная арифметика по допущениям, не точечный прогноз и не "
+        "доверительный интервал.",
+        "- Сырые наблюдения третьих сторон не публикуются; только производные статистики и "
+        "собственные прогнозы.",
+        "- Не инвестиционная рекомендация и не юридическая консультация.",
+        "",
+    ]
+    Path(path).write_text("\n".join(lines), encoding="utf-8", newline="\n")
+
+
+# --------------------------------------------------------------------------------- reproducibility
+def build_reproducibility(path: Path, data: dict, files: list, command: str) -> None:
+    document = {
+        "schema": REPRO_SCHEMA,
+        "kind": "client_pack_reproducibility",
+        "status": STATUS,
+        "generated_at": data["generated_at"],
+        "tool": "tools/client_pack_v2.py",
+        "command": command,
+        "inputs": data["sources"],
+        "deterministic_artifacts": {item["path"]: item["sha256"]
+                                    for item in sorted(files, key=lambda entry: entry["path"])},
+        "normalization": {
+            "docx": "zip entry timestamps + docProps/core.xml created/modified pinned to generated_at",
+            "xlsx": "zip entry timestamps + docProps/core.xml created/modified pinned to generated_at",
+            "json": "sorted keys, indent=1, UTF-8, LF",
+            "html": "static, no scripts, no external links",
+        },
+        "file_count": len(files),
+        "document_digest": data["document_digest"],
+    }
+    _write_json(path, document)
+
+
+# --------------------------------------------------------------------------------------- build pack
+def build_pack(out_dir: Path, *, inputs_root: Path | None = None, scenario_id: str = DEFAULT_SCENARIO,
+               client: str = DEFAULT_CLIENT, generated_at: str | None = None,
+               root: Path | None = None) -> dict:
+    """Build the whole client pack; raises ClientPackError (fail-closed) before any output."""
+    root = Path(root) if root is not None else ROOT
+    inputs_root = Path(inputs_root) if inputs_root is not None else root / "build"
+    out_dir = Path(out_dir)
+    if not client or not client.strip():
+        raise ClientPackError("client name must not be empty")
+    if not re.fullmatch(r"[a-z0-9_]+", scenario_id or ""):
+        raise ClientPackError(f"invalid scenario id {scenario_id!r}")
+    inputs = load_inputs(inputs_root, scenario_id, root)
+    generated_at = generated_at or _default_generated_at(inputs)
+    _parse_timestamp(generated_at, "generated_at")
+    generated = _parse_timestamp(generated_at, "generated_at")
+    data = build_document(inputs, client, generated_at)
+
+    out_dir.parent.mkdir(parents=True, exist_ok=True)
+    staging = Path(tempfile.mkdtemp(prefix=".client_pack_v2-", dir=str(out_dir.parent)))
+    try:
+        files: list[dict] = []
+
+        def record(path: Path) -> None:
+            files.append({"path": path.name, "sha256": _sha256(path),
+                          "bytes": path.stat().st_size})
+
+        docx_builders = [
+            ("01_Executive_Summary.docx", build_executive),
+            ("05_Methodology_and_Sources.docx", build_methodology),
+            ("06_Licence_and_Disclaimer.docx", build_licence),
+        ]
+        for name, builder in docx_builders:
+            path = staging / name
+            builder(path, data, generated)
+            _normalise_office_zip(path, generated)
+            record(path)
+
+        xlsx_path = staging / "02_Numbers.xlsx"
+        build_xlsx(xlsx_path, data, generated)
+        _normalise_office_zip(xlsx_path, generated)
+        record(xlsx_path)
+
+        build_dashboard(staging / "03_Dashboard.html", data)
+        _write_json(staging / "04_Machine_Readable.json", data)
+        for name in ("03_Dashboard.html", "04_Machine_Readable.json"):
+            record(staging / name)
+
+        build_readme(staging / "README.md", data, files)
+        record(staging / "README.md")
+
+        # The reproducibility command must not depend on the chosen output directory: for the
+        # default destination it is the repository-relative path, for any other destination a
+        # placeholder is recorded (the manifest stays byte-identical across rebuild directories).
+        default_out = root / "build" / "client_pack" / "v2"
+        try:
+            same_destination = out_dir.resolve() == default_out.resolve()
+        except OSError:
+            same_destination = False
+        out_display = _repo_path(root, out_dir) if same_destination else "<OUT_DIR>"
+        command = (f"python tools/client_pack_v2.py --client {client!r} "
+                   f"--scenario {scenario_id} --generated-at {generated_at} --out "
+                   f"{out_display}")
+        build_reproducibility(staging / "07_Reproducibility.json", data, files, command)
+        record(staging / "07_Reproducibility.json")
+
+        if out_dir.exists():
+            shutil.rmtree(out_dir)
+        staging.replace(out_dir)
+    except BaseException:
+        shutil.rmtree(staging, ignore_errors=True)
+        raise
+    return {
+        "ok": True,
+        "schema": SCHEMA,
+        "status": STATUS,
+        "client": client,
+        "scenario_id": scenario_id,
+        "generated_at": generated_at,
+        "out": str(out_dir).replace("\\", "/"),
+        "files": sorted(item["path"] for item in files),
+        "document_digest": data["document_digest"],
+        "numbers": {
+            "candidate": data["summary"]["candidate"],
+            "candidate_status": data["summary"]["candidate_status"],
+            "point": data["summary"]["point"],
+            "c4_pass": data["summary"]["c4_pass"],
+            "c6_status": data["summary"]["c6_status"],
+            "modules": data["summary"]["modules_total"],
+            "scenario_id": data["summary"]["scenario_id"],
+            "scenario_peak": data["summary"]["scenario_peak"],
+            "api_version": data["summary"]["api_version"],
+            "sources": data["summary"]["sources"],
+        },
+    }
+
+
+# -------------------------------------------------------------------------------------------- CLI
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description="Build the AMFE Client Pack v2 from the real artefacts (fail-closed)")
+    parser.add_argument("--root", default=str(ROOT), help="repository root (source paths)")
+    parser.add_argument("--inputs-root", default=None,
+                        help="artefact root (default <root>/build)")
+    parser.add_argument("--out", default=None,
+                        help="output directory (default <root>/build/client_pack/v2)")
+    parser.add_argument("--client", default=DEFAULT_CLIENT, help="client name on the documents")
+    parser.add_argument("--scenario", default=DEFAULT_SCENARIO, help="market scenario id")
+    parser.add_argument("--generated-at", default=None,
+                        help="ISO 8601 timestamp YYYY-MM-DDTHH:MM:SSZ (determinism)")
+    parser.add_argument("--json", action="store_true", help="print the build summary as JSON")
+    return parser
+
+
+def main(argv=None) -> int:
+    args = build_parser().parse_args(argv)
+    root = Path(args.root).resolve()
+    inputs_root = Path(args.inputs_root) if args.inputs_root else root / "build"
+    out_dir = Path(args.out) if args.out else root / "build" / "client_pack" / "v2"
+    try:
+        summary = build_pack(out_dir, inputs_root=inputs_root, scenario_id=args.scenario,
+                             client=args.client, generated_at=args.generated_at, root=root)
+    except ClientPackError as error:
+        print(json.dumps({"status": "BLOCKED_DATA", "error": str(error)}, ensure_ascii=False),
+              file=sys.stderr)
+        return 2
+    if args.json:
+        print(json.dumps(summary, ensure_ascii=False, sort_keys=True, indent=2))
+    else:
+        print(json.dumps({"status": "OK", "out": summary["out"],
+                          "scenario": summary["scenario_id"],
+                          "files": len(summary["files"]),
+                          "numbers": summary["numbers"]}, ensure_ascii=False))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
