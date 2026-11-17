@@ -146,6 +146,8 @@ class DeterminismTest(unittest.TestCase):
         self.assertEqual(first, second)
         self.assertEqual(registry.record_digest(make_row()), registry.record_digest(make_row()))
 
+    @unittest.skipUnless(RAW_CPIAUCSL.exists(),
+                         "local raw ALFRED archive is absent (git-ignored data/raw)")
     def test_vintage_hash_repeats_and_has_no_raw_values(self):
         value_a = forward_forecast.data_vintage_hash("2026-11", "latest")
         value_b = forward_forecast.data_vintage_hash("2026-11", "latest")

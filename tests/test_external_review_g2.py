@@ -18,6 +18,15 @@ sys.path.insert(0, str(ROOT / "tools"))
 
 import external_review_g2 as er  # noqa: E402
 
+_REQUIRED_ARTEFACTS = (
+    ROOT / "build" / "market_bridge" / "bridge_report.json",
+    ROOT / "build" / "api" / "index.json",
+)
+if not all(path.exists() for path in _REQUIRED_ARTEFACTS):
+    raise unittest.SkipTest(
+        "G2 review artefacts are absent (private MRIO data): build/market_bridge, build/api")
+
+
 
 def abm_document() -> dict:
     done = subprocess.run([sys.executable, str(ROOT / er.REQUIRED_TOOLS["abm_sfc"]), "--json"],

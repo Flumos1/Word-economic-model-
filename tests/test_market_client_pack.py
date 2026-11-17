@@ -133,7 +133,10 @@ class MarketClientPack(unittest.TestCase):
         for name, digest in self.repro["deterministic_artifacts"].items():
             self.assertEqual(hashlib.sha256((self.out / name).read_bytes()).hexdigest(), digest)
         self.assertIn("market_client_pack.py", self.repro["command"])
-        self.assertGreaterEqual(self.repro["file_count"], 12)
+        # PDFs are produced only when LibreOffice is available (optional), so the lower
+        # bound is 9 without them and 12 with them.
+        minimum = 12 if self.summary.get("pdf") else 9
+        self.assertGreaterEqual(self.repro["file_count"], minimum)
 
     def test_methodology_and_licence_documents(self):
         methodology = docx_text(self.out / "06_Methodology_Appendix.docx")
