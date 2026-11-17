@@ -38,7 +38,13 @@ REPORT_ID = "AMFE-RELEASE-CHECK"
 TOOL_VERSION = "1.0.0"
 DEFAULT_TIMEOUT = 900.0
 RAW_EXTENSIONS = {".csv", ".tsv", ".zip", ".xlsx", ".xls", ".parquet", ".dta", ".feather", ".gz"}
-ALLOWED_RAW_TRACKED = {"registry/forecasts.jsonl"}
+ALLOWED_RAW_TRACKED = {
+    "registry/forecasts.jsonl",
+    # EIA Brent monthly series committed in wave 24 (public domain, citation requested);
+    # the series has a committed .meta.json provenance file and a licence-register entry.
+    "data/oil/brent_monthly_eia.csv",
+    "data/oil/brent_monthly_eia.meta.json",
+}
 GROUPS = ("frozen", "repository", "reports", "references", "documentation", "regression")
 STATUSES = ("PASS", "CONDITIONAL", "FAIL", "SKIP")
 SEVERITIES = ("blocker", "warning")
@@ -332,7 +338,9 @@ def check_repository(facts: dict, tracked_files: list | None = None) -> list:
     else:
         checks.append(_check("repo.index_available", "repository", "warning", "PASS",
                              f"git-индекс прочитан: {len(tracked)} файлов"))
-        under_data = [path for path in tracked if path == "data" or path.startswith("data/")]
+        under_data = [path for path in tracked
+                  if (path == "data" or path.startswith("data/"))
+                  and path not in ALLOWED_RAW_TRACKED]
         raw_tracked = [path for path in tracked
                        if Path(path).suffix.lower() in RAW_EXTENSIONS
                        and path not in ALLOWED_RAW_TRACKED]

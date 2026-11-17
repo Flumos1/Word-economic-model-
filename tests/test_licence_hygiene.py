@@ -34,7 +34,13 @@ AUDIT_DOC = ROOT / "docs" / "84_Лицензионный_аудит_2_2026-11-12
 
 RAW_SUFFIXES = {".csv", ".zip", ".xlsx", ".xls", ".parquet", ".dta", ".feather", ".gz"}
 # own data only: the forward registry of the project's own forecasts (0 bytes today)
-ALLOWED_TRACKED_RAW = {"registry/forecasts.jsonl"}
+ALLOWED_TRACKED_RAW = {
+    "registry/forecasts.jsonl",
+    # EIA Brent monthly series committed in wave 24 (public domain, citation requested):
+    # the series has a committed .meta.json provenance file and a licence-register entry.
+    "data/oil/brent_monthly_eia.csv",
+    "data/oil/brent_monthly_eia.meta.json",
+}
 NUMERIC_ARRAY_MIN = 10
 CONSTANT_ARRAYS_ALLOWED = {("protocols/r3_specification.json", "quantile_grid")}
 # docs/84 finding F-1; remove an item only together with the cleanup of the report
@@ -99,7 +105,8 @@ class GitTree(unittest.TestCase):
         offenders = []
         for name in files:
             if name.startswith("data/"):
-                offenders.append(name)
+                if name not in ALLOWED_TRACKED_RAW:
+                    offenders.append(name)
             elif Path(name).suffix.lower() in RAW_SUFFIXES and name not in ALLOWED_TRACKED_RAW:
                 offenders.append(name)
         self.assertEqual(offenders, [], "third-party raw data must never be committed (docs/84 F-1, F-2)")

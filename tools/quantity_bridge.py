@@ -403,7 +403,9 @@ def build_report(data_root: Path | None = None, *, datasets=("figaro", "oecd_202
             "старый energy_plus50 — другая механика, не сравнивается напрямую",
             "данные MRIO сторонние: в git не коммитятся, в отчёте только SHA-256 и агрегаты",
         ],
-        "seconds": round(time.monotonic() - started, 1),
+        # A deterministic rebuild (explicit generated_at) must produce byte-identical payloads:
+        # wall-clock timings are only recorded for live runs.
+        "seconds": 0.0 if generated_at else round(time.monotonic() - started, 1),
     }
     report_path = out_dir / "quantity_report.json"
     payload = json.dumps(report, ensure_ascii=False, sort_keys=True, indent=1) + "\n"
