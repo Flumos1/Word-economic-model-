@@ -215,10 +215,10 @@
   "D6": "PASS"
  },
  "data_root": "F:/Мировая экономика модель/data/mrio",
- "date": "2026-11-14",
+ "date": "2026-11-17",
  "docs_context_missing": [],
- "generated_at": "2026-11-14T21:10:41Z",
- "git_commit": "55a6f31e57ab89f0043ae121ffe151bad86a4ee1",
+ "generated_at": "2026-11-17T16:09:12Z",
+ "git_commit": "2cfb80372074ce5a8ece966d1f604f0f43f76e8e",
  "inputs": [
   {
    "bytes": 40436,

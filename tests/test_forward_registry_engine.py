@@ -28,6 +28,7 @@ VINTAGE = "a" * 64
 SCORING = "b" * 64
 REGISTERED = "2026-11-12T00:00:00Z"
 QUANTILES = [round(1.0 + 0.1 * i, 2) for i in range(1, 20)]
+RAW_CPIAUCSL = ROOT / "data" / "raw" / "CPIAUCSL"
 
 
 def make_row(candidate_id="ENSEMBLE_ADAPTIVE", target="T1_CPI_YOY", horizon=1,
@@ -127,6 +128,8 @@ class OriginGuardTest(unittest.TestCase):
         self.assertEqual(result["origin"], result["current_month"])
         self.assertTrue(result["pre_origin"])
 
+    @unittest.skipUnless(RAW_CPIAUCSL.exists(),
+                         "local raw ALFRED archive is absent (git-ignored data/raw)")
     def test_published_fact_is_refused(self):
         # October 2026 CPI is published on 2026-11-12, so the October origin cannot be recorded
         published = forward_forecast.fact_available("T1_CPI_YOY", "2026-10", 1)

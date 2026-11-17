@@ -57,6 +57,17 @@ jobs:
           restore r2-metadata.yml r2-metadata
           ls data/raw | head -20
           ls data/raw/spf 2>/dev/null || true
+      - name: Prepare the build artefacts required by the regression tests
+        # these artefacts are git-ignored and are normally produced locally; the clean CI
+        # checkout has to rebuild them before the full regression can exercise the tests.
+        run: |
+          set -u
+          mkdir -p build
+          python tools/register_modules.py || true
+          python tools/product_pack.py || true
+          python tools/site_build.py || true
+          python tools/p2_release.py --json > /dev/null || true
+          python tools/external_review.py --out-dir build/external_review || true
       - name: Weekly integration report (deterministic, offline)
         run: |
           mkdir -p build
