@@ -312,12 +312,13 @@ EPISODES: tuple[EpisodeV3, ...] = (
         name="2022 Russia/Ukraine: feared export loss (February-March 2022)",
         regime="prolonged", base_month="2022-01", start="2022-02", horizon_months=6,
         base_demand=100.0, baseline_supply=100.0, supply_loss=5.0, loss_months=3,
-        loss_profile=(5.0, 5.0, 5.0, 0.0, 0.0, 0.0),
+        loss_profile=(1.0, 4.0, 5.0, 4.0, 2.0, 1.0),
         bypass_capacity=0.3, bypass_ramp_months=2, supply_response=0.5,
         supply_response_ramp_months=3, spr_stock=150.0, spr_max_draw=1.5,
         commercial_stock=200.0, commercial_max_draw=1.0, reference_premium=12.0,
         risk_premium=10.0,
-        source_note="Feared export loss ~5 mb/d (realised smaller) for three months plus a "
+        source_note="Feared export loss curve ~1/4/5/4/2/1 mb/d for Feb-Jul 2022 (escalation, "
+                    "peak fear in April, gradual rerouting; realised exports were higher), plus a "
                     "declared war-risk premium; monthly Brent averages from EIA RBRTE",
     ),
     EpisodeV3(
