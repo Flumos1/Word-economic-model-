@@ -336,13 +336,16 @@ def self_test() -> dict:
         checks["deterministic_digest"] = loaded.sha256 == load_local_csv(
             paths[0], "yahoo", as_of="2026-11-12").sha256
         broken = Path(tmp) / "broken.csv"
-        broken.write_text("date,close\n2026-11-12,10\n2026-11-11,11\n", encoding="utf-8")
+        broken.write_text("date,close\n2026-11-12,10\n2026-11-11,11\n", encoding="utf-8",
+                          newline="\n")
         checks["rejects_unordered"] = _raises(DatasetError, load_local_csv, broken, "yahoo")
         negative = Path(tmp) / "negative.csv"
-        negative.write_text("date,close\n2026-11-10,-1\n2026-11-11,2\n", encoding="utf-8")
+        negative.write_text("date,close\n2026-11-10,-1\n2026-11-11,2\n", encoding="utf-8",
+                            newline="\n")
         checks["rejects_negative_price"] = _raises(DatasetError, load_local_csv, negative, "yahoo")
         gap = Path(tmp) / "gap.csv"
-        gap.write_text("date,close\n2026-01-01,10\n2026-03-01,11\n2026-03-02,12\n", encoding="utf-8")
+        gap.write_text("date,close\n2026-01-01,10\n2026-03-01,11\n2026-03-02,12\n", encoding="utf-8",
+                       newline="\n")
         checks["rejects_large_gap"] = _raises(DatasetError, load_local_csv, gap, "yahoo")
         checks["unknown_source"] = _raises(DatasetError, load_local_csv, paths[0], "nasdaq")
         checks["offline"] = NETWORK_ALLOWED is False

@@ -190,7 +190,8 @@ def main(argv=None) -> int:
         out["attempts"].append(item)
         time.sleep(RATE_SECONDS)
 
-    Path(args.out).write_text(json.dumps(out, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    Path(args.out).write_text(json.dumps(out, ensure_ascii=False, indent=2) + "\n", encoding="utf-8",
+                              newline="\n")
     summary = [{k: a.get(k) for k in ("label", "is_zip", "row_count", "initial_release_count",
                                       "messages", "skipped", "error")}
                for a in out["attempts"]]

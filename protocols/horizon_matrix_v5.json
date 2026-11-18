@@ -1,7 +1,7 @@
 {
  "schema_version": "1.0.0",
  "matrix_id": "AMFE-HORIZON-MATRIX-V5",
- "generated_at": "2026-11-18T10:24:49Z",
+ "generated_at": "2026-11-18T17:55:19Z",
  "protocol": {
   "id": "AMFE-EVAL",
   "version": "5.0.1",
@@ -1510,7 +1510,7 @@
    "metrics": {},
    "overall_status": "NOT_RUN",
    "status": "NOT_RUN",
-   "reason": "в пассе 2026-11-18 (task-58, REAL_TIME, protocol v5) T1 h=12 оценены `ENSEMBLE_ADAPTIVE`, `ENSEMBLE_EQUAL`, `ENSEMBLE_INVERSE_MSE`; этот кандидат в пасс не входил: полная постройка окон W1_EXT+W2 одного T1-горизонта h=12 занимает ~9–10 мин на кандидата (docs/102, task-43; замер task-58 — 607 с), time-box 20–25 мин не позволил; это пропуск, а не «эффекта нет».",
+   "reason": "в пассе 2026-11-18 (task-58, REAL_TIME_RECONSTRUCTED, protocol v5) T1 h=12 оценены `ENSEMBLE_ADAPTIVE`, `ENSEMBLE_EQUAL`, `ENSEMBLE_INVERSE_MSE`, `ENSEMBLE_RW_AR`; этот кандидат в пасс не входил: постройка окон W1_EXT+W2 (338 начал) стоит ~2,5–3,4 с на начало для дешёвого кандидата (ENSEMBLE_RW_AR: 1690 записей кэша, 0 попаданий, 13 мин 51 с на весь прогон) и ~8 с на начало только на прогноз кандидата ENSEMBLE_BAYES (255 записей за ~5 мин до останова, ~6 с на начало в целом), то есть ~35–45 мин на пару. Тёплого кэша не было: build/eval_cache и .tmp-test/cache_v5_clean непригодны (schema 1.0.0 или чужой fingerprint — source_files 16 против 17, source_sha256 не совпадает), поэтому каждый кандидат строился с нуля. Это пропуск при time-box 25–30 мин, а не «эффекта нет».",
    "sources": [
     {
      "file": "protocols/candidates_2026-11-11.json",
@@ -1822,27 +1822,147 @@
    "target": "T1_CPI_YOY",
    "horizon": 12,
    "candidate": "ENSEMBLE_RW_AR",
-   "protocol": "v4.0.0",
-   "data_class": null,
-   "origins": {},
-   "criteria": {
-    "C1": "not_run",
-    "C2": "not_run",
-    "C4": "not_run",
-    "C5": "not_run"
+   "protocol": "v5.0.1",
+   "data_class": "REAL_TIME_RECONSTRUCTED",
+   "origins": {
+    "W1_EXT": 193,
+    "W1": 110,
+    "W2": 145
    },
-   "metrics": {},
-   "overall_status": "NOT_RUN",
-   "status": "NOT_RUN",
-   "reason": "в пассе 2026-11-18 (task-58, REAL_TIME, protocol v5) T1 h=12 оценены `ENSEMBLE_ADAPTIVE`, `ENSEMBLE_EQUAL`, `ENSEMBLE_INVERSE_MSE`; этот кандидат в пасс не входил: полная постройка окон W1_EXT+W2 одного T1-горизонта h=12 занимает ~9–10 мин на кандидата (docs/102, task-43; замер task-58 — 607 с), time-box 20–25 мин не позволил; это пропуск, а не «эффекта нет».",
+   "criteria": {
+    "C1": "fail",
+    "C2": "fail",
+    "C4": "fail",
+    "C5": "fail"
+   },
+   "metrics": {
+    "stage": "CANDIDATE",
+    "data_class_note": "admission allowed: data class REAL_TIME_RECONSTRUCTED is in ['REAL_TIME', 'REAL_TIME_TAPE', 'REAL_TIME_RECONSTRUCTED']",
+    "C1": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "relative_loss": 1.0051196359340402,
+        "threshold": 0.9564,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 1.0016526656428073,
+        "threshold": 0.9514,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "relative_loss": 1.070718602549921,
+        "threshold": 0.9505,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 1.060647605765082,
+        "threshold": 0.9452,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C2": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "adjusted_p_min": 0.5046
+      },
+      "W2": {
+       "adjusted_p_min": 0.9198
+      }
+     }
+    },
+    "C4": {
+     "applies": true,
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "status": "PASS",
+        "relative_loss_recession": 0.8796883907243273,
+        "recession_origins": 16,
+        "min_recession_origins": 12,
+        "pass": true
+       },
+       "CRPS": {
+        "status": "FAIL",
+        "relative_loss_recession": 1.1254381033487981,
+        "recession_origins": 16,
+        "min_recession_origins": 12,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "status": "FAIL",
+        "relative_loss_recession": 1.201748608906863,
+        "recession_origins": 18,
+        "min_recession_origins": 12,
+        "pass": false
+       },
+       "CRPS": {
+        "status": "FAIL",
+        "relative_loss_recession": 1.0986236050983227,
+        "recession_origins": 18,
+        "min_recession_origins": 12,
+        "pass": false
+       }
+      }
+     },
+     "extended": {
+      "W1": {
+       "source": "extended_window",
+       "data_class": "REAL_TIME_RECONSTRUCTED",
+       "n_origins": 193
+      },
+      "W2": {
+       "source": "standard_window"
+      }
+     }
+    },
+    "C5": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "p_value": 0.46361617203212724,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.4836290459140353,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "p_value": 0.06686938704656087,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.015222806296463887,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C6": {
+     "status": "NO_RESOLVED_FORECASTS",
+     "pass": false
+    }
+   },
+   "overall_status": "CANDIDATE",
+   "status": "CANDIDATE",
+   "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 fail (W1/RMSE 1.0051, W1/CRPS 1.0017, W2/RMSE 1.0707, W2/CRPS 1.0606); C2 fail (RW adj p W1 0.5046, W2 0.9198); C4 fail (W1 FAIL/PASS, W2 FAIL); C5 fail",
    "sources": [
     {
-     "file": "protocols/candidates_2026-11-11.json",
-     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
-    },
-    {
-     "file": "protocols/ensemble_horizons_report.json",
-     "sha256": "bfec199bbba59b8aa1b449355cdc1efc08bafc89db6659c66523bc3bfe493ed1"
+     "file": "protocols/horizon_v5/T1_h12_ENSEMBLE_RW_AR_w1ext.json",
+     "sha256": "5d691c5327c3eaf10bf26ba7dce6f0fabba32479830eccc13fd32facb92b88ca"
     }
    ]
   },
@@ -3973,7 +4093,7 @@
    "metrics": {},
    "overall_status": "NOT_RUN",
    "status": "NOT_RUN",
-   "reason": "T3 оценён только для ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL (docs/109); T3 v5-перепрогон не выполнялся: ~18 с на начало x 253 начала x 2 кандидата (~2,5 ч), см. ensemble_t3_report.json.",
+   "reason": "T3 оценён только для ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL (docs/109, протокол v4); v5-перепрогон в task-58 не выполнялся: замер на data/raw (REAL_TIME, h=3, ENSEMBLE_ADAPTIVE, 4 начала) — 7,3 с на начало без кэша; окна W1+W2 у h=3 — 271 начало, то есть ~33 мин на кандидата и ~66 мин на двух — больше time-box 25–30 мин. v5 не меняет C1/C2/C5 для T3, а C4 на W1_EXT для T3 не определён, поэтому строки остаются v4-эпохи (docs/176, §4.4).",
    "sources": [
     {
      "file": "protocols/candidates_2026-11-11.json",
@@ -4106,7 +4226,7 @@
    "metrics": {},
    "overall_status": "NOT_RUN",
    "status": "NOT_RUN",
-   "reason": "T3 оценён только для ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL (docs/109); T3 v5-перепрогон не выполнялся: ~18 с на начало x 253 начала x 2 кандидата (~2,5 ч), см. ensemble_t3_report.json.",
+   "reason": "T3 оценён только для ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL (docs/109, протокол v4); v5-перепрогон в task-58 не выполнялся: замер на data/raw (REAL_TIME, h=3, ENSEMBLE_ADAPTIVE, 4 начала) — 7,3 с на начало без кэша; окна W1+W2 у h=3 — 271 начало, то есть ~33 мин на кандидата и ~66 мин на двух — больше time-box 25–30 мин. v5 не меняет C1/C2/C5 для T3, а C4 на W1_EXT для T3 не определён, поэтому строки остаются v4-эпохи (docs/176, §4.4).",
    "sources": [
     {
      "file": "protocols/candidates_2026-11-11.json",
@@ -4239,7 +4359,7 @@
    "metrics": {},
    "overall_status": "NOT_RUN",
    "status": "NOT_RUN",
-   "reason": "T3 оценён только для ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL (docs/109); T3 v5-перепрогон не выполнялся: ~18 с на начало x 253 начала x 2 кандидата (~2,5 ч), см. ensemble_t3_report.json.",
+   "reason": "T3 оценён только для ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL (docs/109, протокол v4); v5-перепрогон в task-58 не выполнялся: замер на data/raw (REAL_TIME, h=3, ENSEMBLE_ADAPTIVE, 4 начала) — 7,3 с на начало без кэша; окна W1+W2 у h=3 — 271 начало, то есть ~33 мин на кандидата и ~66 мин на двух — больше time-box 25–30 мин. v5 не меняет C1/C2/C5 для T3, а C4 на W1_EXT для T3 не определён, поэтому строки остаются v4-эпохи (docs/176, §4.4).",
    "sources": [
     {
      "file": "protocols/candidates_2026-11-11.json",
@@ -4372,7 +4492,7 @@
    "metrics": {},
    "overall_status": "NOT_RUN",
    "status": "NOT_RUN",
-   "reason": "T3 оценён только для ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL (docs/109); T3 v5-перепрогон не выполнялся: ~18 с на начало x 253 начала x 2 кандидата (~2,5 ч), см. ensemble_t3_report.json.",
+   "reason": "T3 оценён только для ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL (docs/109, протокол v4); v5-перепрогон в task-58 не выполнялся: замер на data/raw (REAL_TIME, h=3, ENSEMBLE_ADAPTIVE, 4 начала) — 7,3 с на начало без кэша; окна W1+W2 у h=3 — 271 начало, то есть ~33 мин на кандидата и ~66 мин на двух — больше time-box 25–30 мин. v5 не меняет C1/C2/C5 для T3, а C4 на W1_EXT для T3 не определён, поэтому строки остаются v4-эпохи (docs/176, §4.4).",
    "sources": [
     {
      "file": "protocols/candidates_2026-11-11.json",
@@ -4505,7 +4625,7 @@
    "metrics": {},
    "overall_status": "NOT_RUN",
    "status": "NOT_RUN",
-   "reason": "T3 оценён только для ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL (docs/109); T3 v5-перепрогон не выполнялся: ~18 с на начало x 253 начала x 2 кандидата (~2,5 ч), см. ensemble_t3_report.json.",
+   "reason": "T3 оценён только для ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL (docs/109, протокол v4); v5-перепрогон в task-58 не выполнялся: замер на data/raw (REAL_TIME, h=3, ENSEMBLE_ADAPTIVE, 4 начала) — 7,3 с на начало без кэша; окна W1+W2 у h=3 — 271 начало, то есть ~33 мин на кандидата и ~66 мин на двух — больше time-box 25–30 мин. v5 не меняет C1/C2/C5 для T3, а C4 на W1_EXT для T3 не определён, поэтому строки остаются v4-эпохи (docs/176, §4.4).",
    "sources": [
     {
      "file": "protocols/candidates_2026-11-11.json",
@@ -4638,7 +4758,7 @@
    "metrics": {},
    "overall_status": "NOT_RUN",
    "status": "NOT_RUN",
-   "reason": "T3 оценён только для ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL (docs/109); T3 v5-перепрогон не выполнялся: ~18 с на начало x 253 начала x 2 кандидата (~2,5 ч), см. ensemble_t3_report.json.",
+   "reason": "T3 оценён только для ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL (docs/109, протокол v4); v5-перепрогон в task-58 не выполнялся: замер на data/raw (REAL_TIME, h=3, ENSEMBLE_ADAPTIVE, 4 начала) — 7,3 с на начало без кэша; окна W1+W2 у h=3 — 271 начало, то есть ~33 мин на кандидата и ~66 мин на двух — больше time-box 25–30 мин. v5 не меняет C1/C2/C5 для T3, а C4 на W1_EXT для T3 не определён, поэтому строки остаются v4-эпохи (docs/176, §4.4).",
    "sources": [
     {
      "file": "protocols/candidates_2026-11-11.json",
@@ -4653,9 +4773,9 @@
  ],
  "v5_reruns_not_performed": [
   {
-   "scope": "T1_CPI_YOY h=12, ENSEMBLE_BAYES и ENSEMBLE_RW_AR",
+   "scope": "T1_CPI_YOY h=12, ENSEMBLE_BAYES",
    "status": "NOT_RUN",
-   "reason": "пасс 2026-11-18 (task-58) оценил на T1 h=12 три кандидата (ENSEMBLE_INVERSE_MSE, ENSEMBLE_EQUAL, ENSEMBLE_ADAPTIVE); полная постройка окон W1_EXT+W2 одного кандидата стоит ~9–10 мин (607 с замерено), time-box 20–25 мин не позволил взять остальных — пропуск, а не «эффекта нет»."
+   "reason": "в пассе 2026-11-18 (task-58, REAL_TIME_RECONSTRUCTED, protocol v5) T1 h=12 оценены `ENSEMBLE_ADAPTIVE`, `ENSEMBLE_EQUAL`, `ENSEMBLE_INVERSE_MSE`, `ENSEMBLE_RW_AR`; этот кандидат в пасс не входил: постройка окон W1_EXT+W2 (338 начал) стоит ~2,5–3,4 с на начало для дешёвого кандидата (ENSEMBLE_RW_AR: 1690 записей кэша, 0 попаданий, 13 мин 51 с на весь прогон) и ~8 с на начало только на прогноз кандидата ENSEMBLE_BAYES (255 записей за ~5 мин до останова, ~6 с на начало в целом), то есть ~35–45 мин на пару. Тёплого кэша не было: build/eval_cache и .tmp-test/cache_v5_clean непригодны (schema 1.0.0 или чужой fingerprint — source_files 16 против 17, source_sha256 не совпадает), поэтому каждый кандидат строился с нуля. Это пропуск при time-box 25–30 мин, а не «эффекта нет»."
   },
   {
    "scope": "T2_GDP_GROWTH h=1/2/4, ENSEMBLE_T2_SPF",
@@ -4665,18 +4785,18 @@
   {
    "scope": "T3_RECESSION h=3/6/12, v5-перепрогон",
    "status": "NOT_RUN",
-   "reason": "под v5 T3 не переоценивался: v5 не меняет C1/C2/C5, а C4 на W1_EXT требует отдельного расширенного прогона; строки T3 — v4 (docs/109)."
+   "reason": "T3 оценён только для ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL (docs/109, протокол v4); v5-перепрогон в task-58 не выполнялся: замер на data/raw (REAL_TIME, h=3, ENSEMBLE_ADAPTIVE, 4 начала) — 7,3 с на начало без кэша; окна W1+W2 у h=3 — 271 начало, то есть ~33 мин на кандидата и ~66 мин на двух — больше time-box 25–30 мин. v5 не меняет C1/C2/C5 для T3, а C4 на W1_EXT для T3 не определён, поэтому строки остаются v4-эпохи (docs/176, §4.4). Строки T3 в матрице — v4 (docs/109)."
   }
  ],
  "coverage": {
   "rows": 56,
-  "evaluated": 29,
-  "not_run": 27,
+  "evaluated": 30,
+  "not_run": 26,
   "status_counts": {
-   "CANDIDATE": 29,
+   "CANDIDATE": 30,
    "FAIL": 0,
    "INCONCLUSIVE": 0,
-   "NOT_RUN": 27
+   "NOT_RUN": 26
   },
   "cells": {
    "T1_CPI_YOY": {
@@ -4783,7 +4903,8 @@
     "12": [
      "ENSEMBLE_ADAPTIVE",
      "ENSEMBLE_EQUAL",
-     "ENSEMBLE_INVERSE_MSE"
+     "ENSEMBLE_INVERSE_MSE",
+     "ENSEMBLE_RW_AR"
     ]
    },
    "T2_GDP_GROWTH": {

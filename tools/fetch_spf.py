@@ -252,7 +252,8 @@ def main(argv=None) -> int:
                                                   "committed, not published)",
                                        "source_url": SOURCE_PAGE,
                                        "retrieved_at": utc_now(), "series": series},
-                                      ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+                                      ensure_ascii=False, indent=2) + "\n", encoding="utf-8",
+                                      newline="\n")
     by_code = {}
     for row in series:
         by_code.setdefault(row["code"], []).append(row)
@@ -301,7 +302,8 @@ def main(argv=None) -> int:
     }
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(doc, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    out.write_text(json.dumps(doc, ensure_ascii=False, indent=2) + "\n", encoding="utf-8",
+                   newline="\n")
     print(json.dumps({"metadata": str(out), "values": str(values_path), **doc["coverage"]}))
     return 0
 

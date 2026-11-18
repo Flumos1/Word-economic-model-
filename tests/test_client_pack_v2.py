@@ -535,7 +535,14 @@ class RealArtifacts(unittest.TestCase):
             self.assertEqual(document["schema"], pack.SCHEMA)
             self.assertIn(document["summary"]["candidate_status"],
                           ("CANDIDATE", "RESEARCH_ONLY"))
-            self.assertEqual(document["modules"]["count"], 5)
+            registry_entries = [json.loads(line) for line in
+                                (ROOT / "build" / "registry" / "modules.jsonl")
+                                .read_text(encoding="utf-8").splitlines() if line.strip()]
+            latest = {}
+            for entry in registry_entries:  # append-only log: the latest record per module wins
+                latest[entry["module_id"]] = entry
+            self.assertEqual(document["modules"]["count"], len(latest))
+            self.assertIn("oil.brent", latest)
             self.assertEqual(document["market_scenario"]["scenario_id"], "hormuz_closed_6m")
             self.assertTrue(document["sources"])
 

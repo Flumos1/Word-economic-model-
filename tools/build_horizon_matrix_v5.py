@@ -61,15 +61,23 @@ FORBIDDEN_KEYS = {"actual_primary", "actual_secondary", "candidate", "comparator
                   "probability", "point", "used_origins", "vintage_dates", "recession",
                   "member_forecasts", "actual_values", "forecast_values"}
 
-# the T1 h=12 window build alone costs ~9-10 minutes per candidate (docs/102, task-43; measured
-# again in task-58: 607 s for the full W1_EXT+W2 build); the 2026-11-18 pass evaluated three of
-# the five candidates, so the cell-level reason names the candidates that were left out.
+# T1 h=12 window build costs depend on the candidate.  Measured in task-58 on 2026-11-18:
+# ENSEMBLE_RW_AR -- 1690 cache entries (5 per origin: candidate + four members) for 338 origins,
+# 0 hits, 13m51s => 2.5 s/origin; an 8-origin warm benchmark gave 3.4 s/origin.  ENSEMBLE_BAYES --
+# 255 entries in 5m19s (~51 origins, ~6 s/origin) before it was stopped; its candidate forecast
+# alone measured 8 s/origin, so the full pair projects to ~35-45 min.  The pass evaluated four of
+# the five candidates, so the cell-level reason names the one left out.
 NOT_RUN_REASONS = {
-    "T1_H12_OTHER": ("в пассе 2026-11-18 (task-58, REAL_TIME, protocol v5) T1 h=12 оценены "
-                     "{evaluated}; этот кандидат в пасс не входил: полная постройка окон W1_EXT+W2 "
-                     "одного T1-горизонта h=12 занимает ~9–10 мин на кандидата (docs/102, "
-                     "task-43; замер task-58 — 607 с), time-box 20–25 мин не позволил; это "
-                     "пропуск, а не «эффекта нет»."),
+    "T1_H12_OTHER": ("в пассе 2026-11-18 (task-58, REAL_TIME_RECONSTRUCTED, protocol v5) T1 h=12 "
+                     "оценены {evaluated}; этот кандидат в пасс не входил: постройка окон "
+                     "W1_EXT+W2 (338 начал) стоит ~2,5–3,4 с на начало для дешёвого кандидата "
+                     "(ENSEMBLE_RW_AR: 1690 записей кэша, 0 попаданий, 13 мин 51 с на весь прогон) "
+                     "и ~8 с на начало только на прогноз кандидата ENSEMBLE_BAYES (255 записей за "
+                     "~5 мин до останова, ~6 с на начало в целом), то есть ~35–45 мин на пару. "
+                     "Тёплого кэша не было: build/eval_cache и .tmp-test/cache_v5_clean непригодны "
+                     "(schema 1.0.0 или чужой fingerprint — source_files 16 против 17, "
+                     "source_sha256 не совпадает), поэтому каждый кандидат строился с нуля. Это "
+                     "пропуск при time-box 25–30 мин, а не «эффекта нет»."),
     "T1_H1_RW_AR": ("ENSEMBLE_RW_AR зарегистрирован только для T1, но в T1 h=1 пасс (docs/87, v2) "
                     "и в v5-референс (docs/107) не включён: пара не оценивалась."),
     "T1_H3_H6": ("на T1 h=3/6 переоценивались только ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL "
@@ -81,9 +89,12 @@ NOT_RUN_REASONS = {
                          "T2 h=1/2/4 пасс покрывает только ENSEMBLE_ADAPTIVE/EQUAL (docs/102)."),
     "T2_H1_H4_OTHER": ("на T2 h=1/2/4 переоценивались только ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL "
                        "(docs/102); этот кандидат на этих горизонтах не строился."),
-    "T3_OTHER": ("T3 оценён только для ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL (docs/109); T3 "
-                 "v5-перепрогон не выполнялся: ~18 с на начало x 253 начала x 2 кандидата "
-                 "(~2,5 ч), см. ensemble_t3_report.json."),
+    "T3_OTHER": ("T3 оценён только для ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL (docs/109, протокол "
+                 "v4); v5-перепрогон в task-58 не выполнялся: замер на data/raw (REAL_TIME, h=3, "
+                 "ENSEMBLE_ADAPTIVE, 4 начала) — 7,3 с на начало без кэша; окна W1+W2 у h=3 — "
+                 "271 начало, то есть ~33 мин на кандидата и ~66 мин на двух — больше time-box "
+                 "25–30 мин. v5 не меняет C1/C2/C5 для T3, а C4 на W1_EXT для T3 не определён, "
+                 "поэтому строки остаются v4-эпохи (docs/176, §4.4)."),
 }
 
 
@@ -374,6 +385,26 @@ def _not_run_row(target: str, horizon: int, candidate: str, protocol: str,
     }
 
 
+def _gaps(rows: list[dict]) -> list[dict]:
+    """v5 reruns deliberately not performed, with the measured cost that blocked them (§4.5)."""
+    t1 = [row for row in rows if row["target"] == "T1_CPI_YOY" and row["horizon"] == 12]
+    missing = sorted(row["candidate"] for row in t1 if row["overall_status"] == "NOT_RUN")
+    done = sorted(row["candidate"] for row in t1 if row["overall_status"] != "NOT_RUN")
+    gaps = []
+    if missing:
+        gaps.append({
+            "scope": "T1_CPI_YOY h=12, " + " и ".join(missing),
+            "status": "NOT_RUN",
+            "reason": NOT_RUN_REASONS["T1_H12_OTHER"].format(
+                evaluated=", ".join(f"`{name}`" for name in done) or "ни один кандидат"),
+        })
+    gaps.append({"scope": "T2_GDP_GROWTH h=1/2/4, ENSEMBLE_T2_SPF", "status": "NOT_RUN",
+                 "reason": NOT_RUN_REASONS["T2_H1_H4_SPF"]})
+    gaps.append({"scope": "T3_RECESSION h=3/6/12, v5-перепрогон", "status": "NOT_RUN",
+                 "reason": NOT_RUN_REASONS["T3_OTHER"] + " Строки T3 в матрице — v4 (docs/109)."})
+    return gaps
+
+
 def build() -> dict:
     protocol_v5 = _load(PROTOCOL_V5)
     targets = protocol_targets()
@@ -439,19 +470,7 @@ def build() -> dict:
             "C5": "p >= 0.10 (не хуже) на W1 и W2",
         },
         "rows": rows,
-        "v5_reruns_not_performed": [
-            {"scope": "T1_CPI_YOY h=12, ENSEMBLE_BAYES и ENSEMBLE_RW_AR", "status": "NOT_RUN",
-             "reason": "пасс 2026-11-18 (task-58) оценил на T1 h=12 три кандидата "
-                       "(ENSEMBLE_INVERSE_MSE, ENSEMBLE_EQUAL, ENSEMBLE_ADAPTIVE); полная "
-                       "постройка окон W1_EXT+W2 одного кандидата стоит ~9–10 мин (607 с "
-                       "замерено), time-box 20–25 мин не позволил взять остальных — пропуск, "
-                       "а не «эффекта нет»."},
-            {"scope": "T2_GDP_GROWTH h=1/2/4, ENSEMBLE_T2_SPF", "status": "NOT_RUN",
-             "reason": NOT_RUN_REASONS["T2_H1_H4_SPF"]},
-            {"scope": "T3_RECESSION h=3/6/12, v5-перепрогон", "status": "NOT_RUN",
-             "reason": "под v5 T3 не переоценивался: v5 не меняет C1/C2/C5, а C4 на W1_EXT "
-                       "требует отдельного расширенного прогона; строки T3 — v4 (docs/109)."},
-        ],
+        "v5_reruns_not_performed": _gaps(rows),
         "coverage": coverage,
         "licence_note": ("forecasts and actual values are not stored: only relative losses, "
                          "thresholds, p-values and digests of the source reports (docs/84, D-147)"),

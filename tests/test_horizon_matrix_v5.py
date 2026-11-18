@@ -213,12 +213,13 @@ class HorizonMatrixV5Test(unittest.TestCase):
             self.assertIn("SPF", row["reason"])
             self.assertIn("h=1/2/4", row["reason"])
 
-    def test_t1_h12_evaluated_for_three_candidates(self) -> None:
+    def test_t1_h12_evaluated_for_four_candidates(self) -> None:
         rows = [row for row in self.rows if row["target"] == "T1_CPI_YOY" and row["horizon"] == 12]
         self.assertEqual(len(rows), 5, rows)
         evaluated = {row["candidate"]: row for row in rows if row["overall_status"] != "NOT_RUN"}
         self.assertEqual(set(evaluated), {"ENSEMBLE_ADAPTIVE", "ENSEMBLE_EQUAL",
-                                          "ENSEMBLE_INVERSE_MSE"}, sorted(evaluated))
+                                          "ENSEMBLE_INVERSE_MSE", "ENSEMBLE_RW_AR"},
+                         sorted(evaluated))
         for candidate, row in evaluated.items():
             self.assertEqual(row["protocol"], "v5.0.1", (candidate, row["protocol"]))
             self.assertEqual(row["data_class"], "REAL_TIME_RECONSTRUCTED", (candidate, row))
@@ -233,16 +234,30 @@ class HorizonMatrixV5Test(unittest.TestCase):
             for window, losses in row["metrics"]["C1"]["windows"].items():
                 for loss, entry in losses.items():
                     self.assertIsNotNone(entry["threshold"], (candidate, window, loss))
-        # the pass is explicitly partial: BAYES and RW_AR stay NOT_RUN with a dated reason
+        # the pass is explicitly partial: BAYES stays NOT_RUN with a measured reason
         not_run = [row for row in rows if row["overall_status"] == "NOT_RUN"]
-        self.assertEqual({row["candidate"] for row in not_run},
-                         {"ENSEMBLE_BAYES", "ENSEMBLE_RW_AR"})
+        self.assertEqual({row["candidate"] for row in not_run}, {"ENSEMBLE_BAYES"})
         for row in not_run:
             self.assertIn("task-58", row["reason"])
             self.assertIn("time-box", row["reason"])
-            self.assertIn("ENSEMBLE_INVERSE_MSE", row["reason"])
+            self.assertIn("8 с на начало", row["reason"])
+            self.assertIn("ENSEMBLE_RW_AR", row["reason"])
         doc = DOC.read_text(encoding="utf-8") if DOC.exists() else ""
         self.assertIn("T1 h=12: результаты", doc)
+
+    def test_v5_rerun_gaps_name_the_measured_cost(self) -> None:
+        gaps = {gap["scope"]: gap for gap in self.matrix["v5_reruns_not_performed"]}
+        self.assertTrue(all(gap["status"] == "NOT_RUN" for gap in gaps.values()), gaps)
+        t1 = [gap for scope, gap in gaps.items() if scope.startswith("T1_CPI_YOY h=12")]
+        self.assertEqual(len(t1), 1, sorted(gaps))
+        self.assertIn("ENSEMBLE_BAYES", t1[0]["scope"])
+        self.assertNotIn("ENSEMBLE_RW_AR", t1[0]["scope"])
+        self.assertIn("3,4", t1[0]["reason"])
+        t3 = [gap for scope, gap in gaps.items() if scope.startswith("T3_RECESSION")]
+        self.assertEqual(len(t3), 1, sorted(gaps))
+        self.assertIn("7,3", t3[0]["reason"])
+        self.assertIn("271", t3[0]["reason"])
+        self.assertIn("v4", t3[0]["reason"])
 
     def test_t3_statuses_come_from_v4_and_v5_rerun_is_not_run(self) -> None:
         rows = [row for row in self.rows if row["target"] == "T3_RECESSION"]

@@ -200,7 +200,10 @@ class MarketClientPack(unittest.TestCase):
         self.assertEqual(module["status"], "RESEARCH_ONLY")
         self.assertEqual(len(module["code_sha256"]), 64)
         self.assertTrue(module["limitations"])
-        self.assertEqual(len(document["all_modules"]), 5)
+        registry = market_client_pack.load_module_passports()
+        self.assertEqual(len(document["all_modules"]), len(registry["export"]["modules"]))
+        self.assertEqual([item["module_id"] for item in document["all_modules"]],
+                         [item["module_id"] for item in registry["export"]["modules"]])
         self.assertEqual(document["registry"]["sha256"],
                          market_client_pack._sha256(market_client_pack.DEFAULT_REGISTRY))
         self.assertIn("MarketResult", document["numbers_source"])

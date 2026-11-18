@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
-"""Register the G2 modules (oil / agri / finance / agentic / world P2 0.2) in the module registry.
+"""Register the G2/G5 modules (oil / storage / gas / agri / finance / agentic / world P2 0.2).
 
 The tool builds deterministic passports from the modules themselves (their exported passport /
 model-card metadata) plus docs/tests/hashes; it does not modify module code, protocols or the
 learning registry.  Records are appended to an append-only JSONL log; re-running against the same
 log fails closed (duplicates are not overwritten).
+
+Modules are registered only when they are framework ``MarketModule`` instances (``oil.brent``,
+``gas.lng_eu``) or module-level layers that expose a stable ``MODULE_ID`` and a build entrypoint
+(``oil.storage_curve``).  Tools and reports that are not modules (policy block, geopolitics library,
+sector exposure, FLAKS, the API gateways) are **not** registered here — see docs/157 §4.1.
 
 Usage:
     python tools/register_modules.py                       # write build/registry/modules.jsonl
@@ -38,6 +43,11 @@ P2_MANIFEST = ROOT / "build" / "p2_release" / "p2_release_0_2.json"
 CODE_FILES = {
     "oil": ["src/amfe/markets/__init__.py", "src/amfe/markets/contract.py",
                     "src/amfe/markets/engine.py", "src/amfe/markets/oil.py"],
+    "gas": ["src/amfe/markets/__init__.py", "src/amfe/markets/contract.py",
+                  "src/amfe/markets/engine.py", "src/amfe/markets/gas.py"],
+    "storage": ["src/amfe/markets/__init__.py", "src/amfe/markets/contract.py",
+                      "src/amfe/markets/oil_v3.py", "src/amfe/markets/storage.py",
+                      "src/amfe/resources/__init__.py", "src/amfe/resources/energy.py"],
     "agri": ["src/amfe/markets_agri/__init__.py", "src/amfe/markets_agri/contracts.py",
                  "src/amfe/markets_agri/soy.py", "src/amfe/markets_agri/balance.py",
                  "src/amfe/markets_agri/pricing.py", "src/amfe/markets_agri/seasonality.py"],
@@ -52,6 +62,14 @@ CODE_FILES = {
                  "src/amfe/world/sfc_io.py", "tools/world_pipeline.py",
                  "tools/world_reports.py", "tools/p2_release.py"],
 }
+
+#: committed data pins: ``data_sha256`` is the hash of this file when it is present locally
+DATA_FILES = {"storage": "data/oil/brent_monthly_eia.csv"}
+
+#: registration dates of modules that are newer than ``--date``: the five G2 passports keep their
+#: 2026-11-16 date, the G5 gas/storage passports are dated when they were registered (docs/180,
+#: docs/188).  ``--date`` controls every other manifest.
+REGISTERED_AT = {"gas": "2026-11-18", "storage": "2026-11-18"}
 
 
 class RegistrationError(RuntimeError):
@@ -72,11 +90,14 @@ def _module_passports() -> dict:
     """Import the module packages and read their declared passports/model cards."""
     import amfe.agentic  # noqa: F401
     from amfe import markets, markets_agri, markets_finance
+    from amfe.markets import gas as gas_module
+    from amfe.markets import storage as storage_module
 
-    oil_docs = markets.modules_document()
-    if not oil_docs:
-        raise RegistrationError("amfe.markets exposes no module passport")
-    oil = oil_docs[0]
+    #: gas registers itself on import, so select by module_id instead of by position
+    documents = {item["module_id"]: item for item in markets.modules_document()}
+    oil = documents.get("oil.brent")
+    if oil is None:
+        raise RegistrationError("amfe.markets exposes no passport for oil.brent")
     agri = markets_agri.module_passport()
     cards = markets_finance.model_cards()
     return {
@@ -93,6 +114,54 @@ def _module_passports() -> dict:
                                 "scenario arithmetic, not a forecast, admission or investment advice"],
                 "components": [item["scenario_id"] for item in oil.get("scenarios", [])],
                 "note": "version derived from the track-B pilot release (docs/147)"},
+        "gas": {"module_id": gas_module.MODULE_ID, "kind": "market", "version": "0.1.0",
+                "display_name": "Gas / LNG: European hub shock, LNG diversion and winter scenarios "
+                                "(scenario module)",
+                "summary": ("Deterministic monthly gas balance (TTF / JKM / Henry Hub) with explicit "
+                            "bcm <-> MMBtu <-> mboe conversions, a declared storage release plan and "
+                            "an arbitrage-clearing LNG diversion; the range is the envelope of declared "
+                            "variants. Research prototype, not a forecast."),
+                "owner": "track-b", "data_status": "ASSUMPTION_BASED",
+                "docs": ["docs/188_Газ_LNG.md", "docs/147_Рынки_нефть.md"],
+                "tests": ["tests/test_gas_scenarios.py"],
+                "entrypoints": ["amfe.markets.gas.GAS_MODULE", "amfe.markets.gas.build_report"],
+                "limitations": list(gas_module.LIMITATIONS),
+                "components": [scenario.scenario_id
+                               for scenario in gas_module.GAS_MODULE.scenarios()],
+                "note": ("version 0.1.0 declared for the block-9 MVP (docs/188); the passport and its "
+                         "limitations/scenarios are imported from amfe.markets.gas")},
+        "storage": {"module_id": storage_module.MODULE_ID, "kind": "market", "version": "0.1.0",
+                    "display_name": "Oil storage and futures curve: state, curve and cross-check with "
+                                    "the oil module (layer module)",
+                    "summary": ("Storage layer over the oil module: commercial + SPR stocks as state, a "
+                                "closed-form curve F(T) = S*exp((r + c - y(cover))*T/12) with no-arbitrage "
+                                "identities, two historical episodes and a +-10% cross-check with the oil "
+                                "engine. Research prototype, not a forecast."),
+                    "owner": "track-b", "data_status": "COMMITTED",
+                    "docs": ["docs/180_Запасы_и_фьючерсы.md", "docs/147_Рынки_нефть.md"],
+                    "tests": ["tests/test_storage_futures.py"],
+                    "entrypoints": ["amfe.markets.storage.StorageParams",
+                                    "amfe.markets.storage.build_curve",
+                                    "amfe.markets.storage.build_report",
+                                    "amfe.markets.storage.cross_check_with_oil"],
+                    "limitations": [
+                        "every parameter is an assumption with a replace_with hint; the only observed "
+                        "input is the monthly EIA Brent spot (committed CSV)",
+                        "the sign and monotonicity of the curve are calibrated, the magnitude is not: "
+                        "with a constant storage cost the 2020 spread is understated",
+                        "no negative prices: when tanks are full the unabsorbed supply is reported as "
+                        "surplus (curtailment), not as a negative price",
+                        "not a MarketModule: there are no scenarios()/run() (state + curve on top of "
+                        "the oil module), so products must call the documented functions",
+                        "structural difference with the oil engine is declared, not hidden: the oil "
+                        "engine clears the gap with price while the storage layer draws stocks",
+                        "RESEARCH_ONLY: not a forecast, not an admission, not investment advice"],
+                    "components": ["storage_state", "futures_curve"]
+                                  + [item.episode_id for item in storage_module.EPISODES]
+                                  + ["oil_cross_check"],
+                    "note": ("version 0.1.0 declared for the M8-A MVP (docs/180); the module exposes "
+                             "MODULE_ID=oil.storage_curve and a build entrypoint but no MarketModule "
+                             "subclass")},
         "agri": {"module_id": agri["module_id"], "kind": "agri",
                  "version": agri["version"], "display_name": agri["display_name"],
                  "summary": ("Agri archetype + soybean-in-Africa pilot: yield/weather, seasonality, "
@@ -167,26 +236,45 @@ def _passport(name: str, manifest: dict, *, created_at: str, data_sha256: str | 
         note=manifest.get("note", ""), status="RESEARCH_ONLY")
 
 
+def _data_pins(p2_manifest: Path) -> tuple[dict, list[str]]:
+    """``data_sha256``/``data_status`` per module, plus warnings for missing local data.
+
+    ``world.p2`` is anchored to the local P2 0.2 release manifest and ``oil.storage_curve`` to the
+    committed EIA monthly Brent series; everything else registers without a data digest.
+    """
+    pins: dict = {}
+    warnings: list[str] = []
+    manifest_path = Path(p2_manifest)
+    if manifest_path.is_file():
+        pins["world"] = (mr.sha256_file(manifest_path), "LOCAL_ONLY")
+    else:
+        pins["world"] = (None, "LOCAL_ONLY")
+        warnings.append("P2 release manifest not found locally: world.p2 registered without "
+                        "a data_sha256 (data_status=LOCAL_ONLY)")
+    for name, relative in DATA_FILES.items():
+        path = ROOT / relative
+        if path.is_file():
+            pins[name] = (mr.sha256_file(path), "COMMITTED")
+        else:
+            pins[name] = (None, "ASSUMPTION_BASED")
+            warnings.append(f"committed data file {relative} not found: {name} registered without "
+                            f"a data_sha256 (data_status=ASSUMPTION_BASED)")
+    return pins, warnings
+
+
 def build_report(*, registry: Path = DEFAULT_REGISTRY, created_at: str = DEFAULT_DATE,
                  p2_manifest: Path = P2_MANIFEST) -> dict:
-    """Register all G2 modules into ``registry`` and return the deterministic JSON report."""
+    """Register all modules (G2 + G5 gas/storage) into ``registry`` and return the report."""
     manifests = _module_passports()
-    data = {"world": None}
-    if Path(p2_manifest).is_file():
-        data["world"] = mr.sha256_file(Path(p2_manifest))
-    code_warnings = []
-    if data["world"] is None:
-        code_warnings.append("P2 release manifest not found locally: world.p2 registered without "
-                             "a data_sha256 (data_status=LOCAL_ONLY)")
+    pins, code_warnings = _data_pins(p2_manifest)
     passports = {}
     for name, manifest in manifests.items():
-        if name == "world":
-            passports[name] = _passport(name, manifest, created_at=created_at,
-                                        data_sha256=data["world"], data_status="LOCAL_ONLY")
-        else:
-            passports[name] = _passport(name, manifest, created_at=created_at, data_sha256=None,
-                                        data_status=manifest["data_status"])
-    order = ("oil", "agri", "finance", "agentic", "world")
+        data_sha256, data_status = pins.get(name, (None, manifest["data_status"]))
+        passports[name] = _passport(name, manifest,
+                                    created_at=REGISTERED_AT.get(name, created_at),
+                                    data_sha256=data_sha256, data_status=data_status)
+    #: append-only spirit: the five G2 records keep their order, new modules are appended
+    order = ("oil", "agri", "finance", "agentic", "world", "gas", "storage")
     registered = []
     for name in order:
         passport = passports[name]
@@ -214,14 +302,15 @@ def build_report(*, registry: Path = DEFAULT_REGISTRY, created_at: str = DEFAULT
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(
-        description="Register G2 modules (oil/agri/finance/agentic/world P2 0.2) in the module "
-                    "registry (append-only JSONL, RESEARCH_ONLY)")
+        description="Register the modules (oil/agri/finance/agentic/world P2 0.2 + G5 gas/storage) "
+                    "in the module registry (append-only JSONL, RESEARCH_ONLY)")
     parser.add_argument("--registry", default=str(DEFAULT_REGISTRY),
                         help="append-only module registry JSONL (default build/registry/modules.jsonl)")
     parser.add_argument("--out", default=None,
                         help="write the JSON registration report to this path")
     parser.add_argument("--date", default=DEFAULT_DATE,
-                        help=f"passport creation date (default {DEFAULT_DATE}, deterministic)")
+                        help=f"passport creation date for modules without a pinned date "
+                             f"(default {DEFAULT_DATE}, deterministic)")
     parser.add_argument("--json", action="store_true", help="print the JSON report")
     args = parser.parse_args(argv)
     try:

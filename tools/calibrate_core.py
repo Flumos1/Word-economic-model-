@@ -824,7 +824,8 @@ def main(argv=None) -> int:
         return 2
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8",
+                   newline="\n")
     summary = {
         "out": str(out),
         "status": report["status"],

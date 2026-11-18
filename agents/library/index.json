@@ -1,7 +1,7 @@
 {
  "schema": "amfe.agent_library.v1",
- "updated_at": "2026-11-18T15:21:15Z",
- "entries": 56,
+ "updated_at": "2026-11-18T18:05:11Z",
+ "entries": 59,
  "open_questions": [
   {
    "id": "mem-lead-0003",
@@ -13,16 +13,16 @@
  "by_role": {
   "accounting-core": 8,
   "baseline-models": 5,
-  "dense-vintages": 6,
+  "dense-vintages": 8,
   "evaluation-harness": 6,
   "lead": 8,
   "licence-auditor": 3,
-  "multiplicity-rw": 6,
+  "multiplicity-rw": 7,
   "protocol-reviewer": 7,
   "r2-completion": 7
  },
  "by_kind": {
-  "artifact": 18,
+  "artifact": 21,
   "lesson": 14,
   "open_question": 1,
   "role": 9,
@@ -37,6 +37,7 @@
   "c6": 3,
   "cache": 2,
   "candidates": 1,
+  "canonical-write": 1,
   "correction": 1,
   "country": 4,
   "data": 2,
@@ -46,18 +47,20 @@
   "flaks": 1,
   "forecast": 1,
   "g4": 1,
-  "g5": 1,
-  "gas": 1,
+  "g5": 2,
+  "gas": 2,
   "gateway": 1,
   "geopolitics": 1,
   "harness": 1,
-  "horizons": 5,
+  "hash": 1,
+  "horizons": 6,
   "independence": 1,
   "lesson": 2,
   "librarian": 2,
   "licence": 3,
   "memory": 1,
   "models": 1,
+  "modules": 1,
   "oil": 1,
   "orchestrator": 1,
   "p2": 1,
@@ -68,6 +71,7 @@
   "procurement": 1,
   "products": 1,
   "provenance": 2,
+  "registry": 1,
   "review": 1,
   "science": 1,
   "scorecard": 1,
@@ -77,13 +81,18 @@
   "signoff": 2,
   "stats": 2,
   "status": 6,
-  "storage": 1,
+  "storage": 2,
   "task": 8,
-  "tests": 1,
+  "task-69": 1,
+  "tests": 2,
   "v2": 6,
+  "windows-crlf": 1,
   "world": 2
  },
  "artifacts": {
+  "docs/101_Кэш_прогонов.md": [
+   "mem-dense-vintages-0007"
+  ],
   "docs/102_Горизонты_ансамблей.md": [
    "mem-multiplicity-rw-0002"
   ],
@@ -93,6 +102,12 @@
   "docs/146_P2_0.2.md": [
    "mem-accounting-core-0001",
    "mem-accounting-core-0002"
+  ],
+  "docs/157_Реестр_модулей.md": [
+   "mem-dense-vintages-0008"
+  ],
+  "docs/161_Реестр_API_паспорта.md": [
+   "mem-dense-vintages-0008"
   ],
   "docs/162_Реестр_источников.md": [
    "mem-licence-auditor-0002"
@@ -162,7 +177,8 @@
   "protocols/horizon_matrix_v5.json": [
    "mem-multiplicity-rw-0004",
    "mem-multiplicity-rw-0005",
-   "mem-multiplicity-rw-0006"
+   "mem-multiplicity-rw-0006",
+   "mem-multiplicity-rw-0007"
   ],
   "protocols/licence_register.json": [
    "mem-licence-auditor-0001"
@@ -176,6 +192,9 @@
   "src/amfe/markets/storage.py": [
    "mem-accounting-core-0007"
   ],
+  "tests/test_client_pack_v2.py": [
+   "mem-dense-vintages-0008"
+  ],
   "tests/test_country_forecast.py": [
    "mem-r2-completion-0006"
   ],
@@ -187,6 +206,15 @@
   ],
   "tests/test_forecast_world_bridge.py": [
    "mem-accounting-core-0004"
+  ],
+  "tests/test_hash_canonicalization.py": [
+   "mem-dense-vintages-0007"
+  ],
+  "tests/test_market_client_pack.py": [
+   "mem-dense-vintages-0008"
+  ],
+  "tests/test_module_registry.py": [
+   "mem-dense-vintages-0008"
   ],
   "tests/test_storage_futures.py": [
    "mem-accounting-core-0007"
@@ -216,7 +244,8 @@
   ],
   "tools/forecast_world_bridge.py": [
    "mem-accounting-core-0004",
-   "mem-accounting-core-0005"
+   "mem-accounting-core-0005",
+   "mem-dense-vintages-0007"
   ],
   "tools/gas_scenarios.py": [
    "mem-accounting-core-0008"
@@ -224,11 +253,21 @@
   "tools/geopolitics_scenarios.py": [
    "mem-protocol-reviewer-0006"
   ],
+  "tools/market_bridge.py": [
+   "mem-dense-vintages-0007"
+  ],
   "tools/policy_scenarios.py": [
    "mem-baseline-models-0004"
   ],
+  "tools/quantity_bridge.py": [
+   "mem-dense-vintages-0007"
+  ],
+  "tools/register_modules.py": [
+   "mem-dense-vintages-0008"
+  ],
   "tools/sector_exposure.py": [
-   "mem-accounting-core-0006"
+   "mem-accounting-core-0006",
+   "mem-dense-vintages-0007"
   ],
   "tools/storage_futures.py": [
    "mem-accounting-core-0007"

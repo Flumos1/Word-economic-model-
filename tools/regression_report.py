@@ -171,12 +171,13 @@ def main(argv=None) -> int:
     print(report["markdown"])
     if not args.no_json:
         json_out.parent.mkdir(parents=True, exist_ok=True)
-        json_out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        json_out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n",
+                            encoding="utf-8", newline="\n")
         print(f"report: {json_out}")
     if args.markdown_out:
         markdown_path = Path(args.markdown_out)
         markdown_path.parent.mkdir(parents=True, exist_ok=True)
-        markdown_path.write_text(report["markdown"] + "\n", encoding="utf-8")
+        markdown_path.write_text(report["markdown"] + "\n", encoding="utf-8", newline="\n")
     return 0 if report["passed"] else 1
 
 

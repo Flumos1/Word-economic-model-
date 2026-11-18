@@ -1443,7 +1443,8 @@ def build(data_root=None, out_root=None, dossier_path=None, generated_at=None,
     if dossier_path is not None:
         path = Path(dossier_path)
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(dossier, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        path.write_text(json.dumps(dossier, ensure_ascii=False, indent=2) + "\n", encoding="utf-8",
+                        newline="\n")
     if verbose:
         print(f"data root: {out_root}")
         print(f"digest:    {dossier['artifacts']['digest']}")

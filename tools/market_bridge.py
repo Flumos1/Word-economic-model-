@@ -639,9 +639,12 @@ def build_report(data_root: Path | None = None, *, datasets=("figaro", "oecd_202
     }
     report_path = out_dir / "bridge_report.json"
     payload = (json.dumps(report, ensure_ascii=False, sort_keys=True, indent=1) + "\n")
-    report_path.write_text(payload, encoding="utf-8")
+    # Canonical write (task-69): Path.write_text() translates "\n" to CRLF on Windows, so the file
+    # digest stopped matching the digest of the in-memory payload.  Bytes are written as-is, in
+    # UTF-8, with LF line endings on every platform.
+    report_path.write_bytes(payload.encode("utf-8"))
     markdown_path = out_dir / "bridge_summary.md"
-    markdown_path.write_text(render_markdown(report), encoding="utf-8")
+    markdown_path.write_bytes(render_markdown(report).encode("utf-8"))
     return {"report": report, "report_path": str(report_path),
             "summary_path": str(markdown_path),
             "sha256": hashlib.sha256(payload.encode("utf-8")).hexdigest(),

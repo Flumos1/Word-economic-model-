@@ -158,7 +158,8 @@ def main(argv=None) -> int:
     }
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(doc, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    out.write_text(json.dumps(doc, ensure_ascii=False, indent=2) + "\n", encoding="utf-8",
+                   newline="\n")
     print(json.dumps({"out": str(out), "announcements": coverage["announcements"],
                       "source_page_sha256": doc["source_page_sha256"][:16],
                       "announcements_sha256": doc["announcements_sha256"][:16]}))

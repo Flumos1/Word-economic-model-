@@ -1003,7 +1003,8 @@ def run(args) -> dict:
     if labor_block is not None:
         labor_path = out_dir / "labor.json"
         labor_path.write_text(json.dumps(labor_block, ensure_ascii=False,
-                                         sort_keys=True, indent=1) + "\n", encoding="utf-8")
+                                         sort_keys=True, indent=1) + "\n", encoding="utf-8",
+                              newline="\n")
         paths["labor"] = {"json": str(labor_path)}
     return {"index": index, "reports": reports, "paths": paths}
 

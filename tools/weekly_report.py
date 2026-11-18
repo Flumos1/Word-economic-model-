@@ -671,7 +671,7 @@ def main(argv=None) -> int:
     if args.out:
         out = Path(args.out)
         out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(markdown, encoding="utf-8")
+        out.write_text(markdown, encoding="utf-8", newline="\n")
         print(f"weekly report: {out} ({len(markdown)} bytes, as_of {as_of})")
     else:
         try:

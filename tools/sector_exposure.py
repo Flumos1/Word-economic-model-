@@ -908,9 +908,12 @@ def build_report(*, forecast_world: Path, price_bridge: Path, dataset: str = "oe
         out_dir.mkdir(parents=True, exist_ok=True)
         report_path = out_dir / "sector_exposure.json"
         payload = json.dumps(report, ensure_ascii=False, sort_keys=True, indent=1) + "\n"
-        report_path.write_text(payload, encoding="utf-8")
+        # Canonical write (task-69): Path.write_text() translates "\n" to CRLF on Windows, so the
+        # file digest stopped matching the digest of the in-memory payload.  Bytes are written
+        # as-is, in UTF-8, with LF line endings on every platform.
+        report_path.write_bytes(payload.encode("utf-8"))
         summary_path = out_dir / "sector_exposure.md"
-        summary_path.write_text(render_markdown(report), encoding="utf-8")
+        summary_path.write_bytes(render_markdown(report).encode("utf-8"))
         return {
             "report": report,
             "report_path": str(report_path),

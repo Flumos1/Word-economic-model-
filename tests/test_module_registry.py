@@ -1,4 +1,5 @@
 """Tests for the module registry (G2, docs/157): passports, statuses, append-only, export, tool."""
+import importlib
 import json
 import sys
 import tempfile
@@ -11,6 +12,13 @@ sys.path.insert(0, str(ROOT / "tools"))
 
 from amfe.learning import module_registry as mr  # noqa: E402
 import register_modules  # noqa: E402
+
+#: every passport the tool registers (G2 core + G5 gas/storage), module_id -> kind
+EXPECTED = {
+    "oil.brent": "market", "gas.lng_eu": "market", "oil.storage_curve": "market",
+    "AGRI_SOY": "agri", "markets.finance": "finance", "agentic.sim": "agentic",
+    "world.p2": "world",
+}
 
 
 def passport(**overrides) -> dict:
@@ -225,18 +233,80 @@ class CodeHash(unittest.TestCase):
                 mr.code_hash({"missing.py": Path(tmp) / "missing.py"})
 
 
-class Tool(unittest.TestCase):
-    EXPECTED = {"oil.brent": "market", "AGRI_SOY": "agri", "markets.finance": "finance",
-                "agentic.sim": "agentic", "world.p2": "world"}
+def resolve_entrypoint(entry: str):
+    """Resolve a passport entrypoint: a repository file, a module or a ``module.attribute``."""
+    if entry.endswith(".py"):
+        path = ROOT / entry
+        if not path.is_file():
+            raise AssertionError(f"entrypoint file is missing: {entry}")
+        return path
+    try:
+        return importlib.import_module(entry)
+    except ImportError:
+        module_name, _, attribute = entry.rpartition(".")
+        module = importlib.import_module(module_name)
+        if not hasattr(module, attribute):
+            raise AssertionError(f"entrypoint {entry} has no attribute {attribute!r}")
+        return getattr(module, attribute)
 
-    def test_registers_the_g2_modules(self):
+
+def build_registered_module(module_id: str) -> dict:
+    """Import and actually build one registered module: identity, status, components, checks."""
+    import amfe.agentic
+    from amfe import markets, markets_agri, markets_finance
+    from amfe.markets import gas, storage  # noqa: F401  (registers gas.lng_eu)
+
+    if module_id in ("oil.brent", "gas.lng_eu"):
+        module = markets.get_module(module_id)  # framework registry, keyed by module_id
+        result = module.run()
+        return {"module_id": result.module_id, "status": result.status,
+                "components": [scenario.scenario_id for scenario in module.scenarios()],
+                "checks": dict(result.checks)}
+    if module_id == "oil.storage_curve":
+        curve = storage.build_curve(storage.DEFAULT_PARAMS, spot=100.0, cover_days=30.0)
+        components = (["storage_state", "futures_curve"]
+                      + [item.episode_id for item in storage.EPISODES] + ["oil_cross_check"])
+        return {"module_id": storage.MODULE_ID, "status": curve.status,
+                "components": components, "checks": dict(curve.checks)}
+    if module_id == "AGRI_SOY":
+        passport = markets_agri.module_passport()
+        markets_agri.SoyAgriModule()  # the module class is constructible without data
+        return {"module_id": passport["module_id"], "status": passport["status"],
+                "components": list(passport["components"]), "checks": {}}
+    if module_id == "markets.finance":
+        cards = markets_finance.model_cards()
+        return {"module_id": "markets.finance", "status": "RESEARCH_ONLY",
+                "components": [card.to_dict().get("model_id", key)
+                               for key, card in cards.items()], "checks": {}}
+    if module_id == "agentic.sim":
+        demo = amfe.agentic.run_demo()
+        checks = {f"{label}.{name}": bool(result.checks[name])
+                  for label, result in demo.items()
+                  for name in ("double_entry", "financial_conservation",
+                               "sfc_saving_equals_investment")}
+        return {"module_id": "agentic.sim", "status": "RESEARCH_ONLY", "components": None,
+                "checks": checks}
+    if module_id == "world.p2":
+        from amfe.world import io_core, sfc_core, sfc_io  # noqa: F401  (import is the build gate)
+        return {"module_id": "world.p2", "status": "RESEARCH_ONLY", "components": None,
+                "checks": {}}
+    raise AssertionError(f"no build check for {module_id!r}")
+
+
+class Tool(unittest.TestCase):
+    EXPECTED = EXPECTED
+
+    def test_registers_the_modules(self):
         with tempfile.TemporaryDirectory() as tmp:
             registry = Path(tmp) / "modules.jsonl"
             report = register_modules.build_report(registry=registry)
-            self.assertEqual(report["entries"], 5)
+            self.assertEqual(report["entries"], len(self.EXPECTED))
             self.assertTrue(report["all_research_only"])
             self.assertTrue(report["validation"]["valid"], report["validation"]["errors"])
-            self.assertEqual(report["export_counts"]["by_status"], {"RESEARCH_ONLY": 5})
+            self.assertEqual(report["export_counts"]["by_status"],
+                             {"RESEARCH_ONLY": len(self.EXPECTED)})
+            self.assertEqual(report["export_counts"]["by_kind"],
+                             {"agentic": 1, "agri": 1, "finance": 1, "market": 3, "world": 1})
             found = {item["module_id"]: item for item in report["registered"]}
             self.assertEqual(set(found), set(self.EXPECTED))
             for module_id, kind in self.EXPECTED.items():
@@ -247,9 +317,16 @@ class Tool(unittest.TestCase):
             self.assertEqual(found["world.p2"]["version"], "0.2.0")
             self.assertEqual(found["world.p2"]["data_status"], "LOCAL_ONLY")
             self.assertEqual(len(found["world.p2"]["data_sha256"] or ""), 64)
+            # gas is pure assumptions; storage is pinned to the committed EIA series
+            self.assertEqual(found["gas.lng_eu"]["data_status"], "ASSUMPTION_BASED")
+            self.assertIsNone(found["gas.lng_eu"]["data_sha256"])
+            self.assertEqual(found["oil.storage_curve"]["version"], "0.1.0")
+            if (ROOT / "data" / "oil" / "brent_monthly_eia.csv").is_file():
+                self.assertEqual(found["oil.storage_curve"]["data_status"], "COMMITTED")
+                self.assertEqual(len(found["oil.storage_curve"]["data_sha256"] or ""), 64)
             # the export is API-ready and the log validates
             export = mr.export_for_api(registry)
-            self.assertEqual(export["counts"]["modules"], 5)
+            self.assertEqual(export["counts"]["modules"], len(self.EXPECTED))
             self.assertEqual([module["module_id"] for module in export["modules"]],
                              sorted(self.EXPECTED))
 
@@ -266,13 +343,123 @@ class Tool(unittest.TestCase):
                              json.dumps(second_report, sort_keys=True))
             with self.assertRaises(mr.ModuleRegistryError):
                 register_modules.build_report(registry=first)
-            self.assertEqual(len(mr.load_entries(first)), 5)
+            self.assertEqual(len(mr.load_entries(first)), len(self.EXPECTED))
+
+    def test_the_g2_records_keep_their_order(self):
+        """The five G2 records stay first: new modules are appended, the history is not reordered."""
+        with tempfile.TemporaryDirectory() as tmp:
+            registry = Path(tmp) / "modules.jsonl"
+            register_modules.build_report(registry=registry)
+            ids = [entry["module_id"] for entry in mr.load_entries(registry)]
+            self.assertEqual(ids[:5], ["oil.brent", "AGRI_SOY", "markets.finance",
+                                       "agentic.sim", "world.p2"])
+            self.assertEqual(sorted(ids[5:]), ["gas.lng_eu", "oil.storage_curve"])
 
     def test_cli_fails_closed_on_bad_date(self):
         with tempfile.TemporaryDirectory() as tmp:
             code = register_modules.main(["--registry", str(Path(tmp) / "modules.jsonl"),
                                           "--date", "bad-date", "--json"])
             self.assertEqual(code, 1)
+
+
+class BuildsAndPassports(unittest.TestCase):
+    """Every registered module imports/builds and its passport matches the code (G5)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.directory = tempfile.TemporaryDirectory()
+        cls.registry = Path(cls.directory.name) / "modules.jsonl"
+        #: importing amfe.markets.gas registers it in the framework registry for the whole process
+        #: (self-registration in amfe.markets.contract). The build test needs that, but
+        #: forecast_api.build_forecast assumes an oil-shaped summary (price_peak) and crashes on a gas
+        #: module in the same process; the registry is therefore restored to the state it had before
+        #: this class, so a test file that imported the gas module itself keeps it (see docs/161 §10).
+        from amfe.markets import contract
+        cls._saved_modules = dict(contract._MODULES)
+        cls.report = register_modules.build_report(registry=cls.registry)
+        cls.state = mr.state(cls.registry)
+        cls.manifests = register_modules._module_passports()
+        cls.code_keys = {manifest["module_id"]: name
+                         for name, manifest in cls.manifests.items()}
+
+    @classmethod
+    def tearDownClass(cls):
+        from amfe.markets import contract
+        contract._MODULES.clear()
+        contract._MODULES.update(cls._saved_modules)
+        cls.directory.cleanup()
+
+    def passport(self, module_id: str) -> dict:
+        data = self.state[module_id]
+        return data["versions"][data["latest_version"]]
+
+    def test_every_module_builds_and_matches_its_passport(self):
+        for module_id in EXPECTED:
+            with self.subTest(module=module_id):
+                built = build_registered_module(module_id)
+                passport = self.passport(module_id)
+                self.assertEqual(built["module_id"], module_id)
+                # the module's own label may be a spelling variant (AGRI_SOY: research_prototype);
+                # the registry status is the fixed enum and must stay RESEARCH_ONLY
+                self.assertIn(str(built["status"]).upper(),
+                              ("RESEARCH_ONLY", "RESEARCH_PROTOTYPE"))
+                self.assertEqual(passport["status"], "RESEARCH_ONLY")
+                if built["components"] is not None:
+                    self.assertEqual(list(passport["components"]), list(built["components"]))
+                for name, passed in built["checks"].items():
+                    self.assertTrue(passed, f"{module_id}: check {name} failed")
+
+    def test_passport_code_files_entrypoints_and_docs_match_the_repository(self):
+        for module_id in EXPECTED:
+            with self.subTest(module=module_id):
+                passport = self.passport(module_id)
+                self.assertEqual(set(passport["code_files"]),
+                                 set(register_modules.CODE_FILES[self.code_keys[module_id]]))
+                for relative, digest in passport["code_files"].items():
+                    path = ROOT / relative
+                    self.assertTrue(path.is_file(), relative)
+                    self.assertEqual(mr.sha256_file(path), digest, relative)
+                recomputed = mr.code_hash({relative: ROOT / relative
+                                           for relative in passport["code_files"]})
+                self.assertEqual(recomputed["sha256"], passport["code_sha256"])
+                for relative in list(passport["docs"]) + list(passport["tests"]):
+                    self.assertTrue((ROOT / relative).is_file(), relative)
+                for entry in passport["entrypoints"]:
+                    resolve_entrypoint(entry)
+                self.assertTrue(passport["limitations"])
+
+    def test_g5_passports_are_dated_when_they_were_registered(self):
+        """The G2 records keep 2026-11-16; gas/storage are dated 2026-11-18 (docs/180, docs/188)."""
+        self.assertEqual(self.passport("gas.lng_eu")["created_at"], "2026-11-18")
+        self.assertEqual(self.passport("oil.storage_curve")["created_at"], "2026-11-18")
+        for module_id in ("oil.brent", "AGRI_SOY", "markets.finance", "agentic.sim", "world.p2"):
+            with self.subTest(module=module_id):
+                self.assertEqual(self.passport(module_id)["created_at"],
+                                 register_modules.DEFAULT_DATE)
+
+    def test_data_pins_anchor_to_the_committed_files(self):
+        storage = self.passport("oil.storage_curve")
+        series = ROOT / "data" / "oil" / "brent_monthly_eia.csv"
+        if series.is_file():
+            self.assertEqual(storage["data_sha256"], mr.sha256_file(series))
+            self.assertEqual(storage["data_status"], "COMMITTED")
+        world = self.passport("world.p2")
+        manifest = ROOT / "build" / "p2_release" / "p2_release_0_2.json"
+        if manifest.is_file():
+            self.assertEqual(world["data_sha256"], mr.sha256_file(manifest))
+            self.assertEqual(world["data_status"], "LOCAL_ONLY")
+
+    def test_every_passport_is_research_only_without_promotion_events(self):
+        """admission=false: no passport has a status event, criteria or an independent review."""
+        self.assertTrue(self.report["all_research_only"])
+        for module_id in EXPECTED:
+            with self.subTest(module=module_id):
+                record = self.passport(module_id)
+                self.assertEqual(record["status"], "RESEARCH_ONLY")
+                self.assertEqual(record["status_history"], ["RESEARCH_ONLY"])
+                self.assertEqual(record["status_events"], 0)
+                self.assertIsNone(record.get("criteria"))
+                self.assertIsNone(record.get("independent_review"))
 
 
 if __name__ == "__main__":

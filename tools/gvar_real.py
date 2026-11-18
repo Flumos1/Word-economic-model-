@@ -130,7 +130,8 @@ def fetch_indicator(indicator: str, countries, *, cache_dir: Path = CACHE_DIR, r
     payload = download(url)
     document = {"source": url, "indicator": indicator, "retrieved_at":
                 datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "payload": payload}
-    path.write_text(json.dumps(document, ensure_ascii=False) + "\n", encoding="utf-8")
+    path.write_text(json.dumps(document, ensure_ascii=False) + "\n", encoding="utf-8",
+                    newline="\n")
     return document
 
 
@@ -367,7 +368,7 @@ def figaro_trade_weights(target_countries, *, dataset_path: Path = FIGARO_DATASE
         export_document = load(path)
         export_document["dataset_sha256"] = export_document.get("sha256", sha)
         export_document["source"] = str(path)
-        cache.write_text(json.dumps(export_document) + "\n", encoding="utf-8")
+        cache.write_text(json.dumps(export_document) + "\n", encoding="utf-8", newline="\n")
     table_countries = [str(code) for code in export_document["countries"]]
     exports = np.asarray(export_document["exports"], dtype=float)
     if exports.shape != (len(table_countries), len(table_countries)):
@@ -850,7 +851,8 @@ def main(argv=None) -> int:
     report["report_sha256"] = digest({k: v for k, v in report.items() if k != "report_sha256"})
     path = Path(args.report) if args.report else REPORT_PATH
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(report, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    path.write_text(json.dumps(report, ensure_ascii=False, indent=1) + "\n", encoding="utf-8",
+                    newline="\n")
     summary = {
         "weights_mode": report["weights_mode"],
         "weights_detail": {key: value for key, value in report["weights"]["detail"].get("detail", {}).items()
@@ -958,7 +960,8 @@ def load_export_matrix(path, *, kind: str, cache_dir, refresh: bool = False) -> 
     if document.get("year") is None:
         raise GVARRealError(f"cannot determine the vintage year of {path}")
     try:
-        cache_file.write_text(json.dumps(document, ensure_ascii=False) + "\n", encoding="utf-8")
+        cache_file.write_text(json.dumps(document, ensure_ascii=False) + "\n", encoding="utf-8",
+                              newline="\n")
     except OSError as exc:
         raise GVARRealError(f"cannot write the MRIO export cache {cache_file}: {exc}") from exc
     return document

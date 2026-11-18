@@ -929,11 +929,12 @@ def main(argv=None) -> int:
     out = Path(args.out) if args.out else root / "protocols" / "release_check_report.json"
     if not args.no_json:
         out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8",
+                       newline="\n")
     if args.markdown_out:
         markdown_path = Path(args.markdown_out)
         markdown_path.parent.mkdir(parents=True, exist_ok=True)
-        markdown_path.write_text(report["markdown"], encoding="utf-8")
+        markdown_path.write_text(report["markdown"], encoding="utf-8", newline="\n")
     try:
         sys.stdout.write(report["markdown"])
     except UnicodeEncodeError:  # non-UTF-8 console

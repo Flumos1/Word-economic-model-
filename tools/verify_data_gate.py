@@ -353,7 +353,8 @@ def main(argv=None) -> int:
                           "mismatches_allowed": 0}
     out = Path(args.report)
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8",
+                   newline="\n")
     print(json.dumps({"passed": report["passed"], **report["totals"], "report": str(out)}, ensure_ascii=False))
     return 0 if report["passed"] else 1
 

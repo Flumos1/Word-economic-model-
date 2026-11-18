@@ -127,7 +127,8 @@ def main(argv=None) -> int:
     args = ap.parse_args(argv)
     protocol = json.loads(PROTOCOL.read_text(encoding="utf-8"))
     out = build(protocol)
-    Path(args.out).write_text(json.dumps(out, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    Path(args.out).write_text(json.dumps(out, ensure_ascii=False, indent=2) + "\n", encoding="utf-8",
+                              newline="\n")
     print(json.dumps(out["targets"], ensure_ascii=False, indent=1)[:4000])
     return 0
 

@@ -491,7 +491,8 @@ def main(argv=None) -> int:
         failures.extend(gate_failures)
     if not args.dry_run:
         log_path.parent.mkdir(parents=True, exist_ok=True)
-        log_path.write_text(json.dumps(log, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        log_path.write_text(json.dumps(log, ensure_ascii=False, indent=2) + "\n", encoding="utf-8",
+                            newline="\n")
     print(json.dumps({"fetched": len(entries), "failed": len(failures), "log": str(log_path)},
                      ensure_ascii=False))
     return 0 if not failures else 1
