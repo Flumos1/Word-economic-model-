@@ -61,11 +61,15 @@ FORBIDDEN_KEYS = {"actual_primary", "actual_secondary", "candidate", "comparator
                   "probability", "point", "used_origins", "vintage_dates", "recession",
                   "member_forecasts", "actual_values", "forecast_values"}
 
-# the T1 h=12 window build alone costs ~9 minutes per horizon (docs/102, task-43 time-box)
+# the T1 h=12 window build alone costs ~9-10 minutes per candidate (docs/102, task-43; measured
+# again in task-58: 607 s for the full W1_EXT+W2 build); the 2026-11-18 pass evaluated three of
+# the five candidates, so the cell-level reason names the candidates that were left out.
 NOT_RUN_REASONS = {
-    "T1_H12": ("не оценивался ни в v5, ни в v4: построение окон одного T1-горизонта занимает "
-               "~9 мин на горизонт (docs/102, task-43), time-box не позволил; это пропуск, "
-               "а не «эффекта нет»."),
+    "T1_H12_OTHER": ("в пассе 2026-11-18 (task-58, REAL_TIME, protocol v5) T1 h=12 оценены "
+                     "{evaluated}; этот кандидат в пасс не входил: полная постройка окон W1_EXT+W2 "
+                     "одного T1-горизонта h=12 занимает ~9–10 мин на кандидата (docs/102, "
+                     "task-43; замер task-58 — 607 с), time-box 20–25 мин не позволил; это "
+                     "пропуск, а не «эффекта нет»."),
     "T1_H1_RW_AR": ("ENSEMBLE_RW_AR зарегистрирован только для T1, но в T1 h=1 пасс (docs/87, v2) "
                     "и в v5-референс (docs/107) не включён: пара не оценивалась."),
     "T1_H3_H6": ("на T1 h=3/6 переоценивались только ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL "
@@ -283,13 +287,19 @@ def _report_index() -> dict[tuple[str, int, str], dict]:
         key = (report["target"], int(report["horizon"]), report["candidate"])
         entry = {"path": path, "label": _protocol_label(report),
                  "generated_at": str(report.get("generated_at") or ""),
-                 "v5": _protocol_label(report).startswith("v5")}
+                 "v5": _protocol_label(report).startswith("v5"),
+                 # v5 requires the T1 C4 on W1_EXT; when two v5 reports exist for the same cell
+                 # (an extended-C4 run and a REAL_TIME-only run), the extended one is the
+                 # protocol-conforming source.  The preference is deterministic and does not
+                 # depend on which file happened to be written last.
+                 "extended": bool(report.get("conditional_data_class"))}
         current = index.get(key)
         if current is None:
             index[key] = entry
             continue
-        # v5 always wins; otherwise the newest report wins
-        if (entry["v5"], entry["generated_at"]) >= (current["v5"], current["generated_at"]):
+        # v5 always wins; then the extended-C4 v5 report; otherwise the newest report wins
+        if ((entry["v5"], entry["extended"], entry["generated_at"])
+                >= (current["v5"], current["extended"], current["generated_at"])):
             index[key] = entry
     return index
 
@@ -316,9 +326,11 @@ def row_from_report(path: Path, *, spf_fallback: bool = False, reduced: bool = F
     }
 
 
-def _not_run_reason(target: str, horizon: int, candidate: str) -> str:
+def _not_run_reason(target: str, horizon: int, candidate: str,
+                    siblings: tuple[str, ...] = ()) -> str:
     if target == "T1_CPI_YOY" and horizon == 12:
-        return NOT_RUN_REASONS["T1_H12"]
+        evaluated = ", ".join(f"`{name}`" for name in siblings) or "ни один кандидат"
+        return NOT_RUN_REASONS["T1_H12_OTHER"].format(evaluated=evaluated)
     if target == "T1_CPI_YOY" and candidate == "ENSEMBLE_RW_AR":
         return NOT_RUN_REASONS["T1_H1_RW_AR"]
     if target == "T1_CPI_YOY":
@@ -343,7 +355,8 @@ def _gap_sources(target: str) -> list[dict]:
     return [{"file": _rel(path), "sha256": sha(path)} for path in paths if path.exists()]
 
 
-def _not_run_row(target: str, horizon: int, candidate: str, protocol: str) -> dict:
+def _not_run_row(target: str, horizon: int, candidate: str, protocol: str,
+                 siblings: tuple[str, ...] = ()) -> dict:
     return {
         "target": target,
         "horizon": horizon,
@@ -354,7 +367,7 @@ def _not_run_row(target: str, horizon: int, candidate: str, protocol: str) -> di
         "criteria": {name: "not_run" for name in CRITERIA},
         "metrics": {},
         "overall_status": "NOT_RUN",
-        "reason": _not_run_reason(target, horizon, candidate),
+        "reason": _not_run_reason(target, horizon, candidate, siblings),
         "sources": _gap_sources(target),
     }
 
@@ -371,7 +384,10 @@ def build() -> dict:
                     continue
                 entry = index.get((target, horizon, candidate["candidate"]))
                 if entry is None:
-                    rows.append(_not_run_row(target, horizon, candidate["candidate"], "v4.0.0"))
+                    siblings = tuple(sorted({cand for (tgt, hor, cand) in index
+                                             if tgt == target and hor == horizon}))
+                    rows.append(_not_run_row(target, horizon, candidate["candidate"], "v4.0.0",
+                                             siblings))
                     continue
                 spf_fallback = (target == "T2_GDP_GROWTH" and horizon in (1, 2, 4)
                                 and candidate["candidate"] == "ENSEMBLE_T2_SPF")
@@ -422,8 +438,12 @@ def build() -> dict:
         },
         "rows": rows,
         "v5_reruns_not_performed": [
-            {"scope": "T1_CPI_YOY h=12, все кандидаты", "status": "NOT_RUN",
-             "reason": NOT_RUN_REASONS["T1_H12"]},
+            {"scope": "T1_CPI_YOY h=12, ENSEMBLE_BAYES и ENSEMBLE_RW_AR", "status": "NOT_RUN",
+             "reason": "пасс 2026-11-18 (task-58) оценил на T1 h=12 три кандидата "
+                       "(ENSEMBLE_INVERSE_MSE, ENSEMBLE_EQUAL, ENSEMBLE_ADAPTIVE); полная "
+                       "постройка окон W1_EXT+W2 одного кандидата стоит ~9–10 мин (607 с "
+                       "замерено), time-box 20–25 мин не позволил взять остальных — пропуск, "
+                       "а не «эффекта нет»."},
             {"scope": "T2_GDP_GROWTH h=1/2/4, ENSEMBLE_T2_SPF", "status": "NOT_RUN",
              "reason": NOT_RUN_REASONS["T2_H1_H4_SPF"]},
             {"scope": "T3_RECESSION h=3/6/12, v5-перепрогон", "status": "NOT_RUN",

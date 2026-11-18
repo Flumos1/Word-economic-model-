@@ -175,7 +175,13 @@ class HorizonMatrixV5Test(unittest.TestCase):
                 self.assertEqual(row["protocol"], "v4.0.0", row)
                 continue
             self.assertIn(row["protocol"], {"v5.0.1", "v4.0.0"}, row)
-            expected = "REAL_TIME_RECONSTRUCTED" if row["protocol"] == "v5.0.1" else "REAL_TIME"
+            if row["protocol"] == "v4.0.0":
+                self.assertEqual(row["data_class"], "REAL_TIME", row)
+                continue
+            # v5 rows: the report-level class must agree with the C4 window actually used
+            extended = ((row["metrics"].get("C4") or {}).get("extended") or {}).get("W1") or {}
+            expected = ("REAL_TIME_RECONSTRUCTED"
+                        if extended.get("source") == "extended_window" else "REAL_TIME")
             self.assertEqual(row["data_class"], expected, row)
 
     # ------------------------------------------------------------------ targeted facts
@@ -206,13 +212,36 @@ class HorizonMatrixV5Test(unittest.TestCase):
             self.assertIn("SPF", row["reason"])
             self.assertIn("h=1/2/4", row["reason"])
 
-    def test_t1_h12_is_declared_not_run(self) -> None:
+    def test_t1_h12_evaluated_for_three_candidates(self) -> None:
         rows = [row for row in self.rows if row["target"] == "T1_CPI_YOY" and row["horizon"] == 12]
         self.assertEqual(len(rows), 5, rows)
-        for row in rows:
-            self.assertEqual(row["overall_status"], "NOT_RUN", row)
-            self.assertIn("9 мин", row["reason"])
-        self.assertIn("h=12", (DOC.read_text(encoding="utf-8") if DOC.exists() else ""))
+        evaluated = {row["candidate"]: row for row in rows if row["overall_status"] != "NOT_RUN"}
+        self.assertEqual(set(evaluated), {"ENSEMBLE_ADAPTIVE", "ENSEMBLE_EQUAL",
+                                          "ENSEMBLE_INVERSE_MSE"}, sorted(evaluated))
+        for candidate, row in evaluated.items():
+            self.assertEqual(row["protocol"], "v5.0.1", (candidate, row["protocol"]))
+            self.assertEqual(row["data_class"], "REAL_TIME_RECONSTRUCTED", (candidate, row))
+            self.assertEqual(row["overall_status"], "CANDIDATE", (candidate, row))
+            # C4 for T1 v5 is evaluated on the extended reconstructed window
+            self.assertEqual(row["metrics"]["C4"]["extended"]["W1"]["source"],
+                             "extended_window", candidate)
+            self.assertGreaterEqual(row["origins"]["W1_EXT"], 190, candidate)
+            self.assertGreater(row["origins"]["W1"], 0, candidate)
+            self.assertGreaterEqual(row["origins"]["W1_EXT"] - row["origins"]["W1"], 50, candidate)
+            self.assertEqual(sorted(row["metrics"]["C1"]["windows"]), ["W1", "W2"], candidate)
+            for window, losses in row["metrics"]["C1"]["windows"].items():
+                for loss, entry in losses.items():
+                    self.assertIsNotNone(entry["threshold"], (candidate, window, loss))
+        # the pass is explicitly partial: BAYES and RW_AR stay NOT_RUN with a dated reason
+        not_run = [row for row in rows if row["overall_status"] == "NOT_RUN"]
+        self.assertEqual({row["candidate"] for row in not_run},
+                         {"ENSEMBLE_BAYES", "ENSEMBLE_RW_AR"})
+        for row in not_run:
+            self.assertIn("task-58", row["reason"])
+            self.assertIn("time-box", row["reason"])
+            self.assertIn("ENSEMBLE_INVERSE_MSE", row["reason"])
+        doc = DOC.read_text(encoding="utf-8") if DOC.exists() else ""
+        self.assertIn("T1 h=12: результаты", doc)
 
     def test_t3_statuses_come_from_v4_and_v5_rerun_is_not_run(self) -> None:
         rows = [row for row in self.rows if row["target"] == "T3_RECESSION"]
@@ -238,6 +267,8 @@ class HorizonMatrixV5Test(unittest.TestCase):
         self.assertRegex(text, r"h\s*=\s*12")
         self.assertIn("56", text)
         self.assertIn(str(self.matrix["coverage"]["not_run"]), text)
+        self.assertIn(str(self.matrix["coverage"]["evaluated"]), text)
+        self.assertIn("T1 h=12: результаты", text)
 
 
 if __name__ == "__main__":

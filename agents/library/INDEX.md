@@ -1,6 +1,6 @@
 # Библиотека памяти AMFE
 
-Обновлено: 2026-11-18T09:56:53Z · записей: 42
+Обновлено: 2026-11-18T10:22:16Z · записей: 43
 
 ## По ролям
 
@@ -10,7 +10,7 @@
 - `evaluation-harness` — 6 записей (`agents/memory/evaluation-harness.jsonl`)
 - `lead` — 7 записей (`agents/memory/lead.jsonl`)
 - `licence-auditor` — 3 записей (`agents/memory/licence-auditor.jsonl`)
-- `multiplicity-rw` — 4 записей (`agents/memory/multiplicity-rw.jsonl`)
+- `multiplicity-rw` — 5 записей (`agents/memory/multiplicity-rw.jsonl`)
 - `protocol-reviewer` — 5 записей (`agents/memory/protocol-reviewer.jsonl`)
 - `r2-completion` — 5 записей (`agents/memory/r2-completion.jsonl`)
 
@@ -36,7 +36,7 @@
 - `docs/97_Лицензии_ряды_и_terms.md` ← mem-licence-auditor-0002
 - `protocols/evaluation_protocol_v5.json` ← mem-evaluation-harness-0001
 - `protocols/external_forecast_scorecard.json` ← mem-r2-completion-0004
-- `protocols/horizon_matrix_v5.json` ← mem-multiplicity-rw-0004
+- `protocols/horizon_matrix_v5.json` ← mem-multiplicity-rw-0004, mem-multiplicity-rw-0005
 - `protocols/licence_register.json` ← mem-licence-auditor-0001
 - `protocols/pit_prereg_evaluation_report.json` ← mem-evaluation-harness-0002
 - `tests/test_forecast_world_bridge.py` ← mem-accounting-core-0004

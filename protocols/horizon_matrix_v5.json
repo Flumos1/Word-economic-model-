@@ -1,7 +1,7 @@
 {
  "schema_version": "1.0.0",
  "matrix_id": "AMFE-HORIZON-MATRIX-V5",
- "generated_at": "2026-11-18T09:53:07Z",
+ "generated_at": "2026-11-18T10:19:27Z",
  "protocol": {
   "id": "AMFE-EVAL",
   "version": "5.0.1",
@@ -1335,26 +1335,146 @@
    "target": "T1_CPI_YOY",
    "horizon": 12,
    "candidate": "ENSEMBLE_ADAPTIVE",
-   "protocol": "v4.0.0",
-   "data_class": null,
-   "origins": {},
-   "criteria": {
-    "C1": "not_run",
-    "C2": "not_run",
-    "C4": "not_run",
-    "C5": "not_run"
+   "protocol": "v5.0.1",
+   "data_class": "REAL_TIME_RECONSTRUCTED",
+   "origins": {
+    "W1_EXT": 193,
+    "W1": 110,
+    "W2": 145
    },
-   "metrics": {},
-   "overall_status": "NOT_RUN",
-   "reason": "не оценивался ни в v5, ни в v4: построение окон одного T1-горизонта занимает ~9 мин на горизонт (docs/102, task-43), time-box не позволил; это пропуск, а не «эффекта нет».",
+   "criteria": {
+    "C1": "fail",
+    "C2": "fail",
+    "C4": "pass",
+    "C5": "pass"
+   },
+   "metrics": {
+    "stage": "CANDIDATE",
+    "data_class_note": "admission allowed: data class REAL_TIME_RECONSTRUCTED is in ['REAL_TIME', 'REAL_TIME_TAPE', 'REAL_TIME_RECONSTRUCTED']",
+    "C1": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "relative_loss": 0.9691286096509681,
+        "threshold": 0.9564,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 0.9860331831777349,
+        "threshold": 0.9514,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "relative_loss": 0.9610276019367778,
+        "threshold": 0.9505,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 0.9650916438764937,
+        "threshold": 0.9452,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C2": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "adjusted_p_min": 0.0251
+      },
+      "W2": {
+       "adjusted_p_min": 0.0194
+      }
+     }
+    },
+    "C4": {
+     "applies": true,
+     "pass": true,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "status": "PASS",
+        "relative_loss_recession": 0.9533426730526224,
+        "recession_origins": 16,
+        "min_recession_origins": 12,
+        "pass": true
+       },
+       "CRPS": {
+        "status": "PASS",
+        "relative_loss_recession": 0.9227598710488734,
+        "recession_origins": 16,
+        "min_recession_origins": 12,
+        "pass": true
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "status": "PASS",
+        "relative_loss_recession": 0.9184792520303275,
+        "recession_origins": 18,
+        "min_recession_origins": 12,
+        "pass": true
+       },
+       "CRPS": {
+        "status": "PASS",
+        "relative_loss_recession": 0.9492015154034171,
+        "recession_origins": 18,
+        "min_recession_origins": 12,
+        "pass": true
+       }
+      }
+     },
+     "extended": {
+      "W1": {
+       "source": "extended_window",
+       "data_class": "REAL_TIME_RECONSTRUCTED",
+       "n_origins": 193
+      },
+      "W2": {
+       "source": "standard_window"
+      }
+     }
+    },
+    "C5": {
+     "pass": true,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "p_value": 0.9759619904564734,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.7061348049938734,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "p_value": 0.9741347966818095,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.9858599912074393,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C6": {
+     "status": "NO_RESOLVED_FORECASTS",
+     "pass": false
+    }
+   },
+   "overall_status": "CANDIDATE",
+   "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 fail (W1/RMSE 0.9691, W1/CRPS 0.9860, W2/RMSE 0.9610, W2/CRPS 0.9651); C2 fail (RW adj p W1 0.0251, W2 0.0194); C4 pass (W1 PASS, W2 PASS); C5 pass",
    "sources": [
     {
-     "file": "protocols/candidates_2026-11-11.json",
-     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
-    },
-    {
-     "file": "protocols/ensemble_horizons_report.json",
-     "sha256": "bfec199bbba59b8aa1b449355cdc1efc08bafc89db6659c66523bc3bfe493ed1"
+     "file": "protocols/horizon_v5/T1_h12_ENSEMBLE_ADAPTIVE_w1ext.json",
+     "sha256": "457b1a9bc630aad506c6e009a6bd19b3eb90bf773b73dc9e285f1f3b2a929850"
     }
    ]
   },
@@ -1373,7 +1493,7 @@
    },
    "metrics": {},
    "overall_status": "NOT_RUN",
-   "reason": "не оценивался ни в v5, ни в v4: построение окон одного T1-горизонта занимает ~9 мин на горизонт (docs/102, task-43), time-box не позволил; это пропуск, а не «эффекта нет».",
+   "reason": "в пассе 2026-11-18 (task-58, REAL_TIME, protocol v5) T1 h=12 оценены `ENSEMBLE_ADAPTIVE`, `ENSEMBLE_EQUAL`, `ENSEMBLE_INVERSE_MSE`; этот кандидат в пасс не входил: полная постройка окон W1_EXT+W2 одного T1-горизонта h=12 занимает ~9–10 мин на кандидата (docs/102, task-43; замер task-58 — 607 с), time-box 20–25 мин не позволил; это пропуск, а не «эффекта нет».",
    "sources": [
     {
      "file": "protocols/candidates_2026-11-11.json",
@@ -1389,26 +1509,146 @@
    "target": "T1_CPI_YOY",
    "horizon": 12,
    "candidate": "ENSEMBLE_EQUAL",
-   "protocol": "v4.0.0",
-   "data_class": null,
-   "origins": {},
-   "criteria": {
-    "C1": "not_run",
-    "C2": "not_run",
-    "C4": "not_run",
-    "C5": "not_run"
+   "protocol": "v5.0.1",
+   "data_class": "REAL_TIME_RECONSTRUCTED",
+   "origins": {
+    "W1_EXT": 193,
+    "W1": 110,
+    "W2": 145
    },
-   "metrics": {},
-   "overall_status": "NOT_RUN",
-   "reason": "не оценивался ни в v5, ни в v4: построение окон одного T1-горизонта занимает ~9 мин на горизонт (docs/102, task-43), time-box не позволил; это пропуск, а не «эффекта нет».",
+   "criteria": {
+    "C1": "fail",
+    "C2": "fail",
+    "C4": "fail",
+    "C5": "pass"
+   },
+   "metrics": {
+    "stage": "CANDIDATE",
+    "data_class_note": "admission allowed: data class REAL_TIME_RECONSTRUCTED is in ['REAL_TIME', 'REAL_TIME_TAPE', 'REAL_TIME_RECONSTRUCTED']",
+    "C1": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "relative_loss": 1.0000000000000002,
+        "threshold": 0.9564,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 1.0,
+        "threshold": 0.9514,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "relative_loss": 1.0,
+        "threshold": 0.9505,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 1.0,
+        "threshold": 0.9452,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C2": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "adjusted_p_min": 0.1988
+      },
+      "W2": {
+       "adjusted_p_min": 0.0542
+      }
+     }
+    },
+    "C4": {
+     "applies": true,
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "status": "FAIL",
+        "relative_loss_recession": 1.0000000000000002,
+        "recession_origins": 16,
+        "min_recession_origins": 12,
+        "pass": false
+       },
+       "CRPS": {
+        "status": "PASS",
+        "relative_loss_recession": 1.0,
+        "recession_origins": 16,
+        "min_recession_origins": 12,
+        "pass": true
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "status": "PASS",
+        "relative_loss_recession": 1.0,
+        "recession_origins": 18,
+        "min_recession_origins": 12,
+        "pass": true
+       },
+       "CRPS": {
+        "status": "PASS",
+        "relative_loss_recession": 1.0,
+        "recession_origins": 18,
+        "min_recession_origins": 12,
+        "pass": true
+       }
+      }
+     },
+     "extended": {
+      "W1": {
+       "source": "extended_window",
+       "data_class": "REAL_TIME_RECONSTRUCTED",
+       "n_origins": 193
+      },
+      "W2": {
+       "source": "standard_window"
+      }
+     }
+    },
+    "C5": {
+     "pass": true,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "p_value": 0.782520019086155,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.7950346054467458,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "p_value": 0.8050944450886763,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.9105443853982746,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C6": {
+     "status": "NO_RESOLVED_FORECASTS",
+     "pass": false
+    }
+   },
+   "overall_status": "CANDIDATE",
+   "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 fail (W1/RMSE 1.0000, W1/CRPS 1.0000, W2/RMSE 1.0000, W2/CRPS 1.0000); C2 fail (RW adj p W1 0.1988, W2 0.0542); C4 fail (W1 FAIL/PASS, W2 PASS); C5 pass",
    "sources": [
     {
-     "file": "protocols/candidates_2026-11-11.json",
-     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
-    },
-    {
-     "file": "protocols/ensemble_horizons_report.json",
-     "sha256": "bfec199bbba59b8aa1b449355cdc1efc08bafc89db6659c66523bc3bfe493ed1"
+     "file": "protocols/horizon_v5/T1_h12_ENSEMBLE_EQUAL_w1ext.json",
+     "sha256": "007bd5397adc75471cc0dbc6314a4ea28458c8a4004aff41c3fd393643de434e"
     }
    ]
   },
@@ -1416,26 +1656,146 @@
    "target": "T1_CPI_YOY",
    "horizon": 12,
    "candidate": "ENSEMBLE_INVERSE_MSE",
-   "protocol": "v4.0.0",
-   "data_class": null,
-   "origins": {},
-   "criteria": {
-    "C1": "not_run",
-    "C2": "not_run",
-    "C4": "not_run",
-    "C5": "not_run"
+   "protocol": "v5.0.1",
+   "data_class": "REAL_TIME_RECONSTRUCTED",
+   "origins": {
+    "W1_EXT": 193,
+    "W1": 110,
+    "W2": 145
    },
-   "metrics": {},
-   "overall_status": "NOT_RUN",
-   "reason": "не оценивался ни в v5, ни в v4: построение окон одного T1-горизонта занимает ~9 мин на горизонт (docs/102, task-43), time-box не позволил; это пропуск, а не «эффекта нет».",
+   "criteria": {
+    "C1": "fail",
+    "C2": "fail",
+    "C4": "pass",
+    "C5": "pass"
+   },
+   "metrics": {
+    "stage": "CANDIDATE",
+    "data_class_note": "admission allowed: data class REAL_TIME_RECONSTRUCTED is in ['REAL_TIME', 'REAL_TIME_TAPE', 'REAL_TIME_RECONSTRUCTED']",
+    "C1": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "relative_loss": 0.9464104355545392,
+        "threshold": 0.9564,
+        "pass": true
+       },
+       "CRPS": {
+        "relative_loss": 0.9636264468382326,
+        "threshold": 0.9514,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "relative_loss": 0.9555549256796303,
+        "threshold": 0.9505,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 0.9551575257002751,
+        "threshold": 0.9452,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C2": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "adjusted_p_min": 0.155
+      },
+      "W2": {
+       "adjusted_p_min": 0.0223
+      }
+     }
+    },
+    "C4": {
+     "applies": true,
+     "pass": true,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "status": "PASS",
+        "relative_loss_recession": 0.8805265980508572,
+        "recession_origins": 16,
+        "min_recession_origins": 12,
+        "pass": true
+       },
+       "CRPS": {
+        "status": "PASS",
+        "relative_loss_recession": 0.898003516461732,
+        "recession_origins": 16,
+        "min_recession_origins": 12,
+        "pass": true
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "status": "PASS",
+        "relative_loss_recession": 0.9249745823904453,
+        "recession_origins": 18,
+        "min_recession_origins": 12,
+        "pass": true
+       },
+       "CRPS": {
+        "status": "PASS",
+        "relative_loss_recession": 0.9536014246529615,
+        "recession_origins": 18,
+        "min_recession_origins": 12,
+        "pass": true
+       }
+      }
+     },
+     "extended": {
+      "W1": {
+       "source": "extended_window",
+       "data_class": "REAL_TIME_RECONSTRUCTED",
+       "n_origins": 193
+      },
+      "W2": {
+       "source": "standard_window"
+      }
+     }
+    },
+    "C5": {
+     "pass": true,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "p_value": 0.8391181209607538,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.7262200467111812,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "p_value": 0.9743653384812694,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.9768459558620954,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C6": {
+     "status": "NO_RESOLVED_FORECASTS",
+     "pass": false
+    }
+   },
+   "overall_status": "CANDIDATE",
+   "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 fail (W1/RMSE 0.9464, W1/CRPS 0.9636, W2/RMSE 0.9556, W2/CRPS 0.9552); C2 fail (RW adj p W1 0.1550, W2 0.0223); C4 pass (W1 PASS, W2 PASS); C5 pass",
    "sources": [
     {
-     "file": "protocols/candidates_2026-11-11.json",
-     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
-    },
-    {
-     "file": "protocols/ensemble_horizons_report.json",
-     "sha256": "bfec199bbba59b8aa1b449355cdc1efc08bafc89db6659c66523bc3bfe493ed1"
+     "file": "protocols/horizon_v5/T1_h12_ENSEMBLE_INVERSE_MSE_w1ext.json",
+     "sha256": "61ce3d4698dd09b8eae4e819c65bcaa1d7c5310913c019b5fc19a76a51907761"
     }
    ]
   },
@@ -1454,7 +1814,7 @@
    },
    "metrics": {},
    "overall_status": "NOT_RUN",
-   "reason": "не оценивался ни в v5, ни в v4: построение окон одного T1-горизонта занимает ~9 мин на горизонт (docs/102, task-43), time-box не позволил; это пропуск, а не «эффекта нет».",
+   "reason": "в пассе 2026-11-18 (task-58, REAL_TIME, protocol v5) T1 h=12 оценены `ENSEMBLE_ADAPTIVE`, `ENSEMBLE_EQUAL`, `ENSEMBLE_INVERSE_MSE`; этот кандидат в пасс не входил: полная постройка окон W1_EXT+W2 одного T1-горизонта h=12 занимает ~9–10 мин на кандидата (docs/102, task-43; замер task-58 — 607 с), time-box 20–25 мин не позволил; это пропуск, а не «эффекта нет».",
    "sources": [
     {
      "file": "protocols/candidates_2026-11-11.json",
@@ -2018,7 +2378,7 @@
    "target": "T2_GDP_GROWTH",
    "horizon": 0,
    "candidate": "ENSEMBLE_T2_NOT_SPF",
-   "protocol": "v4.0.0",
+   "protocol": "v5.0.1",
    "data_class": "REAL_TIME",
    "origins": {
     "W1": 121,
@@ -2032,7 +2392,7 @@
    },
    "metrics": {
     "stage": "CANDIDATE",
-    "data_class_note": "admission allowed: REAL_TIME data",
+    "data_class_note": "admission allowed: data class REAL_TIME is in ['REAL_TIME', 'REAL_TIME_TAPE', 'REAL_TIME_RECONSTRUCTED']",
     "C1": {
      "pass": false,
      "windows": {
@@ -2110,7 +2470,14 @@
        }
       }
      },
-     "extended": null
+     "extended": {
+      "W1": {
+       "source": "standard_window"
+      },
+      "W2": {
+       "source": "standard_window"
+      }
+     }
     },
     "C5": {
      "pass": true,
@@ -2146,8 +2513,8 @@
    "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 fail (W1/RMSE 1.0000, W1/CRPS 1.0000, W2/RMSE 1.0000, W2/CRPS 1.0000); C2 fail (RW adj p W1 0.0128, W2 0.3191); C4 fail (W1 INCONCLUSIVE, W2 PASS); C5 pass",
    "sources": [
     {
-     "file": "protocols/ensemble_eval_ENSEMBLE_T2_NOT_SPF_T2_h0_v2.json",
-     "sha256": "dd0a460d288d56cebb735332a82aa417ba45da8df865fe69f3188c0d387a92ab"
+     "file": "protocols/horizon_v5/T2_h0_ENSEMBLE_T2_NOT_SPF.json",
+     "sha256": "9a380af31386d13d365cfa5f66952885213269c1836c58f165ffb337ab515f02"
     }
    ]
   },
@@ -2155,7 +2522,7 @@
    "target": "T2_GDP_GROWTH",
    "horizon": 0,
    "candidate": "ENSEMBLE_T2_SPF",
-   "protocol": "v4.0.0",
+   "protocol": "v5.0.1",
    "data_class": "REAL_TIME",
    "origins": {
     "W1": 121,
@@ -2169,7 +2536,7 @@
    },
    "metrics": {
     "stage": "CANDIDATE",
-    "data_class_note": "admission allowed: REAL_TIME data",
+    "data_class_note": "admission allowed: data class REAL_TIME is in ['REAL_TIME', 'REAL_TIME_TAPE', 'REAL_TIME_RECONSTRUCTED']",
     "C1": {
      "pass": false,
      "windows": {
@@ -2247,7 +2614,14 @@
        }
       }
      },
-     "extended": null
+     "extended": {
+      "W1": {
+       "source": "standard_window"
+      },
+      "W2": {
+       "source": "standard_window"
+      }
+     }
     },
     "C5": {
      "pass": true,
@@ -2283,8 +2657,8 @@
    "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 fail (W1/RMSE 0.9854, W1/CRPS 0.9843, W2/RMSE 0.9617, W2/CRPS 0.9596); C2 pass (RW adj p W1 0.0031, W2 0.0098); C4 fail (W1 INCONCLUSIVE, W2 PASS); C5 pass",
    "sources": [
     {
-     "file": "protocols/ensemble_eval_ENSEMBLE_T2_SPF_T2_h0_v2.json",
-     "sha256": "5e014d0c9073df577db662d4355632c8bcfb7c768c7a1118b8456628406db223"
+     "file": "protocols/horizon_v5/T2_h0_ENSEMBLE_T2_SPF.json",
+     "sha256": "fbacecb989931c5d8bd5cfa5d9cf65a06904ce7e12638a40e660cf4c94f34b8d"
     }
    ]
   },
@@ -4223,9 +4597,9 @@
  ],
  "v5_reruns_not_performed": [
   {
-   "scope": "T1_CPI_YOY h=12, все кандидаты",
+   "scope": "T1_CPI_YOY h=12, ENSEMBLE_BAYES и ENSEMBLE_RW_AR",
    "status": "NOT_RUN",
-   "reason": "не оценивался ни в v5, ни в v4: построение окон одного T1-горизонта занимает ~9 мин на горизонт (docs/102, task-43), time-box не позволил; это пропуск, а не «эффекта нет»."
+   "reason": "пасс 2026-11-18 (task-58) оценил на T1 h=12 три кандидата (ENSEMBLE_INVERSE_MSE, ENSEMBLE_EQUAL, ENSEMBLE_ADAPTIVE); полная постройка окон W1_EXT+W2 одного кандидата стоит ~9–10 мин (607 с замерено), time-box 20–25 мин не позволил взять остальных — пропуск, а не «эффекта нет»."
   },
   {
    "scope": "T2_GDP_GROWTH h=1/2/4, ENSEMBLE_T2_SPF",
@@ -4240,13 +4614,13 @@
  ],
  "coverage": {
   "rows": 56,
-  "evaluated": 26,
-  "not_run": 30,
+  "evaluated": 29,
+  "not_run": 27,
   "status_counts": {
-   "CANDIDATE": 26,
+   "CANDIDATE": 29,
    "FAIL": 0,
    "INCONCLUSIVE": 0,
-   "NOT_RUN": 30
+   "NOT_RUN": 27
   },
   "cells": {
    "T1_CPI_YOY": {
@@ -4350,7 +4724,11 @@
      "ENSEMBLE_ADAPTIVE",
      "ENSEMBLE_EQUAL"
     ],
-    "12": []
+    "12": [
+     "ENSEMBLE_ADAPTIVE",
+     "ENSEMBLE_EQUAL",
+     "ENSEMBLE_INVERSE_MSE"
+    ]
    },
    "T2_GDP_GROWTH": {
     "0": [
