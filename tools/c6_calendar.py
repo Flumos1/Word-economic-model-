@@ -1095,7 +1095,8 @@ def build_process_report(*, journal: Path = DEFAULT_JOURNAL, audit: Path = DEFAU
     if max_streak >= 2:
         warn("MISSED_WEEK_ALERT", "ALERT",
              f"{max_streak} завершённых недель подряд без строки кандидата "
-             f"({', '.join(missed[:6])}): процесс пропускает релизные недели")
+             f"({', '.join(missed[:6])}): проверить календарь BLS/BEA; если недели были "
+             "релизными — это пропуск процесса")
     elif max_streak == 1:
         warn("MISSED_WEEK", "WARN",
              f"в завершённой неделе {missed[0]} нет строки кандидата; если неделя была релизной — "
@@ -1149,6 +1150,8 @@ def build_process_report(*, journal: Path = DEFAULT_JOURNAL, audit: Path = DEFAU
                "pending_unresolved": len(pending_rows),
                "future_fact_blocked": len(future_rows),
                "status": status, "status_line": status_line,
+               "status_12_4": {"forecasts": f"{n_resolved}/{MIN_FORECASTS}",
+                               "periods": f"{distinct}/{MIN_DISTINCT_PERIODS}"},
                "counts_and_periods_met": counts_met,
                "basis": "registered_rows",
                "loss_coverage_checked": False,

@@ -74,6 +74,27 @@ jobs:
           restore data-refresh.yml amfe-data
           restore r2-metadata.yml r2-metadata
           ls data/raw | head -20
+      - name: Restore the C6 audit log from the last successful run
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -u
+          run_id="$(gh run list --workflow=forward-registry.yml --branch=main --status=success \
+                     --limit=1 --json databaseId --jq '.[0].databaseId // empty' || true)"
+          if [ -z "$run_id" ]; then
+            echo "no previous successful forward-registry run: the audit log starts now"
+            exit 0
+          fi
+          if gh run download "$run_id" --name "amfe-forward-registry-$run_id" --dir tmp-c6-audit; then
+            if [ -f tmp-c6-audit/build/c6/c6_audit.jsonl ]; then
+              mkdir -p build/c6
+              cp tmp-c6-audit/build/c6/c6_audit.jsonl build/c6/c6_audit.jsonl
+              echo "restored the C6 audit log from run $run_id"
+            fi
+          else
+            echo "no C6 audit artifact in run $run_id (first weekly run?)"
+          fi
       - name: Register the weekly row and control group (manual dispatch only)
         if: github.event_name == 'workflow_dispatch' && inputs.register
         env:

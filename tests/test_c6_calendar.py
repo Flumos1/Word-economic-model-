@@ -302,6 +302,7 @@ class ReportProcess(unittest.TestCase):
             self.assertTrue(c6["counts_and_periods_met"])
             self.assertEqual(c6["status"], "COUNTS_MET")
             self.assertEqual(c6["status_line"], "12/12 прогнозов, 4/4 периодов")
+            self.assertEqual(c6["status_12_4"], {"forecasts": "12/12", "periods": "4/4"})
             self.assertEqual(c6["gate"], "COUNTS_MET_LOSS_PENDING")
             self.assertFalse(c6["loss_coverage_checked"])
             self.assertTrue(document["control_group"]["complete"])
