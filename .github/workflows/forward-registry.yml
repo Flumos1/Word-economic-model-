@@ -1,8 +1,13 @@
-name: Forward registry (monthly forecast journal)
+name: Forward registry (monthly journal + weekly C6 process)
 
 # Protocol v4 -> forward_registry: the journal is filled monthly, after the last data release of
-# the month, before the actual value of the target period is published.  This workflow runs on the
-# 15th (after the CPI release, which the BLS publishes around the 10th-15th) and on demand.
+# the month, before the actual value of the target period is published.  The monthly run is on the
+# 15th (after the CPI release, which the BLS publishes around the 10th-15th).
+#
+# A second, weekly schedule (Friday 15:00 UTC) runs the operational C6 process of docs/139:
+# it resolves the rows whose first publication is known, appends the WEEK_CHECK audit event and
+# writes the 12/4 report.  Weekly registration is NOT automatic: the release week is a human
+# decision, so it is exposed as workflow_dispatch with register=true and vintage_week=YYYY-Www.
 #
 # It restores the private data artifacts (data/raw is git-ignored), builds the rows of the origin
 # with tools/forward_forecast.py, validates and resolves the journal and uploads the result as an
@@ -12,12 +17,22 @@ name: Forward registry (monthly forecast journal)
 on:
   schedule:
     - cron: '0 14 15 * *'   # 15th of each month, 14:00 UTC (after the CPI release)
+    - cron: '0 15 * * 5'    # weekly C6 process check: Friday, 15:00 UTC (after the release)
   workflow_dispatch:
     inputs:
       origin:
         description: 'Origin month YYYY-MM (default: the current month)'
         required: false
         type: string
+      vintage_week:
+        description: 'ISO week YYYY-Www of the weekly row (required when register=true)'
+        required: false
+        type: string
+      register:
+        description: 'Register the weekly row and its control group (manual dispatch only)'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -59,8 +74,27 @@ jobs:
           restore data-refresh.yml amfe-data
           restore r2-metadata.yml r2-metadata
           ls data/raw | head -20
+      - name: Register the weekly row and control group (manual dispatch only)
+        if: github.event_name == 'workflow_dispatch' && inputs.register
+        env:
+          INPUT_ORIGIN: ${{ inputs.origin }}
+          INPUT_WEEK: ${{ inputs.vintage_week }}
+        run: |
+          set -eu
+          if [ -z "${INPUT_WEEK}" ]; then
+            echo "vintage_week is required when register=true" >&2
+            exit 1
+          fi
+          origin="${INPUT_ORIGIN:-$(date -u +%Y-%m)}"
+          mkdir -p build/c6
+          python tools/forward_forecast.py --origin "$origin" \
+            --candidates ENSEMBLE_REGIME_V4 --targets T1_CPI_YOY:1 --mode latest \
+            --vintage-week "$INPUT_WEEK" --dry-run --out build/forward_week.json
+          python tools/c6_calendar.py --register --records build/forward_week.json \
+            --date "$(date -u +%F)" --audit build/c6/c6_audit.jsonl --report-out build/c6
       - name: Build the rows of the origin
         id: build
+        if: github.event.schedule == '0 14 15 * *' || (github.event_name == 'workflow_dispatch' && !inputs.register)
         env:
           INPUT_ORIGIN: ${{ inputs.origin }}
         run: |
@@ -82,6 +116,15 @@ jobs:
           python tools/registry_resolve.py --status > build/c6_status.json || true
           python tools/registry_resolve.py --resolve > build/c6_resolve.json || true
           cat build/c6_status.json
+      - name: C6 weekly process check (resolution, audit, 12/4 report)
+        if: always()
+        run: |
+          set -u
+          mkdir -p build/c6
+          python tools/c6_calendar.py --weekly --date "$(date -u +%F)" \
+            --audit build/c6/c6_audit.jsonl --report-out build/c6 \
+            || echo "C6 weekly check reported an error (see build/c6/c6_report.json)"
+          if [ -f build/c6/c6_report.md ]; then cat build/c6/c6_report.md; fi
       - name: Summary on the run page
         if: always()
         run: |
@@ -110,6 +153,13 @@ jobs:
               payload = json.loads(records.read_text(encoding="utf-8"))
               lines.append(f"- rows generated: {len(payload.get('records') or [])} "
                            f"(origin {payload.get('origin')}, pre_origin={payload.get('pre_origin')})")
+          weekly = build / "c6_report.json"
+          if weekly.exists():
+              payload = json.loads(weekly.read_text(encoding="utf-8"))
+              c6 = payload.get("c6") or {}
+              lines.append(f"- C6 weekly: {c6.get('status_line')} "
+                           f"(status {c6.get('status')}); "
+                           f"alerts={[a.get('code') for a in payload.get('alerts') or []]}")
           print("\n".join(lines))
           PY
       - name: Upload the journal, the generated rows and the C6 reports
@@ -120,8 +170,12 @@ jobs:
           path: |
             registry/forecasts.jsonl
             build/forward_records.json
+            build/forward_week.json
             build/registry_validate.json
             build/c6_status.json
             build/c6_resolve.json
+            build/c6/c6_audit.jsonl
+            build/c6/c6_report.json
+            build/c6/c6_report.md
           retention-days: 90
           if-no-files-found: warn

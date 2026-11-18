@@ -64,6 +64,412 @@ def warning_codes(document: dict) -> dict:
     return {item["code"]: item["severity"] for item in document["warnings"]}
 
 
+# ------------------------------------------------------------------ operational process fixtures
+QUANTILES = [round(1.0 + 0.1 * index, 2) for index in range(1, 20)]
+
+
+def process_row(*, candidate="ENSEMBLE_REGIME_V4", target="T1_CPI_YOY", horizon=1,
+                origin="2026-11", vintage_week="2026-W46",
+                registered_at="2026-11-13T09:00:00Z", control=False, point=2.0) -> dict:
+    row = {
+        "candidate_id": candidate,
+        "code_commit": "a" * 40,
+        "data_vintage_hash": "b" * 64,
+        "target": target,
+        "horizon": int(horizon),
+        "origin": origin,
+        "scoring_rule_commit": "c" * 40,
+        "registered_at": registered_at,
+        "point": float(point),
+        "quantiles_5_to_95_step_5": list(QUANTILES),
+        "vintage_week": vintage_week,
+    }
+    if control:
+        row["control_arm"] = True
+    if target == "T3_RECESSION":
+        row["point"] = None
+        row["event_probability"] = 0.3
+        row.pop("quantiles_5_to_95_step_5")
+    return row
+
+
+def write_journal(path: Path, rows: list[dict]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("".join(cal._canonical(row) + "\n" for row in rows), encoding="utf-8",
+                    newline="\n")
+
+
+def controls_for(origin: str, vintage_week: str, registered_at: str) -> list[dict]:
+    return [process_row(origin=origin, vintage_week=vintage_week, registered_at=registered_at,
+                        candidate=arm, control=True)
+            for arm in ("EQUAL_WEIGHT_POINT", "EQUAL_WEIGHT_DENSITY")]
+
+def facts(mapping: dict):
+    def lookup(target, origin, horizon):
+        entry = mapping.get((target, str(origin), int(horizon)), {})
+        return {"primary": entry.get("primary"),
+                "primary_vintage": entry.get("published"),
+                "available": entry.get("available", True)}
+    return lookup
+
+
+def codes(document: dict) -> set[str]:
+    return {item["code"] for item in document["alerts"]}
+
+
+class RegistrationProcess(unittest.TestCase):
+    def test_weekly_batch_registers_candidate_and_control_group(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            journal = Path(tmp) / "forecasts.jsonl"
+            audit = Path(tmp) / "audit.jsonl"
+            batch = [process_row(vintage_week="2026-W47", registered_at="2026-11-20T09:00:00Z")]
+            batch += controls_for("2026-11", "2026-W47", "2026-11-20T09:00:00Z")
+            result = cal.register_week(batch, journal=journal, audit=audit,
+                                       as_of=date(2026, 11, 20), fact_lookup=facts({}))
+            self.assertEqual(len(result["appended"]), 3)
+            self.assertEqual(len(cal._read_journal(journal)), 3)
+            events = cal.read_audit(audit)
+            self.assertEqual(len(events), 3)
+            self.assertTrue(all(event["event"] == "ROW_REGISTERED" for event in events))
+            self.assertEqual({event["vintage_week"] for event in events}, {"2026-W47"})
+
+    def test_registration_without_control_group_is_refused(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            journal = Path(tmp) / "forecasts.jsonl"
+            with self.assertRaises(cal.C6CalendarError) as caught:
+                cal.register_week([process_row(vintage_week="2026-W47",
+                                               registered_at="2026-11-20T09:00:00Z")],
+                                  journal=journal, audit=Path(tmp) / "audit.jsonl",
+                                  as_of=date(2026, 11, 20), fact_lookup=facts({}))
+            self.assertIn("control group", str(caught.exception))
+            self.assertEqual(cal._read_journal(journal), [])
+
+    def test_candidate_only_batch_uses_controls_already_in_the_journal(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            journal = Path(tmp) / "forecasts.jsonl"
+            write_journal(journal, controls_for("2026-11", "2026-W47", "2026-11-20T09:00:00Z"))
+            result = cal.register_week(
+                [process_row(vintage_week="2026-W47", registered_at="2026-11-20T09:00:00Z")],
+                journal=journal, audit=Path(tmp) / "audit.jsonl",
+                as_of=date(2026, 11, 20), fact_lookup=facts({}))
+            self.assertEqual(len(result["appended"]), 1)
+            self.assertEqual(len(cal._read_journal(journal)), 3)
+
+    def test_registration_refuses_a_published_fact(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            journal = Path(tmp) / "forecasts.jsonl"
+            batch = [process_row(vintage_week="2026-W47", registered_at="2026-11-20T09:00:00Z")]
+            batch += controls_for("2026-11", "2026-W47", "2026-11-20T09:00:00Z")
+            lookup = facts({("T1_CPI_YOY", "2026-11", 1):
+                            {"primary": 3.0, "published": "2026-11-15"}})
+            with self.assertRaises(cal.C6CalendarError) as caught:
+                cal.register_week(batch, journal=journal, audit=Path(tmp) / "audit.jsonl",
+                                  as_of=date(2026, 11, 20), fact_lookup=lookup)
+            self.assertIn("look-ahead", str(caught.exception))
+            self.assertEqual(cal._read_journal(journal), [])
+
+    def test_registration_refuses_past_or_future_week(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            batch = [process_row(vintage_week="2026-W46", registered_at="2026-11-13T09:00:00Z")]
+            batch += controls_for("2026-11", "2026-W46", "2026-11-13T09:00:00Z")
+            with self.assertRaises(cal.C6CalendarError) as caught:
+                cal.register_week(batch, journal=Path(tmp) / "forecasts.jsonl",
+                                  audit=Path(tmp) / "audit.jsonl",
+                                  as_of=date(2026, 11, 20), fact_lookup=facts({}))
+            self.assertIn("backdating", str(caught.exception))
+
+    def test_duplicate_identical_batch_is_idempotent(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            journal = Path(tmp) / "forecasts.jsonl"
+            audit = Path(tmp) / "audit.jsonl"
+            batch = [process_row(vintage_week="2026-W47", registered_at="2026-11-20T09:00:00Z")]
+            batch += controls_for("2026-11", "2026-W47", "2026-11-20T09:00:00Z")
+            first = cal.register_week(batch, journal=journal, audit=audit,
+                                      as_of=date(2026, 11, 20), fact_lookup=facts({}))
+            second = cal.register_week(batch, journal=journal, audit=audit,
+                                       as_of=date(2026, 11, 20), fact_lookup=facts({}))
+            self.assertEqual(len(first["appended"]), 3)
+            self.assertEqual(second["appended"], [])
+            self.assertEqual(len(second["skipped"]), 3)
+            self.assertEqual(len(cal._read_journal(journal)), 3)
+            self.assertEqual(len(cal.read_audit(audit)), 3)
+
+
+class ResolutionProcess(unittest.TestCase):
+    def _journal(self, tmp: Path) -> Path:
+        journal = tmp / "forecasts.jsonl"
+        write_journal(journal, [
+            process_row(origin="2026-09", vintage_week="2026-W37",
+                        registered_at="2026-09-09T09:00:00Z"),
+            process_row(origin="2026-10", vintage_week="2026-W41",
+                        registered_at="2026-10-07T09:00:00Z"),
+        ])
+        return journal
+
+    def test_resolution_only_after_first_publication(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            journal = self._journal(Path(tmp))
+            lookup = facts({
+                ("T1_CPI_YOY", "2026-09", 1): {"primary": 2.5, "published": "2026-10-10"},
+                ("T1_CPI_YOY", "2026-10", 1): {"primary": 2.6, "published": "2026-11-25"},
+            })
+            result = cal.resolve_journal(journal=journal, audit=Path(tmp) / "audit.jsonl",
+                                         as_of=date(2026, 11, 20), fact_lookup=lookup)
+            self.assertEqual(result["resolved"], 1)
+            self.assertEqual(result["future_fact_blocked"], 1)
+            self.assertEqual(result["unresolved"], 0)
+            self.assertEqual(len(result["events"]), 1)
+            self.assertEqual(result["events"][0]["first_publication"], "2026-10-10")
+
+    def test_resolution_audit_is_idempotent(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            journal = self._journal(Path(tmp))
+            audit = Path(tmp) / "audit.jsonl"
+            lookup = facts({
+                ("T1_CPI_YOY", "2026-09", 1): {"primary": 2.5, "published": "2026-10-10"},
+                ("T1_CPI_YOY", "2026-10", 1): {"primary": 2.6, "published": "2026-11-25"},
+            })
+            first = cal.resolve_journal(journal=journal, audit=audit, as_of=date(2026, 11, 20),
+                                        fact_lookup=lookup, persist=True)
+            second = cal.resolve_journal(journal=journal, audit=audit, as_of=date(2026, 11, 20),
+                                         fact_lookup=lookup, persist=True)
+            self.assertEqual(first["written"], 1)
+            self.assertEqual(second["written"], 0)
+            self.assertEqual(len(cal.read_audit(audit)), 1)
+
+    def test_no_raw_values_in_the_audit_or_the_report(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            journal = self._journal(Path(tmp))
+            audit = Path(tmp) / "audit.jsonl"
+            lookup = facts({
+                ("T1_CPI_YOY", "2026-09", 1): {"primary": 9.876543, "published": "2026-10-10"},
+                ("T1_CPI_YOY", "2026-10", 1): {"primary": None, "published": None},
+            })
+            cal.resolve_journal(journal=journal, audit=audit, as_of=date(2026, 11, 20),
+                                fact_lookup=lookup, persist=True)
+            document = cal.build_process_report(journal=journal, audit=audit,
+                                                as_of=date(2026, 11, 20), fact_lookup=lookup)
+            audit_text = audit.read_text(encoding="utf-8")
+            report_text = json.dumps(document, ensure_ascii=False, sort_keys=True)
+            self.assertNotIn("9.876543", audit_text)
+            self.assertNotIn("9.876543", report_text)
+            self.assertFalse(document["raw_values"])
+
+
+class ReportProcess(unittest.TestCase):
+    def _full_sample(self, tmp: Path) -> Path:
+        journal = tmp / "forecasts.jsonl"
+        specs = [
+            ("2026-08", "2026-W32", "2026-08-05"),
+            ("2026-08", "2026-W33", "2026-08-12"),
+            ("2026-08", "2026-W34", "2026-08-19"),
+            ("2026-09", "2026-W37", "2026-09-09"),
+            ("2026-09", "2026-W38", "2026-09-16"),
+            ("2026-09", "2026-W39", "2026-09-23"),
+            ("2026-10", "2026-W41", "2026-10-07"),
+            ("2026-10", "2026-W42", "2026-10-14"),
+            ("2026-10", "2026-W43", "2026-10-21"),
+            ("2026-11", "2026-W45", "2026-11-04"),
+            ("2026-11", "2026-W46", "2026-11-11"),
+            ("2026-11", "2026-W47", "2026-11-18"),
+        ]
+        rows = []
+        for origin, week, registered in specs:
+            rows.append(process_row(origin=origin, vintage_week=week,
+                                    registered_at=f"{registered}T09:00:00Z"))
+            rows += controls_for(origin, week, f"{registered}T09:00:00Z")
+        write_journal(journal, rows)
+        return journal
+
+    def _full_facts(self):
+        return facts({
+            ("T1_CPI_YOY", "2026-08", 1): {"primary": 2.4, "published": "2026-09-10"},
+            ("T1_CPI_YOY", "2026-09", 1): {"primary": 2.5, "published": "2026-10-10"},
+            ("T1_CPI_YOY", "2026-10", 1): {"primary": 2.6, "published": "2026-11-10"},
+            ("T1_CPI_YOY", "2026-11", 1): {"primary": 2.7, "published": "2026-12-10"},
+        })
+
+    def test_twelve_of_twelve_and_four_periods(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            journal = self._full_sample(Path(tmp))
+            document = cal.build_process_report(journal=journal, audit=Path(tmp) / "audit.jsonl",
+                                                as_of=date(2026, 12, 20),
+                                                fact_lookup=self._full_facts())
+            c6 = document["c6"]
+            self.assertEqual(c6["n_resolved"], 12)
+            self.assertEqual(c6["distinct_target_periods"], 4)
+            self.assertEqual(c6["distinct_resolved_periods"], 4)
+            self.assertTrue(c6["counts_and_periods_met"])
+            self.assertEqual(c6["status"], "COUNTS_MET")
+            self.assertEqual(c6["status_line"], "12/12 прогнозов, 4/4 периодов")
+            self.assertEqual(c6["gate"], "COUNTS_MET_LOSS_PENDING")
+            self.assertFalse(c6["loss_coverage_checked"])
+            self.assertTrue(document["control_group"]["complete"])
+
+    def test_control_group_gap_is_reported(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            journal = Path(tmp) / "forecasts.jsonl"
+            write_journal(journal, [
+                process_row(vintage_week="2026-W47", registered_at="2026-11-18T09:00:00Z"),
+                process_row(vintage_week="2026-W47", registered_at="2026-11-18T09:00:00Z",
+                            candidate="EQUAL_WEIGHT_POINT", control=True),
+            ])
+            document = cal.build_process_report(journal=journal,
+                                                audit=Path(tmp) / "audit.jsonl",
+                                                as_of=date(2026, 11, 20), fact_lookup=facts({}))
+            self.assertFalse(document["control_group"]["complete"])
+            self.assertEqual(document["control_group"]["incomplete"][0]["missing_arms"],
+                             ["EQUAL_WEIGHT_DENSITY"])
+            self.assertIn("CONTROL_GROUP_MISSING", codes(document))
+
+    def test_two_consecutive_missed_weeks_raise_an_alert(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            journal = Path(tmp) / "forecasts.jsonl"
+            rows = [process_row(origin="2026-10", vintage_week="2026-W44",
+                                registered_at="2026-10-28T09:00:00Z")]
+            rows += controls_for("2026-10", "2026-W44", "2026-10-28T09:00:00Z")
+            rows.append(process_row(origin="2026-11", vintage_week="2026-W47",
+                                    registered_at="2026-11-18T09:00:00Z"))
+            rows += controls_for("2026-11", "2026-W47", "2026-11-18T09:00:00Z")
+            write_journal(journal, rows)
+            document = cal.build_process_report(journal=journal,
+                                                audit=Path(tmp) / "audit.jsonl",
+                                                as_of=date(2026, 11, 27), fact_lookup=facts({}))
+            self.assertEqual(document["weeks"]["missed"], ["2026-W45", "2026-W46"])
+            self.assertEqual(document["weeks"]["max_consecutive_missed"], 2)
+            self.assertIn("MISSED_WEEK_ALERT", codes(document))
+
+    def test_missing_week_check_is_an_alert(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            journal = Path(tmp) / "forecasts.jsonl"
+            rows = [process_row(origin="2026-11", vintage_week="2026-W45",
+                                registered_at="2026-11-04T09:00:00Z")]
+            rows += controls_for("2026-11", "2026-W45", "2026-11-04T09:00:00Z")
+            rows.append(process_row(origin="2026-11", vintage_week="2026-W47",
+                                    registered_at="2026-11-18T09:00:00Z"))
+            rows += controls_for("2026-11", "2026-W47", "2026-11-18T09:00:00Z")
+            write_journal(journal, rows)
+            audit = Path(tmp) / "audit.jsonl"
+            cal.append_audit_events([
+                {"schema": cal.AUDIT_SCHEMA, "event": "WEEK_CHECK", "at": "2026-11-06",
+                 "week": "2026-W45", "candidate_rows": 1, "control_rows": 2, "registered": True},
+                {"schema": cal.AUDIT_SCHEMA, "event": "WEEK_CHECK", "at": "2026-11-20",
+                 "week": "2026-W47", "candidate_rows": 1, "control_rows": 2, "registered": True},
+            ], audit)
+            document = cal.build_process_report(journal=journal, audit=audit,
+                                                as_of=date(2026, 11, 27), fact_lookup=facts({}))
+            self.assertEqual(document["weeks"]["missed_checks"], ["2026-W46"])
+            self.assertIn("MISSED_CHECK", codes(document))
+
+    def test_unresolved_overdue_is_an_alert(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            journal = Path(tmp) / "forecasts.jsonl"
+            rows = [process_row(origin="2026-01", vintage_week="2026-W05",
+                                registered_at="2026-02-02T09:00:00Z")]
+            rows += controls_for("2026-01", "2026-W05", "2026-02-02T09:00:00Z")
+            write_journal(journal, rows)
+            document = cal.build_process_report(journal=journal,
+                                                audit=Path(tmp) / "audit.jsonl",
+                                                as_of=date(2026, 12, 31), fact_lookup=facts({}))
+            self.assertEqual(document["unresolved"]["pending"], 1)
+            self.assertEqual(len(document["unresolved"]["overdue"]), 1)
+            self.assertIn("UNRESOLVED_OVERDUE", codes(document))
+
+    def test_process_report_is_deterministic(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            journal = self._full_sample(Path(tmp))
+            first = cal.build_process_report(journal=journal, audit=Path(tmp) / "audit.jsonl",
+                                             as_of=date(2026, 12, 20),
+                                             fact_lookup=self._full_facts())
+            second = cal.build_process_report(journal=journal, audit=Path(tmp) / "audit.jsonl",
+                                              as_of=date(2026, 12, 20),
+                                              fact_lookup=self._full_facts())
+            self.assertEqual(json.dumps(first, ensure_ascii=False, sort_keys=True),
+                             json.dumps(second, ensure_ascii=False, sort_keys=True))
+
+
+class ProcessFailClosed(unittest.TestCase):
+    def test_broken_journal_is_refused(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            journal = Path(tmp) / "forecasts.jsonl"
+            journal.write_text("{not json\n", encoding="utf-8")
+            with self.assertRaises(cal.C6CalendarError):
+                cal.build_process_report(journal=journal, audit=Path(tmp) / "audit.jsonl",
+                                         as_of=date(2026, 11, 20), fact_lookup=facts({}))
+
+    def test_broken_audit_is_refused(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            journal = Path(tmp) / "forecasts.jsonl"
+            write_journal(journal, [process_row()])
+            audit = Path(tmp) / "audit.jsonl"
+            audit.write_text("{not json\n", encoding="utf-8")
+            with self.assertRaises(cal.C6CalendarError):
+                cal.build_process_report(journal=journal, audit=audit,
+                                         as_of=date(2026, 11, 20), fact_lookup=facts({}))
+
+    def test_invalid_record_is_refused(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            row = process_row()
+            row["target"] = "NOT_A_TARGET"
+            with self.assertRaises(cal.C6CalendarError):
+                cal.register_week([row], journal=Path(tmp) / "forecasts.jsonl",
+                                  audit=Path(tmp) / "audit.jsonl",
+                                  as_of=date(2026, 11, 20), fact_lookup=facts({}))
+
+    def test_missing_records_file_in_cli_exits_one(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            code = cal.main(["--register", "--records", str(Path(tmp) / "missing.json"),
+                             "--date", "2026-11-20",
+                             "--journal", str(Path(tmp) / "forecasts.jsonl"),
+                             "--audit", str(Path(tmp) / "audit.jsonl")])
+            self.assertEqual(code, 1)
+
+
+class OperationalCli(unittest.TestCase):
+    def _fixture(self, tmp: Path) -> Path:
+        journal = tmp / "forecasts.jsonl"
+        rows = [process_row(origin="2026-11", vintage_week="2026-W46",
+                            registered_at="2026-11-11T09:00:00Z")]
+        rows += controls_for("2026-11", "2026-W46", "2026-11-11T09:00:00Z")
+        write_journal(journal, rows)
+        return journal
+
+    def test_weekly_cli_writes_report_and_audit(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            journal = self._fixture(Path(tmp))
+            audit = Path(tmp) / "audit.jsonl"
+            out = Path(tmp) / "report"
+            buffer = io.StringIO()
+            with contextlib.redirect_stdout(buffer):
+                code = cal.main(["--weekly", "--date", "2026-11-20", "--journal", str(journal),
+                                 "--audit", str(audit), "--report-out", str(out), "--json"])
+            self.assertEqual(code, 0)
+            document = json.loads(buffer.getvalue())
+            self.assertEqual(document["schema"], cal.PROCESS_SCHEMA)
+            self.assertEqual(document["c6"]["n_resolved"], 0)
+            self.assertTrue((out / cal.REPORT_JSON).is_file())
+            self.assertTrue((out / cal.REPORT_MD).is_file())
+            events = cal.read_audit(audit)
+            self.assertEqual(events[-1]["event"], "WEEK_CHECK")
+            self.assertEqual(events[-1]["week"], "2026-W47")
+
+    def test_strict_mode_returns_two_on_alert(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            journal = Path(tmp) / "forecasts.jsonl"
+            rows = [process_row(origin="2026-10", vintage_week="2026-W44",
+                                registered_at="2026-10-28T09:00:00Z")]
+            rows += controls_for("2026-10", "2026-W44", "2026-10-28T09:00:00Z")
+            rows.append(process_row(origin="2026-11", vintage_week="2026-W47",
+                                    registered_at="2026-11-18T09:00:00Z"))
+            rows += controls_for("2026-11", "2026-W47", "2026-11-18T09:00:00Z")
+            write_journal(journal, rows)
+            with contextlib.redirect_stdout(io.StringIO()):
+                code = cal.main(["--weekly", "--strict", "--date", "2026-11-27",
+                                 "--journal", str(journal),
+                                 "--audit", str(Path(tmp) / "audit.jsonl")])
+            self.assertEqual(code, 2)
+
+
 class Progress(unittest.TestCase):
     def test_zero_of_twelve_current_state(self):
         document = cal.build_calendar(status_document())

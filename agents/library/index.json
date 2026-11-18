@@ -1,7 +1,7 @@
 {
  "schema": "amfe.agent_library.v1",
- "updated_at": "2026-11-18T08:56:35Z",
- "entries": 38,
+ "updated_at": "2026-11-18T09:40:26Z",
+ "entries": 39,
  "open_questions": [
   {
    "id": "mem-lead-0003",
@@ -13,7 +13,7 @@
  "by_role": {
   "accounting-core": 5,
   "baseline-models": 3,
-  "dense-vintages": 3,
+  "dense-vintages": 4,
   "evaluation-harness": 4,
   "lead": 7,
   "licence-auditor": 3,
@@ -22,7 +22,7 @@
   "r2-completion": 5
  },
  "by_kind": {
-  "artifact": 2,
+  "artifact": 3,
   "lesson": 12,
   "open_question": 1,
   "role": 9,
@@ -30,7 +30,7 @@
   "task": 8
  },
  "by_tag": {
-  "blocks": 1,
+  "blocks": 2,
   "bridge": 3,
   "c4": 1,
   "c6": 1,
@@ -124,6 +124,9 @@
    "mem-multiplicity-rw-0001",
    "mem-protocol-reviewer-0001",
    "mem-r2-completion-0001"
+  ],
+  "docs/177_17_блоков_зрелость.md": [
+   "mem-dense-vintages-0004"
   ],
   "docs/97_Лицензии_ряды_и_terms.md": [
    "mem-licence-auditor-0002"

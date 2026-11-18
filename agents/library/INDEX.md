@@ -1,12 +1,12 @@
 # Библиотека памяти AMFE
 
-Обновлено: 2026-11-18T08:56:35Z · записей: 38
+Обновлено: 2026-11-18T09:40:26Z · записей: 39
 
 ## По ролям
 
 - `accounting-core` — 5 записей (`agents/memory/accounting-core.jsonl`)
 - `baseline-models` — 3 записей (`agents/memory/baseline-models.jsonl`)
-- `dense-vintages` — 3 записей (`agents/memory/dense-vintages.jsonl`)
+- `dense-vintages` — 4 записей (`agents/memory/dense-vintages.jsonl`)
 - `evaluation-harness` — 4 записей (`agents/memory/evaluation-harness.jsonl`)
 - `lead` — 7 записей (`agents/memory/lead.jsonl`)
 - `licence-auditor` — 3 записей (`agents/memory/licence-auditor.jsonl`)
@@ -32,6 +32,7 @@
 - `docs/173_План_2.1_ревизия_идей_и_практический_маршрут.md` ← mem-dense-vintages-0003
 - `docs/174_50_кейсов_использования.md` ← mem-accounting-core-0003, mem-baseline-models-0003, mem-licence-auditor-0003, mem-r2-completion-0003
 - `docs/175_Агентная_оркестрация_и_обучение.md` ← mem-accounting-core-0001, mem-baseline-models-0001, mem-evaluation-harness-0001, mem-lead-0001, mem-licence-auditor-0001, mem-multiplicity-rw-0001, mem-protocol-reviewer-0001, mem-r2-completion-0001
+- `docs/177_17_блоков_зрелость.md` ← mem-dense-vintages-0004
 - `docs/97_Лицензии_ряды_и_terms.md` ← mem-licence-auditor-0002
 - `protocols/evaluation_protocol_v5.json` ← mem-evaluation-harness-0001
 - `protocols/external_forecast_scorecard.json` ← mem-r2-completion-0004
