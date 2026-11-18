@@ -1,0 +1,370 @@
+{
+ "currency": "EUR",
+ "note": "Демонстрационный набор: поставщики, цены и контракты вымышлены. Реальные данные клиента в репозиторий не попадают.",
+ "period": "2026",
+ "schema": "amfe.flaks.procurement_demo.v1",
+ "source_class": "synthetic_demo",
+ "suppliers": [
+  {
+   "annual_volume": 900000,
+   "audit_score": 0.8,
+   "category": "metal_rolled",
+   "contract": {
+    "cap_pct": 6.0,
+    "cpi_share": 0.4,
+    "floor_zero": true,
+    "fx_share": 0.0,
+    "id": "CT-MET-01",
+    "payment_days": 45,
+    "ppi_share": 0.4,
+    "status": "active"
+   },
+   "country": "PL",
+   "currency": "EUR",
+   "defect_ppm": 320,
+   "freight_per_unit": 0.028,
+   "id": "sup-pl-stal",
+   "lead_time_days": 12,
+   "name": "Stal-Pol (демо)",
+   "otif": 0.965,
+   "risk": {
+    "compliance": 0.15,
+    "financial": 0.18,
+    "supply": 0.22
+   },
+   "unit": "кг",
+   "unit_price": 0.94
+  },
+  {
+   "annual_volume": 750000,
+   "audit_score": 0.9,
+   "category": "metal_rolled",
+   "contract": {
+    "cap_pct": 4.0,
+    "cpi_share": 0.6,
+    "floor_zero": true,
+    "fx_share": 0.0,
+    "id": "CT-MET-02",
+    "payment_days": 30,
+    "ppi_share": 0.2,
+    "status": "active"
+   },
+   "country": "DE",
+   "currency": "EUR",
+   "defect_ppm": 140,
+   "freight_per_unit": 0.019,
+   "id": "sup-de-stahl",
+   "lead_time_days": 8,
+   "name": "Stahlwerk Nord (демо)",
+   "otif": 0.985,
+   "risk": {
+    "compliance": 0.08,
+    "financial": 0.12,
+    "supply": 0.1
+   },
+   "unit": "кг",
+   "unit_price": 1.02
+  },
+  {
+   "annual_volume": 750000,
+   "audit_score": 0.66,
+   "category": "metal_rolled",
+   "contract": {
+    "cap_pct": 10.0,
+    "cpi_share": 0.0,
+    "floor_zero": true,
+    "fx_share": 0.8,
+    "id": "CT-MET-03",
+    "payment_days": 60,
+    "ppi_share": 0.0,
+    "status": "candidate"
+   },
+   "country": "CN",
+   "currency": "USD",
+   "defect_ppm": 780,
+   "freight_per_unit": 0.061,
+   "id": "sup-cn-metal",
+   "lead_time_days": 42,
+   "name": "East Metal (демо)",
+   "otif": 0.915,
+   "risk": {
+    "compliance": 0.25,
+    "financial": 0.3,
+    "supply": 0.35
+   },
+   "unit": "кг",
+   "unit_price": 0.79
+  },
+  {
+   "annual_volume": 220000,
+   "audit_score": 0.82,
+   "category": "polymer_granulate",
+   "contract": {
+    "cap_pct": 8.0,
+    "cpi_share": 0.5,
+    "floor_zero": true,
+    "fx_share": 0.0,
+    "id": "CT-POL-01",
+    "payment_days": 45,
+    "ppi_share": 0.4,
+    "status": "active"
+   },
+   "country": "PL",
+   "currency": "EUR",
+   "defect_ppm": 220,
+   "freight_per_unit": 0.033,
+   "id": "sup-pl-polymer",
+   "lead_time_days": 10,
+   "name": "Polimer-PL (демо)",
+   "otif": 0.975,
+   "risk": {
+    "compliance": 0.18,
+    "financial": 0.2,
+    "supply": 0.25
+   },
+   "unit": "кг",
+   "unit_price": 1.24
+  },
+  {
+   "annual_volume": 130000,
+   "audit_score": 0.92,
+   "category": "polymer_granulate",
+   "contract": {
+    "cap_pct": 3.5,
+    "cpi_share": 0.7,
+    "floor_zero": true,
+    "fx_share": 0.0,
+    "id": "CT-POL-02",
+    "payment_days": 30,
+    "ppi_share": 0.1,
+    "status": "candidate"
+   },
+   "country": "DE",
+   "currency": "EUR",
+   "defect_ppm": 90,
+   "freight_per_unit": 0.021,
+   "id": "sup-de-polymer",
+   "lead_time_days": 7,
+   "name": "Rheinpolymer (демо)",
+   "otif": 0.99,
+   "risk": {
+    "compliance": 0.06,
+    "financial": 0.1,
+    "supply": 0.08
+   },
+   "unit": "кг",
+   "unit_price": 1.38
+  },
+  {
+   "annual_volume": 100000,
+   "audit_score": 0.7,
+   "category": "polymer_granulate",
+   "contract": {
+    "cap_pct": 9.0,
+    "cpi_share": 0.3,
+    "floor_zero": true,
+    "fx_share": 0.4,
+    "id": "CT-POL-03",
+    "payment_days": 60,
+    "ppi_share": 0.3,
+    "status": "active"
+   },
+   "country": "TR",
+   "currency": "USD",
+   "defect_ppm": 480,
+   "freight_per_unit": 0.052,
+   "id": "sup-tr-polymer",
+   "lead_time_days": 21,
+   "name": "Anadolu Kimya (демо)",
+   "otif": 0.94,
+   "risk": {
+    "compliance": 0.28,
+    "financial": 0.38,
+    "supply": 0.3
+   },
+   "unit": "кг",
+   "unit_price": 1.16
+  },
+  {
+   "annual_volume": 55000,
+   "audit_score": 0.78,
+   "category": "packaging_film",
+   "contract": {
+    "cap_pct": 6.0,
+    "cpi_share": 0.5,
+    "floor_zero": true,
+    "fx_share": 0.0,
+    "id": "CT-FLM-01",
+    "payment_days": 45,
+    "ppi_share": 0.3,
+    "status": "active"
+   },
+   "country": "CZ",
+   "currency": "EUR",
+   "defect_ppm": 300,
+   "freight_per_unit": 0.03,
+   "id": "sup-cz-film",
+   "lead_time_days": 9,
+   "name": "Folie Czech (демо)",
+   "otif": 0.97,
+   "risk": {
+    "compliance": 0.14,
+    "financial": 0.22,
+    "supply": 0.18
+   },
+   "unit": "кг",
+   "unit_price": 2.12
+  },
+  {
+   "annual_volume": 40000,
+   "audit_score": 0.88,
+   "category": "packaging_film",
+   "contract": {
+    "cap_pct": 4.0,
+    "cpi_share": 0.6,
+    "floor_zero": true,
+    "fx_share": 0.0,
+    "id": "CT-FLM-02",
+    "payment_days": 30,
+    "ppi_share": 0.2,
+    "status": "active"
+   },
+   "country": "IT",
+   "currency": "EUR",
+   "defect_ppm": 150,
+   "freight_per_unit": 0.024,
+   "id": "sup-it-film",
+   "lead_time_days": 6,
+   "name": "Film Italia (демо)",
+   "otif": 0.985,
+   "risk": {
+    "compliance": 0.1,
+    "financial": 0.16,
+    "supply": 0.12
+   },
+   "unit": "кг",
+   "unit_price": 2.35
+  },
+  {
+   "annual_volume": 25000,
+   "audit_score": 0.62,
+   "category": "packaging_film",
+   "contract": {
+    "cap_pct": 12.0,
+    "cpi_share": 0.0,
+    "floor_zero": true,
+    "fx_share": 0.9,
+    "id": "CT-FLM-03",
+    "payment_days": 90,
+    "ppi_share": 0.0,
+    "status": "candidate"
+   },
+   "country": "VN",
+   "currency": "USD",
+   "defect_ppm": 950,
+   "freight_per_unit": 0.075,
+   "id": "sup-vn-film",
+   "lead_time_days": 38,
+   "name": "Mekong Pack (демо)",
+   "otif": 0.9,
+   "risk": {
+    "compliance": 0.35,
+    "financial": 0.42,
+    "supply": 0.4
+   },
+   "unit": "кг",
+   "unit_price": 1.86
+  },
+  {
+   "annual_volume": 900,
+   "audit_score": 0.8,
+   "category": "contract_logistics",
+   "contract": {
+    "cap_pct": 5.0,
+    "cpi_share": 0.4,
+    "floor_zero": true,
+    "fx_share": 0.0,
+    "id": "CT-LOG-01",
+    "payment_days": 30,
+    "ppi_share": 0.3,
+    "status": "active"
+   },
+   "country": "PL",
+   "currency": "EUR",
+   "defect_ppm": 500,
+   "freight_per_unit": 0.0,
+   "id": "sup-pl-log",
+   "lead_time_days": 3,
+   "name": "Trans-Pol (демо)",
+   "otif": 0.96,
+   "risk": {
+    "compliance": 0.16,
+    "financial": 0.2,
+    "supply": 0.22
+   },
+   "unit": "отправка",
+   "unit_price": 820.0
+  },
+  {
+   "annual_volume": 600,
+   "audit_score": 0.72,
+   "category": "contract_logistics",
+   "contract": {
+    "cap_pct": 7.0,
+    "cpi_share": 0.35,
+    "floor_zero": true,
+    "fx_share": 0.0,
+    "id": "CT-LOG-02",
+    "payment_days": 45,
+    "ppi_share": 0.35,
+    "status": "active"
+   },
+   "country": "RO",
+   "currency": "EUR",
+   "defect_ppm": 650,
+   "freight_per_unit": 0.0,
+   "id": "sup-ro-log",
+   "lead_time_days": 5,
+   "name": "Dunarea Cargo (демо)",
+   "otif": 0.945,
+   "risk": {
+    "compliance": 0.22,
+    "financial": 0.28,
+    "supply": 0.3
+   },
+   "unit": "отправка",
+   "unit_price": 760.0
+  },
+  {
+   "annual_volume": 300,
+   "audit_score": 0.9,
+   "category": "contract_logistics",
+   "contract": {
+    "cap_pct": 3.0,
+    "cpi_share": 0.5,
+    "floor_zero": true,
+    "fx_share": 0.0,
+    "id": "CT-LOG-03",
+    "payment_days": 30,
+    "ppi_share": 0.1,
+    "status": "candidate"
+   },
+   "country": "DE",
+   "currency": "EUR",
+   "defect_ppm": 200,
+   "freight_per_unit": 0.0,
+   "id": "sup-de-log",
+   "lead_time_days": 2,
+   "name": "Nordfreight (демо)",
+   "otif": 0.985,
+   "risk": {
+    "compliance": 0.08,
+    "financial": 0.12,
+    "supply": 0.1
+   },
+   "unit": "отправка",
+   "unit_price": 910.0
+  }
+ ],
+ "version": "1.0.0"
+}

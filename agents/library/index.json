@@ -1,7 +1,7 @@
 {
  "schema": "amfe.agent_library.v1",
- "updated_at": "2026-11-18T13:22:34Z",
- "entries": 49,
+ "updated_at": "2026-11-18T13:26:11Z",
+ "entries": 52,
  "open_questions": [
   {
    "id": "mem-lead-0003",
@@ -12,8 +12,8 @@
  ],
  "by_role": {
   "accounting-core": 7,
-  "baseline-models": 3,
-  "dense-vintages": 4,
+  "baseline-models": 4,
+  "dense-vintages": 6,
   "evaluation-harness": 6,
   "lead": 8,
   "licence-auditor": 3,
@@ -22,7 +22,7 @@
   "r2-completion": 5
  },
  "by_kind": {
-  "artifact": 12,
+  "artifact": 15,
   "lesson": 13,
   "open_question": 1,
   "role": 9,
@@ -30,6 +30,7 @@
   "task": 8
  },
  "by_tag": {
+  "api": 1,
   "blocks": 2,
   "bridge": 3,
   "c4": 1,
@@ -42,9 +43,11 @@
   "decision": 1,
   "exposure": 1,
   "external": 3,
+  "flaks": 1,
   "forecast": 1,
   "g4": 1,
   "g5": 1,
+  "gateway": 1,
   "geopolitics": 1,
   "harness": 1,
   "horizons": 5,
@@ -58,8 +61,10 @@
   "orchestrator": 1,
   "p2": 1,
   "pit": 3,
+  "policy": 1,
   "prereg": 4,
   "process": 2,
+  "procurement": 1,
   "products": 1,
   "provenance": 1,
   "review": 1,
@@ -73,6 +78,7 @@
   "status": 6,
   "storage": 1,
   "task": 8,
+  "tests": 1,
   "v2": 6,
   "world": 2
  },
@@ -134,6 +140,12 @@
   "docs/177_17_блоков_зрелость.md": [
    "mem-dense-vintages-0004"
   ],
+  "docs/183_Forecast_API_шлюз.md": [
+   "mem-dense-vintages-0005"
+  ],
+  "docs/184_FLAKS_Procurement_MVP.md": [
+   "mem-dense-vintages-0006"
+  ],
   "docs/97_Лицензии_ряды_и_terms.md": [
    "mem-licence-auditor-0002"
   ],
@@ -157,6 +169,12 @@
   "src/amfe/markets/storage.py": [
    "mem-accounting-core-0007"
   ],
+  "tests/test_flaks_procurement.py": [
+   "mem-dense-vintages-0006"
+  ],
+  "tests/test_forecast_api_server.py": [
+   "mem-dense-vintages-0005"
+  ],
   "tests/test_forecast_world_bridge.py": [
    "mem-accounting-core-0004"
   ],
@@ -173,12 +191,21 @@
   "tools/external_forecast_scorecard.py": [
    "mem-r2-completion-0004"
   ],
+  "tools/flaks_procurement.py": [
+   "mem-dense-vintages-0006"
+  ],
+  "tools/forecast_api_server.py": [
+   "mem-dense-vintages-0005"
+  ],
   "tools/forecast_world_bridge.py": [
    "mem-accounting-core-0004",
    "mem-accounting-core-0005"
   ],
   "tools/geopolitics_scenarios.py": [
    "mem-protocol-reviewer-0006"
+  ],
+  "tools/policy_scenarios.py": [
+   "mem-baseline-models-0004"
   ],
   "tools/sector_exposure.py": [
    "mem-accounting-core-0006"

@@ -297,6 +297,8 @@ class DeterminismAndHygieneTests(unittest.TestCase):
                          ["RATE-PLUS-100BP"])
         with self.assertRaises(pol.PolicyError):
             pol.run_all(only=("NO-SUCH-SCENARIO",))
+        with self.assertRaises(pol.PolicyError):
+            pol.run_all(only=())
 
     def test_reports_contain_no_raw_data_and_no_non_finite_numbers(self):
         result = fixture()
@@ -394,6 +396,28 @@ class CliFailClosedTests(unittest.TestCase):
             self.assertIn(pol.STATUS, text)
             self.assertIn("не допуск", text)
             self.assertIn("Допущения", text)
+
+    def test_cli_t1_and_t3_inputs_change_the_baseline(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            t1 = Path(tmp) / "t1.json"
+            t1.write_text(json.dumps({"h1": 3.5, "h2": 3.0}), encoding="utf-8")
+            out = Path(tmp) / "policy"
+            with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
+                code = cli.main(["--out", str(out), "--t1", str(t1), "--t3", "0.8",
+                                 "--periods", "3"])
+            self.assertEqual(code, cli.EXIT_OK)
+            payload = json.loads((out / "report.json").read_text(encoding="utf-8"))
+            baseline = payload["index"]["baseline"]
+            self.assertEqual(baseline["inflation_path_pp"], [3.5, 3.0, 3.0])
+            self.assertAlmostEqual(baseline["output_gap_path_pp"][0],
+                                   pol.output_gap_from_recession_probability(0.8))
+
+    def test_missing_t1_file_is_blocked(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "out"
+            code = cli.main(["--t1", str(Path(tmp) / "absent.json"), "--out", str(out)])
+            self.assertEqual(code, cli.EXIT_BLOCKED)
+            self.assertFalse(out.exists())
 
     def test_cli_json_flag_is_console_safe(self):
         with tempfile.TemporaryDirectory() as tmp:

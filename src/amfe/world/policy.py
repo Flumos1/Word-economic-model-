@@ -792,13 +792,21 @@ class PolicyBaseline:
             equity=None if self.cb_equity_ratio == 0.0 else self.cb_equity_ratio * gdp,
         )
 
+    def with_t1(self, t1_forecasts: Mapping) -> "PolicyBaseline":
+        """Return a baseline whose ``pi*_t`` follows a T1 CPI forecast (adapter, not evaluation)."""
+        return replace(self, inflation_path_pp=inflation_path_from_t1(t1_forecasts, self.periods))
+
+    def with_t3(self, recession_probability: float, t3_scale: float = 2.0,
+                t3_threshold: float = 0.35) -> "PolicyBaseline":
+        """Return a baseline whose ``y*_t`` follows a T3 probability (assumption A7)."""
+        gap = output_gap_from_recession_probability(recession_probability, scale=t3_scale,
+                                                     threshold=t3_threshold)
+        return replace(self, output_gap_path_pp=(gap,) * self.periods)
+
     def with_t1_t3(self, t1_forecasts: Mapping, recession_probability: float,
                    t3_scale: float = 2.0, t3_threshold: float = 0.35) -> "PolicyBaseline":
         """Return a baseline whose ``pi*_t`` and ``y*_t`` come from T1 and T3 adapters."""
-        inflation = inflation_path_from_t1(t1_forecasts, self.periods)
-        gap = output_gap_from_recession_probability(recession_probability, scale=t3_scale,
-                                                     threshold=t3_threshold)
-        return replace(self, inflation_path_pp=inflation, output_gap_path_pp=(gap,) * self.periods)
+        return self.with_t1(t1_forecasts).with_t3(recession_probability, t3_scale, t3_threshold)
 
     def to_dict(self) -> dict:
         return {
@@ -1129,6 +1137,8 @@ def run_all(baseline: PolicyBaseline | None = None,
         if unknown:
             raise PolicyError(f"only: неизвестные сценарии {unknown}")
         pool = [scenario for scenario in pool if scenario.scenario_id in only_set]
+        if not pool:
+            raise PolicyError("only: не выбрано ни одного сценария")
     reports = [run_scenario(baseline, scenario) for scenario in pool]
     entries = []
     for report in reports:
@@ -1174,7 +1184,10 @@ def run_all(baseline: PolicyBaseline | None = None,
         },
         "max_identity_residual": max(
             [report["summary"]["debt_identity_max_residual"] for report in reports]
-            + [report["summary"]["deficit_identity_max_residual"] for report in reports]),
+            + [report["summary"]["deficit_identity_max_residual"] for report in reports]
+            + [abs(report["central_bank"]["check"]["residual"]) for report in reports]
+            + [abs(report["sfc"]["baseline"]["residual"]) for report in reports]
+            + [abs(report["sfc"]["fiscal_residual"]) for report in reports]),
         "assumptions": assumptions(),
         "limitations": limitations(),
     }

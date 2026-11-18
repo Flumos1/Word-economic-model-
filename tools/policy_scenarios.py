@@ -323,8 +323,9 @@ def load_config(path) -> dict:
     return data
 
 
-def build_inputs(config: dict | None = None, periods: int | None = None):
-    """Turn an optional config into a validated baseline and scenario list."""
+def build_inputs(config: dict | None = None, periods: int | None = None,
+                 t1: dict | None = None, t3: float | None = None):
+    """Turn an optional config (and optional T1/T3 inputs) into a validated baseline/scenarios."""
     data = {} if config is None else dict(config)
     if "baseline" in data:
         baseline_data = data.pop("baseline")
@@ -338,14 +339,34 @@ def build_inputs(config: dict | None = None, periods: int | None = None):
     baseline = baseline_from_config(baseline_data)
     if periods is not None:
         baseline = replace(baseline, periods=int(periods))
+    if t1 is not None:
+        baseline = baseline.with_t1(t1)
+    if t3 is not None:
+        baseline = baseline.with_t3(t3)
     raw_scenarios = data.get("scenarios")
     scenarios = default_scenarios() if raw_scenarios is None else scenarios_from_config(raw_scenarios)
     return baseline, scenarios
 
 
+def load_t1(path) -> dict:
+    """Load a T1 forecast JSON fail-closed (missing file -> exit 2, malformed -> exit 1)."""
+    target = Path(path)
+    if not target.is_file():
+        raise BlockedInput(f"T1-файл не найден: {target}")
+    try:
+        data = json.loads(target.read_text(encoding="utf-8-sig"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise PolicyError(f"T1-файл не читается: {exc}") from exc
+    if not isinstance(data, dict):
+        raise PolicyError("T1-файл: ожидается объект {h1: значение, ...}")
+    return data
+
+
 def run(args) -> dict:
     config = load_config(args.config) if getattr(args, "config", None) else None
-    baseline, scenarios = build_inputs(config, getattr(args, "periods", None))
+    t1 = load_t1(args.t1) if getattr(args, "t1", None) else None
+    baseline, scenarios = build_inputs(config, getattr(args, "periods", None), t1=t1,
+                                       t3=getattr(args, "t3", None))
     only = None
     if getattr(args, "only", None):
         only = [item.strip() for item in str(args.only).split(",") if item.strip()]
@@ -382,6 +403,10 @@ def build_parser() -> argparse.ArgumentParser:
                         help="JSON с baseline/scenarios (необязательно; по умолчанию — MVP)")
     parser.add_argument("--periods", type=int, default=None,
                         help="переопределить горизонт в годах (1..120)")
+    parser.add_argument("--t1", default=None,
+                        help="JSON T1 CPI {h1:...,h2:...} — заменить pi* (адаптер, не оценка)")
+    parser.add_argument("--t3", type=float, default=None,
+                        help="вероятность рецессии T3 [0,1] — заменить y* (допущение A7)")
     parser.add_argument("--out", default=str(DEFAULT_OUT), help="каталог отчётов (build/policy)")
     parser.add_argument("--only", default=None, help="прогнать только эти id (через запятую)")
     parser.add_argument("--json", action="store_true", help="напечатать индекс как JSON")
