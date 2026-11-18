@@ -1,7 +1,7 @@
 {
  "schema": "amfe.agent_library.v1",
- "updated_at": "2026-11-18T09:48:36Z",
- "entries": 41,
+ "updated_at": "2026-11-18T09:56:53Z",
+ "entries": 42,
  "open_questions": [
   {
    "id": "mem-lead-0003",
@@ -17,12 +17,12 @@
   "evaluation-harness": 6,
   "lead": 7,
   "licence-auditor": 3,
-  "multiplicity-rw": 3,
+  "multiplicity-rw": 4,
   "protocol-reviewer": 5,
   "r2-completion": 5
  },
  "by_kind": {
-  "artifact": 5,
+  "artifact": 6,
   "lesson": 12,
   "open_question": 1,
   "role": 9,
@@ -44,7 +44,7 @@
   "g4": 1,
   "g5": 1,
   "harness": 1,
-  "horizons": 1,
+  "horizons": 2,
   "independence": 1,
   "lesson": 2,
   "librarian": 2,
@@ -136,6 +136,9 @@
   ],
   "protocols/external_forecast_scorecard.json": [
    "mem-r2-completion-0004"
+  ],
+  "protocols/horizon_matrix_v5.json": [
+   "mem-multiplicity-rw-0004"
   ],
   "protocols/licence_register.json": [
    "mem-licence-auditor-0001"

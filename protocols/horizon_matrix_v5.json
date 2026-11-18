@@ -1,0 +1,4395 @@
+{
+ "schema_version": "1.0.0",
+ "matrix_id": "AMFE-HORIZON-MATRIX-V5",
+ "generated_at": "2026-11-18T09:53:07Z",
+ "protocol": {
+  "id": "AMFE-EVAL",
+  "version": "5.0.1",
+  "file": "protocols/evaluation_protocol_v5.json",
+  "sha256": "48c2f6a18a28cefc9645cb8aa7b934f68adbcfc6cea1178d04b27918be2bab45"
+ },
+ "legacy_protocol": {
+  "file": "protocols/evaluation_protocol_v4.json",
+  "version": "4.0.0",
+  "sha256": "bd965f4d9f23151b4ccfd27202f0669d0a7807e642639ed18c0b864bf68dedc9"
+ },
+ "status_rule": {
+  "CANDIDATE": "оценка выполнена, стадия harness CANDIDATE, допуск не присвоен",
+  "FAIL": "кандидат хуже компаратора по C1 на всех окнах/потерях и C4 FAIL на всех окнах",
+  "INCONCLUSIVE": "пара не отвечает на свой вопрос (SPF-член недоступен / окно сокращено)",
+  "NOT_RUN": "оценки нет; причина указана в reason"
+ },
+ "criteria_rule": {
+  "C1": "относительная потеря <= порога NF-SIM",
+  "C2": "Romano-Wolf adjusted p < 0.10 на W1 и W2",
+  "C4": "условный GW на рецессионных месяцах, минимум 12 рецессионных начал; not_applicable — критерий не применяется к цели",
+  "C5": "p >= 0.10 (не хуже) на W1 и W2"
+ },
+ "rows": [
+  {
+   "target": "T1_CPI_YOY",
+   "horizon": 1,
+   "candidate": "ENSEMBLE_ADAPTIVE",
+   "protocol": "v4.0.0",
+   "data_class": "REAL_TIME",
+   "origins": {
+    "W1": 121,
+    "W2": 156
+   },
+   "criteria": {
+    "C1": "fail",
+    "C2": "fail",
+    "C4": "fail",
+    "C5": "pass"
+   },
+   "metrics": {
+    "stage": "CANDIDATE",
+    "data_class_note": "admission allowed: REAL_TIME data",
+    "C1": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "relative_loss": 0.948935035186428,
+        "threshold": 0.97,
+        "pass": true
+       },
+       "CRPS": {
+        "relative_loss": 0.9744873165683339,
+        "threshold": 0.97,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "relative_loss": 0.9692691247472539,
+        "threshold": 0.97,
+        "pass": true
+       },
+       "CRPS": {
+        "relative_loss": 0.978389931753698,
+        "threshold": 0.97,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C2": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "adjusted_p_min": 0.0281
+      },
+      "W2": {
+       "adjusted_p_min": 0.1528
+      }
+     }
+    },
+    "C4": {
+     "applies": true,
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 0.9666553083104736,
+        "recession_origins": 8,
+        "min_recession_origins": 12,
+        "pass": false
+       },
+       "CRPS": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 0.9353494183155734,
+        "recession_origins": 8,
+        "min_recession_origins": 12,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "status": "FAIL",
+        "relative_loss_recession": 1.0497457778271437,
+        "recession_origins": 18,
+        "min_recession_origins": 12,
+        "pass": false
+       },
+       "CRPS": {
+        "status": "FAIL",
+        "relative_loss_recession": 1.0689524174970824,
+        "recession_origins": 18,
+        "min_recession_origins": 12,
+        "pass": false
+       }
+      }
+     },
+     "extended": null
+    },
+    "C5": {
+     "pass": true,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "p_value": 0.9933607882779143,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.9200192339439353,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "p_value": 0.922879311797643,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.9133595104030285,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C6": {
+     "status": "NO_RESOLVED_FORECASTS",
+     "pass": false
+    }
+   },
+   "overall_status": "CANDIDATE",
+   "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 fail (W1/RMSE 0.9489, W1/CRPS 0.9745, W2/RMSE 0.9693, W2/CRPS 0.9784); C2 fail (RW adj p W1 0.0281, W2 0.1528); C4 fail (W1 INCONCLUSIVE, W2 FAIL); C5 pass",
+   "sources": [
+    {
+     "file": "protocols/ensemble_eval_ENSEMBLE_ADAPTIVE_T1_h1_v2.json",
+     "sha256": "1f72553299b3eb565a1c576ed67ac920f7d435d3315e20badf7c02be8546455a"
+    }
+   ]
+  },
+  {
+   "target": "T1_CPI_YOY",
+   "horizon": 1,
+   "candidate": "ENSEMBLE_BAYES",
+   "protocol": "v4.0.0",
+   "data_class": "REAL_TIME",
+   "origins": {
+    "W1": 121,
+    "W2": 156
+   },
+   "criteria": {
+    "C1": "fail",
+    "C2": "fail",
+    "C4": "fail",
+    "C5": "pass"
+   },
+   "metrics": {
+    "stage": "CANDIDATE",
+    "data_class_note": "admission allowed: REAL_TIME data",
+    "C1": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "relative_loss": 0.9589271962181094,
+        "threshold": 0.97,
+        "pass": true
+       },
+       "CRPS": {
+        "relative_loss": 0.9684874991588494,
+        "threshold": 0.97,
+        "pass": true
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "relative_loss": 1.0117936013079452,
+        "threshold": 0.97,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 1.0190997129164816,
+        "threshold": 0.97,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C2": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "adjusted_p_min": 0.1116
+      },
+      "W2": {
+       "adjusted_p_min": 0.7091
+      }
+     }
+    },
+    "C4": {
+     "applies": true,
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 1.0027700744228567,
+        "recession_origins": 8,
+        "min_recession_origins": 12,
+        "pass": false
+       },
+       "CRPS": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 0.956988630825136,
+        "recession_origins": 8,
+        "min_recession_origins": 12,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "status": "FAIL",
+        "relative_loss_recession": 1.210175812792023,
+        "recession_origins": 18,
+        "min_recession_origins": 12,
+        "pass": false
+       },
+       "CRPS": {
+        "status": "FAIL",
+        "relative_loss_recession": 1.192152868335146,
+        "recession_origins": 18,
+        "min_recession_origins": 12,
+        "pass": false
+       }
+      }
+     },
+     "extended": null
+    },
+    "C5": {
+     "pass": true,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "p_value": 0.90183089901379,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.88077280512993,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "p_value": 0.3341154533550038,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.17070773402399708,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C6": {
+     "status": "NO_RESOLVED_FORECASTS",
+     "pass": false
+    }
+   },
+   "overall_status": "CANDIDATE",
+   "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 fail (W1/RMSE 0.9589, W1/CRPS 0.9685, W2/RMSE 1.0118, W2/CRPS 1.0191); C2 fail (RW adj p W1 0.1116, W2 0.7091); C4 fail (W1 INCONCLUSIVE, W2 FAIL); C5 pass",
+   "sources": [
+    {
+     "file": "protocols/extended_pass/ensemble_eval_ENSEMBLE_BAYES_T1_h1_v2.json",
+     "sha256": "45ecbbb1931452973f187c61e359fae608ec3fb39a2dfab6e054876b98e4a3cc"
+    }
+   ]
+  },
+  {
+   "target": "T1_CPI_YOY",
+   "horizon": 1,
+   "candidate": "ENSEMBLE_EQUAL",
+   "protocol": "v5.0.1",
+   "data_class": "REAL_TIME_RECONSTRUCTED",
+   "origins": {
+    "W1_EXT": 204,
+    "W1": 121,
+    "W2": 156
+   },
+   "criteria": {
+    "C1": "fail",
+    "C2": "fail",
+    "C4": "pass",
+    "C5": "pass"
+   },
+   "metrics": {
+    "stage": "CANDIDATE",
+    "data_class_note": "admission allowed: data class REAL_TIME_RECONSTRUCTED is in ['REAL_TIME', 'REAL_TIME_TAPE', 'REAL_TIME_RECONSTRUCTED']",
+    "C1": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "relative_loss": 1.0,
+        "threshold": 0.97,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 1.0,
+        "threshold": 0.97,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "relative_loss": 1.0,
+        "threshold": 0.97,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 1.0,
+        "threshold": 0.97,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C2": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "adjusted_p_min": 0.0401
+      },
+      "W2": {
+       "adjusted_p_min": 0.4007
+      }
+     }
+    },
+    "C4": {
+     "applies": true,
+     "pass": true,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "status": "PASS",
+        "relative_loss_recession": 0.9999999999999998,
+        "recession_origins": 16,
+        "min_recession_origins": 12,
+        "pass": true
+       },
+       "CRPS": {
+        "status": "PASS",
+        "relative_loss_recession": 1.0,
+        "recession_origins": 16,
+        "min_recession_origins": 12,
+        "pass": true
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "status": "PASS",
+        "relative_loss_recession": 1.0,
+        "recession_origins": 18,
+        "min_recession_origins": 12,
+        "pass": true
+       },
+       "CRPS": {
+        "status": "PASS",
+        "relative_loss_recession": 1.0,
+        "recession_origins": 18,
+        "min_recession_origins": 12,
+        "pass": true
+       }
+      }
+     },
+     "extended": {
+      "W1": {
+       "source": "extended_window",
+       "data_class": "REAL_TIME_RECONSTRUCTED",
+       "n_origins": 204
+      },
+      "W2": {
+       "source": "standard_window"
+      }
+     }
+    },
+    "C5": {
+     "pass": true,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "p_value": 0.36099408249253606,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.8427477675508629,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "p_value": 0.2275660248473197,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.8087137471447197,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C6": {
+     "status": "NO_RESOLVED_FORECASTS",
+     "pass": false
+    }
+   },
+   "overall_status": "CANDIDATE",
+   "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 fail (W1/RMSE 1.0000, W1/CRPS 1.0000, W2/RMSE 1.0000, W2/CRPS 1.0000); C2 fail (RW adj p W1 0.0401, W2 0.4007); C4 pass (W1 PASS, W2 PASS); C5 pass",
+   "sources": [
+    {
+     "file": "protocols/prereg_eval_ENSEMBLE_EQUAL_T1_h1_v5.json",
+     "sha256": "6da133bd4c8e07eee57218483eb7ade3460ebba5ea3588c39b2eaf43b2fe74d0"
+    }
+   ]
+  },
+  {
+   "target": "T1_CPI_YOY",
+   "horizon": 1,
+   "candidate": "ENSEMBLE_INVERSE_MSE",
+   "protocol": "v5.0.1",
+   "data_class": "REAL_TIME_RECONSTRUCTED",
+   "origins": {
+    "W1_EXT": 204,
+    "W1": 121,
+    "W2": 156
+   },
+   "criteria": {
+    "C1": "pass",
+    "C2": "pass",
+    "C4": "fail",
+    "C5": "pass"
+   },
+   "metrics": {
+    "stage": "CANDIDATE",
+    "data_class_note": "admission allowed: data class REAL_TIME_RECONSTRUCTED is in ['REAL_TIME', 'REAL_TIME_TAPE', 'REAL_TIME_RECONSTRUCTED']",
+    "C1": {
+     "pass": true,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "relative_loss": 0.9465195406163266,
+        "threshold": 0.97,
+        "pass": true
+       },
+       "CRPS": {
+        "relative_loss": 0.9669525405389746,
+        "threshold": 0.97,
+        "pass": true
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "relative_loss": 0.9479640424288297,
+        "threshold": 0.97,
+        "pass": true
+       },
+       "CRPS": {
+        "relative_loss": 0.9535929521404131,
+        "threshold": 0.97,
+        "pass": true
+       }
+      }
+     }
+    },
+    "C2": {
+     "pass": true,
+     "windows": {
+      "W1": {
+       "adjusted_p_min": 0.0457
+      },
+      "W2": {
+       "adjusted_p_min": 0.0084
+      }
+     }
+    },
+    "C4": {
+     "applies": true,
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "status": "FAIL",
+        "relative_loss_recession": 1.0774564457828197,
+        "recession_origins": 16,
+        "min_recession_origins": 12,
+        "pass": false
+       },
+       "CRPS": {
+        "status": "PASS",
+        "relative_loss_recession": 0.9303087995012138,
+        "recession_origins": 16,
+        "min_recession_origins": 12,
+        "pass": true
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "status": "PASS",
+        "relative_loss_recession": 0.9405559988830395,
+        "recession_origins": 18,
+        "min_recession_origins": 12,
+        "pass": true
+       },
+       "CRPS": {
+        "status": "PASS",
+        "relative_loss_recession": 0.9819031956553803,
+        "recession_origins": 18,
+        "min_recession_origins": 12,
+        "pass": true
+       }
+      }
+     },
+     "extended": {
+      "W1": {
+       "source": "extended_window",
+       "data_class": "REAL_TIME_RECONSTRUCTED",
+       "n_origins": 204
+      },
+      "W2": {
+       "source": "standard_window"
+      }
+     }
+    },
+    "C5": {
+     "pass": true,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "p_value": 0.9697509345851958,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.9254252347482458,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "p_value": 0.962328058266219,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.9943277418535253,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C6": {
+     "status": "NO_RESOLVED_FORECASTS",
+     "pass": false
+    }
+   },
+   "overall_status": "CANDIDATE",
+   "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 pass (W1/RMSE 0.9465, W1/CRPS 0.9670, W2/RMSE 0.9480, W2/CRPS 0.9536); C2 pass (RW adj p W1 0.0457, W2 0.0084); C4 fail (W1 FAIL/PASS, W2 PASS); C5 pass",
+   "sources": [
+    {
+     "file": "protocols/prereg_eval_ENSEMBLE_INVERSE_MSE_T1_h1_v5.json",
+     "sha256": "68bbbd8cfa6f65e1640fd4ea22deda8ff319d783dd34090349ff6b61086dbb34"
+    }
+   ]
+  },
+  {
+   "target": "T1_CPI_YOY",
+   "horizon": 1,
+   "candidate": "ENSEMBLE_RW_AR",
+   "protocol": "v4.0.0",
+   "data_class": null,
+   "origins": {},
+   "criteria": {
+    "C1": "not_run",
+    "C2": "not_run",
+    "C4": "not_run",
+    "C5": "not_run"
+   },
+   "metrics": {},
+   "overall_status": "NOT_RUN",
+   "reason": "ENSEMBLE_RW_AR зарегистрирован только для T1, но в T1 h=1 пасс (docs/87, v2) и в v5-референс (docs/107) не включён: пара не оценивалась.",
+   "sources": [
+    {
+     "file": "protocols/candidates_2026-11-11.json",
+     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
+    },
+    {
+     "file": "protocols/ensemble_horizons_report.json",
+     "sha256": "bfec199bbba59b8aa1b449355cdc1efc08bafc89db6659c66523bc3bfe493ed1"
+    }
+   ]
+  },
+  {
+   "target": "T1_CPI_YOY",
+   "horizon": 3,
+   "candidate": "ENSEMBLE_ADAPTIVE",
+   "protocol": "v4.0.0",
+   "data_class": "REAL_TIME",
+   "origins": {
+    "W1": 119,
+    "W2": 154
+   },
+   "criteria": {
+    "C1": "fail",
+    "C2": "fail",
+    "C4": "fail",
+    "C5": "fail"
+   },
+   "metrics": {
+    "stage": "CANDIDATE",
+    "data_class_note": "admission allowed: REAL_TIME data",
+    "C1": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "relative_loss": 0.9778682365717128,
+        "threshold": 0.97,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 0.9995532044420891,
+        "threshold": 0.97,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "relative_loss": 1.011853475316683,
+        "threshold": 0.97,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 1.0200601634898272,
+        "threshold": 0.97,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C2": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "adjusted_p_min": 0.155
+      },
+      "W2": {
+       "adjusted_p_min": 0.8405
+      }
+     }
+    },
+    "C4": {
+     "applies": true,
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 1.0481202894728636,
+        "recession_origins": 10,
+        "min_recession_origins": 12,
+        "pass": false
+       },
+       "CRPS": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 0.969333431205124,
+        "recession_origins": 10,
+        "min_recession_origins": 12,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "status": "FAIL",
+        "relative_loss_recession": 1.0409282574249754,
+        "recession_origins": 20,
+        "min_recession_origins": 12,
+        "pass": false
+       },
+       "CRPS": {
+        "status": "FAIL",
+        "relative_loss_recession": 1.0328439261918834,
+        "recession_origins": 20,
+        "min_recession_origins": 12,
+        "pass": false
+       }
+      }
+     },
+     "extended": null
+    },
+    "C5": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "p_value": 0.9230257192262725,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.5087322631120603,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "p_value": 0.15397426061017372,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.0727423931444281,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C6": {
+     "status": "NO_RESOLVED_FORECASTS",
+     "pass": false
+    }
+   },
+   "overall_status": "CANDIDATE",
+   "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 fail (W1/RMSE 0.9779, W1/CRPS 0.9996, W2/RMSE 1.0119, W2/CRPS 1.0201); C2 fail (RW adj p W1 0.1550, W2 0.8405); C4 fail (W1 INCONCLUSIVE, W2 FAIL); C5 fail",
+   "sources": [
+    {
+     "file": "protocols/ensemble_eval_ENSEMBLE_ADAPTIVE_T1_h3_v2.json",
+     "sha256": "95c765783c67823e09da0fd37a5ffa3b8b1430ce21b85d188902c8b67b63c2f2"
+    }
+   ]
+  },
+  {
+   "target": "T1_CPI_YOY",
+   "horizon": 3,
+   "candidate": "ENSEMBLE_BAYES",
+   "protocol": "v4.0.0",
+   "data_class": null,
+   "origins": {},
+   "criteria": {
+    "C1": "not_run",
+    "C2": "not_run",
+    "C4": "not_run",
+    "C5": "not_run"
+   },
+   "metrics": {},
+   "overall_status": "NOT_RUN",
+   "reason": "на T1 h=3/6 переоценивались только ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL (docs/102); остальные кандидаты на этих горизонтах не строились.",
+   "sources": [
+    {
+     "file": "protocols/candidates_2026-11-11.json",
+     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
+    },
+    {
+     "file": "protocols/ensemble_horizons_report.json",
+     "sha256": "bfec199bbba59b8aa1b449355cdc1efc08bafc89db6659c66523bc3bfe493ed1"
+    }
+   ]
+  },
+  {
+   "target": "T1_CPI_YOY",
+   "horizon": 3,
+   "candidate": "ENSEMBLE_EQUAL",
+   "protocol": "v4.0.0",
+   "data_class": "REAL_TIME",
+   "origins": {
+    "W1": 119,
+    "W2": 154
+   },
+   "criteria": {
+    "C1": "fail",
+    "C2": "fail",
+    "C4": "fail",
+    "C5": "fail"
+   },
+   "metrics": {
+    "stage": "CANDIDATE",
+    "data_class_note": "admission allowed: REAL_TIME data",
+    "C1": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "relative_loss": 1.0000000000000002,
+        "threshold": 0.97,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 1.0,
+        "threshold": 0.97,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "relative_loss": 1.0,
+        "threshold": 0.97,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 1.0,
+        "threshold": 0.97,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C2": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "adjusted_p_min": 0.9208
+      },
+      "W2": {
+       "adjusted_p_min": 0.3417
+      }
+     }
+    },
+    "C4": {
+     "applies": true,
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 1.0000000000000002,
+        "recession_origins": 10,
+        "min_recession_origins": 12,
+        "pass": false
+       },
+       "CRPS": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 1.0,
+        "recession_origins": 10,
+        "min_recession_origins": 12,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "status": "PASS",
+        "relative_loss_recession": 1.0,
+        "recession_origins": 20,
+        "min_recession_origins": 12,
+        "pass": true
+       },
+       "CRPS": {
+        "status": "PASS",
+        "relative_loss_recession": 1.0,
+        "recession_origins": 20,
+        "min_recession_origins": 12,
+        "pass": true
+       }
+      }
+     },
+     "extended": null
+    },
+    "C5": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "p_value": 0.05018453364917974,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.43363751576892196,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "p_value": 0.8318669040838251,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.2965761650222578,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C6": {
+     "status": "NO_RESOLVED_FORECASTS",
+     "pass": false
+    }
+   },
+   "overall_status": "CANDIDATE",
+   "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 fail (W1/RMSE 1.0000, W1/CRPS 1.0000, W2/RMSE 1.0000, W2/CRPS 1.0000); C2 fail (RW adj p W1 0.9208, W2 0.3417); C4 fail (W1 INCONCLUSIVE, W2 PASS); C5 fail",
+   "sources": [
+    {
+     "file": "protocols/ensemble_eval_ENSEMBLE_EQUAL_T1_h3_v2.json",
+     "sha256": "036b8b633224c8c5892e5c7b2d5a3f551289bc1f033b7104b6c87e8bc0983eb4"
+    }
+   ]
+  },
+  {
+   "target": "T1_CPI_YOY",
+   "horizon": 3,
+   "candidate": "ENSEMBLE_INVERSE_MSE",
+   "protocol": "v4.0.0",
+   "data_class": null,
+   "origins": {},
+   "criteria": {
+    "C1": "not_run",
+    "C2": "not_run",
+    "C4": "not_run",
+    "C5": "not_run"
+   },
+   "metrics": {},
+   "overall_status": "NOT_RUN",
+   "reason": "на T1 h=3/6 переоценивались только ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL (docs/102); остальные кандидаты на этих горизонтах не строились.",
+   "sources": [
+    {
+     "file": "protocols/candidates_2026-11-11.json",
+     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
+    },
+    {
+     "file": "protocols/ensemble_horizons_report.json",
+     "sha256": "bfec199bbba59b8aa1b449355cdc1efc08bafc89db6659c66523bc3bfe493ed1"
+    }
+   ]
+  },
+  {
+   "target": "T1_CPI_YOY",
+   "horizon": 3,
+   "candidate": "ENSEMBLE_RW_AR",
+   "protocol": "v4.0.0",
+   "data_class": null,
+   "origins": {},
+   "criteria": {
+    "C1": "not_run",
+    "C2": "not_run",
+    "C4": "not_run",
+    "C5": "not_run"
+   },
+   "metrics": {},
+   "overall_status": "NOT_RUN",
+   "reason": "ENSEMBLE_RW_AR зарегистрирован только для T1, но в T1 h=1 пасс (docs/87, v2) и в v5-референс (docs/107) не включён: пара не оценивалась.",
+   "sources": [
+    {
+     "file": "protocols/candidates_2026-11-11.json",
+     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
+    },
+    {
+     "file": "protocols/ensemble_horizons_report.json",
+     "sha256": "bfec199bbba59b8aa1b449355cdc1efc08bafc89db6659c66523bc3bfe493ed1"
+    }
+   ]
+  },
+  {
+   "target": "T1_CPI_YOY",
+   "horizon": 6,
+   "candidate": "ENSEMBLE_ADAPTIVE",
+   "protocol": "v4.0.0",
+   "data_class": "REAL_TIME",
+   "origins": {
+    "W1": 116,
+    "W2": 151
+   },
+   "criteria": {
+    "C1": "fail",
+    "C2": "fail",
+    "C4": "fail",
+    "C5": "pass"
+   },
+   "metrics": {
+    "stage": "CANDIDATE",
+    "data_class_note": "admission allowed: REAL_TIME data",
+    "C1": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "relative_loss": 0.9731143104829114,
+        "threshold": 0.97,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 0.9960735700133823,
+        "threshold": 0.9688,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "relative_loss": 0.9944271986361114,
+        "threshold": 0.9678,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 1.0008648118691545,
+        "threshold": 0.965,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C2": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "adjusted_p_min": 0.1443
+      },
+      "W2": {
+       "adjusted_p_min": 0.4919
+      }
+     }
+    },
+    "C4": {
+     "applies": true,
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "status": "PASS",
+        "relative_loss_recession": 0.9586844285072824,
+        "recession_origins": 13,
+        "min_recession_origins": 12,
+        "pass": true
+       },
+       "CRPS": {
+        "status": "PASS",
+        "relative_loss_recession": 0.9079263162028094,
+        "recession_origins": 13,
+        "min_recession_origins": 12,
+        "pass": true
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "status": "FAIL",
+        "relative_loss_recession": 1.0166971246637653,
+        "recession_origins": 23,
+        "min_recession_origins": 12,
+        "pass": false
+       },
+       "CRPS": {
+        "status": "FAIL",
+        "relative_loss_recession": 1.0140816795167558,
+        "recession_origins": 23,
+        "min_recession_origins": 12,
+        "pass": false
+       }
+      }
+     },
+     "extended": null
+    },
+    "C5": {
+     "pass": true,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "p_value": 0.920552683876686,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.5607913578404462,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "p_value": 0.6976447990099026,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.4756190623111982,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C6": {
+     "status": "NO_RESOLVED_FORECASTS",
+     "pass": false
+    }
+   },
+   "overall_status": "CANDIDATE",
+   "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 fail (W1/RMSE 0.9731, W1/CRPS 0.9961, W2/RMSE 0.9944, W2/CRPS 1.0009); C2 fail (RW adj p W1 0.1443, W2 0.4919); C4 fail (W1 PASS, W2 FAIL); C5 pass",
+   "sources": [
+    {
+     "file": "protocols/ensemble_eval_ENSEMBLE_ADAPTIVE_T1_h6_v2.json",
+     "sha256": "f42a195cdb8d9fbc99f6d1af1ea92362d9e9efb69d38d2071f41f104b35f40bd"
+    }
+   ]
+  },
+  {
+   "target": "T1_CPI_YOY",
+   "horizon": 6,
+   "candidate": "ENSEMBLE_BAYES",
+   "protocol": "v4.0.0",
+   "data_class": null,
+   "origins": {},
+   "criteria": {
+    "C1": "not_run",
+    "C2": "not_run",
+    "C4": "not_run",
+    "C5": "not_run"
+   },
+   "metrics": {},
+   "overall_status": "NOT_RUN",
+   "reason": "на T1 h=3/6 переоценивались только ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL (docs/102); остальные кандидаты на этих горизонтах не строились.",
+   "sources": [
+    {
+     "file": "protocols/candidates_2026-11-11.json",
+     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
+    },
+    {
+     "file": "protocols/ensemble_horizons_report.json",
+     "sha256": "bfec199bbba59b8aa1b449355cdc1efc08bafc89db6659c66523bc3bfe493ed1"
+    }
+   ]
+  },
+  {
+   "target": "T1_CPI_YOY",
+   "horizon": 6,
+   "candidate": "ENSEMBLE_EQUAL",
+   "protocol": "v4.0.0",
+   "data_class": "REAL_TIME",
+   "origins": {
+    "W1": 116,
+    "W2": 151
+   },
+   "criteria": {
+    "C1": "fail",
+    "C2": "fail",
+    "C4": "fail",
+    "C5": "fail"
+   },
+   "metrics": {
+    "stage": "CANDIDATE",
+    "data_class_note": "admission allowed: REAL_TIME data",
+    "C1": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "relative_loss": 1.0000000000000002,
+        "threshold": 0.97,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 1.0,
+        "threshold": 0.9688,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "relative_loss": 1.0,
+        "threshold": 0.9678,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 1.0,
+        "threshold": 0.965,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C2": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "adjusted_p_min": 0.6844
+      },
+      "W2": {
+       "adjusted_p_min": 0.4919
+      }
+     }
+    },
+    "C4": {
+     "applies": true,
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "status": "FAIL",
+        "relative_loss_recession": 1.0000000000000002,
+        "recession_origins": 13,
+        "min_recession_origins": 12,
+        "pass": false
+       },
+       "CRPS": {
+        "status": "PASS",
+        "relative_loss_recession": 1.0,
+        "recession_origins": 13,
+        "min_recession_origins": 12,
+        "pass": true
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "status": "PASS",
+        "relative_loss_recession": 1.0,
+        "recession_origins": 23,
+        "min_recession_origins": 12,
+        "pass": true
+       },
+       "CRPS": {
+        "status": "PASS",
+        "relative_loss_recession": 1.0,
+        "recession_origins": 23,
+        "min_recession_origins": 12,
+        "pass": true
+       }
+      }
+     },
+     "extended": null
+    },
+    "C5": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "p_value": 0.03247196124826024,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.2888767786884605,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "p_value": 0.5613325946139237,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.08088847526196397,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C6": {
+     "status": "NO_RESOLVED_FORECASTS",
+     "pass": false
+    }
+   },
+   "overall_status": "CANDIDATE",
+   "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 fail (W1/RMSE 1.0000, W1/CRPS 1.0000, W2/RMSE 1.0000, W2/CRPS 1.0000); C2 fail (RW adj p W1 0.6844, W2 0.4919); C4 fail (W1 FAIL/PASS, W2 PASS); C5 fail",
+   "sources": [
+    {
+     "file": "protocols/ensemble_eval_ENSEMBLE_EQUAL_T1_h6_v2.json",
+     "sha256": "4db0967137f5faa4eecc9a851c1508c7e790c2113cf2361cb3b613e1b9930d57"
+    }
+   ]
+  },
+  {
+   "target": "T1_CPI_YOY",
+   "horizon": 6,
+   "candidate": "ENSEMBLE_INVERSE_MSE",
+   "protocol": "v4.0.0",
+   "data_class": null,
+   "origins": {},
+   "criteria": {
+    "C1": "not_run",
+    "C2": "not_run",
+    "C4": "not_run",
+    "C5": "not_run"
+   },
+   "metrics": {},
+   "overall_status": "NOT_RUN",
+   "reason": "на T1 h=3/6 переоценивались только ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL (docs/102); остальные кандидаты на этих горизонтах не строились.",
+   "sources": [
+    {
+     "file": "protocols/candidates_2026-11-11.json",
+     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
+    },
+    {
+     "file": "protocols/ensemble_horizons_report.json",
+     "sha256": "bfec199bbba59b8aa1b449355cdc1efc08bafc89db6659c66523bc3bfe493ed1"
+    }
+   ]
+  },
+  {
+   "target": "T1_CPI_YOY",
+   "horizon": 6,
+   "candidate": "ENSEMBLE_RW_AR",
+   "protocol": "v4.0.0",
+   "data_class": null,
+   "origins": {},
+   "criteria": {
+    "C1": "not_run",
+    "C2": "not_run",
+    "C4": "not_run",
+    "C5": "not_run"
+   },
+   "metrics": {},
+   "overall_status": "NOT_RUN",
+   "reason": "ENSEMBLE_RW_AR зарегистрирован только для T1, но в T1 h=1 пасс (docs/87, v2) и в v5-референс (docs/107) не включён: пара не оценивалась.",
+   "sources": [
+    {
+     "file": "protocols/candidates_2026-11-11.json",
+     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
+    },
+    {
+     "file": "protocols/ensemble_horizons_report.json",
+     "sha256": "bfec199bbba59b8aa1b449355cdc1efc08bafc89db6659c66523bc3bfe493ed1"
+    }
+   ]
+  },
+  {
+   "target": "T1_CPI_YOY",
+   "horizon": 12,
+   "candidate": "ENSEMBLE_ADAPTIVE",
+   "protocol": "v4.0.0",
+   "data_class": null,
+   "origins": {},
+   "criteria": {
+    "C1": "not_run",
+    "C2": "not_run",
+    "C4": "not_run",
+    "C5": "not_run"
+   },
+   "metrics": {},
+   "overall_status": "NOT_RUN",
+   "reason": "не оценивался ни в v5, ни в v4: построение окон одного T1-горизонта занимает ~9 мин на горизонт (docs/102, task-43), time-box не позволил; это пропуск, а не «эффекта нет».",
+   "sources": [
+    {
+     "file": "protocols/candidates_2026-11-11.json",
+     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
+    },
+    {
+     "file": "protocols/ensemble_horizons_report.json",
+     "sha256": "bfec199bbba59b8aa1b449355cdc1efc08bafc89db6659c66523bc3bfe493ed1"
+    }
+   ]
+  },
+  {
+   "target": "T1_CPI_YOY",
+   "horizon": 12,
+   "candidate": "ENSEMBLE_BAYES",
+   "protocol": "v4.0.0",
+   "data_class": null,
+   "origins": {},
+   "criteria": {
+    "C1": "not_run",
+    "C2": "not_run",
+    "C4": "not_run",
+    "C5": "not_run"
+   },
+   "metrics": {},
+   "overall_status": "NOT_RUN",
+   "reason": "не оценивался ни в v5, ни в v4: построение окон одного T1-горизонта занимает ~9 мин на горизонт (docs/102, task-43), time-box не позволил; это пропуск, а не «эффекта нет».",
+   "sources": [
+    {
+     "file": "protocols/candidates_2026-11-11.json",
+     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
+    },
+    {
+     "file": "protocols/ensemble_horizons_report.json",
+     "sha256": "bfec199bbba59b8aa1b449355cdc1efc08bafc89db6659c66523bc3bfe493ed1"
+    }
+   ]
+  },
+  {
+   "target": "T1_CPI_YOY",
+   "horizon": 12,
+   "candidate": "ENSEMBLE_EQUAL",
+   "protocol": "v4.0.0",
+   "data_class": null,
+   "origins": {},
+   "criteria": {
+    "C1": "not_run",
+    "C2": "not_run",
+    "C4": "not_run",
+    "C5": "not_run"
+   },
+   "metrics": {},
+   "overall_status": "NOT_RUN",
+   "reason": "не оценивался ни в v5, ни в v4: построение окон одного T1-горизонта занимает ~9 мин на горизонт (docs/102, task-43), time-box не позволил; это пропуск, а не «эффекта нет».",
+   "sources": [
+    {
+     "file": "protocols/candidates_2026-11-11.json",
+     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
+    },
+    {
+     "file": "protocols/ensemble_horizons_report.json",
+     "sha256": "bfec199bbba59b8aa1b449355cdc1efc08bafc89db6659c66523bc3bfe493ed1"
+    }
+   ]
+  },
+  {
+   "target": "T1_CPI_YOY",
+   "horizon": 12,
+   "candidate": "ENSEMBLE_INVERSE_MSE",
+   "protocol": "v4.0.0",
+   "data_class": null,
+   "origins": {},
+   "criteria": {
+    "C1": "not_run",
+    "C2": "not_run",
+    "C4": "not_run",
+    "C5": "not_run"
+   },
+   "metrics": {},
+   "overall_status": "NOT_RUN",
+   "reason": "не оценивался ни в v5, ни в v4: построение окон одного T1-горизонта занимает ~9 мин на горизонт (docs/102, task-43), time-box не позволил; это пропуск, а не «эффекта нет».",
+   "sources": [
+    {
+     "file": "protocols/candidates_2026-11-11.json",
+     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
+    },
+    {
+     "file": "protocols/ensemble_horizons_report.json",
+     "sha256": "bfec199bbba59b8aa1b449355cdc1efc08bafc89db6659c66523bc3bfe493ed1"
+    }
+   ]
+  },
+  {
+   "target": "T1_CPI_YOY",
+   "horizon": 12,
+   "candidate": "ENSEMBLE_RW_AR",
+   "protocol": "v4.0.0",
+   "data_class": null,
+   "origins": {},
+   "criteria": {
+    "C1": "not_run",
+    "C2": "not_run",
+    "C4": "not_run",
+    "C5": "not_run"
+   },
+   "metrics": {},
+   "overall_status": "NOT_RUN",
+   "reason": "не оценивался ни в v5, ни в v4: построение окон одного T1-горизонта занимает ~9 мин на горизонт (docs/102, task-43), time-box не позволил; это пропуск, а не «эффекта нет».",
+   "sources": [
+    {
+     "file": "protocols/candidates_2026-11-11.json",
+     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
+    },
+    {
+     "file": "protocols/ensemble_horizons_report.json",
+     "sha256": "bfec199bbba59b8aa1b449355cdc1efc08bafc89db6659c66523bc3bfe493ed1"
+    }
+   ]
+  },
+  {
+   "target": "T2_GDP_GROWTH",
+   "horizon": 0,
+   "candidate": "ENSEMBLE_ADAPTIVE",
+   "protocol": "v4.0.0",
+   "data_class": "REAL_TIME",
+   "origins": {
+    "W1": 121,
+    "W2": 156
+   },
+   "criteria": {
+    "C1": "fail",
+    "C2": "fail",
+    "C4": "fail",
+    "C5": "pass"
+   },
+   "metrics": {
+    "stage": "CANDIDATE",
+    "data_class_note": "admission allowed: REAL_TIME data",
+    "C1": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "relative_loss": 0.9984746287376136,
+        "threshold": 0.97,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 0.995137156383591,
+        "threshold": 0.97,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "relative_loss": 0.9468797589316467,
+        "threshold": 0.97,
+        "pass": true
+       },
+       "CRPS": {
+        "relative_loss": 0.9465917017556079,
+        "threshold": 0.97,
+        "pass": true
+       }
+      }
+     }
+    },
+    "C2": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "adjusted_p_min": 0.3156
+      },
+      "W2": {
+       "adjusted_p_min": 0.0177
+      }
+     }
+    },
+    "C4": {
+     "applies": true,
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 0.9494067361822331,
+        "recession_origins": 8,
+        "min_recession_origins": 12,
+        "pass": false
+       },
+       "CRPS": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 0.9955167668986157,
+        "recession_origins": 8,
+        "min_recession_origins": 12,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "status": "PASS",
+        "relative_loss_recession": 0.855628345103364,
+        "recession_origins": 18,
+        "min_recession_origins": 12,
+        "pass": true
+       },
+       "CRPS": {
+        "status": "PASS",
+        "relative_loss_recession": 0.8934312115182488,
+        "recession_origins": 18,
+        "min_recession_origins": 12,
+        "pass": true
+       }
+      }
+     },
+     "extended": null
+    },
+    "C5": {
+     "pass": true,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "p_value": 0.4624456698799646,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.5655220038253549,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "p_value": 0.9881715778897653,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.9931691102766043,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C6": {
+     "status": "NO_RESOLVED_FORECASTS",
+     "pass": false
+    }
+   },
+   "overall_status": "CANDIDATE",
+   "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 fail (W1/RMSE 0.9985, W1/CRPS 0.9951, W2/RMSE 0.9469, W2/CRPS 0.9466); C2 fail (RW adj p W1 0.3156, W2 0.0177); C4 fail (W1 INCONCLUSIVE, W2 PASS); C5 pass",
+   "sources": [
+    {
+     "file": "protocols/ensemble_eval_ENSEMBLE_ADAPTIVE_T2_h0_v2.json",
+     "sha256": "f447828d7ebcb0e34ba75dce578a174217d7f8823bb404e5e161c6a8fe74847b"
+    }
+   ]
+  },
+  {
+   "target": "T2_GDP_GROWTH",
+   "horizon": 0,
+   "candidate": "ENSEMBLE_BAYES",
+   "protocol": "v4.0.0",
+   "data_class": "REAL_TIME",
+   "origins": {
+    "W1": 121,
+    "W2": 156
+   },
+   "criteria": {
+    "C1": "fail",
+    "C2": "fail",
+    "C4": "fail",
+    "C5": "fail"
+   },
+   "metrics": {
+    "stage": "CANDIDATE",
+    "data_class_note": "admission allowed: REAL_TIME data",
+    "C1": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "relative_loss": 1.0347279877452407,
+        "threshold": 0.97,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 1.0309462555938185,
+        "threshold": 0.97,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "relative_loss": 0.9820552703476885,
+        "threshold": 0.97,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 0.981118119156924,
+        "threshold": 0.97,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C2": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "adjusted_p_min": 0.9307
+      },
+      "W2": {
+       "adjusted_p_min": 0.1635
+      }
+     }
+    },
+    "C4": {
+     "applies": true,
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 0.9789227171875151,
+        "recession_origins": 8,
+        "min_recession_origins": 12,
+        "pass": false
+       },
+       "CRPS": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 0.9788837108004769,
+        "recession_origins": 8,
+        "min_recession_origins": 12,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "status": "PASS",
+        "relative_loss_recession": 0.8706308270243052,
+        "recession_origins": 18,
+        "min_recession_origins": 12,
+        "pass": true
+       },
+       "CRPS": {
+        "status": "PASS",
+        "relative_loss_recession": 0.9042666292919166,
+        "recession_origins": 18,
+        "min_recession_origins": 12,
+        "pass": true
+       }
+      }
+     },
+     "extended": null
+    },
+    "C5": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "p_value": 0.042870028743064226,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.05607615108462172,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "p_value": 0.8114494255125771,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.8282011086045185,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C6": {
+     "status": "NO_RESOLVED_FORECASTS",
+     "pass": false
+    }
+   },
+   "overall_status": "CANDIDATE",
+   "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 fail (W1/RMSE 1.0347, W1/CRPS 1.0309, W2/RMSE 0.9821, W2/CRPS 0.9811); C2 fail (RW adj p W1 0.9307, W2 0.1635); C4 fail (W1 INCONCLUSIVE, W2 PASS); C5 fail",
+   "sources": [
+    {
+     "file": "protocols/extended_pass/ensemble_eval_ENSEMBLE_BAYES_T2_h0_v2.json",
+     "sha256": "07df98e1ac30f0bfb12cae0986795f6cc817d09ffe2fedb6c6839bd173fabb13"
+    }
+   ]
+  },
+  {
+   "target": "T2_GDP_GROWTH",
+   "horizon": 0,
+   "candidate": "ENSEMBLE_EQUAL",
+   "protocol": "v4.0.0",
+   "data_class": "REAL_TIME",
+   "origins": {
+    "W1": 121,
+    "W2": 156
+   },
+   "criteria": {
+    "C1": "fail",
+    "C2": "pass",
+    "C4": "fail",
+    "C5": "pass"
+   },
+   "metrics": {
+    "stage": "CANDIDATE",
+    "data_class_note": "admission allowed: REAL_TIME data",
+    "C1": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "relative_loss": 0.9854013906701806,
+        "threshold": 0.97,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 0.9842533835934226,
+        "threshold": 0.97,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "relative_loss": 0.9617138617472383,
+        "threshold": 0.97,
+        "pass": true
+       },
+       "CRPS": {
+        "relative_loss": 0.9596406665840708,
+        "threshold": 0.97,
+        "pass": true
+       }
+      }
+     }
+    },
+    "C2": {
+     "pass": true,
+     "windows": {
+      "W1": {
+       "adjusted_p_min": 0.0032
+      },
+      "W2": {
+       "adjusted_p_min": 0.0112
+      }
+     }
+    },
+    "C4": {
+     "applies": true,
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 0.9284189725059299,
+        "recession_origins": 8,
+        "min_recession_origins": 12,
+        "pass": false
+       },
+       "CRPS": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 0.9841454868292165,
+        "recession_origins": 8,
+        "min_recession_origins": 12,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "status": "PASS",
+        "relative_loss_recession": 0.8992329982262328,
+        "recession_origins": 18,
+        "min_recession_origins": 12,
+        "pass": true
+       },
+       "CRPS": {
+        "status": "PASS",
+        "relative_loss_recession": 0.9247791521746338,
+        "recession_origins": 18,
+        "min_recession_origins": 12,
+        "pass": true
+       }
+      }
+     },
+     "extended": null
+    },
+    "C5": {
+     "pass": true,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "p_value": 0.9940113390712302,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.9942864252084678,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "p_value": 0.9877956508733181,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.9969269705865036,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C6": {
+     "status": "NO_RESOLVED_FORECASTS",
+     "pass": false
+    }
+   },
+   "overall_status": "CANDIDATE",
+   "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 fail (W1/RMSE 0.9854, W1/CRPS 0.9843, W2/RMSE 0.9617, W2/CRPS 0.9596); C2 pass (RW adj p W1 0.0032, W2 0.0112); C4 fail (W1 INCONCLUSIVE, W2 PASS); C5 pass",
+   "sources": [
+    {
+     "file": "protocols/ensemble_eval_ENSEMBLE_EQUAL_T2_h0_v2.json",
+     "sha256": "6e1613e3b4bfee3b6c4be46b25c62b3aa71f4885432719749a8332fc83b3fdf0"
+    }
+   ]
+  },
+  {
+   "target": "T2_GDP_GROWTH",
+   "horizon": 0,
+   "candidate": "ENSEMBLE_INVERSE_MSE",
+   "protocol": "v4.0.0",
+   "data_class": "REAL_TIME",
+   "origins": {
+    "W1": 121,
+    "W2": 156
+   },
+   "criteria": {
+    "C1": "fail",
+    "C2": "fail",
+    "C4": "fail",
+    "C5": "pass"
+   },
+   "metrics": {
+    "stage": "CANDIDATE",
+    "data_class_note": "admission allowed: REAL_TIME data",
+    "C1": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "relative_loss": 0.99029211093519,
+        "threshold": 0.97,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 0.9860733112499144,
+        "threshold": 0.97,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "relative_loss": 0.9411760620581469,
+        "threshold": 0.97,
+        "pass": true
+       },
+       "CRPS": {
+        "relative_loss": 0.9388719840306091,
+        "threshold": 0.97,
+        "pass": true
+       }
+      }
+     }
+    },
+    "C2": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "adjusted_p_min": 0.0571
+      },
+      "W2": {
+       "adjusted_p_min": 0.0127
+      }
+     }
+    },
+    "C4": {
+     "applies": true,
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 0.8971796172313445,
+        "recession_origins": 8,
+        "min_recession_origins": 12,
+        "pass": false
+       },
+       "CRPS": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 0.9750727784037445,
+        "recession_origins": 8,
+        "min_recession_origins": 12,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "status": "PASS",
+        "relative_loss_recession": 0.8556890479492738,
+        "recession_origins": 18,
+        "min_recession_origins": 12,
+        "pass": true
+       },
+       "CRPS": {
+        "status": "PASS",
+        "relative_loss_recession": 0.8924758703194297,
+        "recession_origins": 18,
+        "min_recession_origins": 12,
+        "pass": true
+       }
+      }
+     },
+     "extended": null
+    },
+    "C5": {
+     "pass": true,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "p_value": 0.809023671722902,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.8976759341148046,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "p_value": 0.9911317061190483,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.9962498226130853,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C6": {
+     "status": "NO_RESOLVED_FORECASTS",
+     "pass": false
+    }
+   },
+   "overall_status": "CANDIDATE",
+   "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 fail (W1/RMSE 0.9903, W1/CRPS 0.9861, W2/RMSE 0.9412, W2/CRPS 0.9389); C2 fail (RW adj p W1 0.0571, W2 0.0127); C4 fail (W1 INCONCLUSIVE, W2 PASS); C5 pass",
+   "sources": [
+    {
+     "file": "protocols/extended_pass/ensemble_eval_ENSEMBLE_INVERSE_MSE_T2_h0_v2.json",
+     "sha256": "03efa398d8603e298de61097b4d97c6199d8d8ad19738fb6d72bf99cb83fd6b6"
+    }
+   ]
+  },
+  {
+   "target": "T2_GDP_GROWTH",
+   "horizon": 0,
+   "candidate": "ENSEMBLE_T2_NOT_SPF",
+   "protocol": "v4.0.0",
+   "data_class": "REAL_TIME",
+   "origins": {
+    "W1": 121,
+    "W2": 156
+   },
+   "criteria": {
+    "C1": "fail",
+    "C2": "fail",
+    "C4": "fail",
+    "C5": "pass"
+   },
+   "metrics": {
+    "stage": "CANDIDATE",
+    "data_class_note": "admission allowed: REAL_TIME data",
+    "C1": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "relative_loss": 0.9999999999999998,
+        "threshold": 0.97,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 1.0,
+        "threshold": 0.97,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "relative_loss": 1.0,
+        "threshold": 0.97,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 1.0,
+        "threshold": 0.97,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C2": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "adjusted_p_min": 0.0128
+      },
+      "W2": {
+       "adjusted_p_min": 0.3191
+      }
+     }
+    },
+    "C4": {
+     "applies": true,
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 1.0,
+        "recession_origins": 8,
+        "min_recession_origins": 12,
+        "pass": false
+       },
+       "CRPS": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 1.0,
+        "recession_origins": 8,
+        "min_recession_origins": 12,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "status": "PASS",
+        "relative_loss_recession": 1.0,
+        "recession_origins": 18,
+        "min_recession_origins": 12,
+        "pass": true
+       },
+       "CRPS": {
+        "status": "PASS",
+        "relative_loss_recession": 1.0,
+        "recession_origins": 18,
+        "min_recession_origins": 12,
+        "pass": true
+       }
+      }
+     },
+     "extended": null
+    },
+    "C5": {
+     "pass": true,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "p_value": 0.9932930961450568,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.5,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "p_value": 0.7204152936501551,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.5,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C6": {
+     "status": "NO_RESOLVED_FORECASTS",
+     "pass": false
+    }
+   },
+   "overall_status": "CANDIDATE",
+   "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 fail (W1/RMSE 1.0000, W1/CRPS 1.0000, W2/RMSE 1.0000, W2/CRPS 1.0000); C2 fail (RW adj p W1 0.0128, W2 0.3191); C4 fail (W1 INCONCLUSIVE, W2 PASS); C5 pass",
+   "sources": [
+    {
+     "file": "protocols/ensemble_eval_ENSEMBLE_T2_NOT_SPF_T2_h0_v2.json",
+     "sha256": "dd0a460d288d56cebb735332a82aa417ba45da8df865fe69f3188c0d387a92ab"
+    }
+   ]
+  },
+  {
+   "target": "T2_GDP_GROWTH",
+   "horizon": 0,
+   "candidate": "ENSEMBLE_T2_SPF",
+   "protocol": "v4.0.0",
+   "data_class": "REAL_TIME",
+   "origins": {
+    "W1": 121,
+    "W2": 156
+   },
+   "criteria": {
+    "C1": "fail",
+    "C2": "pass",
+    "C4": "fail",
+    "C5": "pass"
+   },
+   "metrics": {
+    "stage": "CANDIDATE",
+    "data_class_note": "admission allowed: REAL_TIME data",
+    "C1": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "relative_loss": 0.9854013906701806,
+        "threshold": 0.97,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 0.9842533835934226,
+        "threshold": 0.97,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "relative_loss": 0.9617138617472383,
+        "threshold": 0.97,
+        "pass": true
+       },
+       "CRPS": {
+        "relative_loss": 0.9596406665840708,
+        "threshold": 0.97,
+        "pass": true
+       }
+      }
+     }
+    },
+    "C2": {
+     "pass": true,
+     "windows": {
+      "W1": {
+       "adjusted_p_min": 0.0031
+      },
+      "W2": {
+       "adjusted_p_min": 0.0098
+      }
+     }
+    },
+    "C4": {
+     "applies": true,
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 0.9284189725059299,
+        "recession_origins": 8,
+        "min_recession_origins": 12,
+        "pass": false
+       },
+       "CRPS": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 0.9841454868292165,
+        "recession_origins": 8,
+        "min_recession_origins": 12,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "status": "PASS",
+        "relative_loss_recession": 0.8992329982262328,
+        "recession_origins": 18,
+        "min_recession_origins": 12,
+        "pass": true
+       },
+       "CRPS": {
+        "status": "PASS",
+        "relative_loss_recession": 0.9247791521746338,
+        "recession_origins": 18,
+        "min_recession_origins": 12,
+        "pass": true
+       }
+      }
+     },
+     "extended": null
+    },
+    "C5": {
+     "pass": true,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "p_value": 0.9940113390712302,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.9942864252084678,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "p_value": 0.9877956508733181,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.9969269705865036,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C6": {
+     "status": "NO_RESOLVED_FORECASTS",
+     "pass": false
+    }
+   },
+   "overall_status": "CANDIDATE",
+   "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 fail (W1/RMSE 0.9854, W1/CRPS 0.9843, W2/RMSE 0.9617, W2/CRPS 0.9596); C2 pass (RW adj p W1 0.0031, W2 0.0098); C4 fail (W1 INCONCLUSIVE, W2 PASS); C5 pass",
+   "sources": [
+    {
+     "file": "protocols/ensemble_eval_ENSEMBLE_T2_SPF_T2_h0_v2.json",
+     "sha256": "5e014d0c9073df577db662d4355632c8bcfb7c768c7a1118b8456628406db223"
+    }
+   ]
+  },
+  {
+   "target": "T2_GDP_GROWTH",
+   "horizon": 1,
+   "candidate": "ENSEMBLE_ADAPTIVE",
+   "protocol": "v4.0.0",
+   "data_class": "REAL_TIME",
+   "origins": {
+    "W1": 40,
+    "W2": 51
+   },
+   "criteria": {
+    "C1": "fail",
+    "C2": "fail",
+    "C4": "fail",
+    "C5": "fail"
+   },
+   "metrics": {
+    "stage": "CANDIDATE",
+    "data_class_note": "admission allowed: REAL_TIME data",
+    "C1": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "relative_loss": 1.0121695204997325,
+        "threshold": 0.97,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 1.0088351953609236,
+        "threshold": 0.97,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "relative_loss": 1.0181947941758929,
+        "threshold": 0.97,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 1.020995889250382,
+        "threshold": 0.97,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C2": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "adjusted_p_min": 0.9787
+      },
+      "W2": {
+       "adjusted_p_min": 0.885
+      }
+     }
+    },
+    "C4": {
+     "applies": true,
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 1.0242125148887433,
+        "recession_origins": 3,
+        "min_recession_origins": 12,
+        "pass": false
+       },
+       "CRPS": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 1.011669195833748,
+        "recession_origins": 3,
+        "min_recession_origins": 12,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 0.9892155677534016,
+        "recession_origins": 6,
+        "min_recession_origins": 12,
+        "pass": false
+       },
+       "CRPS": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 0.9902986015195003,
+        "recession_origins": 6,
+        "min_recession_origins": 12,
+        "pass": false
+       }
+      }
+     },
+     "extended": null
+    },
+    "C5": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "p_value": 0.14354634256572352,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.21282582401503014,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "p_value": 0.10337183231892455,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.059653716609902374,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C6": {
+     "status": "NO_RESOLVED_FORECASTS",
+     "pass": false
+    }
+   },
+   "overall_status": "CANDIDATE",
+   "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 fail (W1/RMSE 1.0122, W1/CRPS 1.0088, W2/RMSE 1.0182, W2/CRPS 1.0210); C2 fail (RW adj p W1 0.9787, W2 0.8850); C4 fail (W1 INCONCLUSIVE, W2 INCONCLUSIVE); C5 fail",
+   "sources": [
+    {
+     "file": "protocols/ensemble_eval_ENSEMBLE_ADAPTIVE_T2_h1_v2.json",
+     "sha256": "7cedf5584da1a19204d0014086c9a42c096bf72ab9c31c05255862c6ba3fe3c2"
+    }
+   ]
+  },
+  {
+   "target": "T2_GDP_GROWTH",
+   "horizon": 1,
+   "candidate": "ENSEMBLE_BAYES",
+   "protocol": "v4.0.0",
+   "data_class": null,
+   "origins": {},
+   "criteria": {
+    "C1": "not_run",
+    "C2": "not_run",
+    "C4": "not_run",
+    "C5": "not_run"
+   },
+   "metrics": {},
+   "overall_status": "NOT_RUN",
+   "reason": "на T2 h=1/2/4 переоценивались только ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL (docs/102); этот кандидат на этих горизонтах не строился.",
+   "sources": [
+    {
+     "file": "protocols/candidates_2026-11-11.json",
+     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
+    },
+    {
+     "file": "protocols/spf_t2_sensitivity_report.json",
+     "sha256": "e0b52903de4ede943682609701d1ed609f2ee80ee076be4b0deac51be97c6310"
+    }
+   ]
+  },
+  {
+   "target": "T2_GDP_GROWTH",
+   "horizon": 1,
+   "candidate": "ENSEMBLE_EQUAL",
+   "protocol": "v4.0.0",
+   "data_class": "REAL_TIME",
+   "origins": {
+    "W1": 40,
+    "W2": 51
+   },
+   "criteria": {
+    "C1": "fail",
+    "C2": "fail",
+    "C4": "fail",
+    "C5": "pass"
+   },
+   "metrics": {
+    "stage": "CANDIDATE",
+    "data_class_note": "admission allowed: REAL_TIME data",
+    "C1": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "relative_loss": 1.0,
+        "threshold": 0.97,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 1.0,
+        "threshold": 0.97,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "relative_loss": 1.0,
+        "threshold": 0.97,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 1.0,
+        "threshold": 0.97,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C2": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "adjusted_p_min": 0.9787
+      },
+      "W2": {
+       "adjusted_p_min": 0.461
+      }
+     }
+    },
+    "C4": {
+     "applies": true,
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 1.0,
+        "recession_origins": 3,
+        "min_recession_origins": 12,
+        "pass": false
+       },
+       "CRPS": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 1.0,
+        "recession_origins": 3,
+        "min_recession_origins": 12,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 1.0,
+        "recession_origins": 6,
+        "min_recession_origins": 12,
+        "pass": false
+       },
+       "CRPS": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 1.0,
+        "recession_origins": 6,
+        "min_recession_origins": 12,
+        "pass": false
+       }
+      }
+     },
+     "extended": null
+    },
+    "C5": {
+     "pass": true,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "p_value": 0.3398747644614376,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.5,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "p_value": 0.7422195516294929,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.5,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C6": {
+     "status": "NO_RESOLVED_FORECASTS",
+     "pass": false
+    }
+   },
+   "overall_status": "CANDIDATE",
+   "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 fail (W1/RMSE 1.0000, W1/CRPS 1.0000, W2/RMSE 1.0000, W2/CRPS 1.0000); C2 fail (RW adj p W1 0.9787, W2 0.4610); C4 fail (W1 INCONCLUSIVE, W2 INCONCLUSIVE); C5 pass",
+   "sources": [
+    {
+     "file": "protocols/ensemble_eval_ENSEMBLE_EQUAL_T2_h1_v2.json",
+     "sha256": "1f1df2c95d5ed33962308871cf77136d3144e1455b302a36873da840ba82cf2e"
+    }
+   ]
+  },
+  {
+   "target": "T2_GDP_GROWTH",
+   "horizon": 1,
+   "candidate": "ENSEMBLE_INVERSE_MSE",
+   "protocol": "v4.0.0",
+   "data_class": null,
+   "origins": {},
+   "criteria": {
+    "C1": "not_run",
+    "C2": "not_run",
+    "C4": "not_run",
+    "C5": "not_run"
+   },
+   "metrics": {},
+   "overall_status": "NOT_RUN",
+   "reason": "на T2 h=1/2/4 переоценивались только ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL (docs/102); этот кандидат на этих горизонтах не строился.",
+   "sources": [
+    {
+     "file": "protocols/candidates_2026-11-11.json",
+     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
+    },
+    {
+     "file": "protocols/spf_t2_sensitivity_report.json",
+     "sha256": "e0b52903de4ede943682609701d1ed609f2ee80ee076be4b0deac51be97c6310"
+    }
+   ]
+  },
+  {
+   "target": "T2_GDP_GROWTH",
+   "horizon": 1,
+   "candidate": "ENSEMBLE_T2_NOT_SPF",
+   "protocol": "v4.0.0",
+   "data_class": null,
+   "origins": {},
+   "criteria": {
+    "C1": "not_run",
+    "C2": "not_run",
+    "C4": "not_run",
+    "C5": "not_run"
+   },
+   "metrics": {},
+   "overall_status": "NOT_RUN",
+   "reason": "контроль SPF-пары ENSEMBLE_T2_NOT_SPF на h>=1 отдельно не оценивался: T2 h=1/2/4 пасс покрывает только ENSEMBLE_ADAPTIVE/EQUAL (docs/102).",
+   "sources": [
+    {
+     "file": "protocols/candidates_2026-11-11.json",
+     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
+    },
+    {
+     "file": "protocols/spf_t2_sensitivity_report.json",
+     "sha256": "e0b52903de4ede943682609701d1ed609f2ee80ee076be4b0deac51be97c6310"
+    }
+   ]
+  },
+  {
+   "target": "T2_GDP_GROWTH",
+   "horizon": 1,
+   "candidate": "ENSEMBLE_T2_SPF",
+   "protocol": "v4.0.0",
+   "data_class": null,
+   "origins": {},
+   "criteria": {
+    "C1": "not_run",
+    "C2": "not_run",
+    "C4": "not_run",
+    "C5": "not_run"
+   },
+   "metrics": {},
+   "overall_status": "NOT_RUN",
+   "reason": "SPF-медиана не допускается на квартальных началах h=1/2/4 (origin_policy.spf_alignment, spf_available=false): кандидат вырождается в контроль ENSEMBLE_T2_NOT_SPF, отдельный прогон не проводился (docs/95).",
+   "sources": [
+    {
+     "file": "protocols/candidates_2026-11-11.json",
+     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
+    },
+    {
+     "file": "protocols/spf_t2_sensitivity_report.json",
+     "sha256": "e0b52903de4ede943682609701d1ed609f2ee80ee076be4b0deac51be97c6310"
+    }
+   ]
+  },
+  {
+   "target": "T2_GDP_GROWTH",
+   "horizon": 2,
+   "candidate": "ENSEMBLE_ADAPTIVE",
+   "protocol": "v4.0.0",
+   "data_class": "REAL_TIME",
+   "origins": {
+    "W1": 39,
+    "W2": 50
+   },
+   "criteria": {
+    "C1": "fail",
+    "C2": "fail",
+    "C4": "fail",
+    "C5": "pass"
+   },
+   "metrics": {
+    "stage": "CANDIDATE",
+    "data_class_note": "admission allowed: REAL_TIME data",
+    "C1": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "relative_loss": 1.0170740832718803,
+        "threshold": 0.97,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 1.0143533206986726,
+        "threshold": 0.97,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "relative_loss": 1.0120832113869829,
+        "threshold": 0.97,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 1.017382438443729,
+        "threshold": 0.97,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C2": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "adjusted_p_min": 0.9704
+      },
+      "W2": {
+       "adjusted_p_min": 0.7742
+      }
+     }
+    },
+    "C4": {
+     "applies": true,
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 0.983828155623117,
+        "recession_origins": 3,
+        "min_recession_origins": 12,
+        "pass": false
+       },
+       "CRPS": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 0.9847341878455924,
+        "recession_origins": 3,
+        "min_recession_origins": 12,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 0.9707365497057981,
+        "recession_origins": 6,
+        "min_recession_origins": 12,
+        "pass": false
+       },
+       "CRPS": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 0.9769353925590927,
+        "recession_origins": 6,
+        "min_recession_origins": 12,
+        "pass": false
+       }
+      }
+     },
+     "extended": null
+    },
+    "C5": {
+     "pass": true,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "p_value": 0.18784595131994553,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.20166242602807904,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "p_value": 0.26660514200145125,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.20717206459735715,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C6": {
+     "status": "NO_RESOLVED_FORECASTS",
+     "pass": false
+    }
+   },
+   "overall_status": "CANDIDATE",
+   "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 fail (W1/RMSE 1.0171, W1/CRPS 1.0144, W2/RMSE 1.0121, W2/CRPS 1.0174); C2 fail (RW adj p W1 0.9704, W2 0.7742); C4 fail (W1 INCONCLUSIVE, W2 INCONCLUSIVE); C5 pass",
+   "sources": [
+    {
+     "file": "protocols/ensemble_eval_ENSEMBLE_ADAPTIVE_T2_h2_v2.json",
+     "sha256": "aee128630e301e024474a76994e1695612cebfd04a22f67b4ee7601b014ea11d"
+    }
+   ]
+  },
+  {
+   "target": "T2_GDP_GROWTH",
+   "horizon": 2,
+   "candidate": "ENSEMBLE_BAYES",
+   "protocol": "v4.0.0",
+   "data_class": null,
+   "origins": {},
+   "criteria": {
+    "C1": "not_run",
+    "C2": "not_run",
+    "C4": "not_run",
+    "C5": "not_run"
+   },
+   "metrics": {},
+   "overall_status": "NOT_RUN",
+   "reason": "на T2 h=1/2/4 переоценивались только ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL (docs/102); этот кандидат на этих горизонтах не строился.",
+   "sources": [
+    {
+     "file": "protocols/candidates_2026-11-11.json",
+     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
+    },
+    {
+     "file": "protocols/spf_t2_sensitivity_report.json",
+     "sha256": "e0b52903de4ede943682609701d1ed609f2ee80ee076be4b0deac51be97c6310"
+    }
+   ]
+  },
+  {
+   "target": "T2_GDP_GROWTH",
+   "horizon": 2,
+   "candidate": "ENSEMBLE_EQUAL",
+   "protocol": "v4.0.0",
+   "data_class": "REAL_TIME",
+   "origins": {
+    "W1": 39,
+    "W2": 50
+   },
+   "criteria": {
+    "C1": "fail",
+    "C2": "fail",
+    "C4": "fail",
+    "C5": "pass"
+   },
+   "metrics": {
+    "stage": "CANDIDATE",
+    "data_class_note": "admission allowed: REAL_TIME data",
+    "C1": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "relative_loss": 1.0,
+        "threshold": 0.97,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 1.0,
+        "threshold": 0.97,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "relative_loss": 1.0,
+        "threshold": 0.97,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 1.0,
+        "threshold": 0.97,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C2": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "adjusted_p_min": 0.9704
+      },
+      "W2": {
+       "adjusted_p_min": 0.287
+      }
+     }
+    },
+    "C4": {
+     "applies": true,
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 0.9999999999999998,
+        "recession_origins": 3,
+        "min_recession_origins": 12,
+        "pass": false
+       },
+       "CRPS": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 1.0,
+        "recession_origins": 3,
+        "min_recession_origins": 12,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 0.9999999999999997,
+        "recession_origins": 6,
+        "min_recession_origins": 12,
+        "pass": false
+       },
+       "CRPS": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 1.0,
+        "recession_origins": 6,
+        "min_recession_origins": 12,
+        "pass": false
+       }
+      }
+     },
+     "extended": null
+    },
+    "C5": {
+     "pass": true,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "p_value": 0.11816587361251507,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.5,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "p_value": 0.4144543480011875,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.5,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C6": {
+     "status": "NO_RESOLVED_FORECASTS",
+     "pass": false
+    }
+   },
+   "overall_status": "CANDIDATE",
+   "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 fail (W1/RMSE 1.0000, W1/CRPS 1.0000, W2/RMSE 1.0000, W2/CRPS 1.0000); C2 fail (RW adj p W1 0.9704, W2 0.2870); C4 fail (W1 INCONCLUSIVE, W2 INCONCLUSIVE); C5 pass",
+   "sources": [
+    {
+     "file": "protocols/ensemble_eval_ENSEMBLE_EQUAL_T2_h2_v2.json",
+     "sha256": "23e08601ee9144731e2b76e1fb740c10b8096497c7d2e6ac1829b9dca941a15a"
+    }
+   ]
+  },
+  {
+   "target": "T2_GDP_GROWTH",
+   "horizon": 2,
+   "candidate": "ENSEMBLE_INVERSE_MSE",
+   "protocol": "v4.0.0",
+   "data_class": null,
+   "origins": {},
+   "criteria": {
+    "C1": "not_run",
+    "C2": "not_run",
+    "C4": "not_run",
+    "C5": "not_run"
+   },
+   "metrics": {},
+   "overall_status": "NOT_RUN",
+   "reason": "на T2 h=1/2/4 переоценивались только ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL (docs/102); этот кандидат на этих горизонтах не строился.",
+   "sources": [
+    {
+     "file": "protocols/candidates_2026-11-11.json",
+     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
+    },
+    {
+     "file": "protocols/spf_t2_sensitivity_report.json",
+     "sha256": "e0b52903de4ede943682609701d1ed609f2ee80ee076be4b0deac51be97c6310"
+    }
+   ]
+  },
+  {
+   "target": "T2_GDP_GROWTH",
+   "horizon": 2,
+   "candidate": "ENSEMBLE_T2_NOT_SPF",
+   "protocol": "v4.0.0",
+   "data_class": null,
+   "origins": {},
+   "criteria": {
+    "C1": "not_run",
+    "C2": "not_run",
+    "C4": "not_run",
+    "C5": "not_run"
+   },
+   "metrics": {},
+   "overall_status": "NOT_RUN",
+   "reason": "контроль SPF-пары ENSEMBLE_T2_NOT_SPF на h>=1 отдельно не оценивался: T2 h=1/2/4 пасс покрывает только ENSEMBLE_ADAPTIVE/EQUAL (docs/102).",
+   "sources": [
+    {
+     "file": "protocols/candidates_2026-11-11.json",
+     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
+    },
+    {
+     "file": "protocols/spf_t2_sensitivity_report.json",
+     "sha256": "e0b52903de4ede943682609701d1ed609f2ee80ee076be4b0deac51be97c6310"
+    }
+   ]
+  },
+  {
+   "target": "T2_GDP_GROWTH",
+   "horizon": 2,
+   "candidate": "ENSEMBLE_T2_SPF",
+   "protocol": "v4.0.0",
+   "data_class": null,
+   "origins": {},
+   "criteria": {
+    "C1": "not_run",
+    "C2": "not_run",
+    "C4": "not_run",
+    "C5": "not_run"
+   },
+   "metrics": {},
+   "overall_status": "NOT_RUN",
+   "reason": "SPF-медиана не допускается на квартальных началах h=1/2/4 (origin_policy.spf_alignment, spf_available=false): кандидат вырождается в контроль ENSEMBLE_T2_NOT_SPF, отдельный прогон не проводился (docs/95).",
+   "sources": [
+    {
+     "file": "protocols/candidates_2026-11-11.json",
+     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
+    },
+    {
+     "file": "protocols/spf_t2_sensitivity_report.json",
+     "sha256": "e0b52903de4ede943682609701d1ed609f2ee80ee076be4b0deac51be97c6310"
+    }
+   ]
+  },
+  {
+   "target": "T2_GDP_GROWTH",
+   "horizon": 4,
+   "candidate": "ENSEMBLE_ADAPTIVE",
+   "protocol": "v4.0.0",
+   "data_class": "REAL_TIME",
+   "origins": {
+    "W1": 37,
+    "W2": 48
+   },
+   "criteria": {
+    "C1": "fail",
+    "C2": "fail",
+    "C4": "fail",
+    "C5": "fail"
+   },
+   "metrics": {
+    "stage": "CANDIDATE",
+    "data_class_note": "admission allowed: REAL_TIME data",
+    "C1": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "relative_loss": 1.0239255018886886,
+        "threshold": 0.97,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 1.015876184296948,
+        "threshold": 0.97,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "relative_loss": 1.0131756240902121,
+        "threshold": 0.97,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 1.0164240179369533,
+        "threshold": 0.97,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C2": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "adjusted_p_min": 0.8469
+      },
+      "W2": {
+       "adjusted_p_min": 0.8877
+      }
+     }
+    },
+    "C4": {
+     "applies": true,
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 1.0425771571054296,
+        "recession_origins": 4,
+        "min_recession_origins": 12,
+        "pass": false
+       },
+       "CRPS": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 1.0250853637760893,
+        "recession_origins": 4,
+        "min_recession_origins": 12,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 1.0032650611008154,
+        "recession_origins": 7,
+        "min_recession_origins": 12,
+        "pass": false
+       },
+       "CRPS": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 1.0065484941486174,
+        "recession_origins": 7,
+        "min_recession_origins": 12,
+        "pass": false
+       }
+      }
+     },
+     "extended": null
+    },
+    "C5": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "p_value": 0.16215108096738584,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.23554822277204346,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "p_value": 0.09256910130981422,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.11267138843182978,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C6": {
+     "status": "NO_RESOLVED_FORECASTS",
+     "pass": false
+    }
+   },
+   "overall_status": "CANDIDATE",
+   "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 fail (W1/RMSE 1.0239, W1/CRPS 1.0159, W2/RMSE 1.0132, W2/CRPS 1.0164); C2 fail (RW adj p W1 0.8469, W2 0.8877); C4 fail (W1 INCONCLUSIVE, W2 INCONCLUSIVE); C5 fail",
+   "sources": [
+    {
+     "file": "protocols/ensemble_eval_ENSEMBLE_ADAPTIVE_T2_h4_v2.json",
+     "sha256": "787f2c63f8490cb02ccda8ba85f4ea79dcb8326b60862bd48b5f3ea219e0f426"
+    }
+   ]
+  },
+  {
+   "target": "T2_GDP_GROWTH",
+   "horizon": 4,
+   "candidate": "ENSEMBLE_BAYES",
+   "protocol": "v4.0.0",
+   "data_class": null,
+   "origins": {},
+   "criteria": {
+    "C1": "not_run",
+    "C2": "not_run",
+    "C4": "not_run",
+    "C5": "not_run"
+   },
+   "metrics": {},
+   "overall_status": "NOT_RUN",
+   "reason": "на T2 h=1/2/4 переоценивались только ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL (docs/102); этот кандидат на этих горизонтах не строился.",
+   "sources": [
+    {
+     "file": "protocols/candidates_2026-11-11.json",
+     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
+    },
+    {
+     "file": "protocols/spf_t2_sensitivity_report.json",
+     "sha256": "e0b52903de4ede943682609701d1ed609f2ee80ee076be4b0deac51be97c6310"
+    }
+   ]
+  },
+  {
+   "target": "T2_GDP_GROWTH",
+   "horizon": 4,
+   "candidate": "ENSEMBLE_EQUAL",
+   "protocol": "v4.0.0",
+   "data_class": "REAL_TIME",
+   "origins": {
+    "W1": 37,
+    "W2": 48
+   },
+   "criteria": {
+    "C1": "fail",
+    "C2": "fail",
+    "C4": "fail",
+    "C5": "pass"
+   },
+   "metrics": {
+    "stage": "CANDIDATE",
+    "data_class_note": "admission allowed: REAL_TIME data",
+    "C1": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "relative_loss": 1.0,
+        "threshold": 0.97,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 1.0,
+        "threshold": 0.97,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "relative_loss": 1.0,
+        "threshold": 0.97,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 1.0,
+        "threshold": 0.97,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C2": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "adjusted_p_min": 0.6926
+      },
+      "W2": {
+       "adjusted_p_min": 0.7767
+      }
+     }
+    },
+    "C4": {
+     "applies": true,
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 1.0000000000000002,
+        "recession_origins": 4,
+        "min_recession_origins": 12,
+        "pass": false
+       },
+       "CRPS": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 1.0,
+        "recession_origins": 4,
+        "min_recession_origins": 12,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 1.0,
+        "recession_origins": 7,
+        "min_recession_origins": 12,
+        "pass": false
+       },
+       "CRPS": {
+        "status": "INCONCLUSIVE",
+        "relative_loss_recession": 1.0,
+        "recession_origins": 7,
+        "min_recession_origins": 12,
+        "pass": false
+       }
+      }
+     },
+     "extended": null
+    },
+    "C5": {
+     "pass": true,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "p_value": 0.7021369538669973,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.5,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "p_value": 0.472625657070175,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.5,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C6": {
+     "status": "NO_RESOLVED_FORECASTS",
+     "pass": false
+    }
+   },
+   "overall_status": "CANDIDATE",
+   "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 fail (W1/RMSE 1.0000, W1/CRPS 1.0000, W2/RMSE 1.0000, W2/CRPS 1.0000); C2 fail (RW adj p W1 0.6926, W2 0.7767); C4 fail (W1 INCONCLUSIVE, W2 INCONCLUSIVE); C5 pass",
+   "sources": [
+    {
+     "file": "protocols/ensemble_eval_ENSEMBLE_EQUAL_T2_h4_v2.json",
+     "sha256": "171279d1555cdfe947ad629638de50dd292639613696e67dc1a6462560b899ed"
+    }
+   ]
+  },
+  {
+   "target": "T2_GDP_GROWTH",
+   "horizon": 4,
+   "candidate": "ENSEMBLE_INVERSE_MSE",
+   "protocol": "v4.0.0",
+   "data_class": null,
+   "origins": {},
+   "criteria": {
+    "C1": "not_run",
+    "C2": "not_run",
+    "C4": "not_run",
+    "C5": "not_run"
+   },
+   "metrics": {},
+   "overall_status": "NOT_RUN",
+   "reason": "на T2 h=1/2/4 переоценивались только ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL (docs/102); этот кандидат на этих горизонтах не строился.",
+   "sources": [
+    {
+     "file": "protocols/candidates_2026-11-11.json",
+     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
+    },
+    {
+     "file": "protocols/spf_t2_sensitivity_report.json",
+     "sha256": "e0b52903de4ede943682609701d1ed609f2ee80ee076be4b0deac51be97c6310"
+    }
+   ]
+  },
+  {
+   "target": "T2_GDP_GROWTH",
+   "horizon": 4,
+   "candidate": "ENSEMBLE_T2_NOT_SPF",
+   "protocol": "v4.0.0",
+   "data_class": null,
+   "origins": {},
+   "criteria": {
+    "C1": "not_run",
+    "C2": "not_run",
+    "C4": "not_run",
+    "C5": "not_run"
+   },
+   "metrics": {},
+   "overall_status": "NOT_RUN",
+   "reason": "контроль SPF-пары ENSEMBLE_T2_NOT_SPF на h>=1 отдельно не оценивался: T2 h=1/2/4 пасс покрывает только ENSEMBLE_ADAPTIVE/EQUAL (docs/102).",
+   "sources": [
+    {
+     "file": "protocols/candidates_2026-11-11.json",
+     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
+    },
+    {
+     "file": "protocols/spf_t2_sensitivity_report.json",
+     "sha256": "e0b52903de4ede943682609701d1ed609f2ee80ee076be4b0deac51be97c6310"
+    }
+   ]
+  },
+  {
+   "target": "T2_GDP_GROWTH",
+   "horizon": 4,
+   "candidate": "ENSEMBLE_T2_SPF",
+   "protocol": "v4.0.0",
+   "data_class": null,
+   "origins": {},
+   "criteria": {
+    "C1": "not_run",
+    "C2": "not_run",
+    "C4": "not_run",
+    "C5": "not_run"
+   },
+   "metrics": {},
+   "overall_status": "NOT_RUN",
+   "reason": "SPF-медиана не допускается на квартальных началах h=1/2/4 (origin_policy.spf_alignment, spf_available=false): кандидат вырождается в контроль ENSEMBLE_T2_NOT_SPF, отдельный прогон не проводился (docs/95).",
+   "sources": [
+    {
+     "file": "protocols/candidates_2026-11-11.json",
+     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
+    },
+    {
+     "file": "protocols/spf_t2_sensitivity_report.json",
+     "sha256": "e0b52903de4ede943682609701d1ed609f2ee80ee076be4b0deac51be97c6310"
+    }
+   ]
+  },
+  {
+   "target": "T3_RECESSION",
+   "horizon": 3,
+   "candidate": "ENSEMBLE_ADAPTIVE",
+   "protocol": "v4.0.0",
+   "data_class": "REAL_TIME",
+   "origins": {
+    "W1": 118,
+    "W2": 153
+   },
+   "criteria": {
+    "C1": "fail",
+    "C2": "fail",
+    "C4": "not_applicable",
+    "C5": "pass"
+   },
+   "metrics": {
+    "stage": "CANDIDATE",
+    "data_class_note": "admission allowed: data class REAL_TIME is in ['REAL_TIME', 'REAL_TIME_TAPE']",
+    "C1": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "Brier": {
+        "relative_loss": 1.0328854031925003,
+        "threshold": 0.7055,
+        "pass": false
+       },
+       "log_score": {
+        "relative_loss": 1.00796262974309,
+        "threshold": 0.7976,
+        "pass": false
+       }
+      },
+      "W2": {
+       "Brier": {
+        "relative_loss": 0.9228405884837599,
+        "threshold": 0.7669,
+        "pass": false
+       },
+       "log_score": {
+        "relative_loss": 0.9358540165278383,
+        "threshold": 0.8286,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C2": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "adjusted_p_min": 1.0
+      },
+      "W2": {
+       "adjusted_p_min": 0.0417
+      }
+     }
+    },
+    "C4": {
+     "applies": false,
+     "pass": true,
+     "windows": {},
+     "extended": null
+    },
+    "C5": {
+     "pass": true,
+     "windows": {
+      "W1": {
+       "Brier": {
+        "p_value": 0.26743174322332064,
+        "pass": false
+       },
+       "log_score": {
+        "p_value": 0.4207795148229656,
+        "pass": false
+       }
+      },
+      "W2": {
+       "Brier": {
+        "p_value": 0.9656854656373924,
+        "pass": false
+       },
+       "log_score": {
+        "p_value": 0.9780157382760373,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C6": {
+     "status": "NO_RESOLVED_FORECASTS",
+     "pass": false
+    }
+   },
+   "overall_status": "CANDIDATE",
+   "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 fail (W1/Brier 1.0329, W1/log_score 1.0080, W2/Brier 0.9228, W2/log_score 0.9359); C2 fail (RW adj p W1 1.0000, W2 0.0417); C4 не применим по протоколу; C5 pass",
+   "sources": [
+    {
+     "file": "protocols/ensemble_eval_ENSEMBLE_ADAPTIVE_T3_h3_v2.json",
+     "sha256": "0f538a33c7bb8615ef65743b122cd35c48f907501177d95638749b24977ebf43"
+    }
+   ]
+  },
+  {
+   "target": "T3_RECESSION",
+   "horizon": 3,
+   "candidate": "ENSEMBLE_BAYES",
+   "protocol": "v4.0.0",
+   "data_class": null,
+   "origins": {},
+   "criteria": {
+    "C1": "not_run",
+    "C2": "not_run",
+    "C4": "not_run",
+    "C5": "not_run"
+   },
+   "metrics": {},
+   "overall_status": "NOT_RUN",
+   "reason": "T3 оценён только для ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL (docs/109); T3 v5-перепрогон не выполнялся: ~18 с на начало x 253 начала x 2 кандидата (~2,5 ч), см. ensemble_t3_report.json.",
+   "sources": [
+    {
+     "file": "protocols/candidates_2026-11-11.json",
+     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
+    },
+    {
+     "file": "protocols/ensemble_t3_report.json",
+     "sha256": "02cb02ee9002e885d7596a39d360fba7f5a1fa0ad201b2dac419d58c15ccfeb1"
+    }
+   ]
+  },
+  {
+   "target": "T3_RECESSION",
+   "horizon": 3,
+   "candidate": "ENSEMBLE_EQUAL",
+   "protocol": "v4.0.0",
+   "data_class": "REAL_TIME",
+   "origins": {
+    "W1": 118,
+    "W2": 153
+   },
+   "criteria": {
+    "C1": "fail",
+    "C2": "fail",
+    "C4": "not_applicable",
+    "C5": "pass"
+   },
+   "metrics": {
+    "stage": "CANDIDATE",
+    "data_class_note": "admission allowed: data class REAL_TIME is in ['REAL_TIME', 'REAL_TIME_TAPE']",
+    "C1": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "Brier": {
+        "relative_loss": 1.0,
+        "threshold": 0.7055,
+        "pass": false
+       },
+       "log_score": {
+        "relative_loss": 1.0,
+        "threshold": 0.7976,
+        "pass": false
+       }
+      },
+      "W2": {
+       "Brier": {
+        "relative_loss": 1.0,
+        "threshold": 0.7669,
+        "pass": false
+       },
+       "log_score": {
+        "relative_loss": 1.0,
+        "threshold": 0.8286,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C2": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "adjusted_p_min": 1.0
+      },
+      "W2": {
+       "adjusted_p_min": 1.0
+      }
+     }
+    },
+    "C4": {
+     "applies": false,
+     "pass": true,
+     "windows": {},
+     "extended": null
+    },
+    "C5": {
+     "pass": true,
+     "windows": {
+      "W1": {
+       "Brier": {
+        "p_value": 0.5,
+        "pass": false
+       },
+       "log_score": {
+        "p_value": 0.5,
+        "pass": false
+       }
+      },
+      "W2": {
+       "Brier": {
+        "p_value": 0.5,
+        "pass": false
+       },
+       "log_score": {
+        "p_value": 0.5,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C6": {
+     "status": "NO_RESOLVED_FORECASTS",
+     "pass": false
+    }
+   },
+   "overall_status": "CANDIDATE",
+   "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 fail (W1/Brier 1.0000, W1/log_score 1.0000, W2/Brier 1.0000, W2/log_score 1.0000); C2 fail (RW adj p W1 1.0000, W2 1.0000); C4 не применим по протоколу; C5 pass",
+   "sources": [
+    {
+     "file": "protocols/ensemble_eval_ENSEMBLE_EQUAL_T3_h3_v2.json",
+     "sha256": "8012cebc376ed5f10aa5d62629ab06e662c650108798e624ab8badaa6661177f"
+    }
+   ]
+  },
+  {
+   "target": "T3_RECESSION",
+   "horizon": 3,
+   "candidate": "ENSEMBLE_INVERSE_MSE",
+   "protocol": "v4.0.0",
+   "data_class": null,
+   "origins": {},
+   "criteria": {
+    "C1": "not_run",
+    "C2": "not_run",
+    "C4": "not_run",
+    "C5": "not_run"
+   },
+   "metrics": {},
+   "overall_status": "NOT_RUN",
+   "reason": "T3 оценён только для ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL (docs/109); T3 v5-перепрогон не выполнялся: ~18 с на начало x 253 начала x 2 кандидата (~2,5 ч), см. ensemble_t3_report.json.",
+   "sources": [
+    {
+     "file": "protocols/candidates_2026-11-11.json",
+     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
+    },
+    {
+     "file": "protocols/ensemble_t3_report.json",
+     "sha256": "02cb02ee9002e885d7596a39d360fba7f5a1fa0ad201b2dac419d58c15ccfeb1"
+    }
+   ]
+  },
+  {
+   "target": "T3_RECESSION",
+   "horizon": 6,
+   "candidate": "ENSEMBLE_ADAPTIVE",
+   "protocol": "v4.0.0",
+   "data_class": "REAL_TIME",
+   "origins": {
+    "W1": 115,
+    "W2": 150
+   },
+   "criteria": {
+    "C1": "fail",
+    "C2": "fail",
+    "C4": "not_applicable",
+    "C5": "pass"
+   },
+   "metrics": {
+    "stage": "CANDIDATE",
+    "data_class_note": "admission allowed: data class REAL_TIME is in ['REAL_TIME', 'REAL_TIME_TAPE']",
+    "C1": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "Brier": {
+        "relative_loss": 1.0978355840828053,
+        "threshold": 0.7192,
+        "pass": false
+       },
+       "log_score": {
+        "relative_loss": 1.0462174774277735,
+        "threshold": 0.8153,
+        "pass": false
+       }
+      },
+      "W2": {
+       "Brier": {
+        "relative_loss": 0.9262661341131464,
+        "threshold": 0.7864,
+        "pass": false
+       },
+       "log_score": {
+        "relative_loss": 0.9314455867745527,
+        "threshold": 0.8497,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C2": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "adjusted_p_min": 1.0
+      },
+      "W2": {
+       "adjusted_p_min": 0.0965
+      }
+     }
+    },
+    "C4": {
+     "applies": false,
+     "pass": true,
+     "windows": {},
+     "extended": null
+    },
+    "C5": {
+     "pass": true,
+     "windows": {
+      "W1": {
+       "Brier": {
+        "p_value": 0.13769815767751759,
+        "pass": false
+       },
+       "log_score": {
+        "p_value": 0.22178988138000744,
+        "pass": false
+       }
+      },
+      "W2": {
+       "Brier": {
+        "p_value": 0.9024189522907375,
+        "pass": false
+       },
+       "log_score": {
+        "p_value": 0.92099979715989,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C6": {
+     "status": "NO_RESOLVED_FORECASTS",
+     "pass": false
+    }
+   },
+   "overall_status": "CANDIDATE",
+   "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 fail (W1/Brier 1.0978, W1/log_score 1.0462, W2/Brier 0.9263, W2/log_score 0.9314); C2 fail (RW adj p W1 1.0000, W2 0.0965); C4 не применим по протоколу; C5 pass",
+   "sources": [
+    {
+     "file": "protocols/ensemble_eval_ENSEMBLE_ADAPTIVE_T3_h6_v2.json",
+     "sha256": "5fea14d69ba960767017286a58598fe6315b63d7bb8bdacfaea0a1f6474f18c2"
+    }
+   ]
+  },
+  {
+   "target": "T3_RECESSION",
+   "horizon": 6,
+   "candidate": "ENSEMBLE_BAYES",
+   "protocol": "v4.0.0",
+   "data_class": null,
+   "origins": {},
+   "criteria": {
+    "C1": "not_run",
+    "C2": "not_run",
+    "C4": "not_run",
+    "C5": "not_run"
+   },
+   "metrics": {},
+   "overall_status": "NOT_RUN",
+   "reason": "T3 оценён только для ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL (docs/109); T3 v5-перепрогон не выполнялся: ~18 с на начало x 253 начала x 2 кандидата (~2,5 ч), см. ensemble_t3_report.json.",
+   "sources": [
+    {
+     "file": "protocols/candidates_2026-11-11.json",
+     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
+    },
+    {
+     "file": "protocols/ensemble_t3_report.json",
+     "sha256": "02cb02ee9002e885d7596a39d360fba7f5a1fa0ad201b2dac419d58c15ccfeb1"
+    }
+   ]
+  },
+  {
+   "target": "T3_RECESSION",
+   "horizon": 6,
+   "candidate": "ENSEMBLE_EQUAL",
+   "protocol": "v4.0.0",
+   "data_class": "REAL_TIME",
+   "origins": {
+    "W1": 115,
+    "W2": 150
+   },
+   "criteria": {
+    "C1": "fail",
+    "C2": "fail",
+    "C4": "not_applicable",
+    "C5": "pass"
+   },
+   "metrics": {
+    "stage": "CANDIDATE",
+    "data_class_note": "admission allowed: data class REAL_TIME is in ['REAL_TIME', 'REAL_TIME_TAPE']",
+    "C1": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "Brier": {
+        "relative_loss": 1.0,
+        "threshold": 0.7192,
+        "pass": false
+       },
+       "log_score": {
+        "relative_loss": 1.0,
+        "threshold": 0.8153,
+        "pass": false
+       }
+      },
+      "W2": {
+       "Brier": {
+        "relative_loss": 1.0,
+        "threshold": 0.7864,
+        "pass": false
+       },
+       "log_score": {
+        "relative_loss": 1.0,
+        "threshold": 0.8497,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C2": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "adjusted_p_min": 1.0
+      },
+      "W2": {
+       "adjusted_p_min": 1.0
+      }
+     }
+    },
+    "C4": {
+     "applies": false,
+     "pass": true,
+     "windows": {},
+     "extended": null
+    },
+    "C5": {
+     "pass": true,
+     "windows": {
+      "W1": {
+       "Brier": {
+        "p_value": 0.5,
+        "pass": false
+       },
+       "log_score": {
+        "p_value": 0.5,
+        "pass": false
+       }
+      },
+      "W2": {
+       "Brier": {
+        "p_value": 0.5,
+        "pass": false
+       },
+       "log_score": {
+        "p_value": 0.5,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C6": {
+     "status": "NO_RESOLVED_FORECASTS",
+     "pass": false
+    }
+   },
+   "overall_status": "CANDIDATE",
+   "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 fail (W1/Brier 1.0000, W1/log_score 1.0000, W2/Brier 1.0000, W2/log_score 1.0000); C2 fail (RW adj p W1 1.0000, W2 1.0000); C4 не применим по протоколу; C5 pass",
+   "sources": [
+    {
+     "file": "protocols/ensemble_eval_ENSEMBLE_EQUAL_T3_h6_v2.json",
+     "sha256": "a1b4ff6d58db777c709b5c65d1eff8a6ae8704704e396024086c69ab68965df5"
+    }
+   ]
+  },
+  {
+   "target": "T3_RECESSION",
+   "horizon": 6,
+   "candidate": "ENSEMBLE_INVERSE_MSE",
+   "protocol": "v4.0.0",
+   "data_class": null,
+   "origins": {},
+   "criteria": {
+    "C1": "not_run",
+    "C2": "not_run",
+    "C4": "not_run",
+    "C5": "not_run"
+   },
+   "metrics": {},
+   "overall_status": "NOT_RUN",
+   "reason": "T3 оценён только для ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL (docs/109); T3 v5-перепрогон не выполнялся: ~18 с на начало x 253 начала x 2 кандидата (~2,5 ч), см. ensemble_t3_report.json.",
+   "sources": [
+    {
+     "file": "protocols/candidates_2026-11-11.json",
+     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
+    },
+    {
+     "file": "protocols/ensemble_t3_report.json",
+     "sha256": "02cb02ee9002e885d7596a39d360fba7f5a1fa0ad201b2dac419d58c15ccfeb1"
+    }
+   ]
+  },
+  {
+   "target": "T3_RECESSION",
+   "horizon": 12,
+   "candidate": "ENSEMBLE_ADAPTIVE",
+   "protocol": "v4.0.0",
+   "data_class": "REAL_TIME",
+   "origins": {
+    "W1": 109,
+    "W2": 144
+   },
+   "criteria": {
+    "C1": "fail",
+    "C2": "fail",
+    "C4": "not_applicable",
+    "C5": "pass"
+   },
+   "metrics": {
+    "stage": "CANDIDATE",
+    "data_class_note": "admission allowed: data class REAL_TIME is in ['REAL_TIME', 'REAL_TIME_TAPE']",
+    "C1": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "Brier": {
+        "relative_loss": 1.039778102466825,
+        "threshold": 0.7184,
+        "pass": false
+       },
+       "log_score": {
+        "relative_loss": 1.0159146597127566,
+        "threshold": 0.8134,
+        "pass": false
+       }
+      },
+      "W2": {
+       "Brier": {
+        "relative_loss": 0.9095260341075924,
+        "threshold": 0.7938,
+        "pass": false
+       },
+       "log_score": {
+        "relative_loss": 0.9174304116190445,
+        "threshold": 0.8501,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C2": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "adjusted_p_min": 1.0
+      },
+      "W2": {
+       "adjusted_p_min": 0.0471
+      }
+     }
+    },
+    "C4": {
+     "applies": false,
+     "pass": true,
+     "windows": {},
+     "extended": null
+    },
+    "C5": {
+     "pass": true,
+     "windows": {
+      "W1": {
+       "Brier": {
+        "p_value": 0.36640643855664967,
+        "pass": false
+       },
+       "log_score": {
+        "p_value": 0.41380830959040427,
+        "pass": false
+       }
+      },
+      "W2": {
+       "Brier": {
+        "p_value": 0.956039024120251,
+        "pass": false
+       },
+       "log_score": {
+        "p_value": 0.9716112304117672,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C6": {
+     "status": "NO_RESOLVED_FORECASTS",
+     "pass": false
+    }
+   },
+   "overall_status": "CANDIDATE",
+   "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 fail (W1/Brier 1.0398, W1/log_score 1.0159, W2/Brier 0.9095, W2/log_score 0.9174); C2 fail (RW adj p W1 1.0000, W2 0.0471); C4 не применим по протоколу; C5 pass",
+   "sources": [
+    {
+     "file": "protocols/ensemble_eval_ENSEMBLE_ADAPTIVE_T3_h12_v2.json",
+     "sha256": "e9f44434851ffb83f2404b06594803849e0bd4920fb8d5518a73c18411d21ed4"
+    }
+   ]
+  },
+  {
+   "target": "T3_RECESSION",
+   "horizon": 12,
+   "candidate": "ENSEMBLE_BAYES",
+   "protocol": "v4.0.0",
+   "data_class": null,
+   "origins": {},
+   "criteria": {
+    "C1": "not_run",
+    "C2": "not_run",
+    "C4": "not_run",
+    "C5": "not_run"
+   },
+   "metrics": {},
+   "overall_status": "NOT_RUN",
+   "reason": "T3 оценён только для ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL (docs/109); T3 v5-перепрогон не выполнялся: ~18 с на начало x 253 начала x 2 кандидата (~2,5 ч), см. ensemble_t3_report.json.",
+   "sources": [
+    {
+     "file": "protocols/candidates_2026-11-11.json",
+     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
+    },
+    {
+     "file": "protocols/ensemble_t3_report.json",
+     "sha256": "02cb02ee9002e885d7596a39d360fba7f5a1fa0ad201b2dac419d58c15ccfeb1"
+    }
+   ]
+  },
+  {
+   "target": "T3_RECESSION",
+   "horizon": 12,
+   "candidate": "ENSEMBLE_EQUAL",
+   "protocol": "v4.0.0",
+   "data_class": "REAL_TIME",
+   "origins": {
+    "W1": 109,
+    "W2": 144
+   },
+   "criteria": {
+    "C1": "fail",
+    "C2": "fail",
+    "C4": "not_applicable",
+    "C5": "pass"
+   },
+   "metrics": {
+    "stage": "CANDIDATE",
+    "data_class_note": "admission allowed: data class REAL_TIME is in ['REAL_TIME', 'REAL_TIME_TAPE']",
+    "C1": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "Brier": {
+        "relative_loss": 1.0,
+        "threshold": 0.7184,
+        "pass": false
+       },
+       "log_score": {
+        "relative_loss": 1.0,
+        "threshold": 0.8134,
+        "pass": false
+       }
+      },
+      "W2": {
+       "Brier": {
+        "relative_loss": 1.0,
+        "threshold": 0.7938,
+        "pass": false
+       },
+       "log_score": {
+        "relative_loss": 1.0,
+        "threshold": 0.8501,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C2": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "adjusted_p_min": 1.0
+      },
+      "W2": {
+       "adjusted_p_min": 1.0
+      }
+     }
+    },
+    "C4": {
+     "applies": false,
+     "pass": true,
+     "windows": {},
+     "extended": null
+    },
+    "C5": {
+     "pass": true,
+     "windows": {
+      "W1": {
+       "Brier": {
+        "p_value": 0.5,
+        "pass": false
+       },
+       "log_score": {
+        "p_value": 0.5,
+        "pass": false
+       }
+      },
+      "W2": {
+       "Brier": {
+        "p_value": 0.5,
+        "pass": false
+       },
+       "log_score": {
+        "p_value": 0.5,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C6": {
+     "status": "NO_RESOLVED_FORECASTS",
+     "pass": false
+    }
+   },
+   "overall_status": "CANDIDATE",
+   "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 fail (W1/Brier 1.0000, W1/log_score 1.0000, W2/Brier 1.0000, W2/log_score 1.0000); C2 fail (RW adj p W1 1.0000, W2 1.0000); C4 не применим по протоколу; C5 pass",
+   "sources": [
+    {
+     "file": "protocols/ensemble_eval_ENSEMBLE_EQUAL_T3_h12_v2.json",
+     "sha256": "fca599c6ea8b2b2d3bc7e8ef6c17b05dd76322867dc004983d67774d33cba611"
+    }
+   ]
+  },
+  {
+   "target": "T3_RECESSION",
+   "horizon": 12,
+   "candidate": "ENSEMBLE_INVERSE_MSE",
+   "protocol": "v4.0.0",
+   "data_class": null,
+   "origins": {},
+   "criteria": {
+    "C1": "not_run",
+    "C2": "not_run",
+    "C4": "not_run",
+    "C5": "not_run"
+   },
+   "metrics": {},
+   "overall_status": "NOT_RUN",
+   "reason": "T3 оценён только для ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL (docs/109); T3 v5-перепрогон не выполнялся: ~18 с на начало x 253 начала x 2 кандидата (~2,5 ч), см. ensemble_t3_report.json.",
+   "sources": [
+    {
+     "file": "protocols/candidates_2026-11-11.json",
+     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
+    },
+    {
+     "file": "protocols/ensemble_t3_report.json",
+     "sha256": "02cb02ee9002e885d7596a39d360fba7f5a1fa0ad201b2dac419d58c15ccfeb1"
+    }
+   ]
+  }
+ ],
+ "v5_reruns_not_performed": [
+  {
+   "scope": "T1_CPI_YOY h=12, все кандидаты",
+   "status": "NOT_RUN",
+   "reason": "не оценивался ни в v5, ни в v4: построение окон одного T1-горизонта занимает ~9 мин на горизонт (docs/102, task-43), time-box не позволил; это пропуск, а не «эффекта нет»."
+  },
+  {
+   "scope": "T2_GDP_GROWTH h=1/2/4, ENSEMBLE_T2_SPF",
+   "status": "NOT_RUN",
+   "reason": "SPF-медиана не допускается на квартальных началах h=1/2/4 (origin_policy.spf_alignment, spf_available=false): кандидат вырождается в контроль ENSEMBLE_T2_NOT_SPF, отдельный прогон не проводился (docs/95)."
+  },
+  {
+   "scope": "T3_RECESSION h=3/6/12, v5-перепрогон",
+   "status": "NOT_RUN",
+   "reason": "под v5 T3 не переоценивался: v5 не меняет C1/C2/C5, а C4 на W1_EXT требует отдельного расширенного прогона; строки T3 — v4 (docs/109)."
+  }
+ ],
+ "coverage": {
+  "rows": 56,
+  "evaluated": 26,
+  "not_run": 30,
+  "status_counts": {
+   "CANDIDATE": 26,
+   "FAIL": 0,
+   "INCONCLUSIVE": 0,
+   "NOT_RUN": 30
+  },
+  "cells": {
+   "T1_CPI_YOY": {
+    "1": [
+     "ENSEMBLE_ADAPTIVE",
+     "ENSEMBLE_BAYES",
+     "ENSEMBLE_EQUAL",
+     "ENSEMBLE_INVERSE_MSE",
+     "ENSEMBLE_RW_AR"
+    ],
+    "3": [
+     "ENSEMBLE_ADAPTIVE",
+     "ENSEMBLE_BAYES",
+     "ENSEMBLE_EQUAL",
+     "ENSEMBLE_INVERSE_MSE",
+     "ENSEMBLE_RW_AR"
+    ],
+    "6": [
+     "ENSEMBLE_ADAPTIVE",
+     "ENSEMBLE_BAYES",
+     "ENSEMBLE_EQUAL",
+     "ENSEMBLE_INVERSE_MSE",
+     "ENSEMBLE_RW_AR"
+    ],
+    "12": [
+     "ENSEMBLE_ADAPTIVE",
+     "ENSEMBLE_BAYES",
+     "ENSEMBLE_EQUAL",
+     "ENSEMBLE_INVERSE_MSE",
+     "ENSEMBLE_RW_AR"
+    ]
+   },
+   "T2_GDP_GROWTH": {
+    "0": [
+     "ENSEMBLE_ADAPTIVE",
+     "ENSEMBLE_BAYES",
+     "ENSEMBLE_EQUAL",
+     "ENSEMBLE_INVERSE_MSE",
+     "ENSEMBLE_T2_NOT_SPF",
+     "ENSEMBLE_T2_SPF"
+    ],
+    "1": [
+     "ENSEMBLE_ADAPTIVE",
+     "ENSEMBLE_BAYES",
+     "ENSEMBLE_EQUAL",
+     "ENSEMBLE_INVERSE_MSE",
+     "ENSEMBLE_T2_NOT_SPF",
+     "ENSEMBLE_T2_SPF"
+    ],
+    "2": [
+     "ENSEMBLE_ADAPTIVE",
+     "ENSEMBLE_BAYES",
+     "ENSEMBLE_EQUAL",
+     "ENSEMBLE_INVERSE_MSE",
+     "ENSEMBLE_T2_NOT_SPF",
+     "ENSEMBLE_T2_SPF"
+    ],
+    "4": [
+     "ENSEMBLE_ADAPTIVE",
+     "ENSEMBLE_BAYES",
+     "ENSEMBLE_EQUAL",
+     "ENSEMBLE_INVERSE_MSE",
+     "ENSEMBLE_T2_NOT_SPF",
+     "ENSEMBLE_T2_SPF"
+    ]
+   },
+   "T3_RECESSION": {
+    "3": [
+     "ENSEMBLE_ADAPTIVE",
+     "ENSEMBLE_BAYES",
+     "ENSEMBLE_EQUAL",
+     "ENSEMBLE_INVERSE_MSE"
+    ],
+    "6": [
+     "ENSEMBLE_ADAPTIVE",
+     "ENSEMBLE_BAYES",
+     "ENSEMBLE_EQUAL",
+     "ENSEMBLE_INVERSE_MSE"
+    ],
+    "12": [
+     "ENSEMBLE_ADAPTIVE",
+     "ENSEMBLE_BAYES",
+     "ENSEMBLE_EQUAL",
+     "ENSEMBLE_INVERSE_MSE"
+    ]
+   }
+  },
+  "evaluated_cells": {
+   "T1_CPI_YOY": {
+    "1": [
+     "ENSEMBLE_ADAPTIVE",
+     "ENSEMBLE_BAYES",
+     "ENSEMBLE_EQUAL",
+     "ENSEMBLE_INVERSE_MSE"
+    ],
+    "3": [
+     "ENSEMBLE_ADAPTIVE",
+     "ENSEMBLE_EQUAL"
+    ],
+    "6": [
+     "ENSEMBLE_ADAPTIVE",
+     "ENSEMBLE_EQUAL"
+    ],
+    "12": []
+   },
+   "T2_GDP_GROWTH": {
+    "0": [
+     "ENSEMBLE_ADAPTIVE",
+     "ENSEMBLE_BAYES",
+     "ENSEMBLE_EQUAL",
+     "ENSEMBLE_INVERSE_MSE",
+     "ENSEMBLE_T2_NOT_SPF",
+     "ENSEMBLE_T2_SPF"
+    ],
+    "1": [
+     "ENSEMBLE_ADAPTIVE",
+     "ENSEMBLE_EQUAL"
+    ],
+    "2": [
+     "ENSEMBLE_ADAPTIVE",
+     "ENSEMBLE_EQUAL"
+    ],
+    "4": [
+     "ENSEMBLE_ADAPTIVE",
+     "ENSEMBLE_EQUAL"
+    ]
+   },
+   "T3_RECESSION": {
+    "3": [
+     "ENSEMBLE_ADAPTIVE",
+     "ENSEMBLE_EQUAL"
+    ],
+    "6": [
+     "ENSEMBLE_ADAPTIVE",
+     "ENSEMBLE_EQUAL"
+    ],
+    "12": [
+     "ENSEMBLE_ADAPTIVE",
+     "ENSEMBLE_EQUAL"
+    ]
+   }
+  }
+ },
+ "licence_note": "forecasts and actual values are not stored: only relative losses, thresholds, p-values and digests of the source reports (docs/84, D-147)",
+ "reporting_only": "harness statuses only; this matrix assigns no admission"
+}
