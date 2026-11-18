@@ -203,6 +203,11 @@ def write_index() -> dict:
     return index
 
 
+def index_cmd(args) -> int:
+    write_index()
+    return 0
+
+
 def pack(args) -> int:
     role = args.role
     entries = read_entries(role)
@@ -276,7 +281,7 @@ def main(argv: list[str] | None = None) -> int:
     p.set_defaults(func=search)
 
     p = sub.add_parser("index")
-    p.set_defaults(func=lambda args: (write_index() and 0))
+    p.set_defaults(func=index_cmd)
 
     p = sub.add_parser("pack")
     p.add_argument("--role", required=True)
