@@ -1,7 +1,7 @@
 {
  "schema": "amfe.agent_library.v1",
- "updated_at": "2026-11-18T10:27:47Z",
- "entries": 45,
+ "updated_at": "2026-11-18T10:44:06Z",
+ "entries": 47,
  "open_questions": [
   {
    "id": "mem-lead-0003",
@@ -11,7 +11,7 @@
   }
  ],
  "by_role": {
-  "accounting-core": 5,
+  "accounting-core": 7,
   "baseline-models": 3,
   "dense-vintages": 4,
   "evaluation-harness": 6,
@@ -22,7 +22,7 @@
   "r2-completion": 5
  },
  "by_kind": {
-  "artifact": 8,
+  "artifact": 10,
   "lesson": 13,
   "open_question": 1,
   "role": 9,
@@ -40,6 +40,7 @@
   "country": 1,
   "data": 1,
   "decision": 1,
+  "exposure": 1,
   "external": 3,
   "forecast": 1,
   "g4": 1,
@@ -52,6 +53,7 @@
   "licence": 3,
   "memory": 1,
   "models": 1,
+  "oil": 1,
   "orchestrator": 1,
   "p2": 1,
   "pit": 3,
@@ -62,11 +64,13 @@
   "review": 1,
   "science": 1,
   "scorecard": 1,
+  "sector": 1,
   "selfcheck": 1,
   "sfc": 1,
   "signoff": 1,
   "stats": 2,
   "status": 6,
+  "storage": 1,
   "task": 8,
   "v2": 6,
   "world": 2
@@ -149,8 +153,14 @@
   "protocols/pit_prereg_evaluation_report.json": [
    "mem-evaluation-harness-0002"
   ],
+  "src/amfe/markets/storage.py": [
+   "mem-accounting-core-0007"
+  ],
   "tests/test_forecast_world_bridge.py": [
    "mem-accounting-core-0004"
+  ],
+  "tests/test_storage_futures.py": [
+   "mem-accounting-core-0007"
   ],
   "tools/c6_calendar.py": [
    "mem-evaluation-harness-0005",
@@ -165,6 +175,12 @@
   "tools/forecast_world_bridge.py": [
    "mem-accounting-core-0004",
    "mem-accounting-core-0005"
+  ],
+  "tools/sector_exposure.py": [
+   "mem-accounting-core-0006"
+  ],
+  "tools/storage_futures.py": [
+   "mem-accounting-core-0007"
   ]
  }
 }
