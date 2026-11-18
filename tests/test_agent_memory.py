@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 import re
 import subprocess
 import sys
@@ -74,7 +75,9 @@ class MemoryRegistryTest(unittest.TestCase):
         tool = ROOT / "agents" / "tools" / "role_prompt.py"
         done = subprocess.run([sys.executable, str(tool), "--role", "r2-completion",
                                "--task", "task-54", "--title", "Scorecard", "--limit", "1"],
-                              capture_output=True, text=True, timeout=60, cwd=str(ROOT))
+                              capture_output=True, text=True, encoding="utf-8", errors="replace",
+                              timeout=60, cwd=str(ROOT),
+                              env=dict(os.environ, PYTHONIOENCODING="utf-8", PYTHONUTF8="1"))
         self.assertEqual(done.returncode, 0, done.stderr)
         self.assertIn("Роль:", done.stdout)
         self.assertIn("Мандат", done.stdout)
@@ -82,8 +85,9 @@ class MemoryRegistryTest(unittest.TestCase):
 
     def test_context_pack_for_any_model(self):
         done = subprocess.run([sys.executable, str(MEMORY_TOOL), "pack", "--role", "lead",
-                               "--limit", "2"], capture_output=True, text=True, timeout=60,
-                              cwd=str(ROOT))
+                               "--limit", "2"], capture_output=True, text=True, encoding="utf-8", errors="replace",
+                              timeout=60, cwd=str(ROOT),
+                              env=dict(os.environ, PYTHONIOENCODING="utf-8", PYTHONUTF8="1"))
         self.assertEqual(done.returncode, 0, done.stderr)
         self.assertIn("Контекст роли `lead`", done.stdout)
 

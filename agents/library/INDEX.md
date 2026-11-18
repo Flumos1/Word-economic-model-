@@ -1,10 +1,10 @@
 # Библиотека памяти AMFE
 
-Обновлено: 2026-11-18T07:41:57Z · записей: 28
+Обновлено: 2026-11-18T07:56:39Z · записей: 30
 
 ## По ролям
 
-- `accounting-core` — 3 записей (`agents/memory/accounting-core.jsonl`)
+- `accounting-core` — 5 записей (`agents/memory/accounting-core.jsonl`)
 - `baseline-models` — 3 записей (`agents/memory/baseline-models.jsonl`)
 - `dense-vintages` — 3 записей (`agents/memory/dense-vintages.jsonl`)
 - `evaluation-harness` — 3 записей (`agents/memory/evaluation-harness.jsonl`)
@@ -36,6 +36,8 @@
 - `protocols/evaluation_protocol_v5.json` ← mem-evaluation-harness-0001
 - `protocols/licence_register.json` ← mem-licence-auditor-0001
 - `protocols/pit_prereg_evaluation_report.json` ← mem-evaluation-harness-0002
+- `tests/test_forecast_world_bridge.py` ← mem-accounting-core-0004
+- `tools/forecast_world_bridge.py` ← mem-accounting-core-0004, mem-accounting-core-0005
 
 ## Как читать любому агенту/модели
 
