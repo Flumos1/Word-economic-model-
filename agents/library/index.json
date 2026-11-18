@@ -1,7 +1,7 @@
 {
  "schema": "amfe.agent_library.v1",
- "updated_at": "2026-11-18T13:26:11Z",
- "entries": 52,
+ "updated_at": "2026-11-18T14:27:30Z",
+ "entries": 54,
  "open_questions": [
   {
    "id": "mem-lead-0003",
@@ -11,8 +11,8 @@
   }
  ],
  "by_role": {
-  "accounting-core": 7,
-  "baseline-models": 4,
+  "accounting-core": 8,
+  "baseline-models": 5,
   "dense-vintages": 6,
   "evaluation-harness": 6,
   "lead": 8,
@@ -22,7 +22,7 @@
   "r2-completion": 5
  },
  "by_kind": {
-  "artifact": 15,
+  "artifact": 17,
   "lesson": 13,
   "open_question": 1,
   "role": 9,
@@ -38,7 +38,7 @@
   "cache": 2,
   "candidates": 1,
   "correction": 1,
-  "country": 1,
+  "country": 2,
   "data": 1,
   "decision": 1,
   "exposure": 1,
@@ -47,6 +47,7 @@
   "forecast": 1,
   "g4": 1,
   "g5": 1,
+  "gas": 1,
   "gateway": 1,
   "geopolitics": 1,
   "harness": 1,
@@ -185,6 +186,9 @@
    "mem-evaluation-harness-0005",
    "mem-evaluation-harness-0006"
   ],
+  "tools/country_forecast.py": [
+   "mem-baseline-models-0005"
+  ],
   "tools/eval_cache.py": [
    "mem-r2-completion-0005"
   ],
@@ -200,6 +204,9 @@
   "tools/forecast_world_bridge.py": [
    "mem-accounting-core-0004",
    "mem-accounting-core-0005"
+  ],
+  "tools/gas_scenarios.py": [
+   "mem-accounting-core-0008"
   ],
   "tools/geopolitics_scenarios.py": [
    "mem-protocol-reviewer-0006"

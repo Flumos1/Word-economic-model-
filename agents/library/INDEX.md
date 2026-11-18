@@ -1,11 +1,11 @@
 # Библиотека памяти AMFE
 
-Обновлено: 2026-11-18T13:26:11Z · записей: 52
+Обновлено: 2026-11-18T14:27:30Z · записей: 54
 
 ## По ролям
 
-- `accounting-core` — 7 записей (`agents/memory/accounting-core.jsonl`)
-- `baseline-models` — 4 записей (`agents/memory/baseline-models.jsonl`)
+- `accounting-core` — 8 записей (`agents/memory/accounting-core.jsonl`)
+- `baseline-models` — 5 записей (`agents/memory/baseline-models.jsonl`)
 - `dense-vintages` — 6 записей (`agents/memory/dense-vintages.jsonl`)
 - `evaluation-harness` — 6 записей (`agents/memory/evaluation-harness.jsonl`)
 - `lead` — 8 записей (`agents/memory/lead.jsonl`)
@@ -47,11 +47,13 @@
 - `tests/test_forecast_world_bridge.py` ← mem-accounting-core-0004
 - `tests/test_storage_futures.py` ← mem-accounting-core-0007
 - `tools/c6_calendar.py` ← mem-evaluation-harness-0005, mem-evaluation-harness-0006
+- `tools/country_forecast.py` ← mem-baseline-models-0005
 - `tools/eval_cache.py` ← mem-r2-completion-0005
 - `tools/external_forecast_scorecard.py` ← mem-r2-completion-0004
 - `tools/flaks_procurement.py` ← mem-dense-vintages-0006
 - `tools/forecast_api_server.py` ← mem-dense-vintages-0005
 - `tools/forecast_world_bridge.py` ← mem-accounting-core-0004, mem-accounting-core-0005
+- `tools/gas_scenarios.py` ← mem-accounting-core-0008
 - `tools/geopolitics_scenarios.py` ← mem-protocol-reviewer-0006
 - `tools/policy_scenarios.py` ← mem-baseline-models-0004
 - `tools/sector_exposure.py` ← mem-accounting-core-0006
