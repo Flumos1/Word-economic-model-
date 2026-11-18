@@ -1,6 +1,6 @@
 {
  "report_id": "AMFE-FIRST-REAL-EVALUATION",
- "generated_at": "2026-11-17T19:52:00Z",
+ "generated_at": "2026-11-18T08:38:05Z",
  "candidate": "ENSEMBLE_EQUAL",
  "target": "T1_CPI_YOY",
  "horizon": 1,
@@ -30,8 +30,8 @@
   "extended_c4": false,
   "first_real_vintage": "1996-12-31",
   "mask_rule": "origin month (NBER recession month of the origin; not the (t,t+h] window)",
-  "w1_origins_total": 204,
-  "w1_origins_real_time": 204,
+  "w1_origins_total": 121,
+  "w1_origins_real_time": 121,
   "w1_origins_reconstructed": 0,
   "dossier": {
    "file": "protocols/pit_reconstruction.json",
@@ -45,94 +45,11 @@
  "windows": {
   "W1": {
    "window": "W1",
-   "origins": 204,
-   "first_origin": "1990-01-31",
+   "origins": 121,
+   "first_origin": "1996-12-31",
    "last_origin": "2006-12-31",
    "origin_floor": null,
    "used_origins": [
-    "1990-01-31",
-    "1990-02-28",
-    "1990-03-31",
-    "1990-04-30",
-    "1990-05-31",
-    "1990-06-30",
-    "1990-07-31",
-    "1990-08-31",
-    "1990-09-30",
-    "1990-10-31",
-    "1990-11-30",
-    "1990-12-31",
-    "1991-01-31",
-    "1991-02-28",
-    "1991-03-31",
-    "1991-04-30",
-    "1991-05-31",
-    "1991-06-30",
-    "1991-07-31",
-    "1991-08-31",
-    "1991-09-30",
-    "1991-10-31",
-    "1991-11-30",
-    "1991-12-31",
-    "1992-01-31",
-    "1992-02-29",
-    "1992-03-31",
-    "1992-04-30",
-    "1992-05-31",
-    "1992-06-30",
-    "1992-07-31",
-    "1992-08-31",
-    "1992-09-30",
-    "1992-10-31",
-    "1992-11-30",
-    "1992-12-31",
-    "1993-01-31",
-    "1993-02-28",
-    "1993-03-31",
-    "1993-04-30",
-    "1993-05-31",
-    "1993-06-30",
-    "1993-07-31",
-    "1993-08-31",
-    "1993-09-30",
-    "1993-10-31",
-    "1993-11-30",
-    "1993-12-31",
-    "1994-01-31",
-    "1994-02-28",
-    "1994-03-31",
-    "1994-04-30",
-    "1994-05-31",
-    "1994-06-30",
-    "1994-07-31",
-    "1994-08-31",
-    "1994-09-30",
-    "1994-10-31",
-    "1994-11-30",
-    "1994-12-31",
-    "1995-01-31",
-    "1995-02-28",
-    "1995-03-31",
-    "1995-04-30",
-    "1995-05-31",
-    "1995-06-30",
-    "1995-07-31",
-    "1995-08-31",
-    "1995-09-30",
-    "1995-10-31",
-    "1995-11-30",
-    "1995-12-31",
-    "1996-01-31",
-    "1996-02-29",
-    "1996-03-31",
-    "1996-04-30",
-    "1996-05-31",
-    "1996-06-30",
-    "1996-07-31",
-    "1996-08-31",
-    "1996-09-30",
-    "1996-10-31",
-    "1996-11-30",
     "1996-12-31",
     "1997-01-31",
     "1997-02-28",
@@ -257,89 +174,6 @@
    ],
    "data_class": "REAL_TIME",
    "vintage_dates": [
-    "1990-01-15",
-    "1990-02-15",
-    "1990-03-20",
-    "1990-04-15",
-    "1990-05-15",
-    "1990-06-15",
-    "1990-07-15",
-    "1990-08-15",
-    "1990-09-18",
-    "1990-10-15",
-    "1990-11-15",
-    "1990-12-18",
-    "1991-01-15",
-    "1991-02-15",
-    "1991-03-19",
-    "1991-04-15",
-    "1991-05-15",
-    "1991-06-15",
-    "1991-07-15",
-    "1991-08-15",
-    "1991-09-15",
-    "1991-10-15",
-    "1991-11-15",
-    "1991-12-15",
-    "1992-01-15",
-    "1992-02-15",
-    "1992-03-17",
-    "1992-04-15",
-    "1992-05-15",
-    "1992-06-15",
-    "1992-07-15",
-    "1992-08-15",
-    "1992-09-15",
-    "1992-10-15",
-    "1992-11-15",
-    "1992-12-15",
-    "1993-01-15",
-    "1993-02-15",
-    "1993-03-17",
-    "1993-04-15",
-    "1993-05-15",
-    "1993-06-15",
-    "1993-07-15",
-    "1993-08-15",
-    "1993-09-15",
-    "1993-10-15",
-    "1993-11-15",
-    "1993-12-15",
-    "1994-01-15",
-    "1994-02-15",
-    "1994-03-16",
-    "1994-04-15",
-    "1994-05-15",
-    "1994-06-14",
-    "1994-07-15",
-    "1994-08-15",
-    "1994-09-13",
-    "1994-10-15",
-    "1994-11-15",
-    "1994-12-14",
-    "1995-01-15",
-    "1995-02-15",
-    "1995-03-16",
-    "1995-04-15",
-    "1995-05-15",
-    "1995-06-13",
-    "1995-07-15",
-    "1995-08-15",
-    "1995-09-13",
-    "1995-10-15",
-    "1995-11-15",
-    "1995-12-14",
-    "1996-01-15",
-    "1996-02-15",
-    "1996-03-15",
-    "1996-04-15",
-    "1996-05-15",
-    "1996-06-12",
-    "1996-07-15",
-    "1996-08-15",
-    "1996-09-13",
-    "1996-10-15",
-    "1996-11-15",
     "1996-12-12",
     "1997-03-19",
     "1997-06-17",
@@ -383,23 +217,23 @@
     "2006-12-15"
    ],
    "member_failures": 0,
-   "pseudo_origins_skipped": 0,
-   "actual_primary_sha256": "c601f60ea3fc053708a60a95356f16f77e46b6a7aa26b9ec808b332b1c95f0fe",
-   "actual_primary_n": 204,
-   "actual_secondary_sha256": "40d701df61e230b4dda12eab659209a0004bac35b18e528b992debd12809df58",
-   "actual_secondary_n": 204,
-   "recession_mask_sha256": "e3c4e221e9a6759ad83137f69111cc1cfd206cfde37cf858fa46fbcabf9d6bcb",
+   "pseudo_origins_skipped": 35,
+   "actual_primary_sha256": "fc03e02ac17cc28298db652d88ef0c25332d56983e17524cce92ce4c363fa43e",
+   "actual_primary_n": 121,
+   "actual_secondary_sha256": "ec2cd9f68140f2d59ddb6c57b2d3e3d782d51a17c31b8af65be6a0a84151f0e8",
+   "actual_secondary_n": 121,
+   "recession_mask_sha256": "39513ae62617602afbd26bb12161bcbbeef42323eddd29a73d165e7ac3656540",
    "candidate": {
-    "point_sha256": "e2864b961aae689386df416ffe7b85c064d3f59b644f85f268959cb81ca79632",
-    "point_n": 204,
-    "quantiles_sha256": "f5a655e2acdbb096d2296b950ad9b434f1fc916282950c007ca1f13c3b737323",
-    "quantiles_n": 3876
+    "point_sha256": "88b2adb57cfe60a9aa9c404ec65250e2655e5bd5179bc8f6120f605d032ef9b3",
+    "point_n": 121,
+    "quantiles_sha256": "045843d9c37de08f05b2197561165aacd85ed976b9b59b02f96ed6df085a6b55",
+    "quantiles_n": 2299
    },
    "comparator": {
-    "point_sha256": "99ac8269ec52187acefb46eb4e9caf3b3c229202cf68de8ec967efd23984c26f",
-    "point_n": 204,
-    "quantiles_sha256": "6dbce44a657ed4eccb5c264f14a564ffc33174ee09d6a9e2f78b42f9c3fc9f64",
-    "quantiles_n": 3876
+    "point_sha256": "1e273b32b39757f21e54080d3b497ed0ccc7423ed378c6ecdf1697d2aa4785f4",
+    "point_n": 121,
+    "quantiles_sha256": "3ca0aa554b11187eb71789cfa58c3828f7c53d4ec921a5894c683d39911405ea",
+    "quantiles_n": 2299
    },
    "licence_note": "forecasts and actual values are not stored: only digests and derived metrics (docs/84, D-147)"
   },
@@ -660,15 +494,15 @@
     "windows": {
      "W1": {
       "RMSE": {
-       "candidate_loss": 0.5910636906792898,
-       "comparator_loss": 0.5910636906792898,
+       "candidate_loss": 0.5765513833694152,
+       "comparator_loss": 0.5765513833694152,
        "relative_loss": 1.0,
        "threshold": 0.97,
        "pass": false
       },
       "CRPS": {
-       "candidate_loss": 0.25406338141852136,
-       "comparator_loss": 0.25406338141852136,
+       "candidate_loss": 0.3045717228371034,
+       "comparator_loss": 0.3045717228371034,
        "relative_loss": 1.0,
        "threshold": 0.97,
        "pass": false
@@ -699,26 +533,26 @@
     "windows": {
      "W1": {
       "RMSE": {
-       "p_value": 0.8963254868787215,
-       "raw_p_value": 0.8963254868787215,
-       "statistic": 1.260888488429263,
+       "p_value": 0.643320486171476,
+       "raw_p_value": 0.643320486171476,
+       "statistic": 0.3673485718365247,
        "hac_lags": 0,
        "hln_factor": 1.0,
-       "adjusted_p_value": 0.8958,
+       "adjusted_p_value": 0.6354,
        "family_size": 1,
        "replications": 10000,
-       "bootstrap_block_length": 6
+       "bootstrap_block_length": 5
       },
       "CRPS": {
-       "p_value": 0.03813308098008472,
-       "raw_p_value": 0.03813308098008472,
-       "statistic": -1.772774008338283,
+       "p_value": 0.03319679346275378,
+       "raw_p_value": 0.03319679346275378,
+       "statistic": -1.8357571129349135,
        "hac_lags": 0,
        "hln_factor": 1.0,
-       "adjusted_p_value": 0.0442,
+       "adjusted_p_value": 0.0401,
        "family_size": 1,
        "replications": 10000,
-       "bootstrap_block_length": 6
+       "bootstrap_block_length": 5
       }
      },
      "W2": {
@@ -746,14 +580,14 @@
       }
      }
     },
-    "romano_wolf_adjusted_p": 0.8958,
+    "romano_wolf_adjusted_p": 0.7727,
     "romano_wolf_pass": false,
     "family_size": 1,
     "family": {
      "ENSEMBLE_EQUAL": {
       "W1": {
-       "RMSE": 0.8958,
-       "CRPS": 0.0442
+       "RMSE": 0.6354,
+       "CRPS": 0.0401
       },
       "W2": {
        "RMSE": 0.7727,
@@ -774,8 +608,8 @@
      "adjusted_p_values": {
       "ENSEMBLE_EQUAL": {
        "W1": {
-        "RMSE": 0.8958,
-        "CRPS": 0.0442
+        "RMSE": 0.6354,
+        "CRPS": 0.0401
        },
        "W2": {
         "RMSE": 0.7727,
@@ -783,7 +617,7 @@
        }
       }
      },
-     "romano_wolf_adjusted_p": 0.8958,
+     "romano_wolf_adjusted_p": 0.7727,
      "romano_wolf_pass": false,
      "rule": "adjusted p < fwer on W1 and on W2 for every applicable loss"
     }
@@ -799,29 +633,29 @@
     "per_window": {
      "W1": {
       "RMSE": {
-       "status": "PASS",
-       "recession_origins": 16,
-       "min_recession_origins": 12,
-       "relative_loss_recession": 0.9999999999999998,
-       "relative_loss_met": true,
-       "conditional_gw_p": 0.3075115496533947,
-       "conditional_gw_rejected": false,
-       "mean_differential_recession": -6.440160904563898e-17,
-       "favours_comparator_in_recession": false,
-       "pass": true,
-       "note": "C4 pass requires >= 12 recession origins, relative loss <= 1.00 and no conditional rejection that favours the comparator"
-      },
-      "CRPS": {
-       "status": "PASS",
-       "recession_origins": 16,
+       "status": "INCONCLUSIVE",
+       "recession_origins": 8,
        "min_recession_origins": 12,
        "relative_loss_recession": 1.0,
        "relative_loss_met": true,
-       "conditional_gw_p": 0.826985953464692,
+       "conditional_gw_p": 0.8266394332142445,
        "conditional_gw_rejected": false,
-       "mean_differential_recession": -2.6020852139652126e-18,
+       "mean_differential_recession": -1.9298798670241982e-17,
        "favours_comparator_in_recession": false,
-       "pass": true,
+       "pass": false,
+       "note": "C4 pass requires >= 12 recession origins, relative loss <= 1.00 and no conditional rejection that favours the comparator"
+      },
+      "CRPS": {
+       "status": "INCONCLUSIVE",
+       "recession_origins": 8,
+       "min_recession_origins": 12,
+       "relative_loss_recession": 1.0,
+       "relative_loss_met": true,
+       "conditional_gw_p": 0.8317791828099059,
+       "conditional_gw_rejected": false,
+       "mean_differential_recession": -8.673617379884039e-18,
+       "favours_comparator_in_recession": false,
+       "pass": false,
        "note": "C4 pass requires >= 12 recession origins, relative loss <= 1.00 and no conditional rejection that favours the comparator"
       }
      },
@@ -868,7 +702,7 @@
      "REAL_TIME_TAPE",
      "REAL_TIME_RECONSTRUCTED"
     ],
-    "pass": true,
+    "pass": false,
     "gating": true
    },
    "C5": {
@@ -878,22 +712,22 @@
     "windows": {
      "W1": {
       "RMSE": {
-       "mean_differential": 2.4115659130918082e-17,
-       "statistic": 1.2607340142418286,
-       "p_value": 0.10370234733497186,
+       "mean_differential": 7.526020741527995e-18,
+       "statistic": 0.35580291623064814,
+       "p_value": 0.36099408249253606,
        "hac_lags": 0,
        "hln_factor": 1.0,
-       "n": 204,
+       "n": 121,
        "alternative": "greater",
        "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
       },
       "CRPS": {
-       "mean_differential": -2.6531064926704107e-18,
-       "statistic": -0.9673089956903492,
-       "p_value": 0.8333052059786816,
+       "mean_differential": -4.0142361427562475e-18,
+       "statistic": -1.0058152191622571,
+       "p_value": 0.8427477675508629,
        "hac_lags": 0,
        "hln_factor": 1.0,
-       "n": 204,
+       "n": 121,
        "alternative": "greater",
        "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
       }
@@ -943,8 +777,8 @@
    "adjusted_p_values": {
     "ENSEMBLE_EQUAL": {
      "W1": {
-      "RMSE": 0.8958,
-      "CRPS": 0.0442
+      "RMSE": 0.6354,
+      "CRPS": 0.0401
      },
      "W2": {
       "RMSE": 0.7727,

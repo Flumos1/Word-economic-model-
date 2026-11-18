@@ -15,8 +15,11 @@ this runner writes protocols/candidates_<date>.json with the candidate definitio
 
 ``--cache-dir`` enables the deterministic forecast cache (tools/eval_cache.py): predictions are
 memoised under a PIT/version-safe content key (prediction identity + frozen versions + forecast-code
-digest + private-data digest), so a repeated run reuses the same precomputed forecasts and produces
-exactly the same report; ``--max-origins`` limits the origins per window for benchmarks/debug runs.
+digest + digest of the *actual* data root + run channel/data class), so a repeated run reuses the
+same precomputed forecasts and produces exactly the same report; entries written for another data
+root, channel or data class (e.g. primary/W1_EXT reconstructed vs standard/data/raw) are never
+replayed - they are reported on stderr, and ``--cache-strict`` turns that mismatch into a hard
+failure; ``--max-origins`` limits the origins per window for benchmarks/debug runs.
 """
 from __future__ import annotations
 
@@ -352,6 +355,9 @@ def main(argv=None) -> int:
     ap.add_argument("--out", default=str(ROOT / "protocols" / "first_real_evaluation_report.json"))
     ap.add_argument("--cache-dir", default=None,
                     help="forecast cache directory (tools/eval_cache.py); off by default")
+    ap.add_argument("--cache-strict", action="store_true",
+                    help="fail when the cache holds entries of another data root/channel/class "
+                         "instead of ignoring them with an explicit warning")
     ap.add_argument("--max-origins", type=int, default=None,
                     help="limit origins per window (benchmark/debug; default: all origins)")
     ap.add_argument("--protocol", default=str(PROTOCOL),
@@ -371,12 +377,29 @@ def main(argv=None) -> int:
     args = ap.parse_args(argv)
     if args.max_origins is not None and args.max_origins < 1:
         raise SystemExit("--max-origins must be a positive integer")
+    if args.cache_strict and not args.cache_dir:
+        raise SystemExit("--cache-strict requires --cache-dir")
     if args.data_root:
         os.environ["AMFE_DATA_ROOT"] = str(Path(args.data_root).resolve())
     protocol_path = Path(args.protocol)
     protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
     protocol_label = f"protocols/{protocol_path.name}"
-    cache = eval_cache.ForecastCache(Path(args.cache_dir)) if args.cache_dir else None
+    cache = None
+    if args.cache_dir:
+        # the key must cover the root/channel/class the forecast code actually reads (task-68)
+        channel = "primary" if args.extended_c4 else "standard"
+        requested_class = args.data_class or ("REAL_TIME_RECONSTRUCTED"
+                                              if channel == "primary" else "REAL_TIME")
+        cache = eval_cache.ForecastCache(Path(args.cache_dir), channel=channel,
+                                         data_class=requested_class,
+                                         strict=args.cache_strict)
+        try:
+            provenance = cache.preflight()
+        except eval_cache.CacheProvenanceError as exc:
+            raise SystemExit(f"cache provenance: {exc}")
+        if not provenance["ok"]:
+            print(json.dumps({"cache_provenance": provenance}, ensure_ascii=False),
+                  file=sys.stderr)
     if (args.candidate not in CANDIDATE_IDS and args.candidate not in ENSEMBLE_IDS
             and args.candidate not in (SPF_CANDIDATE_IDS or ())
             and args.candidate not in REGIME_IDS):
@@ -432,6 +455,10 @@ def main(argv=None) -> int:
         keep = [i for i, o in enumerate(w1_full["used_origins"]) if o >= FIRST_REAL_VINTAGE]
         w1 = _subset_window(w1_full, keep)
         w1["window"] = "W1"  # the REAL_TIME slice is reported under its own name
+        # the slice keeps only REAL_TIME origins, so its own data class is REAL_TIME; the run-level
+        # class (REAL_TIME_RECONSTRUCTED) describes the W1_EXT block, not this window (V2 docs/172 §3)
+        w1["data_class"] = "REAL_TIME"
+        w1["origin_floor"] = FIRST_REAL_VINTAGE
         reconstructed_origins = int(w1_full["origins"] - w1["origins"])
     else:
         w1 = w1_full
@@ -530,6 +557,25 @@ def main(argv=None) -> int:
     }
     if args.extended_c4:
         report["c4_episodes"]["W1_EXT"] = _episode_losses(w1_full, args.target, args.horizon)
+        # C4 on the REAL_TIME-only part of the extended window, recomputed inside this run: the
+        # preregistration sensitivity slice must be its own calculation, not an alias of the
+        # standard (non-extended) run and not a copy of the W1_EXT block (docs/172 §4).
+        if args.target != "T3_RECESSION":
+            slice_block = evaluate.evaluate_window(
+                "W1", args.target, args.horizon, w1["actual_primary"], w1["actual_secondary"],
+                candidate=w1["candidate"], comparator=w1["comparator"],
+                recession_mask=w1["recession"], min_recession_origins=c4_min)
+            report["c4_slices"] = {"real_time_window": {
+                "window": "W1",
+                "data_class": "REAL_TIME",
+                "origins": int(w1["origins"]),
+                "first_origin": w1["first_origin"],
+                "origin_floor": FIRST_REAL_VINTAGE,
+                "recession_origins": int(np.count_nonzero(w1["recession"])),
+                "losses": slice_block.get("recession") or {},
+                "note": "C4 recomputed inside the extended run on the REAL_TIME origins only "
+                        "(origins >= the first real vintage); it does not reuse the standard v5 run",
+            }}
     def _json_default(obj):
         import numpy as _np
 

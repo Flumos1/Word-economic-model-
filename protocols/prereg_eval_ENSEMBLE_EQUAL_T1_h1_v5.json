@@ -1,6 +1,6 @@
 {
  "report_id": "AMFE-FIRST-REAL-EVALUATION",
- "generated_at": "2026-11-17T19:50:03Z",
+ "generated_at": "2026-11-18T08:49:09Z",
  "candidate": "ENSEMBLE_EQUAL",
  "target": "T1_CPI_YOY",
  "horizon": 1,
@@ -30,8 +30,8 @@
   "extended_c4": true,
   "first_real_vintage": "1996-12-31",
   "mask_rule": "origin month (NBER recession month of the origin; not the (t,t+h] window)",
-  "w1_origins_total": 198,
-  "w1_origins_real_time": 115,
+  "w1_origins_total": 204,
+  "w1_origins_real_time": 121,
   "w1_origins_reconstructed": 83,
   "dossier": {
    "file": "protocols/pit_reconstruction.json",
@@ -45,7 +45,7 @@
  "windows": {
   "W1_EXT": {
    "window": "W1_EXT",
-   "origins": 198,
+   "origins": 204,
    "first_origin": "1990-01-31",
    "last_origin": "2006-12-31",
    "origin_floor": null,
@@ -163,6 +163,7 @@
     "1999-03-31",
     "1999-04-30",
     "1999-05-31",
+    "1999-06-30",
     "1999-07-31",
     "1999-08-31",
     "1999-09-30",
@@ -216,8 +217,12 @@
     "2003-09-30",
     "2003-10-31",
     "2003-11-30",
+    "2003-12-31",
     "2004-01-31",
+    "2004-02-29",
+    "2004-03-31",
     "2004-04-30",
+    "2004-05-31",
     "2004-06-30",
     "2004-07-31",
     "2004-08-31",
@@ -241,6 +246,7 @@
     "2006-02-28",
     "2006-03-31",
     "2006-04-30",
+    "2006-05-31",
     "2006-06-30",
     "2006-07-31",
     "2006-08-31",
@@ -376,33 +382,33 @@
     "2006-09-15",
     "2006-12-15"
    ],
-   "member_failures": 82,
+   "member_failures": 0,
    "pseudo_origins_skipped": 0,
-   "actual_primary_sha256": "d00d941cb1b6fd6b515ff49641ff9f449ca9cefc38695cd0423307fff5777e5c",
-   "actual_primary_n": 198,
-   "actual_secondary_sha256": "769af74320ee54f42618007a94642799662bd46355b5b63759116938bd326178",
-   "actual_secondary_n": 198,
-   "recession_mask_sha256": "bd1ecb8dfa055befc55dddb6e15225e5ccd72afaf67a2516ff65ef3b565143cf",
+   "actual_primary_sha256": "20e453006884c0fc14f0e62cea2d90879f919f8a09ff3f6650fb2426d88eb7b9",
+   "actual_primary_n": 204,
+   "actual_secondary_sha256": "d91e20f09c6aa3bf9e27fbaf0cb17f160ef514da6036734140c957822a17fe00",
+   "actual_secondary_n": 204,
+   "recession_mask_sha256": "e3c4e221e9a6759ad83137f69111cc1cfd206cfde37cf858fa46fbcabf9d6bcb",
    "candidate": {
-    "point_sha256": "1226eea22c460ab6a18030db98645fbf55336e600e2a4d5b20794b3003aaf51d",
-    "point_n": 198,
-    "quantiles_sha256": "df2a1e8ee0a19982a10ae15522cd2b85af026910032849200c24ce160823b4d4",
-    "quantiles_n": 3762
+    "point_sha256": "e2864b961aae689386df416ffe7b85c064d3f59b644f85f268959cb81ca79632",
+    "point_n": 204,
+    "quantiles_sha256": "f5a655e2acdbb096d2296b950ad9b434f1fc916282950c007ca1f13c3b737323",
+    "quantiles_n": 3876
    },
    "comparator": {
-    "point_sha256": "e53a689a6ef8d11554fbda8526aa3b98b7ebaec1ef28de90b2242cfcb43680e4",
-    "point_n": 198,
-    "quantiles_sha256": "4af003e0ee2c0b8d2767191f812364009be4a78b433021eb3df1cf1641c33e43",
-    "quantiles_n": 3762
+    "point_sha256": "99ac8269ec52187acefb46eb4e9caf3b3c229202cf68de8ec967efd23984c26f",
+    "point_n": 204,
+    "quantiles_sha256": "6dbce44a657ed4eccb5c264f14a564ffc33174ee09d6a9e2f78b42f9c3fc9f64",
+    "quantiles_n": 3876
    },
    "licence_note": "forecasts and actual values are not stored: only digests and derived metrics (docs/84, D-147)"
   },
   "W1": {
    "window": "W1",
-   "origins": 115,
+   "origins": 121,
    "first_origin": "1996-12-31",
    "last_origin": "2006-12-31",
-   "origin_floor": null,
+   "origin_floor": "1996-12-31",
    "used_origins": [
     "1996-12-31",
     "1997-01-31",
@@ -434,6 +440,7 @@
     "1999-03-31",
     "1999-04-30",
     "1999-05-31",
+    "1999-06-30",
     "1999-07-31",
     "1999-08-31",
     "1999-09-30",
@@ -487,8 +494,12 @@
     "2003-09-30",
     "2003-10-31",
     "2003-11-30",
+    "2003-12-31",
     "2004-01-31",
+    "2004-02-29",
+    "2004-03-31",
     "2004-04-30",
+    "2004-05-31",
     "2004-06-30",
     "2004-07-31",
     "2004-08-31",
@@ -512,6 +523,7 @@
     "2006-02-28",
     "2006-03-31",
     "2006-04-30",
+    "2006-05-31",
     "2006-06-30",
     "2006-07-31",
     "2006-08-31",
@@ -520,7 +532,7 @@
     "2006-11-30",
     "2006-12-31"
    ],
-   "data_class": "REAL_TIME_RECONSTRUCTED",
+   "data_class": "REAL_TIME",
    "vintage_dates": [
     "1990-01-15",
     "1990-02-15",
@@ -647,30 +659,30 @@
     "2006-09-15",
     "2006-12-15"
    ],
-   "member_failures": 82,
+   "member_failures": 0,
    "pseudo_origins_skipped": 0,
-   "actual_primary_sha256": "0692dcae92974b21feee705d174b3f1803316107b8de3d0a6a746c3f456fa80d",
-   "actual_primary_n": 115,
-   "actual_secondary_sha256": "dcb84824942689e354639173a2ffbc91519a9d914eb27e745dff4d62504d6171",
-   "actual_secondary_n": 115,
-   "recession_mask_sha256": "4a43a21702df94238db7628685000af5fb22bf1746c40f38aa3c9e6e930c1c4a",
+   "actual_primary_sha256": "fc03e02ac17cc28298db652d88ef0c25332d56983e17524cce92ce4c363fa43e",
+   "actual_primary_n": 121,
+   "actual_secondary_sha256": "ec2cd9f68140f2d59ddb6c57b2d3e3d782d51a17c31b8af65be6a0a84151f0e8",
+   "actual_secondary_n": 121,
+   "recession_mask_sha256": "39513ae62617602afbd26bb12161bcbbeef42323eddd29a73d165e7ac3656540",
    "candidate": {
-    "point_sha256": "81539af073f12d9f78bea7810e1ad652b2bc8e460582a132bbebf29ba1f02b73",
-    "point_n": 115,
-    "quantiles_sha256": "c307fe6db544a717bc5a40b374d25f4035a41545e8ee8a43ef477629f6e73d3b",
-    "quantiles_n": 2185
+    "point_sha256": "88b2adb57cfe60a9aa9c404ec65250e2655e5bd5179bc8f6120f605d032ef9b3",
+    "point_n": 121,
+    "quantiles_sha256": "045843d9c37de08f05b2197561165aacd85ed976b9b59b02f96ed6df085a6b55",
+    "quantiles_n": 2299
    },
    "comparator": {
-    "point_sha256": "06b429d0b3be2c20a2e6bdeb4114e6099785bf3103fb70c570999b625f664771",
-    "point_n": 115,
-    "quantiles_sha256": "6877e52d3a1e3dbe6bc0d7e166eb36f98ae62ae5227781aebe87318156c9a108",
-    "quantiles_n": 2185
+    "point_sha256": "1e273b32b39757f21e54080d3b497ed0ccc7423ed378c6ecdf1697d2aa4785f4",
+    "point_n": 121,
+    "quantiles_sha256": "3ca0aa554b11187eb71789cfa58c3828f7c53d4ec921a5894c683d39911405ea",
+    "quantiles_n": 2299
    },
    "licence_note": "forecasts and actual values are not stored: only digests and derived metrics (docs/84, D-147)"
   },
   "W2": {
    "window": "W2",
-   "origins": 150,
+   "origins": 156,
    "first_origin": "2007-01-31",
    "last_origin": "2019-12-31",
    "origin_floor": null,
@@ -704,6 +716,8 @@
     "2009-03-31",
     "2009-04-30",
     "2009-05-31",
+    "2009-06-30",
+    "2009-07-31",
     "2009-08-31",
     "2009-09-30",
     "2009-10-31",
@@ -721,6 +735,7 @@
     "2010-10-31",
     "2010-11-30",
     "2010-12-31",
+    "2011-01-31",
     "2011-02-28",
     "2011-03-31",
     "2011-04-30",
@@ -739,6 +754,7 @@
     "2012-05-31",
     "2012-06-30",
     "2012-07-31",
+    "2012-08-31",
     "2012-09-30",
     "2012-10-31",
     "2012-11-30",
@@ -753,6 +769,7 @@
     "2013-08-31",
     "2013-09-30",
     "2013-10-31",
+    "2013-11-30",
     "2013-12-31",
     "2014-01-31",
     "2014-02-28",
@@ -815,6 +832,7 @@
     "2018-11-30",
     "2018-12-31",
     "2019-01-31",
+    "2019-02-28",
     "2019-03-31",
     "2019-04-30",
     "2019-05-31",
@@ -882,24 +900,24 @@
     "2019-09-12",
     "2019-12-11"
    ],
-   "member_failures": 55,
+   "member_failures": 0,
    "pseudo_origins_skipped": 0,
-   "actual_primary_sha256": "91bf7792e95701dd8eb37ed06496b99985cec754c1e74cde0dcb6fdbd3e65036",
-   "actual_primary_n": 150,
-   "actual_secondary_sha256": "dd143ed6673a387ee424a08bb0c900bcc4ae5c636b237fd5df729d0dbca6938a",
-   "actual_secondary_n": 150,
-   "recession_mask_sha256": "c34c2b6126be393cbed68df058d0e01fe96f3387c842e949025c00dc69e11cea",
+   "actual_primary_sha256": "596778b36f1f62679b2def3d5d261ab1b0c6a949107c8f000505d748a02e924c",
+   "actual_primary_n": 156,
+   "actual_secondary_sha256": "65bddb5660317bcfed9e15cd4947bc6d44660654ac1454acc22170f0be10f068",
+   "actual_secondary_n": 156,
+   "recession_mask_sha256": "e12a4ec79d1e9cc07f2cbb394f0e5ef44d4ed50eada866db234c961bddeefc7e",
    "candidate": {
-    "point_sha256": "b61553433a71d80e712b4651c781fde5b72e3c70bbadd6a099f509c79926eabe",
-    "point_n": 150,
-    "quantiles_sha256": "ef62cd29df17d39d097ff327339e3ed50a58b857d12fb3079705f66c76f675bf",
-    "quantiles_n": 2850
+    "point_sha256": "6001786538587c10471a0962e07a176ed278a0dc77ba2d02bc1b926d43d5a1b9",
+    "point_n": 156,
+    "quantiles_sha256": "2aaab5af5da9dc65210511341955a6dc04e19d860fbda8afb8308ce46d71a9a9",
+    "quantiles_n": 2964
    },
    "comparator": {
-    "point_sha256": "fb0237735cfa5d82b6a57031e3ef6ddc59371ab520f11a5a3c36dcfc96a90268",
-    "point_n": 150,
-    "quantiles_sha256": "78dc2459ef64bf7fc5e86b1d8e914bd2f20e50d2566f4be429a3783559bccfcf",
-    "quantiles_n": 2850
+    "point_sha256": "c7023fd585c5eccf615d99e0fa7a02ae726ca6e272f0cc1a6ebca996ff886117",
+    "point_n": 156,
+    "quantiles_sha256": "3f4a31b218488da5782cf8e7fd40d8157547d53a5bb5264aabdf193798819e91",
+    "quantiles_n": 2964
    },
    "licence_note": "forecasts and actual values are not stored: only digests and derived metrics (docs/84, D-147)"
   }
@@ -919,32 +937,32 @@
     "windows": {
      "W1": {
       "RMSE": {
-       "candidate_loss": 0.5763312354809044,
-       "comparator_loss": 0.5805635587001762,
-       "relative_loss": 0.9927099743760226,
+       "candidate_loss": 0.5765513833694152,
+       "comparator_loss": 0.5765513833694152,
+       "relative_loss": 1.0,
        "threshold": 0.97,
        "pass": false
       },
       "CRPS": {
-       "candidate_loss": 0.30309780831496386,
-       "comparator_loss": 0.3053807972372372,
-       "relative_loss": 0.9925241241658695,
+       "candidate_loss": 0.3045717228371034,
+       "comparator_loss": 0.3045717228371034,
+       "relative_loss": 1.0,
        "threshold": 0.97,
        "pass": false
       }
      },
      "W2": {
       "RMSE": {
-       "candidate_loss": 0.7325208984606832,
-       "comparator_loss": 0.7286689359537768,
-       "relative_loss": 1.0052862998775494,
+       "candidate_loss": 0.7430314155963482,
+       "comparator_loss": 0.7430314155963482,
+       "relative_loss": 1.0,
        "threshold": 0.97,
        "pass": false
       },
       "CRPS": {
-       "candidate_loss": 0.3872928678850532,
-       "comparator_loss": 0.38885366497177404,
-       "relative_loss": 0.9959861582201259,
+       "candidate_loss": 0.38980974131455975,
+       "comparator_loss": 0.38980974131455975,
+       "relative_loss": 1.0,
        "threshold": 0.97,
        "pass": false
       }
@@ -958,23 +976,23 @@
     "windows": {
      "W1": {
       "RMSE": {
-       "p_value": 0.23790501518816387,
-       "raw_p_value": 0.23790501518816387,
-       "statistic": -0.7130577368965316,
+       "p_value": 0.643320486171476,
+       "raw_p_value": 0.643320486171476,
+       "statistic": 0.3673485718365247,
        "hac_lags": 0,
        "hln_factor": 1.0,
-       "adjusted_p_value": 0.2452,
+       "adjusted_p_value": 0.6354,
        "family_size": 1,
        "replications": 10000,
        "bootstrap_block_length": 5
       },
       "CRPS": {
-       "p_value": 0.22664840652892876,
-       "raw_p_value": 0.22664840652892876,
-       "statistic": -0.7499300864062546,
+       "p_value": 0.03319679346275378,
+       "raw_p_value": 0.03319679346275378,
+       "statistic": -1.8357571129349135,
        "hac_lags": 0,
        "hln_factor": 1.0,
-       "adjusted_p_value": 0.2356,
+       "adjusted_p_value": 0.0401,
        "family_size": 1,
        "replications": 10000,
        "bootstrap_block_length": 5
@@ -982,41 +1000,41 @@
      },
      "W2": {
       "RMSE": {
-       "p_value": 0.6001795101417396,
-       "raw_p_value": 0.6001795101417396,
-       "statistic": 0.2538117703649998,
+       "p_value": 0.767483358337313,
+       "raw_p_value": 0.767483358337313,
+       "statistic": 0.730584007468653,
        "hac_lags": 0,
        "hln_factor": 1.0,
-       "adjusted_p_value": 0.6345,
+       "adjusted_p_value": 0.7727,
        "family_size": 1,
        "replications": 10000,
        "bootstrap_block_length": 6
       },
       "CRPS": {
-       "p_value": 0.3848295597074867,
-       "raw_p_value": 0.3848295597074867,
-       "statistic": -0.2928208121127802,
+       "p_value": 0.40109897586789445,
+       "raw_p_value": 0.40109897586789445,
+       "statistic": -0.250503560300184,
        "hac_lags": 0,
        "hln_factor": 1.0,
-       "adjusted_p_value": 0.3792,
+       "adjusted_p_value": 0.4007,
        "family_size": 1,
        "replications": 10000,
        "bootstrap_block_length": 6
       }
      }
     },
-    "romano_wolf_adjusted_p": 0.6345,
+    "romano_wolf_adjusted_p": 0.7727,
     "romano_wolf_pass": false,
     "family_size": 1,
     "family": {
      "ENSEMBLE_EQUAL": {
       "W1": {
-       "RMSE": 0.2452,
-       "CRPS": 0.2356
+       "RMSE": 0.6354,
+       "CRPS": 0.0401
       },
       "W2": {
-       "RMSE": 0.6345,
-       "CRPS": 0.3792
+       "RMSE": 0.7727,
+       "CRPS": 0.4007
       }
      }
     },
@@ -1033,16 +1051,16 @@
      "adjusted_p_values": {
       "ENSEMBLE_EQUAL": {
        "W1": {
-        "RMSE": 0.2452,
-        "CRPS": 0.2356
+        "RMSE": 0.6354,
+        "CRPS": 0.0401
        },
        "W2": {
-        "RMSE": 0.6345,
-        "CRPS": 0.3792
+        "RMSE": 0.7727,
+        "CRPS": 0.4007
        }
       }
      },
-     "romano_wolf_adjusted_p": 0.6345,
+     "romano_wolf_adjusted_p": 0.7727,
      "romano_wolf_pass": false,
      "rule": "adjusted p < fwer on W1 and on W2 for every applicable loss"
     }
@@ -1058,27 +1076,27 @@
     "per_window": {
      "W1": {
       "RMSE": {
-       "status": "FAIL",
+       "status": "PASS",
        "recession_origins": 16,
        "min_recession_origins": 12,
-       "relative_loss_recession": 1.035635378044515,
-       "relative_loss_met": false,
-       "conditional_gw_p": 0.05334898221967818,
-       "conditional_gw_rejected": true,
-       "mean_differential_recession": 0.009342560072334253,
-       "favours_comparator_in_recession": true,
-       "pass": false,
+       "relative_loss_recession": 0.9999999999999998,
+       "relative_loss_met": true,
+       "conditional_gw_p": 0.2526232192535511,
+       "conditional_gw_rejected": false,
+       "mean_differential_recession": -9.108314688414945e-17,
+       "favours_comparator_in_recession": false,
+       "pass": true,
        "note": "C4 pass requires >= 12 recession origins, relative loss <= 1.00 and no conditional rejection that favours the comparator"
       },
       "CRPS": {
        "status": "PASS",
        "recession_origins": 16,
        "min_recession_origins": 12,
-       "relative_loss_recession": 0.8961542718515697,
+       "relative_loss_recession": 1.0,
        "relative_loss_met": true,
-       "conditional_gw_p": 0.11756479855144929,
+       "conditional_gw_p": 0.7060309745637325,
        "conditional_gw_rejected": false,
-       "mean_differential_recession": -0.03633421640883227,
+       "mean_differential_recession": -8.67361737988405e-19,
        "favours_comparator_in_recession": false,
        "pass": true,
        "note": "C4 pass requires >= 12 recession origins, relative loss <= 1.00 and no conditional rejection that favours the comparator"
@@ -1086,29 +1104,29 @@
      },
      "W2": {
       "RMSE": {
-       "status": "FAIL",
-       "recession_origins": 17,
+       "status": "PASS",
+       "recession_origins": 18,
        "min_recession_origins": 12,
-       "relative_loss_recession": 1.075121982193938,
-       "relative_loss_met": false,
-       "conditional_gw_p": 0.3875230138479297,
+       "relative_loss_recession": 1.0,
+       "relative_loss_met": true,
+       "conditional_gw_p": 0.855625808598954,
        "conditional_gw_rejected": false,
-       "mean_differential_recession": 0.14748353733090802,
-       "favours_comparator_in_recession": true,
-       "pass": false,
+       "mean_differential_recession": -7.709882115452486e-18,
+       "favours_comparator_in_recession": false,
+       "pass": true,
        "note": "C4 pass requires >= 12 recession origins, relative loss <= 1.00 and no conditional rejection that favours the comparator"
       },
       "CRPS": {
-       "status": "FAIL",
-       "recession_origins": 17,
+       "status": "PASS",
+       "recession_origins": 18,
        "min_recession_origins": 12,
-       "relative_loss_recession": 1.0154540690097145,
-       "relative_loss_met": false,
-       "conditional_gw_p": 0.7026682333837673,
+       "relative_loss_recession": 1.0,
+       "relative_loss_met": true,
+       "conditional_gw_p": 0.6849421517939152,
        "conditional_gw_rejected": false,
-       "mean_differential_recession": 0.013096111458943092,
-       "favours_comparator_in_recession": true,
-       "pass": false,
+       "mean_differential_recession": -6.1679056923619804e-18,
+       "favours_comparator_in_recession": false,
+       "pass": true,
        "note": "C4 pass requires >= 12 recession origins, relative loss <= 1.00 and no conditional rejection that favours the comparator"
       }
      }
@@ -1117,7 +1135,7 @@
      "W1": {
       "source": "extended_window",
       "data_class": "REAL_TIME_RECONSTRUCTED",
-      "n_origins": 198
+      "n_origins": 204
      },
      "W2": {
       "source": "standard_window"
@@ -1129,7 +1147,7 @@
      "REAL_TIME_TAPE",
      "REAL_TIME_RECONSTRUCTED"
     ],
-    "pass": false,
+    "pass": true,
     "gating": true
    },
    "C5": {
@@ -1139,44 +1157,44 @@
     "windows": {
      "W1": {
       "RMSE": {
-       "mean_differential": -0.005040280114287758,
-       "statistic": -0.7389491075848531,
-       "p_value": 0.7700310493941147,
+       "mean_differential": 7.526020741527995e-18,
+       "statistic": 0.35580291623064814,
+       "p_value": 0.36099408249253606,
        "hac_lags": 0,
        "hln_factor": 1.0,
-       "n": 115,
+       "n": 121,
        "alternative": "greater",
        "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
       },
       "CRPS": {
-       "mean_differential": -0.0021650716931539376,
-       "statistic": -0.7148763693055288,
-       "p_value": 0.7626572800218825,
+       "mean_differential": -4.0142361427562475e-18,
+       "statistic": -1.0058152191622571,
+       "p_value": 0.8427477675508629,
        "hac_lags": 0,
        "hln_factor": 1.0,
-       "n": 115,
+       "n": 121,
        "alternative": "greater",
        "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
       }
      },
      "W2": {
       "RMSE": {
-       "mean_differential": 0.00609178584927027,
-       "statistic": 0.27642641262503254,
-       "p_value": 0.39111028619529375,
+       "mean_differential": 1.6277627616527564e-17,
+       "statistic": 0.7468865429241607,
+       "p_value": 0.2275660248473197,
        "hac_lags": 0,
        "hln_factor": 1.0,
-       "n": 150,
+       "n": 156,
        "alternative": "greater",
        "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
       },
       "CRPS": {
-       "mean_differential": -0.0013015978459863236,
-       "statistic": -0.2473622770394676,
-       "p_value": 0.5976860671380688,
+       "mean_differential": -4.003208021484939e-18,
+       "statistic": -0.8731661803452797,
+       "p_value": 0.8087137471447197,
        "hac_lags": 0,
        "hln_factor": 1.0,
-       "n": 150,
+       "n": 156,
        "alternative": "greater",
        "note": "HAC h-1 lags, HLN correction, normal approximation instead of t(n-1)"
       }
@@ -1204,12 +1222,12 @@
    "adjusted_p_values": {
     "ENSEMBLE_EQUAL": {
      "W1": {
-      "RMSE": 0.2452,
-      "CRPS": 0.2356
+      "RMSE": 0.6354,
+      "CRPS": 0.0401
      },
      "W2": {
-      "RMSE": 0.6345,
-      "CRPS": 0.3792
+      "RMSE": 0.7727,
+      "CRPS": 0.4007
      }
     }
    },
@@ -1239,14 +1257,14 @@
   "W2": {
    "2007_09": {
     "RMSE": {
-     "origins": 18,
-     "relative_loss_episode": 1.074913367535133,
-     "relative_loss_leave_one_out": 0.9639862523983829
+     "origins": 19,
+     "relative_loss_episode": 1.0000000000000002,
+     "relative_loss_leave_one_out": 1.0
     },
     "CRPS": {
-     "origins": 18,
-     "relative_loss_episode": 1.0152956196363392,
-     "relative_loss_leave_one_out": 0.9895653225746395
+     "origins": 19,
+     "relative_loss_episode": 1.0,
+     "relative_loss_leave_one_out": 0.9999999999999999
     }
    }
   },
@@ -1254,27 +1272,66 @@
    "1990_91": {
     "RMSE": {
      "origins": 8,
-     "relative_loss_episode": 1.1204106131271447,
-     "relative_loss_leave_one_out": 0.931602553730924
+     "relative_loss_episode": 0.999999999999999,
+     "relative_loss_leave_one_out": 1.0
     },
     "CRPS": {
      "origins": 8,
-     "relative_loss_episode": 0.8046863190165449,
-     "relative_loss_leave_one_out": 0.985140828280951
+     "relative_loss_episode": 1.0,
+     "relative_loss_leave_one_out": 1.0
     }
    },
    "2001": {
     "RMSE": {
      "origins": 8,
      "relative_loss_episode": 1.0,
-     "relative_loss_leave_one_out": 0.932054771872447
+     "relative_loss_leave_one_out": 1.0000000000000004
     },
     "CRPS": {
      "origins": 8,
      "relative_loss_episode": 1.0,
-     "relative_loss_leave_one_out": 0.9734010719458295
+     "relative_loss_leave_one_out": 1.0
     }
    }
+  }
+ },
+ "c4_slices": {
+  "real_time_window": {
+   "window": "W1",
+   "data_class": "REAL_TIME",
+   "origins": 121,
+   "first_origin": "1996-12-31",
+   "origin_floor": "1996-12-31",
+   "recession_origins": 8,
+   "losses": {
+    "RMSE": {
+     "status": "INCONCLUSIVE",
+     "recession_origins": 8,
+     "min_recession_origins": 12,
+     "relative_loss_recession": 1.0,
+     "relative_loss_met": true,
+     "conditional_gw_p": 0.8266394332142445,
+     "conditional_gw_rejected": false,
+     "mean_differential_recession": -1.9298798670241982e-17,
+     "favours_comparator_in_recession": false,
+     "pass": false,
+     "note": "C4 pass requires >= 12 recession origins, relative loss <= 1.00 and no conditional rejection that favours the comparator"
+    },
+    "CRPS": {
+     "status": "INCONCLUSIVE",
+     "recession_origins": 8,
+     "min_recession_origins": 12,
+     "relative_loss_recession": 1.0,
+     "relative_loss_met": true,
+     "conditional_gw_p": 0.8317791828099059,
+     "conditional_gw_rejected": false,
+     "mean_differential_recession": -8.673617379884039e-18,
+     "favours_comparator_in_recession": false,
+     "pass": false,
+     "note": "C4 pass requires >= 12 recession origins, relative loss <= 1.00 and no conditional rejection that favours the comparator"
+    }
+   },
+   "note": "C4 recomputed inside the extended run on the REAL_TIME origins only (origins >= the first real vintage); it does not reuse the standard v5 run"
   }
  }
 }
