@@ -1,7 +1,7 @@
 {
  "schema": "amfe.agent_library.v1",
- "updated_at": "2026-11-18T08:10:14Z",
- "entries": 33,
+ "updated_at": "2026-11-18T08:15:24Z",
+ "entries": 35,
  "open_questions": [
   {
    "id": "mem-lead-0003",
@@ -15,15 +15,15 @@
   "baseline-models": 3,
   "dense-vintages": 3,
   "evaluation-harness": 3,
-  "lead": 5,
+  "lead": 6,
   "licence-auditor": 3,
   "multiplicity-rw": 3,
-  "protocol-reviewer": 4,
+  "protocol-reviewer": 5,
   "r2-completion": 4
  },
  "by_kind": {
   "artifact": 2,
-  "lesson": 7,
+  "lesson": 9,
   "open_question": 1,
   "role": 9,
   "status": 6,
@@ -34,6 +34,7 @@
   "bridge": 3,
   "c4": 1,
   "c6": 1,
+  "cache": 1,
   "candidates": 1,
   "country": 1,
   "data": 1,
@@ -65,7 +66,7 @@
   "stats": 2,
   "status": 6,
   "task": 8,
-  "v2": 3,
+  "v2": 5,
   "world": 2
  },
  "artifacts": {

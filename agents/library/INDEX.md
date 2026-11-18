@@ -1,6 +1,6 @@
 # Библиотека памяти AMFE
 
-Обновлено: 2026-11-18T08:10:14Z · записей: 33
+Обновлено: 2026-11-18T08:15:24Z · записей: 35
 
 ## По ролям
 
@@ -8,10 +8,10 @@
 - `baseline-models` — 3 записей (`agents/memory/baseline-models.jsonl`)
 - `dense-vintages` — 3 записей (`agents/memory/dense-vintages.jsonl`)
 - `evaluation-harness` — 3 записей (`agents/memory/evaluation-harness.jsonl`)
-- `lead` — 5 записей (`agents/memory/lead.jsonl`)
+- `lead` — 6 записей (`agents/memory/lead.jsonl`)
 - `licence-auditor` — 3 записей (`agents/memory/licence-auditor.jsonl`)
 - `multiplicity-rw` — 3 записей (`agents/memory/multiplicity-rw.jsonl`)
-- `protocol-reviewer` — 4 записей (`agents/memory/protocol-reviewer.jsonl`)
+- `protocol-reviewer` — 5 записей (`agents/memory/protocol-reviewer.jsonl`)
 - `r2-completion` — 4 записей (`agents/memory/r2-completion.jsonl`)
 
 ## Открытые вопросы
