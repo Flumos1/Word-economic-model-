@@ -27,7 +27,7 @@ STATUSES = {"CANDIDATE", "FAIL", "INCONCLUSIVE", "NOT_RUN"}
 CRITERIA = ("C1", "C2", "C4", "C5")
 CRITERION_VOCAB = {"pass", "fail", "not_applicable", "not_run"}
 REQUIRED = ("target", "horizon", "candidate", "protocol", "data_class", "origins",
-            "criteria", "metrics", "overall_status", "reason", "sources")
+            "criteria", "metrics", "overall_status", "status", "reason", "sources")
 FORBIDDEN_KEYS = {"actual_primary", "actual_secondary", "quantiles", "probability", "point",
                   "used_origins", "vintage_dates", "recession", "member_forecasts",
                   "actual_values", "forecast_values"}
@@ -73,6 +73,7 @@ class HorizonMatrixV5Test(unittest.TestCase):
             self.assertIsInstance(row["horizon"], int, row)
             self.assertTrue(row["reason"].strip(), f"row {index} empty reason")
             self.assertIsInstance(row["origins"], dict, row)
+            self.assertEqual(row["status"], row["overall_status"], f"row {index} status alias")
             self.assertIsInstance(row["sources"], list, row)
 
     def test_status_vocabulary(self) -> None:

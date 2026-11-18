@@ -321,6 +321,7 @@ def row_from_report(path: Path, *, spf_fallback: bool = False, reduced: bool = F
         "criteria": criteria_of(metrics),
         "metrics": metrics,
         "overall_status": status,
+                "status": status,
         "reason": reason,
         "sources": [{"file": _rel(path), "sha256": sha(path)}],
     }
@@ -367,6 +368,7 @@ def _not_run_row(target: str, horizon: int, candidate: str, protocol: str,
         "criteria": {name: "not_run" for name in CRITERIA},
         "metrics": {},
         "overall_status": "NOT_RUN",
+        "status": "NOT_RUN",
         "reason": _not_run_reason(target, horizon, candidate, siblings),
         "sources": _gap_sources(target),
     }
