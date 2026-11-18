@@ -47,6 +47,31 @@ ASSUMPTIONS = {
 }
 
 # Social-pressure thresholds are monitoring triggers, not predictions.
+STRESS_ASSUMPTIONS = {
+    "crude_quality_premium_usd_bbl": {
+        "value": 12.0, "low": 5.0, "high": 20.0,
+        "note": "US light-sweet slate vs heavy/sour refinery diet; distillate yield penalty, assumption"},
+    "freight_insurance_usd_bbl": {
+        "value": 10.0, "low": 5.0, "high": 20.0,
+        "note": "war-risk insurance + tanker freight surcharge, assumption"},
+    "voyage_multiplier": {
+        "value": 2.5, "low": 1.5, "high": 3.0,
+        "note": "rerouting/queue time multiplier; 3x is an extreme upper bound, assumption"},
+    "venezuela_loss_mb_d": {
+        "value": 0.6, "low": 0.3, "high": 1.0,
+        "note": "lost heavy-sour supply (Venezuela/sanctions), assumption"},
+    "diesel_crack_extra_usd_bbl": {
+        "value": 15.0, "low": 8.0, "high": 25.0,
+        "note": "additional diesel crack on top of Brent move, assumption"},
+    "jet_crack_extra_usd_bbl": {
+        "value": 12.0, "low": 8.0, "high": 20.0,
+        "note": "additional jet crack, assumption"},
+    "refinery_utilization_loss_pp": {
+        "value": 5.0, "low": 0.0, "high": 10.0,
+        "note": "US refinery utilization loss, assumption"},
+    "baseline_jet_usd_gal": {"value": 2.50, "note": "US jet fuel baseline, assumption"},
+}
+
 THRESHOLDS = {
     "gasoline_elevated": 4.50,
     "gasoline_critical": 5.50,
@@ -147,7 +172,56 @@ def _risk_block(peak: dict) -> dict:
             "note": "illustrative index on declared thresholds; not a probability of unrest"}
 
 
-def build_report(scenario: str, generated_at: str | None = None) -> dict:
+def _stress_block(report: dict) -> dict:
+    """Add the user's stress factors: crude slate, Venezuela, freight/insurance, longer voyage."""
+    a = STRESS_ASSUMPTIONS
+    peak = report["peak"]
+    brent = peak["brent_usd_bbl"]
+    quality = a["crude_quality_premium_usd_bbl"]["value"]
+    freight = a["freight_insurance_usd_bbl"]["value"]
+    # The user's factors must actually move the number: Venezuela loss and refinery outages
+    # tighten heavy-sour availability (quality premium), longer voyages multiply freight.
+    quality_eff = (quality
+                   + 10.0 * a["venezuela_loss_mb_d"]["value"]
+                   + 1.5 * a["refinery_utilization_loss_pp"]["value"])
+    freight_eff = freight * a["voyage_multiplier"]["value"] / 2.5
+    delivered_delta = (brent - 75.0) + quality_eff + freight_eff
+    gas = 3.10 + (brent - 75.0) * 0.025 + 0.5 * quality_eff * 0.025
+    diesel = 3.80 + delivered_delta * 0.030 + a["diesel_crack_extra_usd_bbl"]["value"] / 42.0
+    jet = a["baseline_jet_usd_gal"]["value"] + delivered_delta * 0.032 + a["jet_crack_extra_usd_bbl"]["value"] / 42.0
+    gas_pct = gas / 3.10 - 1.0
+    diesel_pct = diesel / 3.80 - 1.0
+    jet_pct = jet / a["baseline_jet_usd_gal"]["value"] - 1.0
+    direct = 0.036 * gas_pct
+    freight_food = 0.04 * 0.40 * diesel_pct
+    airfare = 0.007 * 0.60 * jet_pct
+    headline = 100.0 * (direct + freight_food + airfare)
+    risk_score = min(100, 45 + (20 if diesel >= 8.0 else 0) + (15 if jet >= 5.0 else 0) + (10 if headline >= 6.0 else 0))
+    band = "low" if risk_score < 30 else "elevated" if risk_score < 60 else "high" if risk_score < 85 else "severe"
+    return {
+        "status": "STRESS_ADDONS",
+        "assumptions": a,
+        "effective_quality_premium_usd_bbl": round(quality_eff, 2),
+        "effective_freight_usd_bbl": round(freight_eff, 2),
+        "delivered_crude_delta_usd_bbl": round(delivered_delta, 2),
+        "gasoline_usd_gal": round(gas, 2),
+        "diesel_usd_gal": round(diesel, 2),
+        "jet_usd_gal": round(jet, 2),
+        "diesel_delta_pct": round(100.0 * diesel_pct, 2),
+        "jet_delta_pct": round(100.0 * jet_pct, 2),
+        "cpi_headline_pp": round(headline, 2),
+        "social_political": {"score_0_100": risk_score, "band": band,
+                             "note": "illustrative stress index; not a probability of unrest"},
+        "checks": {
+            "diesel_above_gasoline": diesel > gas,
+            "jet_positive": jet > 0,
+            "delivered_above_brent": delivered_delta > (brent - 75.0),
+            "headline_positive": headline > 0,
+        },
+    }
+
+
+def build_report(scenario: str, generated_at: str | None = None, stress: bool = False) -> dict:
     module = get_module("oil.brent")
     result = module.run(scenario)
     peak_low, peak_central, peak_high = _price_range(result)
@@ -201,6 +275,7 @@ def build_report(scenario: str, generated_at: str | None = None) -> dict:
             "social risk is an illustrative index, not a probability of unrest or a causal claim",
             "one-month steps; the CPI peak may lag the oil peak by 1-3 months",
         ],
+        "stress": _stress_block({"peak": peak}) if stress else None,
         "content_sha256": None,
     }
 
@@ -238,6 +313,21 @@ def render_markdown(report: dict) -> str:
         "индекс риска иллюстративный, не вероятность беспорядков.",
         "",
     ]
+    if report.get("stress"):
+        s = report["stress"]
+        lines += [
+            "",
+            "## Стресс-надбавка: сланцевый слэт, Венесуэла, фрахт/страховка, обход",
+            "",
+            f"Дополнительно к базовому сценарию (допущения): качество сырья +${s['assumptions']['crude_quality_premium_usd_bbl']['value']}/bbl, "
+            f"фрахт/страховка +${s['assumptions']['freight_insurance_usd_bbl']['value']}/bbl, обход ×{s['assumptions']['voyage_multiplier']['value']}, "
+            f"потеря Венесуэлы {s['assumptions']['venezuela_loss_mb_d']['value']} mb/d.",
+            "",
+            f"Дизель **${s['diesel_usd_gal']}/gal** (+{s['diesel_delta_pct']}%), бензин ${s['gasoline_usd_gal']}, "
+            f"авиакеросин **${s['jet_usd_gal']}/gal** (+{s['jet_delta_pct']}%), CPI +{s['cpi_headline_pp']} п.п.",
+            f"Социальный риск: **{s['social_political']['band']}** ({s['social_political']['score_0_100']}/100).",
+            "",
+        ]
     return "\n".join(lines)
 
 
@@ -246,10 +336,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--scenario", choices=SCENARIOS, default="hormuz_closed_6m")
     parser.add_argument("--out", default=str(DEFAULT_OUT))
     parser.add_argument("--generated-at", default=None)
+    parser.add_argument("--stress", action="store_true", help="add crude-slate/Venezuela/freight/voyage stress factors")
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args(argv)
 
-    report = build_report(args.scenario, args.generated_at)
+    report = build_report(args.scenario, args.generated_at, stress=args.stress)
     text = json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
     digest = _sha(text)
     report["content_sha256"] = digest
@@ -266,6 +357,7 @@ def main(argv: list[str] | None = None) -> int:
                       "gasoline_peak": report["peak"]["gasoline_usd_gal"],
                       "cpi_peak_pp": report["peak"]["cpi_headline_pp"],
                       "risk": report["social_political"]["band"],
+                      "stress": (report["stress"] or {}).get("social_political", {}).get("band") if report.get("stress") else None,
                       "sha256": digest, "out": str(out)}, ensure_ascii=False))
     return 0
 

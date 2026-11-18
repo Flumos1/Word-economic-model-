@@ -82,6 +82,28 @@ class HormuzImpactTest(unittest.TestCase):
         for forbidden in ("used_origins", "vintage_dates", "actual_values", "forecast_values", "raw_data"):
             self.assertNotIn(forbidden, text)
 
+
+    def test_stress_block(self):
+        stress = mod.build_report("hormuz_closed_6m", "2026-11-18T00:00:00Z", stress=True)
+        block = stress["stress"]
+        self.assertIsNotNone(block)
+        self.assertGreater(block["effective_quality_premium_usd_bbl"], 12.0)
+        self.assertGreater(block["diesel_usd_gal"], block["gasoline_usd_gal"])
+        self.assertGreater(block["jet_usd_gal"], 0.0)
+        self.assertGreater(block["delivered_crude_delta_usd_bbl"],
+                           block["brent_usd_bbl"] if "brent_usd_bbl" in block else 0.0)
+        self.assertIn(block["social_political"]["band"], {"elevated", "high", "severe"})
+        self.assertTrue(all(block["checks"].values()))
+
+    def test_stress_is_off_by_default(self):
+        self.assertIsNone(self.report["stress"])
+
+    def test_stress_is_deterministic(self):
+        first = mod.build_report("hormuz_closed_6m", "2026-11-18T00:00:00Z", stress=True)
+        second = mod.build_report("hormuz_closed_6m", "2026-11-18T00:00:00Z", stress=True)
+        self.assertEqual(json.dumps(first, ensure_ascii=False, sort_keys=True),
+                         json.dumps(second, ensure_ascii=False, sort_keys=True))
+
     def test_three_month_scenario(self):
         three = mod.build_report("hormuz_closed_3m", "2026-11-18T00:00:00Z")
         self.assertEqual(len(three["monthly"]), 6)
