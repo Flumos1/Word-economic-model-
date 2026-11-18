@@ -905,6 +905,8 @@ def _aligned(y: CountrySeries, x: CountrySeries) -> tuple[np.ndarray, np.ndarray
     common = sorted(set(y_map).intersection(x_map))
     if len(common) < MIN_BRIDGE_OBS:
         raise InsufficientHistory(f"bridge: only {len(common)} common periods")
+    if any(common[index + 1] - common[index] != 1 for index in range(len(common) - 1)):
+        raise InsufficientHistory("bridge requires consecutive common periods (no gaps)")
     return (np.asarray([y_map[p] for p in common], dtype=float),
             np.asarray([x_map[p] for p in common], dtype=float))
 
