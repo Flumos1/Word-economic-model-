@@ -6,14 +6,19 @@ does not claim C1/C2/C4/C6, and does not replace the US protocol targets T1/T2/T
 
 What is here
 ------------
-* a small data adapter with three providers and explicit provenance:
+* a small data adapter with four providers and explicit provenance:
   - ``LOCAL_PIT_CSV`` - quarterly/annual CSV with ``period,value,release_date,vintage``
     dropped into ``data/external/country/<CC>_<TARGET>_<FREQ>.csv`` (git-ignored);
+  - ``COUNTRY_CACHE`` - real quarterly series fetched from public official endpoints
+    (Eurostat REST, OECD and ONS via DBnomics) by ``tools/fetch_country_data.py`` into
+    the git-ignored ``data/raw/country/<CC>_<TARGET>_Q.json`` cache;
   - ``WORLD_BANK_WDI`` - the existing annual WDI cache in ``data/mrio/wb`` (CC BY 4.0);
   - ``SYNTHETIC_FIXTURE`` - a deterministic fixture used only when no real series is
     available; every forecast and every OOS number built on it is marked synthetic.
 * point-in-time (PIT) slicing: strict release-date filtering for real/synthetic vintage
-  series, and an explicitly labelled final-vintage mode for WDI (no release dates).
+  series, and an explicitly labelled final-vintage mode for WDI and for the public
+  quarterly endpoints (no release dates / no vintage archive -> FINAL_VINTAGE_NO_PIT,
+  never an invented release date).
 * four simple models: ``RW`` (benchmark), ``AR_BIC`` (univariate AR, BIC order),
   ``PANEL_AR1`` (pooled AR(1) with country means) and ``BRIDGE`` (single-equation
   bridge with an auxiliary AR(1) for the other country target).
@@ -48,6 +53,9 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_EXTERNAL_ROOT = ROOT / "data" / "external"
 DEFAULT_WB_ROOT = ROOT / "data" / "mrio" / "wb"
+DEFAULT_COUNTRY_CACHE = ROOT / "data" / "raw" / "country"
+COUNTRY_CACHE_SCHEMA = "amfe.country_cache.v1"
+CACHE_FETCH_TOOL = "python tools/fetch_country_data.py"
 
 COUNTRY_IDS: tuple[str, ...] = ("EA", "CN", "GB")
 COUNTRY_NAMES = {"EA": "Euro area", "CN": "China", "GB": "United Kingdom"}
@@ -120,6 +128,40 @@ SYNTHETIC_RELEASE_LAG_DAYS = {"GDP": {"Q": 45, "A": 90}, "CPI": {"Q": 30, "A": 6
 FORBIDDEN_REPORT_KEYS = frozenset(
     {"observations", "values", "series_values", "raw_values", "history", "raw", "vintages"}
 )
+
+#: Provenance catalogue for the report; only providers actually used are listed.
+SOURCE_CATALOGUE = {
+    "EUROSTAT": {
+        "name": "Eurostat (EA20 GDP growth and HICP index)",
+        "licence": "Eurostat open data (Commission Decision 2011/833/EU); attribution required",
+        "url": "https://ec.europa.eu/eurostat/",
+    },
+    "OECD": {
+        "name": "OECD quarterly national accounts and prices (via DBnomics)",
+        "licence": "OECD data via DBnomics; attribution required; terms not re-audited here",
+        "url": "https://data-explorer.oecd.org/",
+    },
+    "ONS": {
+        "name": "Office for National Statistics, UK (QNA and MM23 via DBnomics)",
+        "licence": "Open Government Licence v3.0; attribution required",
+        "url": "https://www.ons.gov.uk/",
+    },
+    "WORLD_BANK": {
+        "name": "World Bank WDI (annual GDP growth and CPI inflation)",
+        "licence": "CC BY 4.0; attribution required",
+        "url": "https://databank.worldbank.org/source/world-development-indicators",
+    },
+    "LOCAL_PIT_CSV": {
+        "name": "user-provided local PIT CSV (data/external/country)",
+        "licence": "user-provided local file; licence is the responsibility of the provider",
+        "url": None,
+    },
+    "SYNTHETIC_FIXTURE": {
+        "name": "deterministic local fixture",
+        "licence": "synthetic; no third-party data; not for real-country claims",
+        "url": None,
+    },
+}
 
 
 class CountryForecastError(RuntimeError):
@@ -517,6 +559,132 @@ def load_local_pit_series(
     )
 
 
+def country_cache_path(cache_root, country: str, target: str, freq: str) -> Path:
+    return Path(cache_root) / f"{country}_{target}_{freq}.json"
+
+
+def load_country_cache(
+    cache_root,
+    country: str,
+    target: str,
+    freq: str,
+) -> tuple[CountrySeries | None, SourceProbe]:
+    """Load the real quarterly series cached by ``tools/fetch_country_data.py``.
+
+    The cache is a normalised JSON document (schema ``amfe.country_cache.v1``) written
+    into a git-ignored directory.  It carries the provider, the exact query URL, the
+    transform, the licence and - if the provider ever exposes them - per-observation
+    release dates.  Without release dates the series is **not** PIT: it is labelled
+    ``FINAL_VINTAGE_NO_PIT`` and the adapter never invents publication dates.
+
+    A missing file is a normal ``NOT_AVAILABLE`` probe (with the fetch command in the
+    detail); a malformed file raises, because silently falling back to synthetic data
+    would hide a broken cache.
+    """
+    country = normalize_country(country)
+    target = normalize_target(target)
+    _check_freq(freq)
+    if freq != "Q":
+        return None, SourceProbe(
+            "COUNTRY_CACHE", country, target, freq, "FREQUENCY_MISMATCH",
+            "the public quarterly cache is quarterly only; annual mode uses WDI",
+            0, False,
+        )
+    path = country_cache_path(cache_root, country, target, freq)
+    if not path.exists():
+        return None, SourceProbe(
+            "COUNTRY_CACHE", country, target, freq, "NOT_AVAILABLE",
+            f"file not found: {_display_path(path)}; run `{CACHE_FETCH_TOOL}`",
+            0, False,
+        )
+    try:
+        document = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+        raise CountryForecastError(f"{_display_path(path)}: invalid JSON cache") from exc
+    if not isinstance(document, dict):
+        raise CountryForecastError(f"{_display_path(path)}: cache root must be an object")
+    if document.get("schema") != COUNTRY_CACHE_SCHEMA:
+        raise CountryForecastError(
+            f"{_display_path(path)}: unexpected schema {document.get('schema')!r}; "
+            f"expected {COUNTRY_CACHE_SCHEMA!r}"
+        )
+    for field_name, expected in (("country", country), ("target", target), ("frequency", freq)):
+        if str(document.get(field_name, "")).strip().upper() != expected:
+            raise CountryForecastError(
+                f"{_display_path(path)}: {field_name}={document.get(field_name)!r} "
+                f"does not match requested {expected!r}"
+            )
+    provider = str(document.get("provider") or document.get("source_id") or "").strip()
+    if not provider:
+        raise CountryForecastError(f"{_display_path(path)}: missing provider")
+    licence = str(document.get("licence") or "").strip()
+    if not licence:
+        raise CountryForecastError(f"{_display_path(path)}: missing licence")
+    periods_raw = document.get("periods")
+    values_raw = document.get("values")
+    if not isinstance(periods_raw, list) or not isinstance(values_raw, list):
+        raise CountryForecastError(f"{_display_path(path)}: periods/values must be lists")
+    if len(periods_raw) != len(values_raw) or not periods_raw:
+        raise CountryForecastError(f"{_display_path(path)}: empty or misaligned periods/values")
+    release_raw = document.get("release_dates")
+    release_dates: list[date | None] = [None] * len(periods_raw)
+    has_release = isinstance(release_raw, list) and len(release_raw) == len(periods_raw)
+    if has_release:
+        for index, item in enumerate(release_raw):
+            release_dates[index] = as_date(item) if item else None
+        has_release = all(item is not None for item in release_dates)
+    observations: list[Observation] = []
+    for index, (period_text, value) in enumerate(zip(periods_raw, values_raw)):
+        try:
+            period = parse_period(period_text, freq)
+            number = float(value)
+        except (CountryForecastError, TypeError, ValueError) as exc:
+            raise CountryForecastError(f"{_display_path(path)}: bad row {index}: {exc}") from exc
+        if not math.isfinite(number):
+            raise CountryForecastError(f"{_display_path(path)}: non-finite value at row {index}")
+        observations.append(Observation(
+            period=period,
+            value=number,
+            release_date=release_dates[index] if has_release else None,
+            vintage=None,
+        ))
+    pit_status = PIT_REAL if has_release else PIT_FINAL_VINTAGE
+    pit_block = document.get("pit") if isinstance(document.get("pit"), dict) else {}
+    notes = [
+        f"provider={provider}; series_id={document.get('series_id')}",
+        f"transform: {document.get('transform')}",
+    ]
+    if isinstance(document.get("notes"), list):
+        notes.extend(str(item) for item in document["notes"])
+    if pit_status == PIT_FINAL_VINTAGE:
+        notes.append(
+            "FINAL_VINTAGE_NO_PIT: the public endpoint exposes the latest vintage only; "
+            "release dates are not available and were not imputed"
+        )
+    elif pit_block.get("reason"):
+        notes.append(str(pit_block["reason"]))
+    payload_hash = str(document.get("payload_sha256") or "")
+    series = CountrySeries(
+        country=country,
+        target=target,
+        freq=freq,
+        observations=tuple(observations),
+        source=(f"{document.get('source_url')} provider={provider} "
+                f"payload_sha256={payload_hash or 'n/a'}"),
+        source_id=provider,
+        source_class=DATA_CLASS_REAL,
+        pit_status=pit_status,
+        licence=licence,
+        retrieved_at=str(document.get("retrieved_at") or "") or None,
+        notes=tuple(notes),
+    )
+    return series, SourceProbe(
+        provider, country, target, freq, "AVAILABLE",
+        f"loaded {series.n_obs} cached quarterly observations from {_display_path(path)}",
+        series.n_obs, True,
+    )
+
+
 def load_world_bank_series(
     wb_root,
     country: str,
@@ -691,25 +859,32 @@ def load_series(
     freq: str,
     *,
     external_root=None,
+    cache_root=None,
     wb_root=None,
     allow_synthetic: bool = True,
 ) -> tuple[CountrySeries | None, list[SourceProbe]]:
     """Resolve one country/target/frequency series and return all probes.
 
-    Order: local PIT CSV -> World Bank WDI (annual only) -> synthetic fixture (if
-    allowed).  With ``allow_synthetic=False`` a missing real series raises
-    :class:`DataNotAvailable` after the probes are recorded.
+    Order: local PIT CSV -> public quarterly cache (Eurostat/OECD/ONS) -> World Bank
+    WDI (annual only) -> synthetic fixture (if allowed).  With
+    ``allow_synthetic=False`` a missing real series raises :class:`DataNotAvailable`
+    after the probes are recorded.
     """
     country = normalize_country(country)
     target = normalize_target(target)
     _check_freq(freq)
     external_root = Path(external_root) if external_root is not None else DEFAULT_EXTERNAL_ROOT
+    cache_root = Path(cache_root) if cache_root is not None else DEFAULT_COUNTRY_CACHE
     wb_root = Path(wb_root) if wb_root is not None else DEFAULT_WB_ROOT
     probes: list[SourceProbe] = []
     local, local_probe = load_local_pit_series(external_root, country, target, freq)
     probes.append(local_probe)
     if local is not None:
         return local, probes
+    cached, cached_probe = load_country_cache(cache_root, country, target, freq)
+    probes.append(cached_probe)
+    if cached is not None:
+        return cached, probes
     bank, bank_probe = load_world_bank_series(wb_root, country, target, freq)
     probes.append(bank_probe)
     if bank is not None:
@@ -1142,16 +1317,20 @@ def _other_for(
 
 
 def _gap_reason(probes: Sequence[SourceProbe], freq: str) -> str:
+    details = "; ".join(
+        f"{probe.provider}: {probe.status} ({probe.detail})"
+        for probe in probes if probe.status != "AVAILABLE"
+    )
     if freq == "Q":
-        return ("No local quarterly PIT provider (data/external/country/<CC>_<TARGET>_Q.csv); "
-                "World Bank WDI is annual; OECD/IMF quarterly vintages are not present locally. "
-                "The synthetic fixture is used for pipeline verification only.")
-    details = []
-    for probe in probes:
-        if probe.provider == "WORLD_BANK_WDI" and probe.status != "AVAILABLE":
-            details.append(f"{probe.status}: {probe.detail}")
+        return (
+            "No real quarterly series for this country/target: no local PIT CSV in "
+            "data/external/country/ and no file in the public quarterly cache "
+            f"data/raw/country/. Run `{CACHE_FETCH_TOOL}` to populate the cache. "
+            "The synthetic fixture is used for pipeline verification only."
+            + (f" Details: {details}" if details else "")
+        )
     return ("No real annual series for this country/target. "
-            + ("; ".join(details) if details else "WDI cache unavailable"))
+            + (details if details else "WDI cache unavailable"))
 
 
 def _country_status(target_entries: Iterable[Mapping]) -> str:
@@ -1173,6 +1352,7 @@ def build_report(
     freq: str = "Q",
     origin=None,
     external_root=None,
+    cache_root=None,
     wb_root=None,
     allow_synthetic: bool = True,
     generated_at: str | None = None,
@@ -1201,8 +1381,8 @@ def build_report(
     for country in countries:
         for target in targets:
             series, series_probes = load_series(
-                country, target, freq, external_root=external_root, wb_root=wb_root,
-                allow_synthetic=allow_synthetic,
+                country, target, freq, external_root=external_root, cache_root=cache_root,
+                wb_root=wb_root, allow_synthetic=allow_synthetic,
             )
             assert series is not None
             loaded[(country, target)] = series
@@ -1324,6 +1504,10 @@ def build_report(
         1 for country in countries for target in targets
         if freq == "Q" and not loaded[(country, target)].is_synthetic
     )
+    pit_counts: dict[str, int] = {}
+    for series in loaded.values():
+        pit_counts[series.pit_status] = pit_counts.get(series.pit_status, 0) + 1
+    source_ids = list(dict.fromkeys(series.source_id for series in loaded.values()))
     summary = {
         "countries_requested": len(countries),
         "country_target_pairs": len(countries) * len(targets),
@@ -1333,6 +1517,8 @@ def build_report(
         "real_country_target_pairs": int(real_pairs),
         "synthetic_country_target_pairs": int(synthetic_pairs),
         "real_quarterly_pairs": int(real_quarterly_pairs),
+        "pit_status_counts": pit_counts,
+        "source_ids": source_ids,
         "forecasts": len(forecast_rows),
         "forecasts_ok": sum(1 for row in forecast_rows),
         "oos_rows": len(oos_rows),
@@ -1341,24 +1527,26 @@ def build_report(
         "frequency": freq,
     }
 
-    sources = [
-        {
-            "source_id": "WORLD_BANK",
-            "name": "World Bank WDI (annual GDP growth and CPI inflation)",
-            "licence": "CC BY 4.0; attribution required",
-            "url": "https://databank.worldbank.org/source/world-development-indicators",
-            "retrieved_at": next((s.retrieved_at for s in loaded.values() if s.source_id == "WORLD_BANK"), None),
-            "used_for": "annual CN/GB series when present in the local cache",
-        },
-        {
-            "source_id": "SYNTHETIC_FIXTURE",
-            "name": "deterministic local fixture",
-            "licence": "synthetic; no third-party data; not for real-country claims",
+    sources = []
+    for source_id in source_ids:
+        catalogue = SOURCE_CATALOGUE.get(source_id, {
+            "name": source_id,
+            "licence": next((series.licence for series in loaded.values()
+                             if series.source_id == source_id), "not recorded"),
             "url": None,
-            "retrieved_at": None,
-            "used_for": "pipeline verification where real data is NOT_AVAILABLE",
-        },
-    ]
+        })
+        sources.append({
+            "source_id": source_id,
+            "name": catalogue["name"],
+            "licence": catalogue["licence"],
+            "url": catalogue["url"],
+            "retrieved_at": next((series.retrieved_at for series in loaded.values()
+                                  if series.source_id == source_id), None),
+            "used_for": ", ".join(
+                f"{country}/{target}" for country in countries for target in targets
+                if loaded[(country, target)].source_id == source_id
+            ),
+        })
 
     report = {
         "schema": "amfe.country_forecast.v1",
@@ -1402,9 +1590,29 @@ def _limitations(freq: str, real_quarterly_pairs: int) -> list[str]:
         "Panel and bridge models use only series of the same source_class; synthetic and real series are never mixed.",
     ]
     if freq == "Q":
+        if real_quarterly_pairs > 0:
+            total_pairs = len(COUNTRY_IDS) * len(TARGET_IDS)
+            coverage = (
+                f"all {total_pairs} quarterly country-target pairs are real official aggregates; "
+                "no synthetic fallback was used in this run."
+                if real_quarterly_pairs == total_pairs else
+                f"{real_quarterly_pairs} of {total_pairs} quarterly country-target pairs are real official "
+                "aggregates; the remaining pairs fall back to the synthetic fixture and are labelled as such."
+            )
+            return common + [
+                coverage,
+                "All real quarterly series are FINAL_VINTAGE_NO_PIT: the public endpoints publish the latest "
+                "vintage only, so there are no release dates and no vintage archive. Release dates were NOT imputed.",
+                "Because release dates are unavailable, OOS origins are period ends. Publication lags and data "
+                "revisions therefore create look-ahead: the quarterly OOS is optimistic in real time.",
+                "EA HICP is derived: monthly HICP index -> arithmetic mean inside the quarter -> year-on-year "
+                "percent. It is not an official quarterly HICP series published by Eurostat.",
+                "Coverage is not synchronised across series (different last periods), so the bridge model needs "
+                "equal last periods and is NOT_AVAILABLE where they differ.",
+            ]
         return common + [
-            "Real quarterly EA/CN/GB series are NOT_AVAILABLE locally: data/raw contains US series only, "
-            "the WDI cache is annual, and no OECD/IMF quarterly vintage files are present.",
+            "Real quarterly EA/CN/GB series are NOT_AVAILABLE locally: the public quarterly cache "
+            f"(data/raw/country) is empty. Run `{CACHE_FETCH_TOOL}` to populate it.",
             f"The quarterly block is a synthetic fixture ({real_quarterly_pairs} real country-target pairs); "
             "its OOS numbers verify the pipeline, not the accuracy of forecasts for EA/CN/GB.",
             "A user can supply real quarterly PIT files in data/external/country/; the adapter then uses them.",
@@ -1622,6 +1830,8 @@ __all__ = [
     "normalize_target",
     "normalize_frequency",
     "load_local_pit_series",
+    "load_country_cache",
+    "country_cache_path",
     "load_world_bank_series",
     "synthetic_series",
     "load_series",

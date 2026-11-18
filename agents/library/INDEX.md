@@ -1,6 +1,6 @@
 # Библиотека памяти AMFE
 
-Обновлено: 2026-11-18T14:27:30Z · записей: 54
+Обновлено: 2026-11-18T15:21:15Z · записей: 56
 
 ## По ролям
 
@@ -12,7 +12,7 @@
 - `licence-auditor` — 3 записей (`agents/memory/licence-auditor.jsonl`)
 - `multiplicity-rw` — 6 записей (`agents/memory/multiplicity-rw.jsonl`)
 - `protocol-reviewer` — 7 записей (`agents/memory/protocol-reviewer.jsonl`)
-- `r2-completion` — 5 записей (`agents/memory/r2-completion.jsonl`)
+- `r2-completion` — 7 записей (`agents/memory/r2-completion.jsonl`)
 
 ## Открытые вопросы
 
@@ -35,21 +35,25 @@
 - `docs/177_17_блоков_зрелость.md` ← mem-dense-vintages-0004
 - `docs/183_Forecast_API_шлюз.md` ← mem-dense-vintages-0005
 - `docs/184_FLAKS_Procurement_MVP.md` ← mem-dense-vintages-0006
+- `docs/187_Страновой_прогноз.md` ← mem-r2-completion-0006
 - `docs/97_Лицензии_ряды_и_terms.md` ← mem-licence-auditor-0002
 - `protocols/evaluation_protocol_v5.json` ← mem-evaluation-harness-0001
 - `protocols/external_forecast_scorecard.json` ← mem-r2-completion-0004
 - `protocols/horizon_matrix_v5.json` ← mem-multiplicity-rw-0004, mem-multiplicity-rw-0005, mem-multiplicity-rw-0006
 - `protocols/licence_register.json` ← mem-licence-auditor-0001
 - `protocols/pit_prereg_evaluation_report.json` ← mem-evaluation-harness-0002
+- `src/amfe/forecast/country.py` ← mem-r2-completion-0006
 - `src/amfe/markets/storage.py` ← mem-accounting-core-0007
+- `tests/test_country_forecast.py` ← mem-r2-completion-0006
 - `tests/test_flaks_procurement.py` ← mem-dense-vintages-0006
 - `tests/test_forecast_api_server.py` ← mem-dense-vintages-0005
 - `tests/test_forecast_world_bridge.py` ← mem-accounting-core-0004
 - `tests/test_storage_futures.py` ← mem-accounting-core-0007
 - `tools/c6_calendar.py` ← mem-evaluation-harness-0005, mem-evaluation-harness-0006
-- `tools/country_forecast.py` ← mem-baseline-models-0005
+- `tools/country_forecast.py` ← mem-baseline-models-0005, mem-r2-completion-0006
 - `tools/eval_cache.py` ← mem-r2-completion-0005
 - `tools/external_forecast_scorecard.py` ← mem-r2-completion-0004
+- `tools/fetch_country_data.py` ← mem-r2-completion-0006
 - `tools/flaks_procurement.py` ← mem-dense-vintages-0006
 - `tools/forecast_api_server.py` ← mem-dense-vintages-0005
 - `tools/forecast_world_bridge.py` ← mem-accounting-core-0004, mem-accounting-core-0005

@@ -58,6 +58,9 @@ def _parser() -> argparse.ArgumentParser:
                         help="as-of date (ISO); default: latest release date in the loaded series")
     parser.add_argument("--data-root", default=None,
                         help="root of the optional local PIT CSV provider (default data/external)")
+    parser.add_argument("--cache-root", default=None,
+                        help="root of the public quarterly cache (default data/raw/country); "
+                             "populate it with tools/fetch_country_data.py")
     parser.add_argument("--wb-root", default=None,
                         help="root of the World Bank WDI cache (default data/mrio/wb)")
     parser.add_argument("--out", default=str(DEFAULT_OUT), help="output directory")
@@ -94,7 +97,8 @@ def main(argv=None) -> int:
     try:
         report = cf.build_report(
             countries=countries, targets=targets, horizons=horizons, freq=frequency,
-            origin=args.origin, external_root=args.data_root, wb_root=args.wb_root,
+            origin=args.origin, external_root=args.data_root, cache_root=args.cache_root,
+            wb_root=args.wb_root,
             allow_synthetic=not args.require_real, generated_at=args.generated_at, models=models,
         )
     except (ValueError, cf.CountryForecastError) as exc:
