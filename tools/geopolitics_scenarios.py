@@ -643,21 +643,38 @@ def _demand_delta(table, component, resolution) -> tuple[np.ndarray, dict]:
     from_labels = [resolution["actors"][actor]["label"] for actor in component["actors"]["from"]]
     to_labels = [resolution["actors"][actor]["label"] for actor in component["actors"]["to"]]
     if channel == "demand_diversion":
-        for label in from_labels:
-            source = _country_index(table, label)
-            for sector in sectors:
-                value = float(base[source * table.n_industries + sector])
-                if value <= 0.0:
+        # Trade diversion: the transferred volume is `size` of min(source final demand,
+        # recipients' final demand) — it cannot exceed either side's market, so a large domestic
+        # market does not produce an absurd transfer.  Recipients gain in proportion to their
+        # market size; the source loses exactly the transferred volume (zero-sum).
+        for sector in sectors:
+            source_base = 0.0
+            for label in from_labels:
+                source_base += float(base[_country_index(table, label) * table.n_industries
+                                          + sector])
+            target_base = {}
+            for label in to_labels:
+                target_base[label] = float(base[_country_index(table, label) * table.n_industries
+                                                + sector])
+            targets_total = sum(target_base.values())
+            pool = min(source_base, targets_total)
+            if pool <= 0.0:
+                continue
+            transfer = size * pool
+            for label, value in target_base.items():
+                if targets_total <= 0.0:
                     continue
-                transfer = size * value
-                share = transfer / float(len(to_labels))
-                for target in to_labels:
-                    index = _country_index(table, target) * table.n_industries + sector
-                    delta[index] += share
-                delta[source * table.n_industries + sector] -= share * float(len(to_labels))
+                index = _country_index(table, label) * table.n_industries + sector
+                delta[index] += transfer * (value / targets_total)
+            if source_base > 0.0:
+                for label in from_labels:
+                    index = _country_index(table, label) * table.n_industries + sector
+                    share = float(base[index]) / source_base
+                    delta[index] -= transfer * share
         detail = {"channel": channel, "actors": component["actors"],
                   "sectors": list(component["sectors"]), "size": round(size, 6),
-                  "direction": "transfer", "zero_sum": True}
+                  "direction": "transfer", "zero_sum": True,
+                  "basis": "min(конечный спрос источника, конечный спрос получателей)"}
     else:
         for label in from_labels:
             source = _country_index(table, label)
@@ -671,6 +688,8 @@ def _demand_delta(table, component, resolution) -> tuple[np.ndarray, dict]:
         raise ProtocolError(f"{channel}: объявленный спрос нулевой на этой таблице, шок пуст")
     detail["delta_final_demand_total"] = round(float(delta.sum()), 6)
     detail["delta_final_demand_max_abs"] = round(float(np.abs(delta).max()), 6)
+    if channel == "demand_diversion":
+        detail["transfer_total"] = round(float(delta[delta > 0.0].sum()), 6)
     return delta, detail
 
 
@@ -859,28 +878,6 @@ def decay_profile(scenario: dict) -> dict:
 
 
 # ----------------------------------------------------------------------------------------- report
-def _dataset_meta(loaded, dataset_id: str, table) -> dict:
-    dataset = loaded.dataset
-    return {
-        "dataset_id": str(dataset_id),
-        "sha256": loaded.sha256,
-        "bytes": int(loaded.size_bytes),
-        "schema": "amfe.mrio.dataset.v1",
-        "countries": table.n_countries,
-        "industries": table.n_industries,
-        "sectors": table.n,
-        "stored_Z": int(table.Z.nnz),
-        "stored_share": round(float(table.Z.nnz) / float(table.n * table.n), 6),
-        "years": list(dataset.years),
-        "units": table.units,
-        "total_output": round(float(table.x.sum()), 3),
-        "total_final_demand": round(float(table.y.sum()), 3),
-        "total_value_added": round(float(table.va.sum()), 3),
-        "source": dataset.source.get("name") if isinstance(dataset.source, dict) else None,
-        "provenance_note": "third-party FIGARO data; read-only, never committed",
-    }
-
-
 def _synthetic_meta(table) -> dict:
     return {
         "dataset_id": "synthetic-labelled",
@@ -1217,6 +1214,14 @@ def render_scenario_markdown(report: dict) -> str:
     for position, entry in enumerate(impacts["countries_named"]["top"], 1):
         lines.append(f"| {position} | {entry['name']} | {_format_value(entry['delta_output'], 3)} | "
                      f"{entry['share_of_abs'] * 100:.2f}% |")
+    rest_of_world = next((name for name in wr.REST_OF_WORLD_LABELS
+                          if name in impacts["by_country"]), None)
+    if rest_of_world is not None:
+        lines += ["",
+                  f"Агрегированный остаток мира `{rest_of_world}` (не одна страна) в топ не "
+                  f"входит: Δвыпуск {_format_value(impacts['by_country'][rest_of_world], 3)}; "
+                  f"в полном ранжировании он "
+                  f"{'первый' if impacts['countries']['largest'] == rest_of_world else 'не первый'}."]
     lines += [
         "",
         f"## Топ-10 отраслей по |Δвыпуска| (всего {impacts['industries']['entries']} отраслей)",
@@ -1312,9 +1317,11 @@ def render_index_markdown(index: dict) -> str:
     for entry in index["scenarios"]:
         headline = entry["headline"]
         delta = float(headline["total_delta_output"] or 0.0)
+        marker = " ⚠ прокси" if entry.get("proxy") else ""
         lines.append(
-            f"| `{entry['id']}` — {entry['title_ru']} | {entry['family']} | {entry['channel']} | "
-            f"{entry['size']} | {entry['duration']} | {_format_value(delta)} | "
+            f"| `{entry['id']}` — {entry['title_ru']}{marker} | {entry['family']} | "
+            f"{entry['channel']} | {entry['size']} | {entry['duration']} | "
+            f"{_format_value(delta)} | "
             f"{(delta / baseline * 100.0) if baseline else 0.0:+.4f}% | "
             f"{entry['direction']}/{entry['observed_direction']} | "
             f"{entry['beneficiaries_status']} | [MD]({entry['file_md']}) / "
@@ -1622,7 +1629,17 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _configure_output() -> None:
+    """Windows consoles default to cp1251: make UTF-8 output non-fatal (never crash on Δ)."""
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError):  # pragma: no cover - non-reconfigurable stream
+            pass
+
+
 def main(argv=None) -> int:
+    _configure_output()
     parser = build_parser()
     args = parser.parse_args(argv)
     try:
@@ -1634,7 +1651,7 @@ def main(argv=None) -> int:
         print(f"INVALID: {exc}", file=sys.stderr)
         return EXIT_INVALID
     if args.json:
-        print(json.dumps(result["index"], ensure_ascii=False, sort_keys=True, indent=2))
+        print(json.dumps(result["index"], ensure_ascii=True, sort_keys=True, indent=2))
     else:
         _print_summary(result)
     return EXIT_OK

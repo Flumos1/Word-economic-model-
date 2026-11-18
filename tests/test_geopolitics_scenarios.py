@@ -4,10 +4,12 @@ Everything runs on a deterministic constructed table carrying the protocol's own
 third-party data, no network); the real FIGARO run is exercised by the CLI, not by unit tests.
 """
 import copy
+import io
 import json
 import sys
 import tempfile
 import unittest
+from contextlib import redirect_stdout
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -432,6 +434,19 @@ class FailClosed(unittest.TestCase):
             text = report_md.read_text(encoding="utf-8")
             self.assertIn(gs.STATUS, text)
             self.assertIn("Проверки направления", text)
+
+    def test_cli_json_flag_is_console_safe(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "geo"
+            buffer = io.StringIO()
+            with redirect_stdout(buffer):
+                code = gs.main(["--protocol", str(PROTOCOL), "--synthetic", "--out", str(out),
+                                "--only", "TAR-USA-CHN-2018", "--json"])
+            self.assertEqual(code, gs.EXIT_OK)
+            payload = json.loads(buffer.getvalue())
+            self.assertEqual(payload["schema"], gs.INDEX_SCHEMA)
+            self.assertEqual(payload["status"], gs.STATUS)
+            self.assertEqual(len(payload["scenarios"]), 1)
 
     def test_gating_and_causal_claim_are_false_everywhere(self):
         result = fixture()["result"]

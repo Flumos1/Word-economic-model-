@@ -1,6 +1,6 @@
 # Библиотека памяти AMFE
 
-Обновлено: 2026-11-18T10:49:30Z · записей: 47
+Обновлено: 2026-11-18T11:17:52Z · записей: 48
 
 ## По ролям
 
@@ -11,7 +11,7 @@
 - `lead` — 8 записей (`agents/memory/lead.jsonl`)
 - `licence-auditor` — 3 записей (`agents/memory/licence-auditor.jsonl`)
 - `multiplicity-rw` — 6 записей (`agents/memory/multiplicity-rw.jsonl`)
-- `protocol-reviewer` — 5 записей (`agents/memory/protocol-reviewer.jsonl`)
+- `protocol-reviewer` — 6 записей (`agents/memory/protocol-reviewer.jsonl`)
 - `r2-completion` — 5 записей (`agents/memory/r2-completion.jsonl`)
 
 ## Открытые вопросы
@@ -46,6 +46,7 @@
 - `tools/eval_cache.py` ← mem-r2-completion-0005
 - `tools/external_forecast_scorecard.py` ← mem-r2-completion-0004
 - `tools/forecast_world_bridge.py` ← mem-accounting-core-0004, mem-accounting-core-0005
+- `tools/geopolitics_scenarios.py` ← mem-protocol-reviewer-0006
 - `tools/sector_exposure.py` ← mem-accounting-core-0006
 - `tools/storage_futures.py` ← mem-accounting-core-0007
 
