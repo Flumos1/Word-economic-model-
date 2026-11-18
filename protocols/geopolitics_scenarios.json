@@ -1,0 +1,547 @@
+{
+  "schema": "AMFE-GEOPOL-SCENARIO/1.0.0",
+  "status": "RESEARCH_ONLY",
+  "causal_claim": false,
+  "gating": false,
+  "status_note": "Библиотека исследовательских сценариев: сценарий — не прогноз, не допуск и не причинная оценка; gating=false, causal_claim=false (docs/177, M16, блок 16)",
+  "created": "2026-11-18",
+  "engine": {
+    "tool": "tools/geopolitics_scenarios.py",
+    "model": "статическая линейная модель Леонтьева на MRIO (сравнительная статика)",
+    "dataset": "FIGARO 2019 (Eurostat), 50 стран x 64 отрасли CPA; данные третьей стороны, в git не коммитятся"
+  },
+  "field_guide": {
+    "family": "семейство сценария: sanctions | tariffs | conflict | chokepoint | export_restriction | agreement | industrial_policy",
+    "actors": "от кого -> к кому, коды ISO3 (from = инициатор/источник, to = цель/адресат; для industrial_policy from = to = получатель поддержки)",
+    "sectors": "отрасли CPA/FIGARO (64 кода) или агрегаты; список непустой",
+    "channel": "канал возмущения MRIO: import_restriction | export_restriction | chokepoint | demand_diversion | demand_shock | trade_facilitation",
+    "size": "величина шока: доля (0, 0.95] целевого потока/спроса; знак не используется, направление задаёт channel",
+    "duration": "длительность в месяцах, целое >= 1",
+    "decay": "затухание: none | step | linear | exponential (объект с half_life_months); число = период полураспада в месяцах",
+    "direction": "направление эффекта по P-008: damage | benefit | both (только объявленное намерение, не оценка)",
+    "source": "kind=source_id (id из protocols/source_registry.json) либо kind=assumption + replace_with (чем заменить)",
+    "pit_date": "дата, на которую сценарий был бы доступен (ISO 8601); для гипотетических сценариев — дата объявления допущения",
+    "assumptions": "явные допущения сценария; непустой список строк",
+    "companions": "необязательные добавки к сценарию (demand_diversion/demand_shock) — асимметрия P-008 без выдумывания выгод",
+    "historical_anchor": "необязательная ссылка на исторический эпизод: fact + fact_source (только для проверки знака)"
+  },
+  "country_map": {
+    "ARG": "AR",
+    "AUS": "AU",
+    "AUT": "AT",
+    "BEL": "BE",
+    "BRA": "BR",
+    "CAN": "CA",
+    "CHE": "CH",
+    "CHN": "CN",
+    "DEU": "DE",
+    "ESP": "ES",
+    "FIN": "FI",
+    "FRA": "FR",
+    "GBR": "UK",
+    "IND": "IN",
+    "ITA": "IT",
+    "JPN": "JP",
+    "KOR": "KR",
+    "MEX": "MX",
+    "NLD": "NL",
+    "NOR": "NO",
+    "POL": "PL",
+    "RUS": "RU",
+    "SAU": "SA",
+    "SWE": "SE",
+    "TUR": "TR",
+    "USA": "US",
+    "ZAF": "ZA"
+  },
+  "proxies": {
+    "IRN": {
+      "label": "ROW",
+      "kind": "aggregate_block",
+      "note": "Иран отсутствует в FIGARO 2019 (49 поименованных стран + ROW). Блок ROW — агрегат остального мира (12,7% мирового ВВП), а не Иран: сценарий на прокси проверяет только знак механизма и не является оценкой Ирана."
+    }
+  },
+  "scenarios": [
+    {
+      "scenario_id": "SAN-IRN-2018-OIL",
+      "title_ru": "Санкции 2018: экспорт нефти и нефтепродуктов Ирана",
+      "family": "sanctions",
+      "actors": {
+        "from": ["IRN"],
+        "to": ["USA", "DEU", "ITA", "JPN", "KOR", "IND", "CHN"]
+      },
+      "sectors": ["CPA_B", "CPA_C19"],
+      "channel": "export_restriction",
+      "size": 0.35,
+      "duration": 12,
+      "decay": "linear",
+      "direction": "both",
+      "source": {
+        "kind": "assumption",
+        "id": "ASSUMPTION-GEOPOL-001",
+        "replace_with": "объём и география поставок — UN Comtrade / Eurostat Comext; доля выпадающего экспорта — из объявленных мер US OFAC (2018-05-08) и фактических отгрузок 2018-2019"
+      },
+      "pit_date": "2018-05-08",
+      "assumptions": [
+        "санкции трактуются как сокращение межстрановых поставок Ирана в объявленные страны на 35%",
+        "Иран в таблице отсутствует: используется прокси-блок ROW (см. proxies), поэтому страновой эффект Ирана не оценивается",
+        "замещение поставок задано переносом 25% конечного спроса с Ирана на Саудовскую Аравию, Россию и США (companion demand_diversion)"
+      ],
+      "companions": [
+        {
+          "channel": "demand_diversion",
+          "actors": {"from": ["IRN"], "to": ["SAU", "RUS", "USA"]},
+          "sectors": ["CPA_B"],
+          "size": 0.25
+        }
+      ],
+      "historical_anchor": {
+        "fact": "После выхода США из JCPOA (2018-05-08) экспорт и добыча нефти Ирана упали, доля конкурентов (Саудовская Аравия, Россия, США) выросла",
+        "fact_source": "assumption: общеизвестная хронология; числа не используются, проверяется только знак"
+      },
+      "notes": "Проверка направления — только знак (docs/177 B4); магнитуда не оценивается. Прокси ROW — ограничение, а не допущение о тождестве."
+    },
+    {
+      "scenario_id": "SAN-RUS-2022-ENERGY",
+      "title_ru": "Санкции 2022: энергоносители России в ЕС",
+      "family": "sanctions",
+      "actors": {
+        "from": ["RUS"],
+        "to": ["DEU", "POL", "ITA", "FIN"]
+      },
+      "sectors": ["CPA_B", "CPA_C19"],
+      "channel": "export_restriction",
+      "size": 0.40,
+      "duration": 24,
+      "decay": "linear",
+      "direction": "both",
+      "source": {
+        "kind": "assumption",
+        "id": "ASSUMPTION-GEOPOL-002",
+        "replace_with": "фактические объёмы — Eurostat Comext / UN Comtrade; ставки и эмбарго — официальные акты ЕС (2022) и решения G7"
+      },
+      "pit_date": "2022-03-01",
+      "assumptions": [
+        "энергетический экспорт России в объявленные страны ЕС сокращается на 40% в сравнительной статике",
+        "замещение задано переносом 20% конечного спроса на энергию с России на США и Норвегию (companion demand_diversion)",
+        "транспортные и финансовые ограничения не моделируются отдельно"
+      ],
+      "companions": [
+        {
+          "channel": "demand_diversion",
+          "actors": {"from": ["RUS"], "to": ["USA", "NOR"]},
+          "sectors": ["CPA_B"],
+          "size": 0.20
+        }
+      ],
+      "historical_anchor": {
+        "fact": "После февраля 2022 ЕС сократил импорт российской нефти и газа; добыча/экспорт энергоносителей России снизились; поставки СПГ из США и Норвегии в Европу выросли; энергоёмкое производство в ЕС сократилось",
+        "fact_source": "assumption: общеизвестная хронология; числа не используются, проверяется только знак"
+      },
+      "notes": "Знак европейского спада в модели — следствие сокращения импортных затрат, а не роста цен; совпадение знака не является объяснением."
+    },
+    {
+      "scenario_id": "SAN-RUS-2022-FIN",
+      "title_ru": "Санкции 2022: финансовый канал (SWIFT и расчёты)",
+      "family": "sanctions",
+      "actors": {
+        "from": ["RUS"],
+        "to": ["DEU", "USA", "GBR", "NLD"]
+      },
+      "sectors": ["CPA_K64", "CPA_K65"],
+      "channel": "export_restriction",
+      "size": 0.30,
+      "duration": 12,
+      "decay": "none",
+      "direction": "damage",
+      "source": {
+        "kind": "assumption",
+        "id": "ASSUMPTION-GEOPOL-003",
+        "replace_with": "перечень банков и объём операций — официальные акты ЕС/США (2022) и статистика BIS; здесь — только доля сокращения поставки финансовых услуг"
+      },
+      "pit_date": "2022-02-26",
+      "assumptions": [
+        "финансовые услуги трактуются как обычная отрасль MRIO (CPA_K64, CPA_K65), без баланса ЦБ и платёжных систем",
+        "сокращение на 30% относится к межстрановым поставкам услуг, а не к капиталу или резервам"
+      ],
+      "notes": "Это самое грубое приближение блока 16: финансовый канал в MRIO не имеет денежной механики."
+    },
+    {
+      "scenario_id": "TAR-USA-CHN-2018",
+      "title_ru": "Тарифы 2018: США против импорта из Китая",
+      "family": "tariffs",
+      "actors": {"from": ["CHN"], "to": ["USA"]},
+      "sectors": [
+        "CPA_C10-12", "CPA_C13-15", "CPA_C16", "CPA_C17", "CPA_C18",
+        "CPA_C20", "CPA_C22", "CPA_C23", "CPA_C24", "CPA_C25",
+        "CPA_C26", "CPA_C27", "CPA_C28"
+      ],
+      "channel": "import_restriction",
+      "size": 0.25,
+      "duration": 24,
+      "decay": "none",
+      "direction": "damage",
+      "source": {
+        "kind": "assumption",
+        "id": "ASSUMPTION-GEOPOL-004",
+        "replace_with": "ставки и перечни товаров — USTR Section 301 (2018-07-06) и WTO Tariff Database; объёмы — UN Comtrade"
+      },
+      "pit_date": "2018-07-06",
+      "assumptions": [
+        "тариф трактуется как снятие 25% межстрановых коэффициентов затрат по перечисленным отраслям на направлении Китай -> США",
+        "замещение импорта и рост внутренних цен не моделируются: канал только количественный",
+        "ответные тарифы Китая в этот сценарий не входят"
+      ],
+      "notes": "Чистый барьерный сценарий: выгодоприобретателей в модели нет, отчёт обязан это зафиксировать явно (P-008)."
+    },
+    {
+      "scenario_id": "TAR-USA-EU-2026",
+      "title_ru": "Тарифы 2026 (допущение): США против импорта из ЕС",
+      "family": "tariffs",
+      "actors": {"from": ["DEU", "FRA", "ITA"], "to": ["USA"]},
+      "sectors": ["CPA_C10-12", "CPA_C20", "CPA_C22", "CPA_C24", "CPA_C28", "CPA_C29"],
+      "channel": "import_restriction",
+      "size": 0.15,
+      "duration": 36,
+      "decay": "none",
+      "direction": "damage",
+      "source": {
+        "kind": "assumption",
+        "id": "ASSUMPTION-GEOPOL-005",
+        "replace_with": "при появлении официального акта — ставка и перечень из WTO Tariff Database / TARIC; сейчас это гипотетический сценарий, а не событие"
+      },
+      "pit_date": "2026-01-01",
+      "assumptions": [
+        "гипотетический сценарий: 15% барьер на перечисленные товары ЕС, без ответных мер",
+        "дата 2026-01-01 — дата объявления допущения, а не политического события"
+      ],
+      "notes": "Гипотетический сценарий; не публиковать как прогноз или новость."
+    },
+    {
+      "scenario_id": "TAR-EU-CHN-EV-2024",
+      "title_ru": "Тарифы 2024: ЕС против электромобилей из Китая",
+      "family": "tariffs",
+      "actors": {"from": ["CHN"], "to": ["DEU", "FRA", "ITA", "NLD", "ESP", "BEL"]},
+      "sectors": ["CPA_C29"],
+      "channel": "import_restriction",
+      "size": 0.20,
+      "duration": 60,
+      "decay": "none",
+      "direction": "both",
+      "source": {
+        "kind": "assumption",
+        "id": "ASSUMPTION-GEOPOL-006",
+        "replace_with": "ставки — Regulation (EU) 2024/2754 и временные пошлины с 2024-07-05; объёмы — Eurostat Comext"
+      },
+      "pit_date": "2024-07-05",
+      "assumptions": [
+        "компенсационные пошлины трактуются как 20% сокращение межстрановых коэффициентов по CPA_C29 (автотранспортные средства)",
+        "часть спроса, обслуживаемого китайским автопромом, переносится на производителей ЕС (companion demand_diversion 20%): это допущение о замещении, а не наблюдение",
+        "локализация производства внутри ЕС не моделируется"
+      ],
+      "companions": [
+        {
+          "channel": "demand_diversion",
+          "actors": {"from": ["CHN"], "to": ["DEU", "FRA", "ITA"]},
+          "sectors": ["CPA_C29"],
+          "size": 0.20
+        }
+      ],
+      "notes": "Отрасль CPA_C29 включает и традиционный автопром: эффект не является оценкой только сегмента электромобилей."
+    },
+    {
+      "scenario_id": "CONF-RED-SEA-2024",
+      "title_ru": "Конфликт 2024: Красное море / Баб-эль-Мандеб",
+      "family": "conflict",
+      "actors": {"from": ["CHN", "IND", "JPN", "KOR"], "to": ["DEU", "ITA", "NLD", "FRA", "GBR"]},
+      "sectors": [
+        "CPA_C13-15", "CPA_C16", "CPA_C17", "CPA_C18", "CPA_C20", "CPA_C22",
+        "CPA_C24", "CPA_C25", "CPA_C26", "CPA_C27", "CPA_C28", "CPA_C29"
+      ],
+      "channel": "chokepoint",
+      "size": 0.20,
+      "duration": 12,
+      "decay": "linear",
+      "direction": "damage",
+      "source": {
+        "kind": "assumption",
+        "id": "ASSUMPTION-GEOPOL-007",
+        "replace_with": "доля перенаправленных рейсов и ставки фрахта — EIA World Oil Transit Chokepoints, Kpler/Vortexa, публичные отчёты по Красному морю (с 2023-11-19)"
+      },
+      "pit_date": "2023-11-19",
+      "assumptions": [
+        "перебой трактуется как сокращение на 20% межстрановых промежуточных поставок из Азии в ЕС по обрабатывающим отраслям (маршрут в обход мыса Доброй Надежды)",
+        "физическая мощность пролива, очереди, фрахт и перенаправление маршрутов не моделируются: это сценарный сдвиг коэффициентов, а не логистическая сеть (она — блок 8, M8)",
+        "конечный импорт в таблице не разделён по партнёрам, поэтому сокращение касается промежуточных поставок; потребительский импорт занижен"
+      ],
+      "notes": "Пролив как узел не входит в MRIO; сценарий приближает перебой через сокращение промежуточных поставок Азия -> ЕС."
+    },
+    {
+      "scenario_id": "CONF-TAIWAN-STRAIT-2026",
+      "title_ru": "Конфликт 2026 (допущение): Тайваньский пролив и электроника",
+      "family": "conflict",
+      "actors": {"from": ["CHN"], "to": ["USA", "JPN", "KOR", "DEU", "NLD"]},
+      "sectors": ["CPA_C26", "CPA_C27", "CPA_C28"],
+      "channel": "chokepoint",
+      "size": 0.35,
+      "duration": 6,
+      "decay": "linear",
+      "direction": "both",
+      "source": {
+        "kind": "assumption",
+        "id": "ASSUMPTION-GEOPOL-008",
+        "replace_with": "доли поставок — UN Comtrade и отраслевые ассоциации (SEMI/SIA); сценарий гипотетический, официального события нет"
+      },
+      "pit_date": "2026-03-01",
+      "assumptions": [
+        "перебой поставок электроники Китая (включая сборку) трактуется как 35% сокращение межстрановых коэффициентов по CPA_C26-C28",
+        "Тайвань в FIGARO отсутствует; используется Китай как узел поставок, что занижает эффект специализированных поставщиков",
+        "часть спроса переносится на США, Японию и Корею (companion demand_diversion), но замещение мощностей не моделируется"
+      ],
+      "companions": [
+        {
+          "channel": "demand_diversion",
+          "actors": {"from": ["CHN"], "to": ["USA", "JPN", "KOR"]},
+          "sectors": ["CPA_C26"],
+          "size": 0.35
+        }
+      ],
+      "notes": "Гипотетический сценарий; не является оценкой вероятности конфликта (вероятности — блок 14)."
+    },
+    {
+      "scenario_id": "CHK-ORMUZ-2026",
+      "title_ru": "Пролив 2026 (допущение): закрытие Ормуза на 6 месяцев",
+      "family": "chokepoint",
+      "actors": {"from": ["SAU"], "to": ["CHN", "IND", "JPN", "KOR"]},
+      "sectors": ["CPA_B", "CPA_C19"],
+      "channel": "chokepoint",
+      "size": 0.45,
+      "duration": 6,
+      "decay": "linear",
+      "direction": "both",
+      "source": {
+        "kind": "assumption",
+        "id": "ASSUMPTION-GEOPOL-009",
+        "replace_with": "транзит 20,5 mb/d и обход 4,2 mb/d — EIA World Oil Transit Chokepoints; сценарий согласован с нефтяным модулем (блок 8, M8), но не совпадает с ним"
+      },
+      "pit_date": "2026-02-01",
+      "assumptions": [
+        "закрытие трактуется как 45% сокращение поставок энергоносителей Саудовской Аравии в Азию",
+        "Иран в таблице отсутствует и в сценарий не включён: оценка занижена относительно полного закрытия Ормуза",
+        "обходные маршруты и SPR не моделируются (это блок 8)"
+      ],
+      "companions": [
+        {
+          "channel": "demand_diversion",
+          "actors": {"from": ["SAU"], "to": ["USA", "NOR", "GBR"]},
+          "sectors": ["CPA_B"],
+          "size": 0.20
+        }
+      ],
+      "notes": "Проверка согласованности с нефтяным модулем — отдельная задача M8 (A5), здесь не заявляется."
+    },
+    {
+      "scenario_id": "EXP-CHN-2023-GA",
+      "title_ru": "Экспортные ограничения 2023: галлий и германий",
+      "family": "export_restriction",
+      "actors": {"from": ["CHN"], "to": ["USA", "DEU", "JPN", "NLD"]},
+      "sectors": ["CPA_C24", "CPA_C26"],
+      "channel": "export_restriction",
+      "size": 0.30,
+      "duration": 12,
+      "decay": "none",
+      "direction": "damage",
+      "source": {
+        "kind": "assumption",
+        "id": "ASSUMPTION-GEOPOL-010",
+        "replace_with": "объявленные меры — MOFCOM/General Administration of Customs (2023-07-03, в силе с 2023-08-01); объёмы — UN Comtrade"
+      },
+      "pit_date": "2023-08-01",
+      "assumptions": [
+        "ограничения трактуются как 30% сокращение межстрановых поставок по CPA_C24 (металлы) и CPA_C26 (электроника)",
+        "запасы и замещение поставщиков не моделируются"
+      ],
+      "notes": "Галлий и германий — узкие позиции внутри CPA_C24/C26: сценарий завышает охват отрасли."
+    },
+    {
+      "scenario_id": "EXP-CHN-2023-GRAPHITE",
+      "title_ru": "Экспортные ограничения 2023: графит",
+      "family": "export_restriction",
+      "actors": {"from": ["CHN"], "to": ["USA", "DEU", "JPN", "KOR"]},
+      "sectors": ["CPA_C23", "CPA_C29"],
+      "channel": "export_restriction",
+      "size": 0.25,
+      "duration": 12,
+      "decay": "none",
+      "direction": "damage",
+      "source": {
+        "kind": "assumption",
+        "id": "ASSUMPTION-GEOPOL-011",
+        "replace_with": "объявленные меры — MOFCOM (2023-10-20, в силе с 2023-12-01); объёмы — UN Comtrade"
+      },
+      "pit_date": "2023-12-01",
+      "assumptions": [
+        "графит трактуется как 25% сокращение поставок по CPA_C23 (неметаллические минеральные продукты) и CPA_C29",
+        "батарейные цепочки не выделены в отдельную отрасль"
+      ],
+      "notes": "Отраслевая агрегация грубее события; знак важнее магнитуды."
+    },
+    {
+      "scenario_id": "EXP-RUS-2022-FERT",
+      "title_ru": "Экспортные ограничения 2022: удобрения из России",
+      "family": "export_restriction",
+      "actors": {"from": ["RUS"], "to": ["BRA", "IND", "DEU", "USA"]},
+      "sectors": ["CPA_C20"],
+      "channel": "export_restriction",
+      "size": 0.30,
+      "duration": 12,
+      "decay": "linear",
+      "direction": "both",
+      "source": {
+        "kind": "assumption",
+        "id": "ASSUMPTION-GEOPOL-012",
+        "replace_with": "объёмы и квоты — UN Comtrade / FAO FAOSTAT; официальные ограничения России (март 2022)"
+      },
+      "pit_date": "2022-03-10",
+      "assumptions": [
+        "ограничения трактуются как 30% сокращение поставок химической продукции (CPA_C20)",
+        "перенос 15% спроса на Канаду и США — допущение о замещении, а не наблюдение"
+      ],
+      "companions": [
+        {
+          "channel": "demand_diversion",
+          "actors": {"from": ["RUS"], "to": ["CAN", "USA"]},
+          "sectors": ["CPA_C20"],
+          "size": 0.15
+        }
+      ],
+      "notes": "Продовольственная безопасность и цены на продовольствие не моделируются."
+    },
+    {
+      "scenario_id": "AGR-EU-MERCOSUR-2026",
+      "title_ru": "Соглашение 2026 (допущение): ЕС — Меркосур",
+      "family": "agreement",
+      "actors": {"from": ["BRA", "ARG"], "to": ["DEU", "ESP", "ITA", "FRA", "NLD"]},
+      "sectors": ["CPA_A01", "CPA_C10-12"],
+      "channel": "trade_facilitation",
+      "size": 0.10,
+      "duration": 60,
+      "decay": "none",
+      "direction": "benefit",
+      "source": {
+        "kind": "assumption",
+        "id": "ASSUMPTION-GEOPOL-013",
+        "replace_with": "тарифные уступки — текст соглашения ЕС-Меркосур после ратификации; сейчас гипотетический сценарий"
+      },
+      "pit_date": "2026-01-01",
+      "assumptions": [
+        "соглашение трактуется как рост межстрановых коэффициентов на 10% по сельскому хозяйству и пищевой промышленности",
+        "квоты, санитарные нормы и правила происхождения не моделируются",
+        "эффект благосостояния не оценивается: только Δвыпуска в сравнительной статике"
+      ],
+      "notes": "Единственный сценарий семейства agreement: нужен как контроль положительного направления."
+    },
+    {
+      "scenario_id": "IND-EU-CRMA-2024",
+      "title_ru": "Промышленная политика 2024: сырьевой акт ЕС (CRMA) и чипы",
+      "family": "industrial_policy",
+      "actors": {"from": ["DEU", "FRA", "ITA"], "to": ["DEU", "FRA", "ITA"]},
+      "sectors": ["CPA_C27", "CPA_C28", "CPA_C29"],
+      "channel": "demand_shock",
+      "size": 0.10,
+      "duration": 36,
+      "decay": "linear",
+      "direction": "benefit",
+      "source": {
+        "kind": "assumption",
+        "id": "ASSUMPTION-GEOPOL-014",
+        "replace_with": "бюджеты и объёмы поддержки — Regulation (EU) 2024/1252 (CRMA, в силе 2024-05-23) и Chips Act; здесь — доля прироста конечного спроса"
+      },
+      "pit_date": "2024-05-23",
+      "assumptions": [
+        "поддержка трактуется как 10% прирост конечного спроса на оборудование, электронику и транспорт в Германии, Франции, Италии",
+        "налоги и источник финансирования не моделируются: это не бюджетный сценарий (блок 12)"
+      ],
+      "notes": "Прирост спроса не равен приросту ВВП: часть уходит на импорт, это видно в отраслевых маргиналах."
+    },
+    {
+      "scenario_id": "IND-USA-IRA-2022",
+      "title_ru": "Промышленная политика 2022: IRA в США",
+      "family": "industrial_policy",
+      "actors": {"from": ["USA"], "to": ["USA"]},
+      "sectors": ["CPA_C27", "CPA_C28", "CPA_C29", "CPA_D35"],
+      "channel": "demand_shock",
+      "size": 0.08,
+      "duration": 60,
+      "decay": "linear",
+      "direction": "benefit",
+      "source": {
+        "kind": "assumption",
+        "id": "ASSUMPTION-GEOPOL-015",
+        "replace_with": "бюджетные оценки — CBO/JCT по Inflation Reduction Act (2022-08-16); здесь — доля прироста конечного спроса"
+      },
+      "pit_date": "2022-08-16",
+      "assumptions": [
+        "поддержка трактуется как 8% прирост конечного спроса на электрооборудование, машины, транспорт и электроэнергию в США",
+        "субсидии и налоговые кредиты не моделируются отдельно; источник финансирования не учитывается"
+      ],
+      "notes": "Сценарий показывает направление, а не бюджетный эффект."
+    }
+  ],
+  "direction_checks": [
+    {
+      "check_id": "IRAN_2018",
+      "title_ru": "Проверка направления: санкции по Ирану 2018",
+      "scenario_id": "SAN-IRN-2018-OIL",
+      "anchor_year": 2018,
+      "scope": "sign_only",
+      "fact": "Экспорт и добыча нефти Ирана упали; конкуренты (Саудовская Аравия, Россия, США) увеличили долю поставок",
+      "fact_source": {
+        "kind": "assumption",
+        "note": "общеизвестная хронология; числа не используются, проверяется только знак"
+      },
+      "targets": [
+        {"actor": "IRN", "industry": "CPA_B", "expected_sign": -1},
+        {"actor": "SAU", "industry": "CPA_B", "expected_sign": 1},
+        {"actor": "USA", "industry": "CPA_B", "expected_sign": 1}
+      ],
+      "min_matches": 2,
+      "notes": [
+        "магнитуда не оценивается и в блоке проверки не публикуется (docs/177 B4)",
+        "IRN отсутствует в таблице: используется прокси ROW, поэтому совпадение знака — проверка механизма, а не оценка Ирана",
+        "проверка не является причинной оценкой санкций"
+      ]
+    },
+    {
+      "check_id": "RUSSIA_2022",
+      "title_ru": "Проверка направления: санкции по России 2022",
+      "scenario_id": "SAN-RUS-2022-ENERGY",
+      "anchor_year": 2022,
+      "scope": "sign_only",
+      "fact": "Экспорт энергоносителей России в ЕС сократился; поставки СПГ из США и Норвегии в Европу выросли; энергоёмкое производство в ЕС (химия) сократилось",
+      "fact_source": {
+        "kind": "assumption",
+        "note": "общеизвестная хронология; числа не используются, проверяется только знак"
+      },
+      "targets": [
+        {"actor": "RUS", "industry": "CPA_B", "expected_sign": -1},
+        {"actor": "USA", "industry": "CPA_B", "expected_sign": 1},
+        {"actor": "DEU", "industry": "CPA_C20", "expected_sign": -1}
+      ],
+      "min_matches": 2,
+      "notes": [
+        "магнитуда не оценивается и в блоке проверки не публикуется (docs/177 B4)",
+        "знак европейского спада в модели — следствие сокращения импортных затрат, а не роста цен",
+        "проверка не является причинной оценкой санкций"
+      ]
+    }
+  ],
+  "limitations": [
+    "сравнительная статика x'=(I-A')^-1 y': нет цен, замещения, динамики, ожиданий и обратных связей; длительность и затухание объявлены, но в решении не разворачиваются (числа относятся к пику шока)",
+    "все барьерные каналы реализованы как сокращение межстрановых коэффициентов на объявленном направлении; физические мощности проливов, фрахт и запасы не моделируются",
+    "строки и отрасли — агрегаты CPA/FIGARO; узкие товары (галлий, графит) шире своих отраслевых кодов",
+    "Иран и Тайвань отсутствуют в FIGARO 2019; используются прокси и допущения, явно помеченные в сценариях",
+    "величины шоков — допущения (source.kind=assumption), не оценки по данным; вероятности событий не оцениваются (это блок 14)",
+    "сценарий не является причинной оценкой эффекта санкций/тарифов, не гейтит допуск (gating=false) и не публикуется как прогноз"
+  ]
+}
