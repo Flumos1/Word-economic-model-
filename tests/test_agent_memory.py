@@ -70,6 +70,16 @@ class MemoryRegistryTest(unittest.TestCase):
         self.assertIn("Библиотека памяти", md)
         self.assertIn("dense-vintages", md)
 
+    def test_role_prompt_generator(self):
+        tool = ROOT / "agents" / "tools" / "role_prompt.py"
+        done = subprocess.run([sys.executable, str(tool), "--role", "r2-completion",
+                               "--task", "task-54", "--title", "Scorecard", "--limit", "1"],
+                              capture_output=True, text=True, timeout=60, cwd=str(ROOT))
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertIn("Роль:", done.stdout)
+        self.assertIn("Мандат", done.stdout)
+        self.assertIn("task-54", done.stdout)
+
     def test_context_pack_for_any_model(self):
         done = subprocess.run([sys.executable, str(MEMORY_TOOL), "pack", "--role", "lead",
                                "--limit", "2"], capture_output=True, text=True, timeout=60,
