@@ -1,6 +1,6 @@
 # Библиотека памяти AMFE
 
-Обновлено: 2026-11-18T07:56:39Z · записей: 30
+Обновлено: 2026-11-18T08:03:34Z · записей: 31
 
 ## По ролям
 
@@ -12,7 +12,7 @@
 - `licence-auditor` — 3 записей (`agents/memory/licence-auditor.jsonl`)
 - `multiplicity-rw` — 3 записей (`agents/memory/multiplicity-rw.jsonl`)
 - `protocol-reviewer` — 3 записей (`agents/memory/protocol-reviewer.jsonl`)
-- `r2-completion` — 3 записей (`agents/memory/r2-completion.jsonl`)
+- `r2-completion` — 4 записей (`agents/memory/r2-completion.jsonl`)
 
 ## Открытые вопросы
 
@@ -34,9 +34,11 @@
 - `docs/175_Агентная_оркестрация_и_обучение.md` ← mem-accounting-core-0001, mem-baseline-models-0001, mem-evaluation-harness-0001, mem-lead-0001, mem-licence-auditor-0001, mem-multiplicity-rw-0001, mem-protocol-reviewer-0001, mem-r2-completion-0001
 - `docs/97_Лицензии_ряды_и_terms.md` ← mem-licence-auditor-0002
 - `protocols/evaluation_protocol_v5.json` ← mem-evaluation-harness-0001
+- `protocols/external_forecast_scorecard.json` ← mem-r2-completion-0004
 - `protocols/licence_register.json` ← mem-licence-auditor-0001
 - `protocols/pit_prereg_evaluation_report.json` ← mem-evaluation-harness-0002
 - `tests/test_forecast_world_bridge.py` ← mem-accounting-core-0004
+- `tools/external_forecast_scorecard.py` ← mem-r2-completion-0004
 - `tools/forecast_world_bridge.py` ← mem-accounting-core-0004, mem-accounting-core-0005
 
 ## Как читать любому агенту/модели

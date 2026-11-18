@@ -1,7 +1,7 @@
 {
  "schema": "amfe.agent_library.v1",
- "updated_at": "2026-11-18T07:56:39Z",
- "entries": 30,
+ "updated_at": "2026-11-18T08:03:34Z",
+ "entries": 31,
  "open_questions": [
   {
    "id": "mem-lead-0003",
@@ -19,10 +19,10 @@
   "licence-auditor": 3,
   "multiplicity-rw": 3,
   "protocol-reviewer": 3,
-  "r2-completion": 3
+  "r2-completion": 4
  },
  "by_kind": {
-  "artifact": 1,
+  "artifact": 2,
   "lesson": 5,
   "open_question": 1,
   "role": 9,
@@ -38,7 +38,7 @@
   "country": 1,
   "data": 1,
   "decision": 1,
-  "external": 2,
+  "external": 3,
   "forecast": 1,
   "g4": 1,
   "g5": 1,
@@ -52,12 +52,13 @@
   "models": 1,
   "orchestrator": 1,
   "p2": 1,
-  "pit": 2,
+  "pit": 3,
   "prereg": 1,
   "process": 2,
   "products": 1,
   "review": 1,
   "science": 1,
+  "scorecard": 1,
   "selfcheck": 1,
   "sfc": 1,
   "signoff": 1,
@@ -128,6 +129,9 @@
   "protocols/evaluation_protocol_v5.json": [
    "mem-evaluation-harness-0001"
   ],
+  "protocols/external_forecast_scorecard.json": [
+   "mem-r2-completion-0004"
+  ],
   "protocols/licence_register.json": [
    "mem-licence-auditor-0001"
   ],
@@ -136,6 +140,9 @@
   ],
   "tests/test_forecast_world_bridge.py": [
    "mem-accounting-core-0004"
+  ],
+  "tools/external_forecast_scorecard.py": [
+   "mem-r2-completion-0004"
   ],
   "tools/forecast_world_bridge.py": [
    "mem-accounting-core-0004",

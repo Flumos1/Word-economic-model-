@@ -1,0 +1,721 @@
+{
+ "report_id": "AMFE-EXTERNAL-FORECAST-SCORECARD",
+ "version": "0.1.0",
+ "tool": "tools/external_forecast_scorecard.py",
+ "generated_at": "2026-11-18T07:59:34Z",
+ "purpose": "point-in-time scorecard of external forecasts against the first publication of the fact on the frozen protocol windows W1/W2: who is more accurate, when, and with what coverage",
+ "status": "PARTIAL",
+ "status_reasons": [
+  "SCORED_SOURCES_BELOW_CRITERION(1<3)"
+ ],
+ "protocol": {
+  "file": "protocols/evaluation_protocol_v5.json",
+  "protocol_id": "AMFE-EVAL",
+  "version": "5.0.1",
+  "status": "FROZEN",
+  "sha256": "48c2f6a18a28cefc9645cb8aa7b934f68adbcfc6cea1178d04b27918be2bab45",
+  "windows": {
+   "W1": {
+    "start": "1990-01",
+    "end": "2006-12",
+    "use": "evaluation"
+   },
+   "W2": {
+    "start": "2007-01",
+    "end": "2019-12",
+    "use": "evaluation"
+   }
+  },
+  "actuals_rule": "Both are always reported, never pooled. T3 uses the NBER chronology as of the evaluation date for both; its secondary actuals equal its primary actuals.",
+  "losses": {
+   "point": "RMSE",
+   "distribution": "CRPS (see forecast_product.crps)",
+   "event": [
+    "Brier",
+    "log score (see forecast_product.log_score)"
+   ],
+   "rule": "Every criterion that uses a loss must hold for each loss applicable to the pair; the loss is never chosen after seeing results."
+  }
+ },
+ "licence_register": {
+  "file": "protocols/licence_register.json",
+  "sha256": "4c1ab61c0a4b85f19da8c53e22831528197ce580d4dc8c4e71756e170de42f37",
+  "entries_used": {
+   "SPF_GDP_MEDIAN": "PHILADELPHIA_FED",
+   "NY_FED_STAFF_NOWCAST": "NY_FED",
+   "CLEVELAND_FED_NOWCAST": "CLEVELAND_FED",
+   "ATLANTA_FED_GDPNOW": "ATLANTA_FED_GDPNOW"
+  }
+ },
+ "pit_rules": {
+  "publication_date": "a forecast is usable only if its publication date is on or before the origin (origin_policy.default); for the SPF the date is the official news release",
+  "no_lookahead": "publication_date > origin -> LOOKAHEAD_REJECTED (or the source-specific reason)",
+  "actuals": "primary actual = first publication from the ALFRED vintage archive; a point whose first-publication vintage is at or before the origin is rejected",
+  "windows": "an origin belongs to a window only if the origin and the target period are inside it",
+  "covid_exclusion": "Origins whose target period lies in 2020-03 to 2021-02 are excluded from W2 and reported separately; for T3 this covers origins whose interval (t, t+h] contains those months.",
+  "quantiles": "a distribution is scored only on the protocol 5-95% grid with non-crossing quantiles"
+ },
+ "metric_definitions": {
+  "rmse": "protocol losses.point: root mean squared error of (forecast - first publication)",
+  "mae": "mean absolute error, reported as context next to RMSE",
+  "bias": "mean signed error (forecast - actual); positive means the source over-predicts",
+  "crps": "protocol forecast_product.crps: twice the mean pinball loss over the 19 quantiles (5%..95% in 5% steps); requires a predictive distribution, never imputed",
+  "brier": "protocol losses.event: mean squared error of a probability forecast of a binary event",
+  "coverage_share": "scored points divided by the origins eligible in the window: how much of the window the source actually covers, not how accurate it is",
+  "coverage_90": "share of facts inside the source's 5-95% interval (only with a distribution)",
+  "secondary": "protocol actuals.secondary: the loss against the value in the vintage 12 months after the period; reported separately, never pooled with the primary actual"
+ },
+ "targets": [
+  "T1_CPI_YOY",
+  "T2_GDP_GROWTH",
+  "T3_RECESSION"
+ ],
+ "horizons": [
+  0,
+  1
+ ],
+ "sources": {
+  "SPF_GDP_MEDIAN": {
+   "metadata": {
+    "source_id": "SPF_GDP_MEDIAN",
+    "name": "Survey of Professional Forecasters - median real GDP growth",
+    "provider": "Federal Reserve Bank of Philadelphia",
+    "urls": [
+     "https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/survey-of-professional-forecasters",
+     "https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/median-forecasts"
+    ],
+    "attribution": "Source: Federal Reserve Bank of Philadelphia, Survey of Professional Forecasters, median forecasts (https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/survey-of-professional-forecasters); research use, attribution required, values never published",
+    "licence_entry": "PHILADELPHIA_FED",
+    "values_location": "data/raw/spf/spf_median.json (git-ignored)",
+    "publication_rule": "official SPF news-release date of the survey quarter (spf-release-dates.txt; spf_calendar.release_date), never the response deadline; no real-time data before 1990Q3",
+    "pit_notes": [
+     "the median is usable only at a month-end origin on or after the news-release date",
+     "h=0 requires the origin to be the month end of the survey quarter's middle month",
+     "h>0 uses the quarter-end origin whose survey quarter was already released in its middle month",
+     "the file is the latest revision of the medians, not a point-in-time vintage snapshot"
+    ],
+    "supported_targets": {
+     "T2_GDP_GROWTH": [
+      0,
+      1
+     ]
+    },
+    "target_mapping": {
+     "T2_GDP_GROWTH": {
+      "0": "drgdp2",
+      "1": "drgdp3",
+      "2": "drgdp4",
+      "4": "drgdp6"
+     }
+    },
+    "distribution": null,
+    "event_probability": null,
+    "licence": {
+     "status": "OPEN",
+     "level": "extraction",
+     "register_date": "2026-11-11",
+     "last_reviewed": "2026-11-12",
+     "url": [
+      "https://www.philadelphiafed.org/about-us/privacy-notice",
+      "https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/survey-of-professional-forecasters",
+      "https://www.philadelphiafed.org/-/media/FRBP/Assets/Surveys-And-Data/survey-of-professional-forecasters/spf-documentation.pdf",
+      "https://www.philadelphiafed.org/-/media/FRBP/Assets/Surveys-And-Data/survey-of-professional-forecasters/spf-data-sources.pdf"
+     ],
+     "conditions": [
+      "research use only",
+      "no use of the Bank's names or logos as endorsement",
+      "only publicly released files; the non-public Moody's rows are never used",
+      "the definition mapping is fixed from the documentation before scoring",
+      "SPF VALUES OUTSIDE GIT: the median values are third-party data; they stay in the git-ignored data directory and are never committed or published; the committed metadata file is checked by tests/test_licence_hygiene.py"
+     ],
+     "usable": true,
+     "usage": "SCORED",
+     "values_publishable": false,
+     "publication_blocker": "SPF VALUES OUTSIDE GIT: the median values are third-party data; they stay in the git-ignored data directory and are never committed or published; the committed metadata file is checked by tests/test_licence_hygiene.py",
+     "decision": "usable for SPF and the Real-Time Data Set on the reading that research purposes are allowed; this reading is the owner's decision (confirmation point 4), not a legal opinion",
+     "reason": null
+    },
+    "adapter": "spf_local",
+    "values_file": {
+     "values_present": true,
+     "path": "data/raw/spf/spf_median.json",
+     "sha256": "ac13bfaa2ad1cba80a9d45fbc631bbf362ec092c2af0ac69da1c7ca2d6d87b07",
+     "observations": 735,
+     "codes": {
+      "drgdp2": {
+       "quarters": 147,
+       "first": "1990Q1",
+       "last": "2026Q3"
+      },
+      "drgdp3": {
+       "quarters": 147,
+       "first": "1990Q1",
+       "last": "2026Q3"
+      },
+      "drgdp4": {
+       "quarters": 147,
+       "first": "1990Q1",
+       "last": "2026Q3"
+      },
+      "drgdp5": {
+       "quarters": 147,
+       "first": "1990Q1",
+       "last": "2026Q3"
+      },
+      "drgdp6": {
+       "quarters": 147,
+       "first": "1990Q1",
+       "last": "2026Q3"
+      }
+     }
+    }
+   },
+   "status": {
+    "status": "AVAILABLE",
+    "reason": null,
+    "detail": null,
+    "available": true
+   },
+   "targets": {
+    "T2_GDP_GROWTH": {
+     "0": {
+      "windows": {
+       "W1": {
+        "window": "W1",
+        "origins_eligible": 204,
+        "available": 66,
+        "scored": 66,
+        "coverage_share": 0.3235294118,
+        "lookahead_excluded": 0,
+        "exclusions": {
+         "ORIGIN_NOT_A_SURVEY_MONTH": 136,
+         "SPF_NOT_REAL_TIME_BEFORE_1990Q3": 2
+        },
+        "n": 66,
+        "metrics": {
+         "rmse": 1.7579796011,
+         "mae": 1.3972309998,
+         "bias": -0.4782115565,
+         "crps": null,
+         "brier": null,
+         "coverage_90": null
+        },
+        "metric_status": {
+         "rmse": "AVAILABLE",
+         "mae": "AVAILABLE",
+         "bias": "AVAILABLE",
+         "crps": "NO_PREDICTIVE_DISTRIBUTION",
+         "brier": "NO_EVENT_PROBABILITY_MAPPING",
+         "coverage_90": "NO_PREDICTIVE_DISTRIBUTION"
+        },
+        "secondary": {
+         "n": 65,
+         "rmse": 1.7863928223,
+         "mae": 1.4441093882,
+         "rmse_delta_vs_primary": 0.0284132212,
+         "rule": "protocol actuals.secondary, value in the vintage 12 months after the period"
+        }
+       },
+       "W2": {
+        "window": "W2",
+        "origins_eligible": 156,
+        "available": 51,
+        "scored": 51,
+        "coverage_share": 0.3269230769,
+        "lookahead_excluded": 1,
+        "exclusions": {
+         "ORIGIN_NOT_A_SURVEY_MONTH": 104,
+         "SPF_RELEASE_AFTER_ORIGIN": 1
+        },
+        "n": 51,
+        "metrics": {
+         "rmse": 1.4693558696,
+         "mae": 1.1045631897,
+         "bias": 0.1576722363,
+         "crps": null,
+         "brier": null,
+         "coverage_90": null
+        },
+        "metric_status": {
+         "rmse": "AVAILABLE",
+         "mae": "AVAILABLE",
+         "bias": "AVAILABLE",
+         "crps": "NO_PREDICTIVE_DISTRIBUTION",
+         "brier": "NO_EVENT_PROBABILITY_MAPPING",
+         "coverage_90": "NO_PREDICTIVE_DISTRIBUTION"
+        },
+        "secondary": {
+         "n": 51,
+         "rmse": 1.5517777752,
+         "mae": 1.2498418611,
+         "rmse_delta_vs_primary": 0.0824219056,
+         "rule": "protocol actuals.secondary, value in the vintage 12 months after the period"
+        }
+       },
+       "ALL": {
+        "window": "ALL",
+        "origins_eligible": 360,
+        "scored": 117,
+        "available": 117,
+        "coverage_share": 0.325,
+        "lookahead_excluded": 1,
+        "exclusions": {
+         "ORIGIN_NOT_A_SURVEY_MONTH": 240,
+         "SPF_NOT_REAL_TIME_BEFORE_1990Q3": 2,
+         "SPF_RELEASE_AFTER_ORIGIN": 1
+        },
+        "n": 117,
+        "metrics": {
+         "rmse": 1.638432205,
+         "mae": 1.2696578518,
+         "bias": -0.2010314417,
+         "crps": null,
+         "brier": null,
+         "coverage_90": null
+        },
+        "metric_status": {
+         "rmse": "AVAILABLE",
+         "mae": "AVAILABLE",
+         "bias": "AVAILABLE",
+         "crps": "NO_PREDICTIVE_DISTRIBUTION",
+         "brier": "NO_EVENT_PROBABILITY_MAPPING",
+         "coverage_90": "NO_PREDICTIVE_DISTRIBUTION"
+        },
+        "secondary": {
+         "n": 116,
+         "rmse": 1.6872664154,
+         "mae": 1.3586986651,
+         "rmse_delta_vs_primary": 0.0488342104,
+         "rule": "protocol actuals.secondary, value in the vintage 12 months after the period"
+        }
+       }
+      },
+      "totals": {
+       "eligible": 360,
+       "scored": 117,
+       "available": 117,
+       "coverage_share": 0.325
+      }
+     },
+     "1": {
+      "windows": {
+       "W1": {
+        "window": "W1",
+        "origins_eligible": 67,
+        "available": 65,
+        "scored": 65,
+        "coverage_share": 0.9701492537,
+        "lookahead_excluded": 0,
+        "exclusions": {
+         "SPF_NOT_REAL_TIME_BEFORE_1990Q3": 2
+        },
+        "n": 65,
+        "metrics": {
+         "rmse": 1.9686090228,
+         "mae": 1.5261694872,
+         "bias": -0.2998423799,
+         "crps": null,
+         "brier": null,
+         "coverage_90": null
+        },
+        "metric_status": {
+         "rmse": "AVAILABLE",
+         "mae": "AVAILABLE",
+         "bias": "AVAILABLE",
+         "crps": "NO_PREDICTIVE_DISTRIBUTION",
+         "brier": "NO_EVENT_PROBABILITY_MAPPING",
+         "coverage_90": "NO_PREDICTIVE_DISTRIBUTION"
+        },
+        "secondary": {
+         "n": 65,
+         "rmse": 1.9285513235,
+         "mae": 1.5599767115,
+         "rmse_delta_vs_primary": -0.0400576993,
+         "rule": "protocol actuals.secondary, value in the vintage 12 months after the period"
+        }
+       },
+       "W2": {
+        "window": "W2",
+        "origins_eligible": 51,
+        "available": 51,
+        "scored": 51,
+        "coverage_share": 1.0,
+        "lookahead_excluded": 0,
+        "exclusions": {},
+        "n": 51,
+        "metrics": {
+         "rmse": 1.8919064143,
+         "mae": 1.325092418,
+         "bias": 0.3926699101,
+         "crps": null,
+         "brier": null,
+         "coverage_90": null
+        },
+        "metric_status": {
+         "rmse": "AVAILABLE",
+         "mae": "AVAILABLE",
+         "bias": "AVAILABLE",
+         "crps": "NO_PREDICTIVE_DISTRIBUTION",
+         "brier": "NO_EVENT_PROBABILITY_MAPPING",
+         "coverage_90": "NO_PREDICTIVE_DISTRIBUTION"
+        },
+        "secondary": {
+         "n": 51,
+         "rmse": 1.9528251807,
+         "mae": 1.4528057093,
+         "rmse_delta_vs_primary": 0.0609187664,
+         "rule": "protocol actuals.secondary, value in the vintage 12 months after the period"
+        }
+       },
+       "ALL": {
+        "window": "ALL",
+        "origins_eligible": 118,
+        "scored": 116,
+        "available": 116,
+        "coverage_share": 0.9830508475,
+        "lookahead_excluded": 0,
+        "exclusions": {
+         "SPF_NOT_REAL_TIME_BEFORE_1990Q3": 2
+        },
+        "n": 116,
+        "metrics": {
+         "rmse": 1.9352608316,
+         "mae": 1.4377649137,
+         "bias": 0.0046242304,
+         "crps": null,
+         "brier": null,
+         "coverage_90": null
+        },
+        "metric_status": {
+         "rmse": "AVAILABLE",
+         "mae": "AVAILABLE",
+         "bias": "AVAILABLE",
+         "crps": "NO_PREDICTIVE_DISTRIBUTION",
+         "brier": "NO_EVENT_PROBABILITY_MAPPING",
+         "coverage_90": "NO_PREDICTIVE_DISTRIBUTION"
+        },
+        "secondary": {
+         "n": 116,
+         "rmse": 1.9392608772,
+         "mae": 1.512858426,
+         "rmse_delta_vs_primary": 0.0040000456,
+         "rule": "protocol actuals.secondary, value in the vintage 12 months after the period"
+        }
+       }
+      },
+      "totals": {
+       "eligible": 118,
+       "scored": 116,
+       "available": 116,
+       "coverage_share": 0.9830508475
+      }
+     }
+    }
+   },
+   "points": {
+    "scored": 233,
+    "available": 233,
+    "eligible": 478,
+    "by_target": {
+     "T2_GDP_GROWTH/h0": {
+      "eligible": 360,
+      "scored": 117,
+      "available": 117,
+      "coverage_share": 0.325
+     },
+     "T2_GDP_GROWTH/h1": {
+      "eligible": 118,
+      "scored": 116,
+      "available": 116,
+      "coverage_share": 0.9830508475
+     }
+    }
+   },
+   "counts_mode": "scored",
+   "values": {
+    "values_published": false,
+    "reason": "LICENCE_VALUES_NOT_PUBLISHABLE",
+    "licence_status": "OPEN",
+    "publication_blocker": "a register condition keeps the values out of published artefacts",
+    "note": "only aggregates, counts and metadata are published for this source",
+    "sample": null
+   }
+  },
+  "NY_FED_STAFF_NOWCAST": {
+   "metadata": {
+    "source_id": "NY_FED_STAFF_NOWCAST",
+    "name": "Staff Nowcast - current-quarter real GDP growth",
+    "provider": "Federal Reserve Bank of New York",
+    "urls": [
+     "https://www.newyorkfed.org/research/policy/nowcast",
+     "https://www.newyorkfed.org/privacy/termsofuse"
+    ],
+    "attribution": "Source: Federal Reserve Bank of New York, Staff Nowcast (https://www.newyorkfed.org/research/policy/nowcast); non-exclusive licence, attribution required, modifications marked",
+    "licence_entry": "NY_FED",
+    "values_location": "data/raw/ny_fed/nowcast.csv (git-ignored)",
+    "publication_rule": "publication date column of the local archive; only rows published on or before the origin are used, and rows flagged RECONSTRUCTED are not real-time publications",
+    "pit_notes": [
+     "the archive is values-only: it carries no underlying series, so no re-estimation is possible",
+     "2002Q1-2015Q4 rows in the public archive are historical reconstructions, not publications",
+     "updates were suspended from September 2021 to September 2023 (licence register note)"
+    ],
+    "supported_targets": {
+     "T2_GDP_GROWTH": [
+      0
+     ]
+    },
+    "target_mapping": {
+     "T2_GDP_GROWTH": {
+      "0": "nowcast of the current quarter"
+     }
+    },
+    "distribution": null,
+    "event_probability": null,
+    "licence": {
+     "status": "OPEN",
+     "level": "extraction",
+     "register_date": "2026-11-11",
+     "last_reviewed": null,
+     "url": [
+      "https://www.newyorkfed.org/privacy/termsofuse",
+      "https://www.newyorkfed.org/research/policy/nowcast"
+     ],
+     "conditions": [
+      "attribution",
+      "mark modifications",
+      "redistribute on the same terms",
+      "archive is partial and values-only; whether it is usable as a control arm is an R2 decision"
+     ],
+     "usable": true,
+     "usage": "SCORED",
+     "values_publishable": true,
+     "publication_blocker": null,
+     "decision": "licence OPEN; usable only as a control arm and only if R2 accepts the values-only archive",
+     "reason": null
+    },
+    "adapter": "ny_fed_local",
+    "values_file": {
+     "schema": {
+      "path": "data/raw/ny_fed/nowcast.csv (git-ignored)",
+      "columns": [
+       "date",
+       "quarter",
+       "nowcast",
+       "provenance"
+      ],
+      "date": "publication date of the nowcast, YYYY-MM-DD",
+      "quarter": "target quarter of the nowcast, YYYYQn",
+      "nowcast": "annualised quarter-on-quarter real GDP growth, percent",
+      "provenance": "PUBLISHED | RECONSTRUCTED; anything else is rejected"
+     },
+     "values_present": false,
+     "archive_path": "data/raw/ny_fed/nowcast.csv",
+     "rows": 0,
+     "row_errors": {},
+     "values_only_archive": true
+    }
+   },
+   "status": {
+    "status": "UNAVAILABLE",
+    "reason": "ARCHIVE_NOT_LOCAL",
+    "detail": "optional local archive not usable; expected schema {'path': 'data/raw/ny_fed/nowcast.csv (git-ignored)', 'columns': ['date', 'quarter', 'nowcast', 'provenance'], 'date': 'publication date of the nowcast, YYYY-MM-DD', 'quarter': 'target quarter of the nowcast, YYYYQn', 'nowcast': 'annualised quarter-on-quarter real GDP growth, percent', 'provenance': 'PUBLISHED | RECONSTRUCTED; anything else is rejected'}",
+    "available": false
+   },
+   "targets": {},
+   "points": {
+    "scored": 0,
+    "available": 0,
+    "eligible": 0,
+    "by_target": {}
+   },
+   "counts_mode": "scored",
+   "values": {
+    "values_published": false,
+    "reason": "SOURCE_NOT_SCORED",
+    "licence_status": "OPEN",
+    "note": "licence allows publication; at most 5 scored points are sampled",
+    "sample": null
+   }
+  },
+  "CLEVELAND_FED_NOWCAST": {
+   "metadata": {
+    "source_id": "CLEVELAND_FED_NOWCAST",
+    "name": "Inflation Nowcasting - current-month CPI",
+    "provider": "Federal Reserve Bank of Cleveland",
+    "urls": [
+     "https://www.clevelandfed.org/indicators-and-data/inflation-nowcasting",
+     "https://www.clevelandfed.org/privacy"
+    ],
+    "attribution": "Source: Federal Reserve Bank of Cleveland, Inflation Nowcasting (https://www.clevelandfed.org/indicators-and-data/inflation-nowcasting); non-commercial use, credit required, suggested citation DOI 10.26509/frbc-inflationnowcast",
+    "licence_entry": "CLEVELAND_FED",
+    "values_location": null,
+    "publication_rule": "daily nowcast releases; no local archive in this repository",
+    "pit_notes": [
+     "the published figure is a current-month CPI nowcast, while the protocol T1 target is year-over-year inflation at t-1+h: there is no horizon mapping, so nothing can be scored"
+    ],
+    "supported_targets": {},
+    "target_mapping": {},
+    "distribution": null,
+    "event_probability": null,
+    "licence": {
+     "status": "OPEN",
+     "level": "extraction",
+     "register_date": "2026-11-11",
+     "last_reviewed": null,
+     "url": [
+      "https://www.clevelandfed.org/privacy",
+      "https://www.clevelandfed.org/indicators-and-data/inflation-nowcasting",
+      "https://www.clevelandfed.org/publications/economic-commentary/2023/ec-202306-real-time-assessment-inflation-nowcasting-cleveland-fed"
+     ],
+     "conditions": [
+      "non-commercial use",
+      "credit to the Federal Reserve Bank of Cleveland",
+      "archive usability is a separate R2 check"
+     ],
+     "usable": true,
+     "usage": "SCORED",
+     "values_publishable": true,
+     "publication_blocker": null,
+     "decision": "licence readable as OPEN for non-commercial research on the owner's reading (confirmation point 4); the archive evidence is indirect but recorded",
+     "reason": null
+    },
+    "adapter": "metadata_only"
+   },
+   "status": {
+    "status": "UNAVAILABLE",
+    "reason": "NO_PROTOCOL_HORIZON_MAPPING",
+    "detail": "published nowcast is a current-month CPI figure; the protocol T1 target is y/y at t-1+h",
+    "available": false
+   },
+   "targets": {},
+   "points": {
+    "scored": 0,
+    "available": 0,
+    "eligible": 0,
+    "by_target": {}
+   },
+   "counts_mode": "scored",
+   "values": {
+    "values_published": false,
+    "reason": "SOURCE_NOT_SCORED",
+    "licence_status": "OPEN",
+    "note": "licence allows publication; at most 5 scored points are sampled",
+    "sample": null
+   }
+  },
+  "ATLANTA_FED_GDPNOW": {
+   "metadata": {
+    "source_id": "ATLANTA_FED_GDPNOW",
+    "name": "GDPNow - current-quarter real GDP growth",
+    "provider": "Federal Reserve Bank of Atlanta",
+    "urls": [
+     "https://www.atlantafed.org/research-and-data/data/gdpnow",
+     "https://www.atlantafed.org/terms-of-use"
+    ],
+    "attribution": "Source: Federal Reserve Bank of Atlanta, GDPNow (https://www.atlantafed.org/research-and-data/data/gdpnow); terms allow personal and educational use only - the project does not use these values",
+    "licence_entry": "ATLANTA_FED_GDPNOW",
+    "values_location": null,
+    "publication_rule": "not used: the register entry is RESTRICTED",
+    "pit_notes": [
+     "values are never read, even when a local copy exists",
+     "the model quantity is replaced by the project's own OPEN OWN_NOWCAST_BRIDGE (protocol licence_policy.substitute); the substitute is never presented as equal"
+    ],
+    "supported_targets": {},
+    "target_mapping": {},
+    "distribution": null,
+    "event_probability": null,
+    "licence": {
+     "status": "RESTRICTED",
+     "level": "full",
+     "register_date": "2026-11-11",
+     "last_reviewed": null,
+     "url": [
+      "https://www.atlantafed.org/terms-of-use",
+      "https://www.atlantafed.org/research-and-data/data/gdpnow"
+     ],
+     "conditions": [],
+     "usable": false,
+     "usage": "NOT_USED",
+     "values_publishable": false,
+     "publication_blocker": null,
+     "decision": "not used; replaced by OWN_NOWCAST_BRIDGE built from OPEN data",
+     "reason": "LICENCE_RESTRICTED"
+    },
+    "adapter": "restricted"
+   },
+   "status": {
+    "status": "RESTRICTED_NOT_USED",
+    "reason": "LICENCE_RESTRICTED",
+    "detail": "RESTRICTED register entry: values are not read; OWN_NOWCAST_BRIDGE is the OPEN substitute",
+    "available": false
+   },
+   "targets": {},
+   "points": {
+    "scored": 0,
+    "available": 0,
+    "eligible": 0,
+    "by_target": {}
+   },
+   "counts_mode": "scored",
+   "values": {
+    "values_published": false,
+    "reason": "LICENCE_VALUES_NOT_PUBLISHABLE",
+    "licence_status": "RESTRICTED",
+    "publication_blocker": "LICENCE_RESTRICTED",
+    "note": "only aggregates, counts and metadata are published for this source",
+    "sample": null
+   }
+  }
+ },
+ "criteria": {
+  "min_scored_sources": 3,
+  "min_scored_points": 50,
+  "source": "docs/173 P0-1 acceptance criteria for the external scorecard MVP"
+ },
+ "gaps": [
+  "NY_FED_STAFF_NOWCAST: UNAVAILABLE (ARCHIVE_NOT_LOCAL)",
+  "CLEVELAND_FED_NOWCAST: UNAVAILABLE (NO_PROTOCOL_HORIZON_MAPPING)",
+  "ATLANTA_FED_GDPNOW: RESTRICTED_NOT_USED (LICENCE_RESTRICTED)",
+  "only 1 of 4 catalogue sources could be scored; docs/173 asks for >= 3",
+  "project's own baselines are not joined to these origins yet ('external vs ours' is open)",
+  "CRPS and Brier are NOT_AVAILABLE for every scored source (point-only, no event probability)"
+ ],
+ "limitations": [
+  "MVP scope: T2_GDP_GROWTH at h=0 and h=1 only; T1/T3 and h=2/h=4 are not scored yet",
+  "the SPF file is the latest revision of the medians, not a point-in-time vintage snapshot: the release date fixes availability, errata after the survey are not audited",
+  "SPF forecasts are point (median) forecasts: CRPS and interval coverage are NOT_AVAILABLE for that source, and no distribution is imputed to make a number appear",
+  "no external source in this MVP publishes a probability for a protocol event, so Brier is implemented and tested but NOT_AVAILABLE for every scored source",
+  "GDPNow is RESTRICTED and is not used; its model quantity is represented by the project's own OPEN OWN_NOWCAST_BRIDGE, which is a different object and is not a like-for-like substitute",
+  "the scorecard contains external forecasts only: joining the project's own baselines is a separate step (docs/173 'external vs ours'), not part of this report",
+  "origins inside one quarter overlap (h=0 uses every month end), so the effective number of independent observations is smaller than the scored point count; no significance test is reported here"
+ ],
+ "next_steps": [
+  "add the project's own OPEN baselines (C6 forward-registry rows, R3 ensemble) to the same origins to produce the 'external vs ours' table",
+  "restore or fetch a licensed NY Fed / Cleveland archive and register the exact terms before scoring (the adapters are ready and validated against a documented schema)",
+  "extend to h=2/h=4 and to T1 once a source with a matching horizon mapping is registered",
+  "turn the report into the UC-44 subscription artifact: per-source error tables, charts and a stable API payload once >=3 sources are scored"
+ ],
+ "cross_source": {
+  "scored_sources": [
+   "SPF_GDP_MEDIAN"
+  ],
+  "scored_sources_count": 1,
+  "scored_points_total": 233,
+  "eligible_origins_total": 478,
+  "sources_by_status": {
+   "SPF_GDP_MEDIAN": "AVAILABLE",
+   "NY_FED_STAFF_NOWCAST": "UNAVAILABLE",
+   "CLEVELAND_FED_NOWCAST": "UNAVAILABLE",
+   "ATLANTA_FED_GDPNOW": "RESTRICTED_NOT_USED"
+  },
+  "criteria_pass": {
+   "sources": false,
+   "points": true
+  },
+  "licence_compliance": {
+   "restricted_used": [],
+   "values_published": []
+  }
+ },
+ "content_sha256": "183a07caf412d09141ef97ef6179895a90d6ee0c318bac7de1afe2dfa50e2b1d"
+}
