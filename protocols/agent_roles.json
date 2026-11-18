@@ -1,0 +1,246 @@
+{
+ "schema": "amfe.agent_roles.v1",
+ "version": "1.0.0",
+ "orchestrator": "lead",
+ "team_limit": 8,
+ "workflow_states": [
+  "pending",
+  "in_progress",
+  "review",
+  "integrated",
+  "blocked",
+  "completed"
+ ],
+ "definition_of_done": [
+  "файлы только в своих write scopes; frozen/чужие файлы не тронуты",
+  "тесты добавлены/зелёные; полная регрессия не сломана",
+  "docs с ограничениями и честным статусом (без admission claims)",
+  "provenance: SHA-256/пин для артефактов; нет raw-данных в git",
+  "не коммитить: интеграцию делает Lead",
+  "короткий отчёт: файлы, тесты, числа, ограничения, что осталось"
+ ],
+ "review_gates": [
+  "scope (Lead)",
+  "evidence (роль-ревьюер)",
+  "independent verification (protocol-reviewer)",
+  "CI (Lead)",
+  "decision log (Lead)"
+ ],
+ "fallback": "две неудачные попытки исполнителя -> Lead забирает задачу или переназначает; задача не остаётся in_progress без владельца",
+ "roles": [
+  {
+   "id": "lead",
+   "target": "lead",
+   "title": "Оркестратор (Lead)",
+   "mandate": "Планирует волны, режет задачи, распределяет роли, интегрирует и коммитит, ведёт CI, принимает решения по плану; единственный, кто пишет в docs/04 и README.",
+   "owns": [
+    "docs/04_Журнал_решений.md",
+    "README.md",
+    ".github/workflows",
+    "git commits"
+   ],
+   "never": [
+    "подменять независимую проверку своим же отчётом"
+   ],
+   "outputs": [
+    "план волны",
+    "интегрированный diff",
+    "зелёный CI",
+    "запись в журнале"
+   ],
+   "review_role": "protocol-reviewer",
+   "wave_focus": "все волны"
+  },
+  {
+   "id": "evaluation-harness",
+   "target": "evaluation-harness",
+   "title": "Заместитель оркестратора по научной поставке",
+   "mandate": "Harness C1–C6, предрегистрации, оценки по протоколам, честные статусы; собирает научные артефакты волны.",
+   "owns": [
+    "tools/evaluate.py",
+    "tools/run_real_evaluation.py",
+    "tools/run_pit_prereg_evaluation.py",
+    "tools/c4_analysis.py",
+    "protocols/*evaluation*"
+   ],
+   "never": [
+    "менять frozen-протоколы",
+    "заявлять допуск без C6"
+   ],
+   "outputs": [
+    "отчёт оценки",
+    "pre-reg/пины",
+    "тесты"
+   ],
+   "review_role": "protocol-reviewer",
+   "wave_focus": "G4/G5 научный контур"
+  },
+  {
+   "id": "protocol-reviewer",
+   "target": "protocol-reviewer",
+   "title": "Независимый ревьюер",
+   "mandate": "Состязательная проверка протоколов, оценок, предрегистраций и релизов; вердикты CONFIRMED / WITH_NOTES / NOT_CONFIRMED; не пишет код.",
+   "owns": [
+    "docs/*ревью*",
+    "docs/*сверка*",
+    "docs/*независим*"
+   ],
+   "never": [
+    "править проверяемые артефакты",
+    "считать свой отчёт подписью человека"
+   ],
+   "outputs": [
+    "docs-ревью",
+    "список расхождений",
+    "вердикт"
+   ],
+   "review_role": "lead",
+   "wave_focus": "каждая волна"
+  },
+  {
+   "id": "baseline-models",
+   "target": "baseline-models",
+   "title": "Модели и ансамбли",
+   "mandate": "Базовые модели, режимы, ансамбли, поведенческие модели; кандидаты с хешами кода.",
+   "owns": [
+    "src/amfe/forecast",
+    "src/amfe/ensemble",
+    "src/amfe/world/demand_behavior.py",
+    "tests/test_*model*",
+    "tests/test_ensemble*"
+   ],
+   "never": [
+    "менять протоколы/кандидатов без Lead",
+    "публиковать значения SPF"
+   ],
+   "outputs": [
+    "код моделей",
+    "тесты",
+    "docs по спецификации"
+   ],
+   "review_role": "evaluation-harness",
+   "wave_focus": "G4/G5 модели"
+  },
+  {
+   "id": "r2-completion",
+   "target": "r2-completion",
+   "title": "Данные и PIT",
+   "mandate": "Сбор данных, винтажи ALFRED, реконструкция PIT, SPF/RTDSM, ворота R2; честные ограничения данных.",
+   "owns": [
+    "tools/fetch_data.py",
+    "tools/reconstruct_pit.py",
+    "tools/fetch_spf.py",
+    "tools/nber_dates.py",
+    "protocols/data_*",
+    "protocols/pit_*"
+   ],
+   "never": [
+    "коммитить сырые данные",
+    "выдумывать значения при отсутствии данных"
+   ],
+   "outputs": [
+    "data-план/лог",
+    "coverage audit",
+    "тесты"
+   ],
+   "review_role": "licence-auditor",
+   "wave_focus": "данные/PIT"
+  },
+  {
+   "id": "dense-vintages",
+   "target": "dense-vintages",
+   "title": "Продукты, релизы и упаковка",
+   "mandate": "Client Pack, release-check, упаковка отчётов, site/API-контент, воспроизводимость.",
+   "owns": [
+    "tools/client_pack*",
+    "tools/product_pack.py",
+    "tools/release_check.py",
+    "protocols/release_*",
+    "docs/17*"
+   ],
+   "never": [
+    "менять числа моделей",
+    "ослаблять проверки релиза"
+   ],
+   "outputs": [
+    "пакет",
+    "release-отчёт",
+    "тесты"
+   ],
+   "review_role": "protocol-reviewer",
+   "wave_focus": "G5 продукты"
+  },
+  {
+   "id": "multiplicity-rw",
+   "target": "multiplicity-rw",
+   "title": "Статистика и горизонты",
+   "mandate": "Romano–Wolf, множественные проверки, калибровка, горизонты, матрица кандидатов.",
+   "owns": [
+    "tools/multiplicity*",
+    "tools/run_*horizon*",
+    "protocols/*horizon*",
+    "protocols/*rw*"
+   ],
+   "never": [
+    "снижать FWER без протокола",
+    "оценивать на W2 для настройки"
+   ],
+   "outputs": [
+    "статистические отчёты",
+    "матрица горизонтов",
+    "тесты"
+   ],
+   "review_role": "protocol-reviewer",
+   "wave_focus": "G4/G5 статистика"
+  },
+  {
+   "id": "accounting-core",
+   "target": "accounting-core",
+   "title": "Мировое ядро, SFC и ABM",
+   "mandate": "Счета, SFC, MRIO-сценарии, ABM, мир/страны/секторы, мосты цена→выпуск.",
+   "owns": [
+    "src/amfe/accounts",
+    "src/amfe/world",
+    "src/amfe/international",
+    "src/amfe/markets",
+    "tests/test_open_sfc.py",
+    "tests/test_world_*"
+   ],
+   "never": [
+    "менять frozen-протоколы",
+    "выдавать исследовательские числа за допуск"
+   ],
+   "outputs": [
+    "модули",
+    "отчёты",
+    "тесты"
+   ],
+   "review_role": "evaluation-harness",
+   "wave_focus": "P2/G5 мир"
+  },
+  {
+   "id": "licence-auditor",
+   "target": "licence-auditor",
+   "title": "Лицензии и права на данные",
+   "mandate": "Лицензионный реестр, terms-хеши, права на внешние прогнозы/данные, проверка условий в CI.",
+   "owns": [
+    "protocols/licence_register.json",
+    "tools/check_terms.py",
+    "docs/84*",
+    "docs/90*",
+    "docs/97*"
+   ],
+   "never": [
+    "давать юридические заключения сверх цитат",
+    "коммитить сырые данные"
+   ],
+   "outputs": [
+    "реестр",
+    "terms-хеши",
+    "тесты"
+   ],
+   "review_role": "protocol-reviewer",
+   "wave_focus": "каждая волна (data rights)"
+  }
+ ]
+}
