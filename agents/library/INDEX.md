@@ -1,6 +1,6 @@
 # Библиотека памяти AMFE
 
-Обновлено: 2026-11-18T11:17:52Z · записей: 48
+Обновлено: 2026-11-18T13:22:34Z · записей: 49
 
 ## По ролям
 
@@ -11,7 +11,7 @@
 - `lead` — 8 записей (`agents/memory/lead.jsonl`)
 - `licence-auditor` — 3 записей (`agents/memory/licence-auditor.jsonl`)
 - `multiplicity-rw` — 6 записей (`agents/memory/multiplicity-rw.jsonl`)
-- `protocol-reviewer` — 6 записей (`agents/memory/protocol-reviewer.jsonl`)
+- `protocol-reviewer` — 7 записей (`agents/memory/protocol-reviewer.jsonl`)
 - `r2-completion` — 5 записей (`agents/memory/r2-completion.jsonl`)
 
 ## Открытые вопросы

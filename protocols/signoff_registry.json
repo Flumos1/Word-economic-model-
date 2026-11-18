@@ -1,0 +1,122 @@
+{
+  "schema": "amfe.signoff_registry.v1",
+  "created": "2026-11-18",
+  "updated": "2026-11-18",
+  "description": "Machine-readable registry of human gate signatures. An agent may only create or update an entry with status PENDING_HUMAN_SIGNATURE and null signature/date. Verification is fail-closed: object/packet must exist and their SHA-256 must recompute, otherwise the entry is invalid.",
+  "hash_policy": {
+    "algorithm": "sha256",
+    "encoding": "utf-8",
+    "normalisation": "LF: CRLF replaced by LF before hashing (project convention, cf. tools/run_pit_prereg_evaluation.py)",
+    "format": "lowercase 64 hex characters"
+  },
+  "status_values": [
+    "PENDING_HUMAN_SIGNATURE",
+    "SIGNED_BY_HUMAN",
+    "REJECTED_BY_HUMAN",
+    "SUPERSEDED"
+  ],
+  "rules": {
+    "fail_closed": true,
+    "signature_authority": "human",
+    "agent_may_sign": false,
+    "agent_max_status": "PENDING_HUMAN_SIGNATURE",
+    "pending_requires_null_signature": true,
+    "pending_requires_null_date": true,
+    "required_signature_fields": [
+      "name",
+      "role",
+      "signer_type",
+      "date",
+      "decision",
+      "scope"
+    ],
+    "signer_type_values": [
+      "human"
+    ],
+    "decision_values": [
+      "APPROVE",
+      "APPROVE_WITH_NOTES",
+      "REJECT"
+    ],
+    "on_object_missing": "fail closed: the entry is invalid and must not be treated as signed",
+    "on_sha_mismatch": "fail closed: the entry is invalid; recompute the pin from a reviewed copy",
+    "on_edit_after_pin": "any edit of object or packet changes its SHA: re-pin under a new version, otherwise tests/test_signoff_registry.py fails by design",
+    "signature_location": "docs/185 is a pinned template: the human signs a separate copy (paper/PDF/scan) and records signature/date/decision in this entry; do not edit the pinned files to add a signature"
+  },
+  "signoffs": [
+    {
+      "id": "G4-SIGN-160",
+      "gate": "G4",
+      "subject": "external adversarial review of G2 bridges (docs/160)",
+      "object": {
+        "path": "docs/160_Внешняя_проверка_G2.md",
+        "title": "160. Внешняя (состязательная) проверка G2",
+        "version": "1.0",
+        "document_date": "2026-11-16",
+        "bytes": 16672,
+        "sha256": "5579a34c87f0dcc728058454bd46aa9132c8121197e78aeea515b6128fa210d2"
+      },
+      "packet": {
+        "path": "docs/185_Подпись_docs_160.md",
+        "title": "185. Пакет подписи docs/160 (G4)",
+        "version": "1.0",
+        "document_date": "2026-11-18",
+        "bytes": 12189,
+        "sha256": "c4d275c330d55e17a18ec8d5d81341185845ffbdc53a0e5ae0ed7802cc7c99e3"
+      },
+      "automated_review": {
+        "tool": "tools/external_review_g2.py",
+        "tests": "tests/test_external_review_g2.py",
+        "tests_count": 13,
+        "checks": 9,
+        "checks_passed": 9,
+        "numbers_checked": 69,
+        "numbers_by_track": {
+          "abm_sfc": 11,
+          "agri_bridge": 18,
+          "forecast_api": 13,
+          "oil_backtest": 14,
+          "price_bridge": 13
+        },
+        "numbers_mismatched": 0,
+        "findings": 0,
+        "findings_by_severity": {
+          "BLOCKER": 0,
+          "HIGH": 0,
+          "INFO": 0,
+          "LOW": 0,
+          "MEDIUM": 0
+        },
+        "verdicts": {
+          "abm_sfc": "CONFIRMED",
+          "agri_bridge": "CONFIRMED",
+          "forecast_api": "CONFIRMED",
+          "oil_backtest": "CONFIRMED",
+          "price_bridge": "CONFIRMED"
+        },
+        "review_state": "READY_FOR_HUMAN_SIGN_OFF",
+        "digest": "9aafb48ed2fe8f957dd87cff79287fa1b7f6bf528f3e2950333342319a927c84",
+        "artifact": {
+          "path": "build/external_review_g2/review.json",
+          "bytes": 25524,
+          "sha256": "794c3feff3a8886744edf7a2f203108a833d2c84c99df0ff6cbc2460152de36a",
+          "ephemeral": true,
+          "note": "build/ is git-ignored; the pin is meaningful only for the run recorded in docs/160 (2026-11-16 20:35)"
+        },
+        "numbers_by_track_mismatches": {
+          "abm_sfc": 0,
+          "agri_bridge": 0,
+          "forecast_api": 0,
+          "oil_backtest": 0,
+          "price_bridge": 0
+        }
+      },
+      "status": "PENDING_HUMAN_SIGNATURE",
+      "signature": null,
+      "date": null,
+      "note": "Automated PASS is neither a human signature nor an admission. Signature is OPEN: a human must read docs/185 and decide. Scope is docs/160 only: docs/170/V2 remains NOT_CONFIRMED (docs/172), G3 remains CONFIRMED_WITH_NOTES (docs/168), and the model status remains PROVISIONAL with admission=false. This agent cannot and must not sign.",
+      "not_admission": true,
+      "blocked_by": []
+    }
+  ]
+}
