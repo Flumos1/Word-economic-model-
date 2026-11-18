@@ -1,0 +1,134 @@
+{
+ "schema": "amfe.agent_library.v1",
+ "updated_at": "2026-11-18T07:15:58Z",
+ "entries": 27,
+ "open_questions": [
+  {
+   "id": "mem-lead-0003",
+   "title": "Активация prereg 0.3 и потолок T1 C4",
+   "role": "lead",
+   "task": ""
+  }
+ ],
+ "by_role": {
+  "accounting-core": 3,
+  "baseline-models": 3,
+  "dense-vintages": 3,
+  "evaluation-harness": 3,
+  "lead": 3,
+  "licence-auditor": 3,
+  "multiplicity-rw": 3,
+  "protocol-reviewer": 3,
+  "r2-completion": 3
+ },
+ "by_kind": {
+  "lesson": 3,
+  "open_question": 1,
+  "role": 9,
+  "status": 6,
+  "task": 8
+ },
+ "by_tag": {
+  "blocks": 1,
+  "bridge": 1,
+  "c4": 1,
+  "c6": 1,
+  "candidates": 1,
+  "country": 1,
+  "data": 1,
+  "decision": 1,
+  "external": 2,
+  "g4": 1,
+  "g5": 1,
+  "harness": 1,
+  "horizons": 1,
+  "independence": 1,
+  "lesson": 2,
+  "librarian": 2,
+  "licence": 3,
+  "models": 1,
+  "orchestrator": 1,
+  "p2": 1,
+  "pit": 2,
+  "prereg": 1,
+  "process": 1,
+  "products": 1,
+  "review": 1,
+  "science": 1,
+  "sfc": 1,
+  "signoff": 1,
+  "stats": 2,
+  "status": 6,
+  "task": 8,
+  "v2": 1,
+  "world": 1
+ },
+ "artifacts": {
+  "docs/102_Горизонты_ансамблей.md": [
+   "mem-multiplicity-rw-0002"
+  ],
+  "docs/139_C6_календарь.md": [
+   "mem-evaluation-harness-0003"
+  ],
+  "docs/146_P2_0.2.md": [
+   "mem-accounting-core-0001",
+   "mem-accounting-core-0002"
+  ],
+  "docs/162_Реестр_источников.md": [
+   "mem-licence-auditor-0002"
+  ],
+  "docs/164_План_и_статус_проекта.md": [
+   "mem-baseline-models-0002",
+   "mem-lead-0002",
+   "mem-multiplicity-rw-0003"
+  ],
+  "docs/166_Реальные_PIT_1990_1996.md": [
+   "mem-r2-completion-0001",
+   "mem-r2-completion-0002"
+  ],
+  "docs/168_Независимое_ревью_G3.md": [
+   "mem-protocol-reviewer-0001",
+   "mem-protocol-reviewer-0003"
+  ],
+  "docs/170_Оценка_по_предрегистрации_0_3.md": [
+   "mem-evaluation-harness-0002",
+   "mem-lead-0002",
+   "mem-lead-0003",
+   "mem-protocol-reviewer-0002"
+  ],
+  "docs/171_Client_Pack_v2.md": [
+   "mem-dense-vintages-0001"
+  ],
+  "docs/173_План_2.1_ревизия_идей_и_практический_маршрут.md": [
+   "mem-dense-vintages-0003"
+  ],
+  "docs/174_50_кейсов_использования.md": [
+   "mem-accounting-core-0003",
+   "mem-baseline-models-0003",
+   "mem-licence-auditor-0003",
+   "mem-r2-completion-0003"
+  ],
+  "docs/175_Агентная_оркестрация_и_обучение.md": [
+   "mem-accounting-core-0001",
+   "mem-baseline-models-0001",
+   "mem-evaluation-harness-0001",
+   "mem-lead-0001",
+   "mem-licence-auditor-0001",
+   "mem-multiplicity-rw-0001",
+   "mem-protocol-reviewer-0001",
+   "mem-r2-completion-0001"
+  ],
+  "docs/97_Лицензии_ряды_и_terms.md": [
+   "mem-licence-auditor-0002"
+  ],
+  "protocols/evaluation_protocol_v5.json": [
+   "mem-evaluation-harness-0001"
+  ],
+  "protocols/licence_register.json": [
+   "mem-licence-auditor-0001"
+  ],
+  "protocols/pit_prereg_evaluation_report.json": [
+   "mem-evaluation-harness-0002"
+  ]
+ }
+}

@@ -49,7 +49,8 @@
     "запись в журнале"
    ],
    "review_role": "protocol-reviewer",
-   "wave_focus": "все волны"
+   "wave_focus": "все волны",
+   "memory": "agents/memory/lead.jsonl"
   },
   {
    "id": "evaluation-harness",
@@ -73,7 +74,8 @@
     "тесты"
    ],
    "review_role": "protocol-reviewer",
-   "wave_focus": "G4/G5 научный контур"
+   "wave_focus": "G4/G5 научный контур",
+   "memory": "agents/memory/evaluation-harness.jsonl"
   },
   {
    "id": "protocol-reviewer",
@@ -95,7 +97,8 @@
     "вердикт"
    ],
    "review_role": "lead",
-   "wave_focus": "каждая волна"
+   "wave_focus": "каждая волна",
+   "memory": "agents/memory/protocol-reviewer.jsonl"
   },
   {
    "id": "baseline-models",
@@ -119,7 +122,8 @@
     "docs по спецификации"
    ],
    "review_role": "evaluation-harness",
-   "wave_focus": "G4/G5 модели"
+   "wave_focus": "G4/G5 модели",
+   "memory": "agents/memory/baseline-models.jsonl"
   },
   {
    "id": "r2-completion",
@@ -144,13 +148,14 @@
     "тесты"
    ],
    "review_role": "licence-auditor",
-   "wave_focus": "данные/PIT"
+   "wave_focus": "данные/PIT",
+   "memory": "agents/memory/r2-completion.jsonl"
   },
   {
    "id": "dense-vintages",
    "target": "dense-vintages",
    "title": "Продукты, релизы и упаковка",
-   "mandate": "Client Pack, release-check, упаковка отчётов, site/API-контент, воспроизводимость.",
+   "mandate": "Client Pack, release-check, упаковка отчётов, site/API-контент, воспроизводимость. Дополнительно — библиотекарь: ведёт agents/memory и agents/library, пересобирает индекс и следит за redaction после каждой волны.",
    "owns": [
     "tools/client_pack*",
     "tools/product_pack.py",
@@ -168,7 +173,12 @@
     "тесты"
    ],
    "review_role": "protocol-reviewer",
-   "wave_focus": "G5 продукты"
+   "wave_focus": "G5 продукты",
+   "memory": "agents/memory/dense-vintages.jsonl",
+   "duty": [
+    "products",
+    "librarian"
+   ]
   },
   {
    "id": "multiplicity-rw",
@@ -191,7 +201,8 @@
     "тесты"
    ],
    "review_role": "protocol-reviewer",
-   "wave_focus": "G4/G5 статистика"
+   "wave_focus": "G4/G5 статистика",
+   "memory": "agents/memory/multiplicity-rw.jsonl"
   },
   {
    "id": "accounting-core",
@@ -216,7 +227,8 @@
     "тесты"
    ],
    "review_role": "evaluation-harness",
-   "wave_focus": "P2/G5 мир"
+   "wave_focus": "P2/G5 мир",
+   "memory": "agents/memory/accounting-core.jsonl"
   },
   {
    "id": "licence-auditor",
@@ -240,7 +252,22 @@
     "тесты"
    ],
    "review_role": "protocol-reviewer",
-   "wave_focus": "каждая волна (data rights)"
+   "wave_focus": "каждая волна (data rights)",
+   "memory": "agents/memory/licence-auditor.jsonl"
   }
- ]
+ ],
+ "librarian": "dense-vintages",
+ "memory_model": {
+  "schema": "amfe.agent_memory.v1",
+  "directory": "agents/memory",
+  "index": "agents/library/index.json",
+  "readme": "agents/README.md",
+  "rules": [
+   "append-only",
+   "no secrets",
+   "no raw third-party data",
+   "one file per role",
+   "librarian reindexes after each wave"
+  ]
+ }
 }
