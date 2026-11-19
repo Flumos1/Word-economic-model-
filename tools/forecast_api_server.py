@@ -13,7 +13,9 @@ Endpoints (all ``GET`` unless noted):
 * ``GET /v1/modules``            -- module passports from ``build/api/modules.json`` (key required);
 * ``GET /v1/scenarios``          -- scenario index (key required);
 * ``GET /v1/scenarios/{id}``     -- one scenario document (key required);
-* ``GET /v1/forecast?target=&horizon=`` -- scenario envelope for a target (key required).
+* ``GET /v1/forecast?target=&horizon=`` -- scenario envelope for a target (key required); oil
+  targets are range-only, the gas target ``gas_ttf`` also carries the published central point and
+  the sensitivity interval (the gateway recomputes neither);
 
 Security and policy:
 
@@ -544,6 +546,11 @@ def _load_api(snapshot: FeedSnapshot) -> None:
             aliases.add(module_id.replace(".", "_"))
         if module_id == "oil.brent":
             aliases.add("brent")
+        elif module_id == "gas.lng_eu":
+            # The published target is gas_ttf; module id / short hub aliases resolve to it.
+            aliases.update({"gas_ttf", "gas.lng_eu", "gas_lng_eu", "ttf"})
+        for alias in definition.get("aliases") or []:
+            aliases.add(str(alias))
         for alias in aliases:
             targets[alias] = spec
             targets[alias.lower()] = spec

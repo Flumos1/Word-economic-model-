@@ -539,13 +539,18 @@ def main(argv=None) -> int:
             admission_classes=admission_classes, protocol_label=protocol_label,
             conditional_data_class=bool(args.extended_c4)),
     }
-    # C4 needs the recession mask per window; recompute the admission report with it
-    windows_with_mask = {
-        "W1": {k: w1[k] for k in ("actual_primary", "actual_secondary", "candidate", "comparator", "recession")},
-        "W2": {k: w2[k] for k in ("actual_primary", "actual_secondary", "candidate", "comparator", "recession")},
-    }
+    # C4 needs the recession mask per window; recompute the admission report with it.
+    # T3 gates on no C4 (protocol: targets.T3_RECESSION.c4_not_applicable) and build_window()
+    # attaches no recession mask for it, so the mask block exists only for C4-gating targets;
+    # building it unconditionally raised KeyError('recession') on every T3 run.
     c4_windows = {"W1": w1_full} if args.extended_c4 else None
     if args.target != "T3_RECESSION":
+        windows_with_mask = {
+            "W1": {k: w1[k] for k in ("actual_primary", "actual_secondary", "candidate", "comparator",
+                                      "recession")},
+            "W2": {k: w2[k] for k in ("actual_primary", "actual_secondary", "candidate", "comparator",
+                                      "recession")},
+        }
         family = {}  # the evaluated candidate is added under candidate_id; other candidates go here
         report["admission"] = evaluate.evaluate_admission(
             args.target, args.horizon, windows_with_mask, data_class=data_class,

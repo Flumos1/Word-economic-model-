@@ -1,7 +1,7 @@
 {
  "schema": "amfe.agent_library.v1",
- "updated_at": "2026-11-19T07:56:33Z",
- "entries": 61,
+ "updated_at": "2026-11-19T13:20:37Z",
+ "entries": 68,
  "open_questions": [
   {
    "id": "mem-lead-0003",
@@ -13,30 +13,34 @@
  "by_role": {
   "accounting-core": 8,
   "baseline-models": 5,
-  "dense-vintages": 10,
-  "evaluation-harness": 6,
+  "dense-vintages": 13,
+  "evaluation-harness": 9,
   "lead": 8,
   "licence-auditor": 3,
-  "multiplicity-rw": 7,
+  "multiplicity-rw": 8,
   "protocol-reviewer": 7,
   "r2-completion": 7
  },
  "by_kind": {
-  "artifact": 23,
-  "lesson": 14,
+  "artifact": 27,
+  "decision": 1,
+  "lesson": 15,
   "open_question": 1,
   "role": 9,
-  "status": 6,
+  "status": 7,
   "task": 8
  },
  "by_tag": {
+  "REAL_TIME": 1,
+  "T3": 2,
   "anonymization": 1,
   "api": 1,
   "blocks": 2,
   "bridge": 3,
+  "bug": 1,
   "c4": 1,
   "c6": 3,
-  "cache": 2,
+  "cache": 3,
   "candidates": 1,
   "canonical-write": 1,
   "client-pack": 1,
@@ -44,20 +48,24 @@
   "country": 4,
   "data": 2,
   "decision": 1,
+  "demo": 1,
   "determinism": 1,
   "docx": 2,
+  "evaluation-harness": 1,
   "exposure": 1,
   "external": 3,
   "flaks": 2,
   "forecast": 1,
+  "forecast-api": 2,
   "g4": 1,
-  "g5": 2,
-  "gas": 2,
+  "g5": 4,
+  "gas": 4,
   "gateway": 1,
   "geopolitics": 1,
   "harness": 1,
   "hash": 1,
-  "horizons": 6,
+  "horizon_v5": 1,
+  "horizons": 7,
   "hormuz": 1,
   "independence": 1,
   "intake": 1,
@@ -80,7 +88,7 @@
   "products": 1,
   "provenance": 2,
   "quality": 1,
-  "registry": 1,
+  "registry": 2,
   "review": 1,
   "science": 1,
   "scorecard": 1,
@@ -88,12 +96,17 @@
   "selfcheck": 1,
   "sfc": 1,
   "signoff": 2,
+  "simulator": 1,
   "stats": 2,
   "status": 6,
+  "stdlib": 1,
   "storage": 2,
   "task": 8,
   "task-69": 1,
-  "tests": 3,
+  "tests": 4,
+  "time-box": 1,
+  "ui": 1,
+  "v1-compat": 1,
   "v2": 6,
   "windows-crlf": 1,
   "world": 2,
@@ -117,7 +130,9 @@
    "mem-dense-vintages-0008"
   ],
   "docs/161_Реестр_API_паспорта.md": [
-   "mem-dense-vintages-0008"
+   "mem-dense-vintages-0008",
+   "mem-dense-vintages-0011",
+   "mem-dense-vintages-0013"
   ],
   "docs/162_Реестр_источников.md": [
    "mem-licence-auditor-0002"
@@ -181,6 +196,9 @@
   "docs/190_Клиентский_пакет_Ормуз_США.md": [
    "mem-dense-vintages-0009"
   ],
+  "docs/192_Simulator_UI.md": [
+   "mem-dense-vintages-0012"
+  ],
   "docs/97_Лицензии_ряды_и_terms.md": [
    "mem-licence-auditor-0002"
   ],
@@ -214,6 +232,12 @@
    "mem-multiplicity-rw-0006",
    "mem-multiplicity-rw-0007"
   ],
+  "protocols/horizon_v5/T1_h12_ENSEMBLE_BAYES_w1ext.json": [
+   "mem-multiplicity-rw-0008"
+  ],
+  "protocols/horizon_v5/T3_h3_ENSEMBLE_ADAPTIVE.json": [
+   "mem-evaluation-harness-0007"
+  ],
   "protocols/licence_register.json": [
    "mem-licence-auditor-0001"
   ],
@@ -238,8 +262,13 @@
   "tests/test_flaks_procurement.py": [
    "mem-dense-vintages-0006"
   ],
+  "tests/test_forecast_api.py": [
+   "mem-dense-vintages-0011",
+   "mem-dense-vintages-0013"
+  ],
   "tests/test_forecast_api_server.py": [
-   "mem-dense-vintages-0005"
+   "mem-dense-vintages-0005",
+   "mem-dense-vintages-0011"
   ],
   "tests/test_forecast_world_bridge.py": [
    "mem-accounting-core-0004"
@@ -255,6 +284,9 @@
   ],
   "tests/test_module_registry.py": [
    "mem-dense-vintages-0008"
+  ],
+  "tests/test_simulator_ui.py": [
+   "mem-dense-vintages-0012"
   ],
   "tests/test_storage_futures.py": [
    "mem-accounting-core-0007"
@@ -282,8 +314,13 @@
   "tools/flaks_procurement.py": [
    "mem-dense-vintages-0006"
   ],
+  "tools/forecast_api.py": [
+   "mem-dense-vintages-0011",
+   "mem-dense-vintages-0013"
+  ],
   "tools/forecast_api_server.py": [
-   "mem-dense-vintages-0005"
+   "mem-dense-vintages-0005",
+   "mem-dense-vintages-0011"
   ],
   "tools/forecast_world_bridge.py": [
    "mem-accounting-core-0004",
@@ -314,6 +351,9 @@
   "tools/sector_exposure.py": [
    "mem-accounting-core-0006",
    "mem-dense-vintages-0007"
+  ],
+  "tools/simulator_ui.py": [
+   "mem-dense-vintages-0012"
   ],
   "tools/storage_futures.py": [
    "mem-accounting-core-0007"

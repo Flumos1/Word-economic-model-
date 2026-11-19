@@ -400,8 +400,13 @@ def _gaps(rows: list[dict]) -> list[dict]:
         })
     gaps.append({"scope": "T2_GDP_GROWTH h=1/2/4, ENSEMBLE_T2_SPF", "status": "NOT_RUN",
                  "reason": NOT_RUN_REASONS["T2_H1_H4_SPF"]})
-    gaps.append({"scope": "T3_RECESSION h=3/6/12, v5-перепрогон", "status": "NOT_RUN",
-                 "reason": NOT_RUN_REASONS["T3_OTHER"] + " Строки T3 в матрице — v4 (docs/109)."})
+    gaps.append({"scope": "T3_RECESSION h=6/12, v5-перепрогон", "status": "NOT_RUN",
+                 "reason": ("T3 h=3 ENSEMBLE_ADAPTIVE уже переоценён под v5 "
+                            "(C1/C2 fail, C4 not_applicable, C5 pass; отчёт "
+                            "protocols/horizon_v5/T3_h3_ENSEMBLE_ADAPTIVE.json). "
+                            "Остаются h=6/12; v5 не меняет C1/C2/C5 для T3, "
+                            "C4 на W1_EXT для T3 не определён, поэтому строки "
+                            "h=6/12 остаются v4-эпохи (docs/176, §4.4; docs/109).")})
     return gaps
 
 

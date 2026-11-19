@@ -4,7 +4,7 @@
 модулей из реестра, v1 сохранён как совместимый режим (детали интеграции — [docs/161](161_Реестр_API_паспорта.md)).
 Инструменты: [tools/forecast_api.py](../tools/forecast_api.py),
 [tools/market_client_pack.py](../tools/market_client_pack.py). Тесты:
-[tests/test_forecast_api.py](../tests/test_forecast_api.py) (13),
+[tests/test_forecast_api.py](../tests/test_forecast_api.py) (17),
 [tests/test_market_client_pack.py](../tests/test_market_client_pack.py) (14).
 Артефакты: `build/api/` (v2), `build/api_v1/` (v1-совместимый),
 `build/client_pack/market_hormuz_6m/` (в git не коммитятся).
@@ -15,6 +15,11 @@
 Никакие числа не выдумываются: API и пакет переупаковывают одно и то же детерминированное
 `MarketResult`.
 
+
+> **G5 (2026-11-19):** контракт расширен: 7 паспортов, 2 market-модуля (oil + gas),
+> 8 сценариев, 2 forecast-конверта; в v2 добавлен generic-конверт и `gas_ttf`,
+> v1 остаётся строго совместимым (1/3/1). Детали — docs/161 §11.
+
 ## 1. Forecast API: контракт `amfe.forecast_api.v2`
 
 Статический read-only контракт: инструмент не поднимает сервер, а материализует **ровно те JSON-
@@ -22,8 +27,8 @@
 
 | Endpoint | Файл | Содержимое |
 |---|---|---|
-| `GET /v1/modules` | `modules.json` | **5 модулей** (паспорта реестра): `module_id`, `version`, `status`, `kind`, `limitations`, `code_sha256`, `data_status`, `docs`, `tests` (новое в v2) |
-| `GET /v1/scenarios` | `index.json` | модули, 3 сценария, forecast-таргеты, политика, счётчики, хеши файлов |
+| `GET /v1/modules` | `modules.json` | **7 модулей** (паспорта реестра): `module_id`, `version`, `status`, `kind`, `limitations`, `code_sha256`, `data_status`, `docs`, `tests` (новое в v2) |
+| `GET /v1/scenarios` | `index.json` | модули, 8 сценариев, forecast-таргеты, политика, счётчики, хеши файлов |
 | `GET /v1/scenarios/{scenario_id}` | `scenarios/<module>__<scenario>.json` | полный `MarketResult`: `price_path`, `summary`, `assumptions`, `sensitivity`, `checks`, `meta`, `digest`; плюс `module_id` и `module_ref` |
 | `GET /v1/forecast/{target}` | `forecasts/oil_brent.json` | конверт сценария: путь, пик/средняя и их low/central/high, чувствительность; **не** точечный прогноз |
 | `GET /openapi.json` | `openapi.json` | спецификация контракта: OpenAPI 2.0.0 (в файле `openapi: 3.0.3`, `info.version` = 2.0.0), схемы `Index`/`Modules`/`Scenario`/`Forecast`/`Error` |
@@ -32,7 +37,7 @@
 `api_versions = [v1, v2]`, `backward_compatible_with = amfe.forecast_api.v1`, `generated_at`,
 `status = RESEARCH_ONLY`, `disclaimer`, `policy {read_only, research_only, no_admission,
 no_point_forecast, no_raw_third_party_data, deterministic_except_generated_at}`, `modules[]`,
-`scenarios[]`, `forecasts[]`, `endpoints[]`, `counts {modules: 5, market_modules: 1, scenarios: 3,
+`scenarios[]`, `forecasts[]`, `endpoints[]`, `counts {modules: 7, market_modules: 2, scenarios: 8,
 forecasts: 1}`, `files[]` (path/SHA-256/bytes).
 
 Сценарий (фрагмент реальных полей): `id = oil.brent/hormuz_closed_6m`, `result.units = USD/bbl`,
@@ -47,7 +52,7 @@ fail-closed.
 
 **Совместимость v1.** `python tools/forecast_api.py --api-version v1 --out build/api_v1`
 воспроизводит контракт `amfe.forecast_api.v1` **без реестра модулей** (те же поля, что в волне 22:
-1 модуль-источник, 3 сценария, 1 forecast, без `/v1/modules` и без `module_ref`). Это гарантирует,
+в v1 только нефтяной модуль, 3 сценария, один forecast, без `/v1/modules` и без `module_ref`). Это гарантирует,
 что клиенты v1 не ломаются, а v2 только добавляет поля. В v2 поле `modules[]` в `index.json`
 описывает 5 паспортов, а `market_modules`/`scenarios` остаются про рыночный модуль-источник.
 
@@ -58,7 +63,7 @@ python tools/forecast_api.py --out build/api --generated-at 2026-11-16T10:00:00Z
 ```
 
 Выход v2: `index.json`, `modules.json`, `openapi.json`, `README.md`, 5 файлов
-`modules/<module_id>.json`, 3 сценария, 1 forecast-таргет. Fail-closed: если пакет
+`modules/<module_id>.json`, 3 сценария, один forecast-таргет. Fail-closed: если пакет
 `src/amfe/markets` или реестр модулей недоступен — exit 2 и ничего не пишется. Детерминизм: при
 одинаковом `--generated-at` файлы байт-идентичны; при другой метке меняется только `generated_at`
 (и хеши в `index.json`, потому что файлы содержат эту метку).
@@ -79,7 +84,7 @@ python tools/forecast_api.py --out build/api --generated-at 2026-11-16T10:00:00Z
 | `06_Methodology_Appendix` | DOCX + PDF | движок, допущения и replace-with, смысл диапазона, ограничения |
 | `07_Reproducibility` | JSON | digest результата, SHA-256 JSON/HTML, команда, версия Python; `10_Module_Passports.json` входит в детерминированные артефакты |
 | `08_Licence_and_Disclaimer` | DOCX + PDF | research-only, отсутствие сырых данных, отсутствие инвестсовета |
-| `10_Module_Passports` | JSON | паспорт модуля + список всех 5 модулей реестра: версия, статус, ограничения, code/data SHA-256, docs/tests; ссылка на реестр и его SHA-256 |
+| `10_Module_Passports` | JSON | паспорт модуля + список всех 7 модулей реестра: версия, статус, ограничения, code/data SHA-256, docs/tests; ссылка на реестр и его SHA-256 |
 | `README.md` | Markdown | состав, ключевые числа, паспорт, воспроизведение |
 
 Ключевые числа (реальный прогон 2026-11-16, `hormuz_closed_6m`):
@@ -139,8 +144,8 @@ python tools/forecast_api.py --out build/api --generated-at 2026-11-16T10:00:00Z
 
 ## 5. Тесты
 
-- `python tests/test_forecast_api.py` — **13 тестов**: схема/счётчики v2, `/v1/modules` с паспортами
-  (5 модулей, версии/статусы/ограничения/хеши), связь `module_ref` со сценарием/forecast, все
+- `python tests/test_forecast_api.py` — **17 тестов**: схема/счётчики v2, `/v1/modules` с паспортами
+  (7 модулей, версии/статусы/ограничения/хеши), связь `module_ref` со сценарием/forecast, все
   endpoint-файлы, реальные `MarketResult` поля, forecast-конверт без точечного прогноза, OpenAPI,
   отсутствие admission/raw/URL, консистентность SHA-256, детерминизм, fail-closed (нет реестра/
   пакета), v1-совместимость (`--api-version v1`), CLI.

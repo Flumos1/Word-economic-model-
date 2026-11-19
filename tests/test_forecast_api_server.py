@@ -150,9 +150,13 @@ class StatusDocument(GatewayCase):
         payload = self.get("/v1/status").payload
         targets = {item["target"]: item for item in payload["targets"]}
         self.assertIn("oil_brent", targets)
+        self.assertIn("gas_ttf", targets)
         self.assertIn(gateway.PRODUCT_TARGET, targets)
         self.assertEqual(targets["oil_brent"]["horizon_months"], 6)
         self.assertEqual(targets["oil_brent"]["status"], "RESEARCH_ONLY")
+        self.assertEqual(targets["gas_ttf"]["horizon_months"], 6)
+        self.assertEqual(targets["gas_ttf"]["status"], "RESEARCH_ONLY")
+        self.assertEqual(targets["gas_ttf"]["module_id"], "gas.lng_eu")
         self.assertEqual(targets[gateway.PRODUCT_TARGET]["status"], "CANDIDATE")
         # The aggregate status is the weakest published status, never an admission.
         self.assertEqual(payload["status"], "CANDIDATE")
@@ -277,6 +281,24 @@ class ForecastEndpoint(GatewayCase):
         self.assertEqual(payload["source"]["api_index"]["sha256"],
                          self.gateway.feed.index_sha256)
 
+    def test_gas_envelope_is_served_from_the_same_contract(self):
+        response = self.get("/v1/forecast?target=gas_ttf&horizon=6")
+        self.assertEqual(response.status, 200)
+        payload = response.payload
+        upstream = read_json(self.api_dir / "forecasts" / "gas_ttf.json")
+        self.assertEqual(payload["query"], {"target": "gas_ttf", "horizon": 6})
+        self.assertEqual(payload["data"], upstream)
+        envelope = payload["data"]["envelope"]
+        self.assertNotIn("point", envelope)
+        self.assertIn("interval", envelope)
+        self.assertEqual(envelope["interval"]["low"], envelope["range_peak"]["low"])
+        self.assertEqual(payload["status"], "RESEARCH_ONLY")
+        self.assertIs(payload["admission"], False)
+        for alias in ("gas.lng_eu", "gas_lng_eu", "ttf"):
+            alias_response = self.get(f"/v1/forecast?target={alias}")
+            self.assertEqual(alias_response.status, 200, alias)
+            self.assertEqual(alias_response.payload["query"]["target"], "gas_ttf", alias)
+
     def test_aliases_resolve_to_the_same_target(self):
         for alias in ("oil.brent", "brent", "Brent", "oil_brent"):
             response = self.get(f"/v1/forecast?target={alias}")
@@ -296,10 +318,11 @@ class ForecastEndpoint(GatewayCase):
         self.assertEqual(missing.status, 400)
         self.assertEqual(missing.payload["code"], "MISSING_PARAMETER")
         self.assertIn("oil_brent", missing.payload["details"]["available_targets"])
-        unknown = self.get("/v1/forecast?target=gas_ttf")
+        unknown = self.get("/v1/forecast?target=nope")
         self.assertEqual(unknown.status, 404)
         self.assertEqual(unknown.payload["code"], "UNKNOWN_TARGET")
         self.assertIn("oil_brent", unknown.payload["details"]["available_targets"])
+        self.assertIn("gas_ttf", unknown.payload["details"]["available_targets"])
         extra = self.get("/v1/forecast?target=oil_brent&offset=2")
         self.assertEqual(extra.status, 400)
         self.assertEqual(extra.payload["code"], "UNKNOWN_PARAMETER")
@@ -423,7 +446,9 @@ class NoRawData(GatewayCase):
     def test_no_raw_values_paths_or_urls_leak(self):
         paths = ("/v1/status", "/v1/modules", "/v1/scenarios",
                  "/v1/scenarios/oil.brent/hormuz_closed_3m",
-                 "/v1/forecast?target=oil_brent", "/v1/forecast?target=cpi_yoy",
+                 "/v1/scenarios/gas.lng_eu/eu_pipeline_shock_6m",
+                 "/v1/forecast?target=oil_brent", "/v1/forecast?target=gas_ttf",
+                 "/v1/forecast?target=cpi_yoy",
                  "/openapi.json")
         for path in paths:
             text = body_of(self.get(path, headers=HEADERS))

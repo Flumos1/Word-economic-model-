@@ -10,16 +10,19 @@ Endpoints (all read-only, ``GET``):
                                      kind, limitations, code hashes) — **new in v2**;
 * ``/v1/scenarios``               -- index of modules, scenarios, passports and forecast targets;
 * ``/v1/scenarios/{scenario_id}`` -- one scenario document with the real ``MarketResult`` fields;
-* ``/v1/forecast/{target}``       -- the scenario envelope for a target (oil: Brent, ``oil_brent``).
+* ``/v1/forecast/{target}``       -- the scenario envelope for a target: oil (Brent, ``oil_brent``,
+                                     range only) or gas/LNG (TTF, ``gas_ttf``, central point plus
+                                     the sensitivity interval).
 
-Every number is copied from ``amfe.markets`` (``OilModule`` / ``MarketResult.as_dict``); the tool
-never invents a number, never stores raw third-party observations and never returns a point
-forecast.  Module passports come from ``amfe.learning.module_registry`` (docs/157) and are linked
-from every scenario/forecast as ``module_id@version``.
+Every number is copied from ``amfe.markets`` (``OilModule`` / ``GasModule`` /
+``MarketResult.as_dict``); the tool never invents a number, never stores raw third-party
+observations and never returns a probability forecast.  Module passports come from
+``amfe.learning.module_registry`` (docs/157) and are linked from every scenario/forecast as
+``module_id@version``.
 
 Backward compatibility with v1: ``--api-version v1`` reproduces the v1 contract exactly
-(``amfe.forecast_api.v1``, no registry required); the v2 documents keep every v1 field and only add
-new ones.  All responses carry ``status = "RESEARCH_ONLY"`` and an explicit disclaimer.
+(``amfe.forecast_api.v1``, oil only, no registry required); the v2 documents keep every v1 field and
+only add new ones.  All responses carry ``status = "RESEARCH_ONLY"`` and an explicit disclaimer.
 
 Fail-closed: if the market module package or the module registry is unavailable, or a scenario/
 target does not exist, the tool raises :class:`ForecastApiError` and writes nothing.
@@ -56,7 +59,38 @@ DISCLAIMER = (
     "interval. Module passports are registry metadata (RESEARCH_ONLY), not an admission. No "
     "third-party observations are redistributed."
 )
-TARGET_ALIASES = ("oil.brent", "oil_brent", "brent")
+#: Accepted aliases per module (the canonical target id is still :func:`target_id`).
+TARGET_ALIASES = {
+    "oil.brent": ("oil.brent", "oil_brent", "brent"),
+    "gas.lng_eu": ("gas.lng_eu", "gas_lng_eu", "gas_ttf", "ttf"),
+}
+#: Stable API target ids that are not a plain ``module_id.replace('.', '_')``.
+TARGET_IDS = {"gas.lng_eu": "gas_ttf"}
+#: Per-target forecast semantics (which metric the envelope reports, whether it has a point).
+TARGET_META = {
+    "oil.brent": {
+        "metric": "brent_peak_usd_per_bbl",
+        "point_estimate": False,
+        "interval": True,
+        "definition": "Brent price path and its peak/mean range under the declared Hormuz "
+                      "scenario; a scenario envelope, not a point forecast.",
+    },
+    "gas.lng_eu": {
+        "metric": "ttf_peak_usd_per_mmbtu",
+        "point_estimate": False,
+        "interval": True,
+        "definition": "TTF gas price path and its peak/mean range under the declared European "
+                      "pipeline-shock scenario, with JKM and LNG-diversion aggregates. Only a "
+                      "sensitivity interval is published; no point forecast.",
+    },
+}
+DEFAULT_TARGET_META = {
+    "metric": "price_peak",
+    "point_estimate": False,
+    "interval": True,
+    "definition": "Scenario envelope built from the module's published summary; scenario "
+                  "arithmetic on declared assumptions, not a point forecast.",
+}
 
 
 class ForecastApiError(RuntimeError):
@@ -85,20 +119,33 @@ def _schema_for(api_version: str) -> str:
 
 
 # ---------------------------------------------------------------------------------------- inputs
-def get_modules(modules=None) -> tuple:
-    """Return the registered market modules (fail-closed when the package is unavailable)."""
+def get_modules(modules=None, *, include_gas: bool = True) -> tuple:
+    """Return the market modules with a forecast contract (oil + gas by default).
+
+    The gas module self-registers when imported (``amfe.markets.gas``), so it is imported here
+    explicitly: without that, an API process that never touched gas would silently publish an
+    oil-only contract while the registry already lists ``gas.lng_eu``.  ``include_gas=False`` keeps
+    the legacy v1 surface oil-only even when gas was imported earlier in the same process.
+    """
     if modules is not None:
         modules = tuple(modules)
         if not modules:
             raise ForecastApiError("no market modules registered: cannot build the API")
         return modules
+    if include_gas:
+        try:
+            from amfe.markets import gas as _gas  # noqa: F401  (import registers the module)
+        except ImportError:  # pragma: no cover - gas is optional in a trimmed checkout
+            _gas = None
     try:
         from amfe.markets import registered_modules
     except ImportError as exc:  # pragma: no cover - environment without src/amfe/markets
-        raise ForecastApiError(f"oil module package unavailable: {exc!r}") from exc
+        raise ForecastApiError(f"market module package unavailable: {exc!r}") from exc
     modules = tuple(registered_modules())
     if not modules:
         raise ForecastApiError("no market modules registered: cannot build the API")
+    if not include_gas:
+        modules = tuple(module for module in modules if str(module.module_id) == "oil.brent")
     return modules
 
 
@@ -160,8 +207,33 @@ def _module_ref(module, registry: dict | None) -> dict | None:
 
 
 def target_id(module) -> str:
-    """Stable API target id for a module (``oil.brent`` -> ``oil_brent``)."""
-    return str(module.module_id).replace(".", "_")
+    """Stable API target id for a module (``oil.brent`` -> ``oil_brent``, gas -> ``gas_ttf``)."""
+    module_id = str(module.module_id)
+    return TARGET_IDS.get(module_id, module_id.replace(".", "_"))
+
+
+def target_meta(module) -> dict:
+    """Forecast semantics for a module (metric, point/interval, human definition)."""
+    return dict(TARGET_META.get(str(module.module_id), DEFAULT_TARGET_META))
+
+
+def target_aliases(module) -> tuple:
+    """Every accepted request target for a module (canonical id, module id, short aliases)."""
+    module_id = str(module.module_id)
+    aliases = set(TARGET_ALIASES.get(module_id, ()))
+    aliases.update((target_id(module), module_id))
+    return tuple(sorted(aliases))
+
+
+def module_kind(module, registry: dict | None = None) -> str:
+    """Registry ``kind`` of a module (``market``/``storage``/...) without inventing one."""
+    if registry is None:
+        return "market"
+    item = registry["by_id"].get(str(module.module_id))
+    if item is None:
+        raise ForecastApiError(
+            f"market module {module.module_id!r} is not in the module registry {registry['path']}")
+    return str(item.get("kind") or "market")
 
 
 def module_document(module, registry: dict | None = None) -> dict:
@@ -228,18 +300,136 @@ def build_scenario(module, scenario_id: str, generated_at: str,
     return document
 
 
+def _oil_envelope(payload: dict) -> dict:
+    """The v1/v2 oil envelope: exact legacy field names, no point, no raw data."""
+    summary = payload["summary"]
+    return {
+        "price_path": payload["price_path"],
+        "price_peak": summary["price_peak"],
+        "price_mean": summary["price_mean"],
+        "price_trough": summary["price_trough"],
+        "price_peak_month": summary["price_peak_month"],
+        "range_peak": summary["brent_range_usd_per_bbl"],
+        "range_mean": summary["brent_range_mean_usd_per_bbl"],
+        "sensitivity": payload["sensitivity"],
+        "checks": payload["checks"],
+        "units": payload["units"],
+    }
+
+
+def _gas_envelope(payload: dict) -> dict:
+    """The gas/LNG envelope: TTF point + sensitivity interval, JKM and LNG aggregates.
+
+    Nothing is recomputed: every number is read from the gas ``MarketResult`` summary, and only
+    aggregate fields are copied (no observations, no raw series, no assumptions blob).
+    """
+    summary = payload["summary"]
+    price_path = list(payload["price_path"])
+    ranges = summary.get("ranges") or {}
+    ttf_range = dict(ranges.get("ttf_peak") or {})
+    jkm_range = dict(ranges.get("jkm_peak") or {})
+    units = payload["units"]
+    peak = summary["ttf_peak_usd_per_mmbtu"]
+    peak_month = price_path.index(max(price_path)) if price_path else 0
+    arbitrage = summary.get("arbitrage") or {}
+    diversion = arbitrage.get("diversion") or {}
+    flows = summary.get("lng_flows") or {}
+    storage = summary.get("storage") or {}
+    return {
+        "price_path": price_path,
+        "price_peak": peak,
+        "price_mean": summary["ttf_mean_usd_per_mmbtu"],
+        "price_trough": summary["ttf_trough_usd_per_mmbtu"],
+        "price_peak_month": peak_month,
+        "range_peak": ttf_range,
+        "range_mean": None,
+        "interval": {
+            "low": ttf_range.get("low"),
+            "central": ttf_range.get("central"),
+            "high": ttf_range.get("high"),
+            "metric": "peak",
+            "units": units,
+            "basis": "sensitivity_variants",
+            "confidence_interval": False,
+            "note": ttf_range.get("note"),
+        },
+        "secondary": {
+            "jkm": {
+                "price_path": list(summary.get("jkm_usd_per_mmbtu_path") or []),
+                "price_peak": summary.get("jkm_peak_usd_per_mmbtu"),
+                "price_mean": summary.get("jkm_mean_usd_per_mmbtu"),
+                "range_peak": jkm_range,
+                "units": units,
+            },
+            "henry_hub_reference_usd_per_mmbtu":
+                summary.get("henry_hub_reference_usd_per_mmbtu"),
+            "arbitrage_band_usd_per_mmbtu": arbitrage.get("band_usd_per_mmbtu"),
+            "diversion_bcm_y": diversion.get("diversion_bcm_y"),
+            "diversion_binding": diversion.get("binding"),
+            "storage_end_bcm": storage.get("end_bcm"),
+            "storage_end_share_of_capacity": storage.get("end_share_of_capacity"),
+            "lng_import_capacity_bcm_y": flows.get("eu_import_capacity_bcm_y"),
+        },
+        "sensitivity": payload["sensitivity"],
+        "checks": payload["checks"],
+        "units": units,
+    }
+
+
+def _generic_envelope(payload: dict) -> dict:
+    """Kind-agnostic fallback: the published summary, never a hardcoded oil field."""
+    summary = payload["summary"]
+    envelope = {
+        "price_path": payload["price_path"],
+        "price_peak": summary.get("price_peak"),
+        "price_mean": summary.get("price_mean"),
+        "price_trough": summary.get("price_trough"),
+        "sensitivity": payload["sensitivity"],
+        "checks": payload["checks"],
+        "units": payload["units"],
+        "summary": dict(summary),
+    }
+    if summary.get("price_peak") is None:
+        envelope.pop("price_peak")
+    return envelope
+
+
+def _forecast_envelope(module, payload: dict, registry: dict | None) -> dict:
+    """Dispatch by ``module_id``, then by registry ``kind``; generic fallback otherwise."""
+    builders = {"oil.brent": _oil_envelope, "gas.lng_eu": _gas_envelope}
+    builder = builders.get(str(module.module_id))
+    if builder is None:
+        builder = {"oil": _oil_envelope, "gas": _gas_envelope}.get(
+            module_kind(module, registry), _generic_envelope)
+    return builder(payload)
+
+
 def build_forecast(module, target: str, generated_at: str,
                    registry: dict | None = None, api_version: str = API_VERSION) -> dict:
     """One ``GET /v1/forecast/{target}`` response: the real scenario envelope for the target."""
-    expected = target_id(module)
-    if target not in (expected, module.module_id) and not (
-            module.module_id == "oil.brent" and target in TARGET_ALIASES):
+    allowed = target_aliases(module)
+    if target not in allowed:
         raise ForecastApiError(
-            f"unknown forecast target {target!r}; available [{expected}]")
+            f"unknown forecast target {target!r}; available {list(allowed)}")
+    meta = target_meta(module)
     scenario_id = module.default_scenario().scenario_id
     result = module.run(scenario_id)
     payload = result.as_dict()
-    summary = payload["summary"]
+    target_definition = {
+        "commodity": payload["commodity"],
+        "units": payload["units"],
+        "horizon_months": payload["horizon_months"],
+        "default_scenario": scenario_id,
+        "definition": meta["definition"],
+    }
+    if api_version == API_VERSION:
+        target_definition.update({
+            "scenario_ids": [scenario.scenario_id for scenario in module.scenarios()],
+            "aliases": list(target_aliases(module)),
+            "forecast_metric": meta["metric"],
+            "point_estimate": meta["point_estimate"],
+            "interval": meta["interval"],
+        })
     document = {
         "schema": _schema_for(api_version),
         "kind": "forecast_envelope",
@@ -248,34 +438,17 @@ def build_forecast(module, target: str, generated_at: str,
         "status": payload["status"],
         "disclaimer": DISCLAIMER,
         "target": target,
-        "target_definition": {
-            "commodity": payload["commodity"],
-            "units": payload["units"],
-            "horizon_months": payload["horizon_months"],
-            "default_scenario": scenario_id,
-            "definition": "Brent price path and its peak/mean range under the declared Hormuz "
-                          "scenario; a scenario envelope, not a point forecast.",
-        },
+        "target_definition": target_definition,
         "module_id": payload["module_id"],
-        "envelope": {
-            "price_path": payload["price_path"],
-            "price_peak": summary["price_peak"],
-            "price_mean": summary["price_mean"],
-            "price_trough": summary["price_trough"],
-            "price_peak_month": summary["price_peak_month"],
-            "range_peak": summary["brent_range_usd_per_bbl"],
-            "range_mean": summary["brent_range_mean_usd_per_bbl"],
-            "sensitivity": payload["sensitivity"],
-            "checks": payload["checks"],
-            "units": payload["units"],
-        },
+        "envelope": _forecast_envelope(module, payload, registry),
         "assumptions_count": len(payload["assumptions"]),
         "assumptions_classes": sorted({item["source_class"] for item in payload["assumptions"]}),
         "result_digest": payload["digest"],
         "research_only": True,
-        "no_point_forecast": True,
+        "no_point_forecast": not meta["point_estimate"],
     }
     if api_version == API_VERSION:
+        document["point_estimate"] = meta["point_estimate"]
         document["module_ref"] = _module_ref(module, registry)
         document["links"] = {"self": f"forecasts/{target_id(module)}.json",
                              "index": "index.json", "modules": "modules.json"}
@@ -332,9 +505,15 @@ def build_index(modules, generated_at: str, files: list[dict] | None = None,
             scenarios.append(entry)
     forecasts = []
     for module in modules:
+        meta = target_meta(module)
         entry = {"target": target_id(module), "module_id": module.module_id,
                  "commodity": module.commodity, "units": module.units,
                  "file": f"forecasts/{target_id(module)}.json"}
+        if api_version == API_VERSION:
+            entry.update({"kind": module_kind(module, registry),
+                          "default_scenario": module.default_scenario().scenario_id,
+                          "point_estimate": meta["point_estimate"],
+                          "interval": meta["interval"]})
         reference = _module_ref(module, registry)
         if reference is not None:
             entry["module_version"] = reference["version"]
@@ -364,7 +543,8 @@ def build_index(modules, generated_at: str, files: list[dict] | None = None,
             "read_only": True,
             "research_only": True,
             "no_admission": True,
-            "no_point_forecast": True,
+            "no_point_forecast": not any(target_meta(module)["point_estimate"]
+                                         for module in modules),
             "no_raw_third_party_data": True,
             "deterministic_except_generated_at": True,
         },
@@ -376,6 +556,7 @@ def build_index(modules, generated_at: str, files: list[dict] | None = None,
     }
     if api_version == API_VERSION:
         index["policy"]["module_passports"] = True
+        index["policy"]["no_probability_forecast"] = True
         index["api_versions"] = list(SUPPORTED_API_VERSIONS)
         index["backward_compatible_with"] = LEGACY_SCHEMA
         index["modules"] = [_passport(item) for item in registry["export"]["modules"]]
@@ -399,8 +580,7 @@ def build_index(modules, generated_at: str, files: list[dict] | None = None,
     return index
 
 
-def _summary_excerpt(result: dict) -> dict:
-    """The small numbers an index is allowed to repeat (all taken from the result)."""
+def _oil_excerpt(result: dict) -> dict:
     summary = result["summary"]
     return {
         "price_peak": summary["price_peak"],
@@ -413,10 +593,42 @@ def _summary_excerpt(result: dict) -> dict:
     }
 
 
+def _gas_excerpt(result: dict) -> dict:
+    summary = result["summary"]
+    path = list(result["price_path"])
+    ranges = summary.get("ranges") or {}
+    return {
+        "price_peak": summary["ttf_peak_usd_per_mmbtu"],
+        "price_mean": summary["ttf_mean_usd_per_mmbtu"],
+        "price_peak_month": path.index(max(path)) if path else 0,
+        "range_peak": ranges.get("ttf_peak"),
+        "range_mean": None,
+        "forecast_metric": "ttf_peak",
+        "units": result["units"],
+        "horizon_months": result["horizon_months"],
+    }
+
+
+def _summary_excerpt(result: dict) -> dict:
+    """The small numbers an index is allowed to repeat (all taken from the result)."""
+    builders = {"oil.brent": _oil_excerpt, "gas.lng_eu": _gas_excerpt}
+    builder = builders.get(str(result.get("module_id")))
+    if builder is not None:
+        return builder(result)
+    summary = result["summary"]
+    excerpt = {"units": result["units"], "horizon_months": result["horizon_months"],
+               "summary": dict(summary)}
+    for key in ("price_peak", "price_mean", "price_trough", "price_peak_month"):
+        if key in summary:
+            excerpt[key] = summary[key]
+    return excerpt
+
+
 def build_openapi(modules, registry: dict | None = None,
                   api_version: str = API_VERSION) -> dict:
     """OpenAPI 3.0 description of the read-only endpoints (no numbers invented)."""
-    module_enum = [target_id(module) for module in modules]
+    module_enum = (sorted({alias for module in modules for alias in target_aliases(module)})
+                   if api_version == API_VERSION else [target_id(module) for module in modules])
     module_ids = [module.module_id for module in modules]
     scenario_ids = sorted(f"{module.module_id}/{scenario.scenario_id}"
                           for module in modules for scenario in module.scenarios())
@@ -450,8 +662,13 @@ def build_openapi(modules, registry: dict | None = None,
         "/v1/forecast/{target}": {
             "get": {
                 "tags": ["forecast"], "operationId": "getForecast",
-                "summary": "Scenario envelope for a target (not a point forecast)",
-                "parameters": [_params("target", "path", "target id, e.g. oil_brent",
+                "summary": ("Scenario envelope for a target (oil range; gas central point + "
+                            "sensitivity interval)" if api_version == API_VERSION else
+                            "Scenario envelope for a target (not a point forecast)"),
+                "parameters": [_params("target", "path",
+                                       "target id, e.g. oil_brent or gas_ttf"
+                                       if api_version == API_VERSION else
+                                       "target id, e.g. oil_brent",
                                        {"type": "string", "enum": module_enum})],
                 "responses": {
                     "200": {"description": "envelope",
@@ -491,16 +708,39 @@ def build_openapi(modules, registry: dict | None = None,
                                                             "assumptions", "sensitivity",
                                                             "checks", "digest"]}}},
         "Forecast": {"type": "object",
-                     "required": ["schema", "kind", "status", "target", "envelope"],
+                     "required": ["schema", "kind", "status", "target", "module_id", "envelope"],
                      "properties": {"schema": {"type": "string"},
                                     "kind": {"type": "string", "const": "forecast_envelope"},
                                     "target": {"type": "string"},
                                     "status": {"type": "string"},
+                                    "module_id": {"type": "string"},
                                     "module_ref": {"$ref": "#/components/schemas/ModuleRef"},
                                     "target_definition": {"type": "object"},
                                     "envelope": {"type": "object",
-                                                 "required": ["price_path", "range_peak",
-                                                              "range_mean", "sensitivity"]},
+                                                 "required": ["price_path", "sensitivity",
+                                                              "checks", "units"],
+                                                 "properties": {
+                                                     "price_path": {"type": "array",
+                                                                    "items": {"type": "number"}},
+                                                     "price_peak": {"type": "number"},
+                                                     "price_mean": {"type": "number"},
+                                                     "price_trough": {"type": "number"},
+                                                     "price_peak_month": {"type": "integer"},
+                                                     "range_peak": {"type": "object",
+                                                                    "nullable": True},
+                                                     "range_mean": {"type": "object",
+                                                                    "nullable": True},
+                                                     "point": {"type": "object", "nullable": True},
+                                                     "interval": {"type": "object",
+                                                                  "nullable": True},
+                                                     "secondary": {"type": "object",
+                                                                   "nullable": True},
+                                                     "sensitivity": {"type": "array",
+                                                                     "items": {"type": "object"}},
+                                                     "checks": {"type": "object"},
+                                                     "units": {"type": "string"}}},
+                                    "no_point_forecast": {"type": "boolean"},
+                                    "point_estimate": {"type": "boolean"},
                                     "research_only": {"type": "boolean"}}},
         "ModuleRef": {"type": "object", "required": ["module_id", "version"],
                       "properties": {"module_id": {"type": "string"},
@@ -512,6 +752,21 @@ def build_openapi(modules, registry: dict | None = None,
                   "properties": {"status": {"type": "string", "enum": ["NOT_FOUND"]},
                                  "error": {"type": "string"}}},
     }
+    if api_version == LEGACY_API_VERSION:
+        # Keep the frozen v1 forecast schema: v1 publishes oil ranges only.
+        components["Forecast"] = {
+            "type": "object",
+            "required": ["schema", "kind", "status", "target", "envelope"],
+            "properties": {"schema": {"type": "string"},
+                           "kind": {"type": "string", "const": "forecast_envelope"},
+                           "target": {"type": "string"},
+                           "status": {"type": "string"},
+                           "module_ref": {"$ref": "#/components/schemas/ModuleRef"},
+                           "target_definition": {"type": "object"},
+                           "envelope": {"type": "object",
+                                        "required": ["price_path", "range_peak", "range_mean",
+                                                     "sensitivity"]},
+                           "research_only": {"type": "boolean"}}}
     if api_version == API_VERSION:
         paths["/v1/modules"] = {
             "get": {
@@ -553,8 +808,10 @@ def build_openapi(modules, registry: dict | None = None,
             "title": "AMFE Forecast API (research contract)",
             "version": "2.0.0" if api_version == API_VERSION else "1.0.0",
             "description": "Read-only static contract over the deterministic AMFE market modules. "
-                           "Research-only: no admissions, no point forecasts, no raw third-party "
-                           "observations. Module passports are registry metadata, not an admission. "
+                           "Research-only: no admissions, no raw third-party observations, no "
+                           "probability forecast. Oil targets publish a range; the gas TTF target "
+                           "publishes the central scenario value as a point plus the sensitivity "
+                           "interval. Module passports are registry metadata, not an admission. "
                            "The shipped JSON files are the exact responses.",
             "license": {"name": "Research use only; see 08_Licence_and_Disclaimer"},
         },
@@ -567,6 +824,22 @@ def build_openapi(modules, registry: dict | None = None,
         "x-module-ids": module_ids,
         "x-api-versions": list(SUPPORTED_API_VERSIONS),
     }
+    if api_version == LEGACY_API_VERSION:
+        document["info"]["description"] = (
+            "Read-only static contract over the deterministic AMFE market modules. Research-only: "
+            "no admissions, no point forecasts, no raw third-party observations. Module passports "
+            "are registry metadata, not an admission. The shipped JSON files are the exact "
+            "responses.")
+    if api_version == API_VERSION:
+        document["x-forecast-targets"] = {
+            target_id(module): {
+                "module_id": module.module_id,
+                "kind": module_kind(module, registry),
+                "aliases": list(target_aliases(module)),
+                **target_meta(module),
+            }
+            for module in modules
+        }
     if registry is not None and api_version == API_VERSION:
         document["x-registry-schema"] = registry["schema"]
     return document
@@ -609,6 +882,10 @@ def _readme(index: dict, api_version: str) -> str:
                      f"(SHA-256 `{index['registry']['sha256'][:16]}…`), "
                      f"{len(index['modules'])} passports.")
         lines.append("")
+    if any(entry.get("point_estimate") for entry in index["forecasts"]):
+        lines += ["Targets with `point_estimate=true` (gas) publish the central scenario value as "
+                  "`point` plus the sensitivity `interval`; oil targets stay range-only. No "
+                  "probability forecast is published.", ""]
     for scenario in index["scenarios"]:
         version = scenario.get("module_version")
         suffix = f", module version {version}" if version else ""
@@ -633,7 +910,11 @@ def build_api(out_dir: Path = DEFAULT_OUT, generated_at: str | None = None,
         raise ForecastApiError(f"unknown api version {api_version!r}; "
                                f"available {list(SUPPORTED_API_VERSIONS)}")
     generated_at = generated_at or _now()
-    modules = get_modules(modules)
+    modules = get_modules(modules, include_gas=(api_version == API_VERSION))
+    if api_version == LEGACY_API_VERSION:
+        # v1 is a frozen oil-only contract: gas is available in v2, never injected into the legacy
+        # documents (even when gas was imported earlier in the same process and self-registered).
+        modules = tuple(module for module in modules if str(module.module_id) == "oil.brent")
     registry = load_registry(registry_path) if api_version == API_VERSION else None
     out_dir = Path(out_dir)
     scenario_dir = out_dir / "scenarios"

@@ -1,7 +1,7 @@
 {
  "schema_version": "1.0.0",
  "matrix_id": "AMFE-HORIZON-MATRIX-V5",
- "generated_at": "2026-11-18T17:55:19Z",
+ "generated_at": "2026-11-19T13:11:07Z",
  "protocol": {
   "id": "AMFE-EVAL",
   "version": "5.0.1",
@@ -1498,27 +1498,147 @@
    "target": "T1_CPI_YOY",
    "horizon": 12,
    "candidate": "ENSEMBLE_BAYES",
-   "protocol": "v4.0.0",
-   "data_class": null,
-   "origins": {},
-   "criteria": {
-    "C1": "not_run",
-    "C2": "not_run",
-    "C4": "not_run",
-    "C5": "not_run"
+   "protocol": "v5.0.1",
+   "data_class": "REAL_TIME_RECONSTRUCTED",
+   "origins": {
+    "W1_EXT": 193,
+    "W1": 110,
+    "W2": 145
    },
-   "metrics": {},
-   "overall_status": "NOT_RUN",
-   "status": "NOT_RUN",
-   "reason": "в пассе 2026-11-18 (task-58, REAL_TIME_RECONSTRUCTED, protocol v5) T1 h=12 оценены `ENSEMBLE_ADAPTIVE`, `ENSEMBLE_EQUAL`, `ENSEMBLE_INVERSE_MSE`, `ENSEMBLE_RW_AR`; этот кандидат в пасс не входил: постройка окон W1_EXT+W2 (338 начал) стоит ~2,5–3,4 с на начало для дешёвого кандидата (ENSEMBLE_RW_AR: 1690 записей кэша, 0 попаданий, 13 мин 51 с на весь прогон) и ~8 с на начало только на прогноз кандидата ENSEMBLE_BAYES (255 записей за ~5 мин до останова, ~6 с на начало в целом), то есть ~35–45 мин на пару. Тёплого кэша не было: build/eval_cache и .tmp-test/cache_v5_clean непригодны (schema 1.0.0 или чужой fingerprint — source_files 16 против 17, source_sha256 не совпадает), поэтому каждый кандидат строился с нуля. Это пропуск при time-box 25–30 мин, а не «эффекта нет».",
+   "criteria": {
+    "C1": "fail",
+    "C2": "fail",
+    "C4": "pass",
+    "C5": "pass"
+   },
+   "metrics": {
+    "stage": "CANDIDATE",
+    "data_class_note": "admission allowed: data class REAL_TIME_RECONSTRUCTED is in ['REAL_TIME', 'REAL_TIME_TAPE', 'REAL_TIME_RECONSTRUCTED']",
+    "C1": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "relative_loss": 0.9853918312977921,
+        "threshold": 0.9564,
+        "pass": false
+       },
+       "CRPS": {
+        "relative_loss": 1.0002878595011953,
+        "threshold": 0.9514,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "relative_loss": 0.9263358042086036,
+        "threshold": 0.9505,
+        "pass": true
+       },
+       "CRPS": {
+        "relative_loss": 0.9503575334243383,
+        "threshold": 0.9452,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C2": {
+     "pass": false,
+     "windows": {
+      "W1": {
+       "adjusted_p_min": 0.4169
+      },
+      "W2": {
+       "adjusted_p_min": 0.1162
+      }
+     }
+    },
+    "C4": {
+     "applies": true,
+     "pass": true,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "status": "PASS",
+        "relative_loss_recession": 0.8863595452796675,
+        "recession_origins": 16,
+        "min_recession_origins": 12,
+        "pass": true
+       },
+       "CRPS": {
+        "status": "PASS",
+        "relative_loss_recession": 0.8594397164450389,
+        "recession_origins": 16,
+        "min_recession_origins": 12,
+        "pass": true
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "status": "PASS",
+        "relative_loss_recession": 0.7878183402239629,
+        "recession_origins": 18,
+        "min_recession_origins": 12,
+        "pass": true
+       },
+       "CRPS": {
+        "status": "PASS",
+        "relative_loss_recession": 0.8821495613130558,
+        "recession_origins": 18,
+        "min_recession_origins": 12,
+        "pass": true
+       }
+      }
+     },
+     "extended": {
+      "W1": {
+       "source": "extended_window",
+       "data_class": "REAL_TIME_RECONSTRUCTED",
+       "n_origins": 193
+      },
+      "W2": {
+       "source": "standard_window"
+      }
+     }
+    },
+    "C5": {
+     "pass": true,
+     "windows": {
+      "W1": {
+       "RMSE": {
+        "p_value": 0.5651501369752714,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.49212192348029793,
+        "pass": false
+       }
+      },
+      "W2": {
+       "RMSE": {
+        "p_value": 0.8958300058348029,
+        "pass": false
+       },
+       "CRPS": {
+        "p_value": 0.8611453516642387,
+        "pass": false
+       }
+      }
+     }
+    },
+    "C6": {
+     "status": "NO_RESOLVED_FORECASTS",
+     "pass": false
+    }
+   },
+   "overall_status": "CANDIDATE",
+   "status": "CANDIDATE",
+   "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 fail (W1/RMSE 0.9854, W1/CRPS 1.0003, W2/RMSE 0.9263, W2/CRPS 0.9504); C2 fail (RW adj p W1 0.4169, W2 0.1162); C4 pass (W1 PASS, W2 PASS); C5 pass",
    "sources": [
     {
-     "file": "protocols/candidates_2026-11-11.json",
-     "sha256": "bd5afecc65ba059dd6b452cad2bdc433bf2def5a61270eaa988db8979d0358f4"
-    },
-    {
-     "file": "protocols/ensemble_horizons_report.json",
-     "sha256": "bfec199bbba59b8aa1b449355cdc1efc08bafc89db6659c66523bc3bfe493ed1"
+     "file": "protocols/horizon_v5/T1_h12_ENSEMBLE_BAYES_w1ext.json",
+     "sha256": "3947761e0fed635d5f687f649696907f92e1c68915f5dba20585c031c8c005ae"
     }
    ]
   },
@@ -3976,7 +4096,7 @@
    "target": "T3_RECESSION",
    "horizon": 3,
    "candidate": "ENSEMBLE_ADAPTIVE",
-   "protocol": "v4.0.0",
+   "protocol": "v5.0.1",
    "data_class": "REAL_TIME",
    "origins": {
     "W1": 118,
@@ -3990,7 +4110,7 @@
    },
    "metrics": {
     "stage": "CANDIDATE",
-    "data_class_note": "admission allowed: data class REAL_TIME is in ['REAL_TIME', 'REAL_TIME_TAPE']",
+    "data_class_note": "admission allowed: data class REAL_TIME is in ['REAL_TIME', 'REAL_TIME_TAPE', 'REAL_TIME_RECONSTRUCTED']",
     "C1": {
      "pass": false,
      "windows": {
@@ -4024,10 +4144,10 @@
      "pass": false,
      "windows": {
       "W1": {
-       "adjusted_p_min": 1.0
+       "adjusted_p_min": null
       },
       "W2": {
-       "adjusted_p_min": 0.0417
+       "adjusted_p_min": null
       }
      }
     },
@@ -4069,11 +4189,11 @@
    },
    "overall_status": "CANDIDATE",
    "status": "CANDIDATE",
-   "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 fail (W1/Brier 1.0329, W1/log_score 1.0080, W2/Brier 0.9228, W2/log_score 0.9359); C2 fail (RW adj p W1 1.0000, W2 0.0417); C4 не применим по протоколу; C5 pass",
+   "reason": "Оценка выполнена, стадия harness CANDIDATE (допуск не присвоен): C1 fail (W1/Brier 1.0329, W1/log_score 1.0080, W2/Brier 0.9228, W2/log_score 0.9359); C2 fail (RW adj p n/a); C4 не применим по протоколу; C5 pass",
    "sources": [
     {
-     "file": "protocols/ensemble_eval_ENSEMBLE_ADAPTIVE_T3_h3_v2.json",
-     "sha256": "0f538a33c7bb8615ef65743b122cd35c48f907501177d95638749b24977ebf43"
+     "file": "protocols/horizon_v5/T3_h3_ENSEMBLE_ADAPTIVE.json",
+     "sha256": "22b23af6ae1a3c0afe9b0916edbb68cd8e49d69ed1b3a0228fc132ac7805c94d"
     }
    ]
   },
@@ -4773,30 +4893,25 @@
  ],
  "v5_reruns_not_performed": [
   {
-   "scope": "T1_CPI_YOY h=12, ENSEMBLE_BAYES",
-   "status": "NOT_RUN",
-   "reason": "в пассе 2026-11-18 (task-58, REAL_TIME_RECONSTRUCTED, protocol v5) T1 h=12 оценены `ENSEMBLE_ADAPTIVE`, `ENSEMBLE_EQUAL`, `ENSEMBLE_INVERSE_MSE`, `ENSEMBLE_RW_AR`; этот кандидат в пасс не входил: постройка окон W1_EXT+W2 (338 начал) стоит ~2,5–3,4 с на начало для дешёвого кандидата (ENSEMBLE_RW_AR: 1690 записей кэша, 0 попаданий, 13 мин 51 с на весь прогон) и ~8 с на начало только на прогноз кандидата ENSEMBLE_BAYES (255 записей за ~5 мин до останова, ~6 с на начало в целом), то есть ~35–45 мин на пару. Тёплого кэша не было: build/eval_cache и .tmp-test/cache_v5_clean непригодны (schema 1.0.0 или чужой fingerprint — source_files 16 против 17, source_sha256 не совпадает), поэтому каждый кандидат строился с нуля. Это пропуск при time-box 25–30 мин, а не «эффекта нет»."
-  },
-  {
    "scope": "T2_GDP_GROWTH h=1/2/4, ENSEMBLE_T2_SPF",
    "status": "NOT_RUN",
    "reason": "SPF-медиана не допускается на квартальных началах h=1/2/4 (origin_policy.spf_alignment, spf_available=false): кандидат вырождается в контроль ENSEMBLE_T2_NOT_SPF, отдельный прогон не проводился (docs/95)."
   },
   {
-   "scope": "T3_RECESSION h=3/6/12, v5-перепрогон",
+   "scope": "T3_RECESSION h=6/12, v5-перепрогон",
    "status": "NOT_RUN",
-   "reason": "T3 оценён только для ENSEMBLE_ADAPTIVE и ENSEMBLE_EQUAL (docs/109, протокол v4); v5-перепрогон в task-58 не выполнялся: замер на data/raw (REAL_TIME, h=3, ENSEMBLE_ADAPTIVE, 4 начала) — 7,3 с на начало без кэша; окна W1+W2 у h=3 — 271 начало, то есть ~33 мин на кандидата и ~66 мин на двух — больше time-box 25–30 мин. v5 не меняет C1/C2/C5 для T3, а C4 на W1_EXT для T3 не определён, поэтому строки остаются v4-эпохи (docs/176, §4.4). Строки T3 в матрице — v4 (docs/109)."
+   "reason": "T3 h=3 ENSEMBLE_ADAPTIVE уже переоценён под v5 (C1/C2 fail, C4 not_applicable, C5 pass; отчёт protocols/horizon_v5/T3_h3_ENSEMBLE_ADAPTIVE.json). Остаются h=6/12; v5 не меняет C1/C2/C5 для T3, C4 на W1_EXT для T3 не определён, поэтому строки h=6/12 остаются v4-эпохи (docs/176, §4.4; docs/109)."
   }
  ],
  "coverage": {
   "rows": 56,
-  "evaluated": 30,
-  "not_run": 26,
+  "evaluated": 31,
+  "not_run": 25,
   "status_counts": {
-   "CANDIDATE": 30,
+   "CANDIDATE": 31,
    "FAIL": 0,
    "INCONCLUSIVE": 0,
-   "NOT_RUN": 26
+   "NOT_RUN": 25
   },
   "cells": {
    "T1_CPI_YOY": {
@@ -4902,6 +5017,7 @@
     ],
     "12": [
      "ENSEMBLE_ADAPTIVE",
+     "ENSEMBLE_BAYES",
      "ENSEMBLE_EQUAL",
      "ENSEMBLE_INVERSE_MSE",
      "ENSEMBLE_RW_AR"
