@@ -1,0 +1,17 @@
+{
+  "_warning": "НЕ ПОДПИСЬ. Шаблон для человека после подписания скана. Заполнить name/role/date/decision, затем перенести в protocols/signoff_registry.json. Пока не заполнено человеком, статус остаётся PENDING_HUMAN_SIGNATURE.",
+  "id": "G4-SIGN-160",
+  "status": "SIGNED_BY_HUMAN",
+  "signature": {
+    "name": "<ФИО человека>",
+    "role": "<роль/должность>",
+    "signer_type": "human",
+    "decision": "APPROVE",
+    "scope": "docs/160 external adversarial review of G2, run 2026-11-16"
+  },
+  "date": "YYYY-MM-DD",
+  "scan": {
+    "path": "signoff/scanned/G4_SIGN_160_signed.pdf",
+    "note": "скан/PDF подписанного экземпляра; не коммитить"
+  }
+}
