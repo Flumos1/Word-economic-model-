@@ -23,22 +23,27 @@ flumos@gmail.com» без авторизации невозможно; подд�
    `build/marketing/AMFE_oil_gas_one_pager.pdf`.
 3. Отправить.
 
-### C. Через SMTP с app-password (без публикации пароля)
-1. Создать app-password Google для `flumos@gmail.com` (2FA → App passwords).
-2. В PowerShell (пароль не сохраняется в истории, если задать через Read-Host):
+### C. Через SMTP с app-password (рекомендуемый способ, если отправляю я)
+1. Включить 2FA и создать App Password для `flumos@gmail.com`:
+   https://myaccount.google.com/apppasswords — это 16-символьный пароль, **не** пароль аккаунта.
+2. Скопировать `.smtp.env.example` в `.smtp.env` (файл в `.gitignore`) и вписать app password:
 ```powershell
-$env:SMTP_USER="flumos@gmail.com"
-$env:SMTP_PASSWORD=(Read-Host "Google app password" -AsSecureString | ConvertFrom-SecureString -AsPlainText)
-python tools/send_email_smtp.py --eml outreach/legat/email.eml --confirm
-Remove-Item Env:SMTP_PASSWORD
+Copy-Item outreach/legat/.smtp.env.example outreach/legat/.smtp.env
+notepad outreach/legat/.smtp.env
 ```
-Скрипт без `--confirm` делает только dry-run. Пароль не логируется.
+3. Сказать мне «доступ открыт» — я выполню:
+```powershell
+python tools/send_email_smtp.py --eml outreach/legat/email.eml `
+  --env-file outreach/legat/.smtp.env --confirm
+```
+4. После отправки удалить `.smtp.env` и отозвать app password в Google.
+
+Без `--confirm` скрипт делает только dry-run. Пароль не логируется и не печатается.
 
 ## После отправки
 
-- В `marketing/crm_pipeline.csv.tmpl` (или рабочей копии `.csv`) перевести `LEGAT`/аккаунт в
-  `CONTACTED`, поставить дату и next action.
-- Если ответа нет — follow-up через 7 дней (см. `marketing/outreach.md`).
+- Перевести контакт в CRM в `CONTACTED`, поставить дату и next action.
+- Если ответа нет — follow-up через 7 дней (`marketing/outreach.md`).
 
 ## Честность
 
