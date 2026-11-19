@@ -1,7 +1,7 @@
 {
  "schema": "amfe.agent_library.v1",
- "updated_at": "2026-11-19T13:20:37Z",
- "entries": 68,
+ "updated_at": "2026-11-19T14:12:04Z",
+ "entries": 69,
  "open_questions": [
   {
    "id": "mem-lead-0003",
@@ -13,7 +13,7 @@
  "by_role": {
   "accounting-core": 8,
   "baseline-models": 5,
-  "dense-vintages": 13,
+  "dense-vintages": 14,
   "evaluation-harness": 9,
   "lead": 8,
   "licence-auditor": 3,
@@ -22,7 +22,7 @@
   "r2-completion": 7
  },
  "by_kind": {
-  "artifact": 27,
+  "artifact": 28,
   "decision": 1,
   "lesson": 15,
   "open_question": 1,
@@ -33,6 +33,7 @@
  "by_tag": {
   "REAL_TIME": 1,
   "T3": 2,
+  "abm": 1,
   "anonymization": 1,
   "api": 1,
   "blocks": 2,
@@ -46,6 +47,7 @@
   "client-pack": 1,
   "correction": 1,
   "country": 4,
+  "crm": 1,
   "data": 2,
   "decision": 1,
   "demo": 1,
@@ -73,11 +75,14 @@
   "librarian": 2,
   "licence": 3,
   "manifest": 1,
+  "marketing": 1,
   "memory": 1,
   "models": 1,
   "modules": 1,
   "oil": 1,
+  "oil-gas": 1,
   "orchestrator": 1,
+  "outreach": 1,
   "p2": 1,
   "pilot": 1,
   "pit": 5,
@@ -196,11 +201,35 @@
   "docs/190_Клиентский_пакет_Ормуз_США.md": [
    "mem-dense-vintages-0009"
   ],
+  "docs/191_Маркетинг_нефтегаз.md": [
+   "mem-dense-vintages-0014"
+  ],
   "docs/192_Simulator_UI.md": [
    "mem-dense-vintages-0012"
   ],
   "docs/97_Лицензии_ряды_и_terms.md": [
    "mem-licence-auditor-0002"
+  ],
+  "marketing/crm_pipeline.csv": [
+   "mem-dense-vintages-0014"
+  ],
+  "marketing/letters/gazpromneft.md": [
+   "mem-dense-vintages-0014"
+  ],
+  "marketing/letters/irk.md": [
+   "mem-dense-vintages-0014"
+  ],
+  "marketing/letters/novatek.md": [
+   "mem-dense-vintages-0014"
+  ],
+  "marketing/letters/taneco.md": [
+   "mem-dense-vintages-0014"
+  ],
+  "marketing/letters/tatneft.md": [
+   "mem-dense-vintages-0014"
+  ],
+  "marketing/outreach_5.md": [
+   "mem-dense-vintages-0014"
   ],
   "pilot/flaks/.gitignore": [
    "mem-dense-vintages-0010"
@@ -282,6 +311,9 @@
   "tests/test_market_client_pack.py": [
    "mem-dense-vintages-0008"
   ],
+  "tests/test_marketing_crm.py": [
+   "mem-dense-vintages-0014"
+  ],
   "tests/test_module_registry.py": [
    "mem-dense-vintages-0008"
   ],
@@ -338,6 +370,9 @@
   ],
   "tools/market_bridge.py": [
    "mem-dense-vintages-0007"
+  ],
+  "tools/marketing_crm.py": [
+   "mem-dense-vintages-0014"
   ],
   "tools/policy_scenarios.py": [
    "mem-baseline-models-0004"

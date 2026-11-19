@@ -1,12 +1,12 @@
 # Библиотека памяти AMFE
 
-Обновлено: 2026-11-19T13:20:37Z · записей: 68
+Обновлено: 2026-11-19T14:12:04Z · записей: 69
 
 ## По ролям
 
 - `accounting-core` — 8 записей (`agents/memory/accounting-core.jsonl`)
 - `baseline-models` — 5 записей (`agents/memory/baseline-models.jsonl`)
-- `dense-vintages` — 13 записей (`agents/memory/dense-vintages.jsonl`)
+- `dense-vintages` — 14 записей (`agents/memory/dense-vintages.jsonl`)
 - `evaluation-harness` — 9 записей (`agents/memory/evaluation-harness.jsonl`)
 - `lead` — 8 записей (`agents/memory/lead.jsonl`)
 - `licence-auditor` — 3 записей (`agents/memory/licence-auditor.jsonl`)
@@ -41,8 +41,16 @@
 - `docs/187_Страновой_прогноз.md` ← mem-r2-completion-0006
 - `docs/189_FLAKS_пилот.md` ← mem-dense-vintages-0010
 - `docs/190_Клиентский_пакет_Ормуз_США.md` ← mem-dense-vintages-0009
+- `docs/191_Маркетинг_нефтегаз.md` ← mem-dense-vintages-0014
 - `docs/192_Simulator_UI.md` ← mem-dense-vintages-0012
 - `docs/97_Лицензии_ряды_и_terms.md` ← mem-licence-auditor-0002
+- `marketing/crm_pipeline.csv` ← mem-dense-vintages-0014
+- `marketing/letters/gazpromneft.md` ← mem-dense-vintages-0014
+- `marketing/letters/irk.md` ← mem-dense-vintages-0014
+- `marketing/letters/novatek.md` ← mem-dense-vintages-0014
+- `marketing/letters/taneco.md` ← mem-dense-vintages-0014
+- `marketing/letters/tatneft.md` ← mem-dense-vintages-0014
+- `marketing/outreach_5.md` ← mem-dense-vintages-0014
 - `pilot/flaks/.gitignore` ← mem-dense-vintages-0010
 - `pilot/flaks/README.md` ← mem-dense-vintages-0010
 - `pilot/flaks/contracts_template.csv` ← mem-dense-vintages-0010
@@ -68,6 +76,7 @@
 - `tests/test_hash_canonicalization.py` ← mem-dense-vintages-0007
 - `tests/test_hormuz_us_client_pack.py` ← mem-dense-vintages-0009
 - `tests/test_market_client_pack.py` ← mem-dense-vintages-0008
+- `tests/test_marketing_crm.py` ← mem-dense-vintages-0014
 - `tests/test_module_registry.py` ← mem-dense-vintages-0008
 - `tests/test_simulator_ui.py` ← mem-dense-vintages-0012
 - `tests/test_storage_futures.py` ← mem-accounting-core-0007
@@ -85,6 +94,7 @@
 - `tools/geopolitics_scenarios.py` ← mem-protocol-reviewer-0006
 - `tools/hormuz_us_client_pack.py` ← mem-dense-vintages-0009
 - `tools/market_bridge.py` ← mem-dense-vintages-0007
+- `tools/marketing_crm.py` ← mem-dense-vintages-0014
 - `tools/policy_scenarios.py` ← mem-baseline-models-0004
 - `tools/quantity_bridge.py` ← mem-dense-vintages-0007
 - `tools/register_modules.py` ← mem-dense-vintages-0008

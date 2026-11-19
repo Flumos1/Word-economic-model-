@@ -28,13 +28,21 @@ Design rules (the same ones the rest of the project uses)
   is a 503.  Nothing is "fixed up" silently.
 * **Deterministic.**  No clock, no randomness, no per-request caches keyed by time: two identical
   requests produce byte-identical JSON (and the same SHA-256 digest).
+* **Optional auth, off by default.**  The local demo stays open unless ``--require-auth`` is set;
+  then ``/`` and ``/api/health`` remain public, every other endpoint needs ``X-API-Key`` or
+  ``Authorization: Bearer``, plans gate ``POST /api/run`` (403) and a per-key hourly quota returns
+  429 with ``Retry-After``/``X-RateLimit-*``.  Keys are stored as SHA-256 digests and never logged.
 
 Usage
 -----
-    python tools/simulator_ui.py                     # http://127.0.0.1:8090
+    python tools/simulator_ui.py                     # http://127.0.0.1:8090 (open local demo)
     python tools/simulator_ui.py --host 0.0.0.0 --port 8091
     python tools/simulator_ui.py --check             # print diagnostics and exit
     python tools/simulator_ui.py --geopolitics synthetic   # ignore the precomputed MRIO artifact
+
+    # demo behind keys and quotas (keys may also come from AMFE_SIM_KEYS)
+    python tools/simulator_ui.py --require-auth \
+        --api-keys "demo_free_key_01:free,demo_pro_key_01:pro" --quota-per-hour 60
 
 Tests: ``python tests/test_simulator_ui.py`` (see docs/192).
 """
@@ -42,16 +50,19 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import hmac
 import json
 import logging
 import math
+import os
 import re
 import sys
 import threading
+import time
 from dataclasses import dataclass, field
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any, Callable, Mapping
 from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -66,10 +77,15 @@ from amfe.markets.gas import build_report as build_gas_report  # noqa: E402
 import hormuz_us_impact as hormuz_impact  # noqa: E402
 
 SCHEMA = "amfe.simulator.ui.v1"
-TOOL_VERSION = "1.0.0"
+TOOL_VERSION = "1.1.0"
 STATUS = "RESEARCH_ONLY"
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8090
+DEFAULT_QUOTA_PER_HOUR = 60
+RATE_WINDOW_SECONDS = 3600
+MIN_API_KEY_CHARS = 8
+API_KEY_HEADERS = ("X-API-Key", "Api-Key")
+PUBLIC_PATHS = frozenset({"/", "/index.html", "/api/health", "/favicon.ico"})
 DEFAULT_GEOPOLITICS_ARTIFACT = ROOT / "build" / "geopolitics" / "report.json"
 DEFAULT_GEOPOLITICS_SCENARIO = "CHK-ORMUZ-2026"
 MAX_BODY_BYTES = 64 * 1024
@@ -138,6 +154,218 @@ class PolicyViolation(SimulatorError):
 class Unavailable(SimulatorError):
     def __init__(self, code: str, message: str, details=None) -> None:
         super().__init__(503, code, message, details)
+
+
+class Unauthorized(SimulatorError):
+    """No key or an unknown key: 401 with a ``WWW-Authenticate`` challenge."""
+
+    def __init__(self, code: str, message: str, details=None) -> None:
+        super().__init__(401, code, message, details,
+                         headers={"WWW-Authenticate": 'ApiKey realm="amfe-simulator"'})
+
+
+class Forbidden(SimulatorError):
+    """The key is valid but its plan does not allow this operation (403)."""
+
+    def __init__(self, code: str, message: str, details=None,
+                 headers: Mapping[str, str] | None = None) -> None:
+        super().__init__(403, code, message, details, headers=headers)
+
+
+class RateLimited(SimulatorError):
+    """The key exceeded its hourly quota (429); carries the retry/quota headers."""
+
+    def __init__(self, code: str, message: str, retry_after: int, details=None,
+                 headers: Mapping[str, str] | None = None) -> None:
+        merged = dict(headers or {})
+        merged.setdefault("Retry-After", str(max(1, int(retry_after))))
+        super().__init__(429, code, message, details, headers=merged)
+
+
+# ---------------------------------------------------------------------------------------------- auth
+@dataclass(frozen=True)
+class Plan:
+    """A named access level.  ``free`` is read-only; ``pro``/``internal`` may run scenarios."""
+
+    name: str
+    can_run: bool
+    description: str = ""
+
+
+PLANS: dict[str, Plan] = {
+    "free": Plan("free", False, "чтение каталога сценариев; POST /api/run запрещён"),
+    "pro": Plan("pro", True, "полный доступ к сценариям"),
+    "internal": Plan("internal", True, "полный доступ (внутренний контур)"),
+}
+
+
+@dataclass(frozen=True)
+class Client:
+    """An authenticated caller; the plaintext key is never retained or logged."""
+
+    key_sha256: str
+    client_id: str
+    plan: Plan
+
+
+class AuthConfigError(RuntimeError):
+    """Invalid auth configuration: the CLI refuses to start (fail-closed)."""
+
+
+def parse_keys(spec: str, plans: Mapping[str, Plan] | None = None) -> dict[str, Client]:
+    """Parse ``key[:plan],...`` into ``{sha256(key): Client}`` (digests only).
+
+    Empty items are ignored; a key shorter than :data:`MIN_API_KEY_CHARS`, an unknown plan or a
+    duplicate key raises :class:`AuthConfigError` instead of silently weakening the demo.
+    """
+    plans = dict(plans or PLANS)
+    clients: dict[str, Client] = {}
+    for item in re.split(r"[\s,;]+", (spec or "").strip()):
+        if not item:
+            continue
+        key, _, plan_name = item.partition(":")
+        key = key.strip()
+        plan_name = plan_name.strip().lower() or "free"
+        if len(key) < MIN_API_KEY_CHARS:
+            raise AuthConfigError(
+                f"API key is shorter than {MIN_API_KEY_CHARS} characters; "
+                "short keys are rejected as trivially guessable")
+        if plan_name not in plans:
+            raise AuthConfigError(
+                f"unknown plan {plan_name!r}; available plans: {', '.join(sorted(plans))}")
+        digest = hashlib.sha256(key.encode("utf-8")).hexdigest()
+        if digest in clients:
+            raise AuthConfigError("the same API key is listed more than once")
+        clients[digest] = Client(key_sha256=digest, client_id=digest[:8], plan=plans[plan_name])
+    return clients
+
+
+@dataclass(frozen=True)
+class AuthSettings:
+    """Immutable auth configuration (disabled by default; the clock is injectable for tests)."""
+
+    enabled: bool = False
+    clients: Mapping[str, Client] = field(default_factory=dict)
+    quota_per_hour: int = DEFAULT_QUOTA_PER_HOUR
+    clock: Callable[[], float] = time.time
+
+    @classmethod
+    def disabled(cls) -> "AuthSettings":
+        return cls(False, {}, DEFAULT_QUOTA_PER_HOUR, time.time)
+
+
+@dataclass(frozen=True)
+class QuotaDecision:
+    allowed: bool
+    limit: int
+    remaining: int
+    reset_seconds: int
+    window_seconds: int = RATE_WINDOW_SECONDS
+
+
+class HourlyQuota:
+    """In-memory fixed-window hourly quota per key (single process; documented limitation)."""
+
+    def __init__(self, quota_per_hour: int, clock: Callable[[], float] = time.time) -> None:
+        self.limit = max(0, int(quota_per_hour))
+        self._clock = clock
+        self._lock = threading.Lock()
+        self._counts: dict[tuple[str, int], int] = {}
+
+    def _bucket(self) -> tuple[int, int]:
+        now = float(self._clock())
+        return int(now // RATE_WINDOW_SECONDS), max(
+            1, int(RATE_WINDOW_SECONDS - (now % RATE_WINDOW_SECONDS)))
+
+    def peek(self, client: Client) -> QuotaDecision:
+        bucket, reset = self._bucket()
+        with self._lock:
+            used = self._counts.get((client.client_id, bucket), 0)
+        return QuotaDecision(used < self.limit, self.limit, max(0, self.limit - used),
+                             reset)
+
+    def consume(self, client: Client) -> QuotaDecision:
+        bucket, reset = self._bucket()
+        with self._lock:
+            if len(self._counts) > 4096:
+                self._counts = {key: value for key, value in self._counts.items()
+                                if key[1] >= bucket}
+            key = (client.client_id, bucket)
+            used = self._counts.get(key, 0)
+            if used >= self.limit:
+                return QuotaDecision(False, self.limit, 0, reset)
+            used += 1
+            self._counts[key] = used
+        return QuotaDecision(True, self.limit, max(0, self.limit - used), reset)
+
+
+def _quota_headers(decision: QuotaDecision, plan_name: str) -> dict[str, str]:
+    return {
+        "X-RateLimit-Limit": str(decision.limit),
+        "X-RateLimit-Remaining": str(decision.remaining),
+        "X-RateLimit-Reset": str(decision.reset_seconds),
+        "X-RateLimit-Window": str(decision.window_seconds),
+        "X-Plan": plan_name,
+    }
+
+
+def _header(headers: Mapping[str, str] | None, name: str) -> str | None:
+    """Case-insensitive header lookup that works with ``dict`` and ``HTTPMessage``."""
+    if not headers:
+        return None
+    try:
+        value = headers.get(name)  # type: ignore[union-attr]
+    except AttributeError:  # pragma: no cover - defensive
+        value = None
+    if value:
+        return str(value)
+    lowered = name.lower()
+    for key, item in headers.items():
+        if str(key).lower() == lowered and item:
+            return str(item)
+    return None
+
+
+def _extract_api_key(headers: Mapping[str, str] | None) -> str | None:
+    """Read ``X-API-Key``/``Api-Key`` or ``Authorization: Bearer``; never the query string."""
+    for name in API_KEY_HEADERS:
+        value = _header(headers, name)
+        if value:
+            return value.strip()
+    authorization = _header(headers, "Authorization")
+    if authorization:
+        scheme, separator, token = authorization.partition(" ")
+        if not separator or scheme.strip().lower() != "bearer" or not token.strip():
+            raise Unauthorized("INVALID_AUTH_SCHEME",
+                               "заголовок Authorization должен быть 'Bearer <key>'")
+        return token.strip()
+    return None
+
+
+def resolve_auth_settings(args: argparse.Namespace,
+                          environ: Mapping[str, str] | None = None) -> AuthSettings:
+    """Build the auth settings from CLI/env; raise :class:`AuthConfigError` (never open silently)."""
+    environ = os.environ if environ is None else environ
+    explicit = getattr(args, "api_keys", None)
+    env_spec = str(environ.get("AMFE_SIM_KEYS") or "")
+    spec = (explicit if explicit is not None else env_spec).strip()
+    enabled = bool(getattr(args, "require_auth", False))
+    quota = int(getattr(args, "quota_per_hour", DEFAULT_QUOTA_PER_HOUR))
+    if not enabled:
+        if explicit is not None and explicit.strip():
+            raise AuthConfigError(
+                "--api-keys is set but --require-auth is off; pass --require-auth or drop the keys")
+        if env_spec.strip():
+            raise AuthConfigError(
+                "AMFE_SIM_KEYS is set but --require-auth is off; pass --require-auth or unset it")
+        return AuthSettings.disabled()
+    if quota < 1:
+        raise AuthConfigError("--quota-per-hour must be a positive integer")
+    if not spec:
+        raise AuthConfigError("--require-auth needs --api-keys or AMFE_SIM_KEYS; refusing to "
+                              "serve without keys")
+    return AuthSettings(True, parse_keys(spec), quota)
+
 
 
 # ---------------------------------------------------------------------------------------- scenarios
@@ -360,11 +588,15 @@ class SimulatorApp:
     """Scenario dispatcher and document builder (stateless per request, deterministic)."""
 
     def __init__(self, geopolitics_artifact: Path | str = DEFAULT_GEOPOLITICS_ARTIFACT,
-                 geopolitics_mode: str = "auto") -> None:
+                 geopolitics_mode: str = "auto",
+                 auth: AuthSettings | None = None) -> None:
         self.geopolitics_artifact = Path(geopolitics_artifact)
         self.geopolitics_mode = str(geopolitics_mode)
         if self.geopolitics_mode not in ("auto", "artifact", "synthetic"):
             raise ValueError("geopolitics_mode must be auto, artifact or synthetic")
+        self.auth = auth or AuthSettings.disabled()
+        self.quota = (HourlyQuota(self.auth.quota_per_hour, self.auth.clock)
+                      if self.auth.enabled else None)
         self._lock = threading.Lock()
         self._artifact_state: dict | None = None
         self._synthetic_cache: dict[str, dict] = {}
@@ -393,6 +625,7 @@ class SimulatorApp:
                 "scenarios": artifact["catalogue"] if artifact else [],
                 "default_scenario": DEFAULT_GEOPOLITICS_SCENARIO,
             },
+            "auth": self._auth_summary(),
             "checks": {
                 "oil_module": True,
                 "gas_module": True,
@@ -436,6 +669,32 @@ class SimulatorApp:
 
     def page(self) -> str:
         return PAGE_HTML.replace("__VERSION__", TOOL_VERSION)
+
+    def _auth_summary(self) -> dict:
+        """Public auth metadata: no keys, no digests, only modes and limits."""
+        if not self.auth.enabled:
+            return {
+                "required": False,
+                "header": "X-API-Key",
+                "alternative": "Authorization: Bearer <key>",
+                "plans": [],
+                "quota_per_hour": None,
+                "public_paths": ["/", "/api/health"],
+                "note": "локальное демо без аутентификации; для пилота используйте docs/183",
+            }
+        plans = [{"name": plan.name, "can_run": plan.can_run, "description": plan.description}
+                 for plan in PLANS.values() if any(client.plan.name == plan.name
+                                                   for client in self.auth.clients.values())]
+        return {
+            "required": True,
+            "header": "X-API-Key",
+            "alternative": "Authorization: Bearer <key>",
+            "plans": plans,
+            "quota_per_hour": self.auth.quota_per_hour,
+            "public_paths": ["/", "/api/health"],
+            "note": ("ключи хранятся только как SHA-256; квоты — фиксированное окно в памяти "
+                     "процесса; это не замена docs/183"),
+        }
 
     # -- parameter handling -----------------------------------------------------------------
     def _scenario_description(self, spec: Mapping) -> dict:
@@ -1184,24 +1443,81 @@ class SimulatorApp:
         return sorted(dict.fromkeys(codes))
 
     # -- HTTP -------------------------------------------------------------------------------
-    def dispatch(self, method: str, target: str, body: bytes) -> Response:
+    def dispatch(self, method: str, target: str, body: bytes,
+                 headers: Mapping[str, str] | None = None) -> Response:
         if len(target) > MAX_TARGET_CHARS:
             return self._error_response(BadRequest("TARGET_TOO_LONG",
                                                    "слишком длинный запрос"))
         path = (urlsplit(target).path or "/").rstrip("/") or "/"
         try:
-            if method in ("GET", "HEAD"):
-                return self._handle_get(path)
             if method == "OPTIONS":
                 return Response(204, b"", "text/plain; charset=utf-8",
                                 (("Allow", "GET, HEAD, POST, OPTIONS"),))
-            if method == "POST":
+            auth_headers: dict[str, str] = {}
+            if self.auth.enabled and path not in PUBLIC_PATHS:
+                auth_headers = self._authorize(method, path, headers)
+            if method in ("GET", "HEAD"):
+                response = self._handle_get(path)
+            elif method == "POST":
                 if path != "/api/run":
                     raise NotFound("NOT_FOUND", f"нет такого ресурса: {path}")
-                return self._json(200, self.run(self._parse_body(body)))
-            raise BadRequest("METHOD_NOT_ALLOWED", f"метод {method} не поддерживается")
+                response = self._json(200, self.run(self._parse_body(body)))
+            else:
+                raise BadRequest("METHOD_NOT_ALLOWED", f"метод {method} не поддерживается")
+            return self._with_headers(response, auth_headers)
         except SimulatorError as error:
             return self._error_response(error)
+
+    def _authorize(self, method: str, path: str,
+                   headers: Mapping[str, str] | None) -> dict[str, str]:
+        """Authenticate, check the plan and consume one quota unit (headers on success)."""
+        client = self._authenticate(headers)
+        if path == "/api/run" and method == "POST" and not client.plan.can_run:
+            decision = self.quota.peek(client)  # type: ignore[union-attr]
+            quota_headers = _quota_headers(decision, client.plan.name)
+            raise Forbidden(
+                "PLAN_FORBIDDEN",
+                f"план {client.plan.name!r} не позволяет запускать сценарии",
+                {"plan": client.plan.name, "required_scope": "run",
+                 "allowed_plans": [plan.name for plan in PLANS.values() if plan.can_run]},
+                headers=quota_headers)
+        decision = self.quota.consume(client)  # type: ignore[union-attr]
+        quota_headers = _quota_headers(decision, client.plan.name)
+        if not decision.allowed:
+            raise RateLimited(
+                "RATE_LIMITED",
+                f"квота {decision.limit} запросов в час для этого ключа исчерпана",
+                decision.reset_seconds,
+                {"plan": client.plan.name, "quota_per_hour": decision.limit,
+                 "retry_after_seconds": decision.reset_seconds,
+                 "window_seconds": decision.window_seconds},
+                headers=quota_headers)
+        LOGGER.info("auth ok client=%s plan=%s remaining=%s", client.client_id,
+                    client.plan.name, decision.remaining)
+        return quota_headers
+
+    def _authenticate(self, headers: Mapping[str, str] | None) -> Client:
+        token = _extract_api_key(headers)
+        if not token:
+            LOGGER.warning("auth rejected: missing API key")
+            raise Unauthorized("MISSING_API_KEY",
+                               "нужен ключ в X-API-Key или Authorization: Bearer")
+        digest = hashlib.sha256(token.encode("utf-8")).hexdigest()
+        found: Client | None = None
+        for known, client in self.auth.clients.items():
+            if hmac.compare_digest(digest, known):
+                found = client
+        if found is None:
+            LOGGER.warning("auth rejected: invalid API key")
+            raise Unauthorized("INVALID_API_KEY", "ключ недействителен")
+        return found
+
+    @staticmethod
+    def _with_headers(response: Response, extra: Mapping[str, str]) -> Response:
+        if not extra:
+            return response
+        return Response(response.status, response.payload, response.content_type,
+                        tuple(response.headers) + tuple(extra.items()))
 
     def _handle_get(self, path: str) -> Response:
         if path in ("/", "/index.html"):
@@ -1289,7 +1605,7 @@ class SimulatorHandler(BaseHTTPRequestHandler):
         except (TypeError, ValueError):
             length = 0
         body = self.rfile.read(min(max(length, 0), MAX_BODY_BYTES + 1)) if length else b""
-        response = app.dispatch(method, self.path, body)
+        response = app.dispatch(method, self.path, body, headers=self.headers)
         payload = response.payload
         if isinstance(payload, (dict, list)):
             data = json.dumps(payload, ensure_ascii=False, sort_keys=True,
@@ -1457,6 +1773,11 @@ font-size:12px}
           <select id="country"></select>
           <div class="help">для страновых эффектов; где модель их не считает — честная пометка</div>
         </div>
+        <div id="auth-wrap" hidden>
+          <label for="api-key">API-ключ (режим --require-auth)</label>
+          <input id="api-key" type="password" autocomplete="off" spellcheck="false">
+          <div class="help">уходит только в заголовке X-API-Key, не сохраняется</div>
+        </div>
         <div id="geo-wrap" hidden>
           <label for="geo_scenario">Геополитический сценарий</label>
           <select id="geo_scenario"></select>
@@ -1574,6 +1895,7 @@ async function loadHealth() {
     option.value = health.geopolitics.default_scenario;
     geo.appendChild(option);
   }
+  $("auth-wrap").hidden = !(health.auth && health.auth.required);
   applyScenario();
 }
 
@@ -1610,11 +1932,14 @@ async function runScenario(event) {
   if ((spec.params || {}).price) payload.price = Number($("price").value);
   if ((spec.params || {}).shock) payload.shock = Number($("shock").value);
   if (spec.family === "geopolitics") payload.geo_scenario = $("geo_scenario").value;
+  const headers = {"Content-Type": "application/json"};
+  const apiKey = ($("api-key").value || "").trim();
+  if (apiKey) headers["X-API-Key"] = apiKey;
   $("run").disabled = true;
   setStatus("считаю…", false);
   try {
     const response = await fetch("/api/run", {
-      method: "POST", headers: {"Content-Type": "application/json"},
+      method: "POST", headers: headers,
       body: JSON.stringify(payload)
     });
     const document_ = await response.json();
@@ -1955,6 +2280,13 @@ def build_parser() -> argparse.ArgumentParser:
                         help="source of the geopolitics scenario (default auto)")
     parser.add_argument("--geopolitics-artifact", default=str(DEFAULT_GEOPOLITICS_ARTIFACT),
                         help="precomputed geopolitics report (default build/geopolitics/report.json)")
+    parser.add_argument("--require-auth", action="store_true",
+                        help="require an API key for everything except / and /api/health")
+    parser.add_argument("--api-keys", default=None,
+                        help="key[:plan],... (free|pro|internal); env AMFE_SIM_KEYS also works")
+    parser.add_argument("--quota-per-hour", type=int, default=DEFAULT_QUOTA_PER_HOUR,
+                        help=f"per-key hourly quota in --require-auth mode "
+                             f"(default {DEFAULT_QUOTA_PER_HOUR})")
     parser.add_argument("--check", action="store_true",
                         help="print diagnostics and exit without starting the server")
     parser.add_argument("--quiet", action="store_true", help="log warnings only")
@@ -1979,8 +2311,14 @@ def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(level=logging.WARNING if args.quiet else logging.INFO,
                         format="%(asctime)s %(levelname)s %(name)s %(message)s")
     try:
+        auth = resolve_auth_settings(args)
+    except AuthConfigError as error:
+        print(json.dumps({"status": "BLOCKED_CONFIG", "error": str(error)}, ensure_ascii=True),
+              file=sys.stderr)
+        return 2
+    try:
         app = SimulatorApp(geopolitics_artifact=Path(args.geopolitics_artifact),
-                           geopolitics_mode=args.geopolitics)
+                           geopolitics_mode=args.geopolitics, auth=auth)
         health = app.health()
     except (ValueError, Unavailable) as error:
         print(json.dumps({"status": "BLOCKED", "error": str(error)}, ensure_ascii=True),
@@ -1994,6 +2332,8 @@ def main(argv: list[str] | None = None) -> int:
     print(json.dumps({"status": STATUS, "url": f"http://{host}:{port}", "schema": SCHEMA,
                       "version": TOOL_VERSION,
                       "geopolitics": args.geopolitics,
+                      "auth": auth.enabled,
+                      "quota_per_hour": auth.quota_per_hour if auth.enabled else None,
                       "artifact": health["geopolitics"]["artifact"]["available"]},
                      ensure_ascii=True), flush=True)
     if not health["geopolitics"]["artifact"]["available"]:

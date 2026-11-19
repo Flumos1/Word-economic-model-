@@ -7,8 +7,11 @@ RESEARCH_ONLY translation of the existing models, so the tests must not freeze m
 """
 from __future__ import annotations
 
+import contextlib
 import http.client
+import io
 import json
+import logging
 import sys
 import tempfile
 import threading
@@ -23,6 +26,19 @@ import simulator_ui as sim  # noqa: E402
 
 ARTIFACT = ROOT / "build" / "geopolitics" / "report.json"
 HORMUZ = {"scenario": "hormuz_base", "price": 75.0, "shock": 100.0, "country": "US"}
+FREE_KEY = "free_key_0001"
+PRO_KEY = "pro_key_000001"
+KEYS = f"{FREE_KEY}:free,{PRO_KEY}:pro"
+RUN_BODY = json.dumps(HORMUZ).encode("utf-8")
+
+
+def auth_app(quota: int = 3, keys: str = KEYS, clock=None) -> sim.SimulatorApp:
+    settings = sim.AuthSettings(True, sim.parse_keys(keys), quota, clock or (lambda: 0.0))
+    return sim.SimulatorApp(geopolitics_artifact=ARTIFACT, auth=settings)
+
+
+def header_map(response: sim.Response) -> dict:
+    return {name: value for name, value in response.headers}
 
 
 def payload_of(response: sim.Response) -> dict:
@@ -386,6 +402,253 @@ class HttpServer(unittest.TestCase):
             self.assertIn("params", item)
             self.assertIn("id", item)
             self.assertIn("family", item)
+
+
+class Authentication(unittest.TestCase):
+    """Optional auth mode: 401/403/429, open health/page, independent per-key quotas."""
+
+    def test_auth_is_disabled_by_default(self):
+        app = sim.SimulatorApp(geopolitics_artifact=ARTIFACT)
+        response = app.dispatch("POST", "/api/run", RUN_BODY)
+        self.assertEqual(response.status, 200)
+        self.assertFalse(app.health()["auth"]["required"])
+        self.assertIsNone(app.health()["auth"]["quota_per_hour"])
+
+    def test_health_and_page_are_public_without_a_key(self):
+        app = auth_app()
+        self.assertEqual(app.dispatch("GET", "/", b"").status, 200)
+        response = app.dispatch("GET", "/api/health", b"")
+        self.assertEqual(response.status, 200)
+        health = response.payload
+        self.assertTrue(health["auth"]["required"])
+        self.assertEqual(health["auth"]["quota_per_hour"], 3)
+        self.assertEqual(health["status"], "RESEARCH_ONLY")
+        self.assertIs(health["admission"], False)
+
+    def test_run_without_key_is_401(self):
+        response = auth_app().dispatch("POST", "/api/run", RUN_BODY)
+        self.assertEqual(response.status, 401)
+        self.assertEqual(response.payload["code"], "MISSING_API_KEY")
+        self.assertEqual(response.payload["research_status"], "RESEARCH_ONLY")
+        self.assertIs(response.payload["admission"], False)
+        self.assertIn("ApiKey", header_map(response)["WWW-Authenticate"])
+
+    def test_unknown_key_and_bad_scheme_are_401(self):
+        app = auth_app()
+        invalid = app.dispatch("POST", "/api/run", RUN_BODY,
+                               headers={"X-API-Key": "not_a_known_key"})
+        self.assertEqual(invalid.status, 401)
+        self.assertEqual(invalid.payload["code"], "INVALID_API_KEY")
+        scheme = app.dispatch("POST", "/api/run", RUN_BODY,
+                              headers={"Authorization": "Basic abcdefgh"})
+        self.assertEqual(scheme.status, 401)
+        self.assertEqual(scheme.payload["code"], "INVALID_AUTH_SCHEME")
+
+    def test_x_api_key_and_bearer_both_work(self):
+        app = auth_app()
+        first = app.dispatch("POST", "/api/run", RUN_BODY, headers={"X-API-Key": PRO_KEY})
+        second = app.dispatch("POST", "/api/run", RUN_BODY,
+                              headers={"Authorization": f"Bearer {PRO_KEY}"})
+        self.assertEqual(first.status, 200)
+        self.assertEqual(second.status, 200)
+        self.assertEqual(first.payload["digest"], second.payload["digest"])
+        self.assertEqual(header_map(first)["X-Plan"], "pro")
+        self.assertEqual(header_map(first)["X-RateLimit-Limit"], "3")
+        self.assertEqual(header_map(first)["X-RateLimit-Remaining"], "2")
+        self.assertGreater(int(header_map(first)["X-RateLimit-Reset"]), 0)
+
+    def test_free_plan_cannot_run_but_can_read_the_catalogue(self):
+        app = auth_app()
+        forbidden = app.dispatch("POST", "/api/run", RUN_BODY,
+                                 headers={"X-API-Key": FREE_KEY})
+        self.assertEqual(forbidden.status, 403)
+        self.assertEqual(forbidden.payload["code"], "PLAN_FORBIDDEN")
+        self.assertEqual(forbidden.payload["details"]["plan"], "free")
+        self.assertIn("pro", forbidden.payload["details"]["allowed_plans"])
+        self.assertEqual(header_map(forbidden)["X-Plan"], "free")
+        catalogue = app.dispatch("GET", "/api/scenarios", b"",
+                                 headers={"X-API-Key": FREE_KEY})
+        self.assertEqual(catalogue.status, 200)
+        self.assertEqual(catalogue.payload["kind"], "scenarios")
+
+    def test_protected_routes_require_a_key(self):
+        app = auth_app()
+        self.assertEqual(app.dispatch("GET", "/api/scenarios", b"").status, 401)
+        self.assertEqual(app.dispatch("GET", "/nope", b"").status, 401)
+        self.assertEqual(app.dispatch("OPTIONS", "/api/run", b"").status, 204)
+
+    def test_quota_exceeded_is_429_with_headers(self):
+        app = auth_app(quota=2)
+        for _ in range(2):
+            self.assertEqual(app.dispatch("POST", "/api/run", RUN_BODY,
+                                          headers={"X-API-Key": PRO_KEY}).status, 200)
+        limited = app.dispatch("POST", "/api/run", RUN_BODY, headers={"X-API-Key": PRO_KEY})
+        self.assertEqual(limited.status, 429)
+        self.assertEqual(limited.payload["code"], "RATE_LIMITED")
+        headers = header_map(limited)
+        self.assertEqual(headers["X-RateLimit-Limit"], "2")
+        self.assertEqual(headers["X-RateLimit-Remaining"], "0")
+        self.assertGreaterEqual(int(headers["Retry-After"]), 1)
+        self.assertEqual(headers["X-Plan"], "pro")
+        self.assertEqual(limited.payload["details"]["quota_per_hour"], 2)
+
+    def test_two_keys_have_independent_counters(self):
+        app = auth_app(quota=1)
+        self.assertEqual(app.dispatch("GET", "/api/scenarios", b"",
+                                      headers={"X-API-Key": PRO_KEY}).status, 200)
+        self.assertEqual(app.dispatch("GET", "/api/scenarios", b"",
+                                      headers={"X-API-Key": PRO_KEY}).status, 429)
+        self.assertEqual(app.dispatch("GET", "/api/scenarios", b"",
+                                      headers={"X-API-Key": FREE_KEY}).status, 200)
+
+    def test_quota_recovers_after_the_window(self):
+        now = [0.0]
+        app = auth_app(quota=1, clock=lambda: now[0])
+        self.assertEqual(app.dispatch("GET", "/api/scenarios", b"",
+                                      headers={"X-API-Key": PRO_KEY}).status, 200)
+        self.assertEqual(app.dispatch("GET", "/api/scenarios", b"",
+                                      headers={"X-API-Key": PRO_KEY}).status, 429)
+        now[0] += sim.RATE_WINDOW_SECONDS
+        recovered = app.dispatch("GET", "/api/scenarios", b"",
+                                 headers={"X-API-Key": PRO_KEY})
+        self.assertEqual(recovered.status, 200)
+        self.assertEqual(header_map(recovered)["X-RateLimit-Remaining"], "0")
+
+    def test_counter_does_not_grow_on_rejection(self):
+        now = [0.0]
+        app = auth_app(quota=1, clock=lambda: now[0])
+        self.assertEqual(app.dispatch("GET", "/api/scenarios", b"",
+                                      headers={"X-API-Key": PRO_KEY}).status, 200)
+        for _ in range(3):
+            self.assertEqual(app.dispatch("GET", "/api/scenarios", b"",
+                                          headers={"X-API-Key": PRO_KEY}).status, 429)
+        now[0] += 1.0  # same fixed window
+        self.assertEqual(app.dispatch("GET", "/api/scenarios", b"",
+                                      headers={"X-API-Key": PRO_KEY}).status, 429)
+
+    def test_keys_are_not_logged_or_echoed(self):
+        app = auth_app()
+        with self.assertLogs("amfe.simulator_ui", level="INFO") as captured:
+            response = app.dispatch("POST", "/api/run", RUN_BODY,
+                                    headers={"X-API-Key": PRO_KEY})
+        logs = "\n".join(captured.output)
+        payload = json.dumps(response.payload, ensure_ascii=False)
+        self.assertNotIn(PRO_KEY, logs)
+        self.assertNotIn(PRO_KEY, payload)
+        self.assertIn("client=", logs)
+        with self.assertLogs("amfe.simulator_ui", level="WARNING") as failed:
+            app.dispatch("POST", "/api/run", RUN_BODY,
+                         headers={"X-API-Key": "another_unknown_key"})
+        self.assertNotIn("another_unknown_key", "\n".join(failed.output))
+
+
+class AuthConfiguration(unittest.TestCase):
+    """Fail-closed CLI configuration: no keys, unknown plans, short keys, bad quotas."""
+
+    def settings(self, *argv, environ=None):
+        args = sim.build_parser().parse_args(list(argv))
+        return sim.resolve_auth_settings(args, environ={} if environ is None else environ)
+
+    def test_require_auth_without_keys_is_rejected(self):
+        with self.assertRaises(sim.AuthConfigError):
+            self.settings("--require-auth")
+        with self.assertRaises(sim.AuthConfigError):
+            self.settings("--require-auth", environ={"AMFE_SIM_KEYS": ""})
+
+    def test_keys_without_require_auth_are_rejected(self):
+        with self.assertRaises(sim.AuthConfigError):
+            self.settings("--api-keys", KEYS)
+        with self.assertRaises(sim.AuthConfigError):
+            self.settings(environ={"AMFE_SIM_KEYS": KEYS})
+
+    def test_env_keys_work_with_the_flag(self):
+        settings = self.settings("--require-auth", environ={"AMFE_SIM_KEYS": KEYS})
+        self.assertTrue(settings.enabled)
+        self.assertEqual(len(settings.clients), 2)
+        self.assertEqual(settings.quota_per_hour, sim.DEFAULT_QUOTA_PER_HOUR)
+
+    def test_bad_keys_and_plans_are_rejected(self):
+        cases = ("short:pro", f"{PRO_KEY}:unknown", f"{PRO_KEY}:pro,{PRO_KEY}:free")
+        for spec in cases:
+            with self.assertRaises(sim.AuthConfigError, msg=spec):
+                sim.parse_keys(spec)
+
+    def test_quota_must_be_positive(self):
+        with self.assertRaises(sim.AuthConfigError):
+            self.settings("--require-auth", "--api-keys", KEYS, "--quota-per-hour", "0")
+
+    def test_check_reports_auth_without_keys(self):
+        buffer = io.StringIO()
+        with contextlib.redirect_stdout(buffer):
+            code = sim.main(["--check", "--require-auth", "--api-keys", KEYS])
+        self.assertEqual(code, 0)
+        output = buffer.getvalue()
+        self.assertNotIn(PRO_KEY, output)
+        self.assertNotIn(FREE_KEY, output)
+        health = json.loads(output)
+        self.assertTrue(health["auth"]["required"])
+        self.assertEqual(health["auth"]["plans"][0]["name"], "free")
+
+    def test_bad_config_exits_two(self):
+        stderr = io.StringIO()
+        with contextlib.redirect_stderr(stderr):
+            code = sim.main(["--check", "--require-auth"])
+        self.assertEqual(code, 2)
+        self.assertEqual(json.loads(stderr.getvalue())["status"], "BLOCKED_CONFIG")
+
+
+class AuthHttp(unittest.TestCase):
+    """The same auth mode through the real ``http.server`` adapter."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.app = auth_app(quota=2)
+        cls.server = sim.create_server(cls.app, "127.0.0.1", 0)
+        cls.thread = threading.Thread(target=cls.server.serve_forever,
+                                      kwargs={"poll_interval": 0.05}, daemon=True)
+        cls.thread.start()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.server.shutdown()
+        cls.server.server_close()
+        cls.thread.join(5)
+
+    def request(self, method: str, path: str, body: bytes | None = None, headers=None):
+        host, port = self.server.server_address[:2]
+        connection = http.client.HTTPConnection(host, port, timeout=15)
+        try:
+            connection.request(method, path, body=body, headers=headers or {})
+            response = connection.getresponse()
+            return response, response.read()
+        finally:
+            connection.close()
+
+    def test_health_is_public_and_run_needs_the_header(self):
+        response, _ = self.request("GET", "/api/health")
+        self.assertEqual(response.status, 200)
+
+        response, _ = self.request("POST", "/api/run", body=RUN_BODY)
+        self.assertEqual(response.status, 401)
+        self.assertIn("ApiKey", response.getheader("WWW-Authenticate"))
+
+        response, payload = self.request("POST", "/api/run", body=RUN_BODY,
+                                         headers={"X-API-Key": PRO_KEY})
+        self.assertEqual(response.status, 200)
+        self.assertEqual(json.loads(payload)["status"], "RESEARCH_ONLY")
+        self.assertEqual(response.getheader("X-Plan"), "pro")
+        self.assertEqual(response.getheader("X-RateLimit-Limit"), "2")
+
+    def test_quota_is_enforced_over_http(self):
+        for _ in range(2):
+            response, _ = self.request("GET", "/api/scenarios",
+                                       headers={"X-API-Key": FREE_KEY})
+            self.assertEqual(response.status, 200)
+        response, payload = self.request("GET", "/api/scenarios",
+                                         headers={"X-API-Key": FREE_KEY})
+        self.assertEqual(response.status, 429)
+        self.assertEqual(json.loads(payload)["code"], "RATE_LIMITED")
+        self.assertGreaterEqual(int(response.getheader("Retry-After")), 1)
 
 
 if __name__ == "__main__":

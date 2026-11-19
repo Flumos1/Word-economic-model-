@@ -7,9 +7,12 @@ copied (or counted) — nothing is re-estimated, invented or scraped:
 * ``build/product/forecast_latest.json`` — the product feed of the scored candidate
   (status CANDIDATE / RESEARCH_ONLY; no admission is ever claimed);
 * ``build/registry/modules.jsonl`` — the append-only module registry with RESEARCH_ONLY passports;
-* ``build/api/index.json``, ``build/api/scenarios/oil.brent__<scenario>.json`` and
-  ``build/api/forecasts/oil_brent.json`` — the static forecast-API slice and one market scenario
-  (``hormuz_closed_6m`` by default).
+* ``build/api/index.json`` and **every forecast contract it lists** (``forecasts/oil_brent.json``,
+  ``forecasts/gas_ttf.json``, …) plus one market scenario (``hormuz_closed_6m`` by default).
+
+Counts (passports, market modules, scenario, forecasts) are **read from the registry and the API
+index**, never hard-coded: the 5-passport / 1-market-module v1 layout still builds, while a v2 index
+with 7 passports and 2 market modules (oil + gas) is aggregated as-is.
 
 Outputs: DOCX executive summary / methodology / licence, XLSX numbers, a static HTML dashboard, a
 machine-readable JSON, a reproducibility manifest and a README. The build is fail-closed: if any
@@ -75,9 +78,10 @@ INPUT_PATHS = {
     "product_feed": "product/forecast_latest.json",
     "registry": "registry/modules.jsonl",
     "api_index": "api/index.json",
-    "api_forecast": "api/forecasts/oil_brent.json",
 }
 SCENARIO_PATH = "api/scenarios/oil.brent__{scenario}.json"
+DEFAULT_FORECAST_TARGET = "oil_brent"
+LEGACY_FORECAST_PATH = "forecasts/oil_brent.json"
 MODULE_FIELDS = ("module_id", "display_name", "version", "kind", "status", "owner", "summary",
                  "limitations", "code_sha256", "data_sha256", "data_status", "components",
                  "entrypoints", "docs", "tests", "created_at")
@@ -192,13 +196,71 @@ def _normalise_office_zip(path: Path, moment: datetime) -> None:
 
 
 # ----------------------------------------------------------------------------------------- inputs
+def _forecast_path(inputs_root: Path, relative) -> Path:
+    """Resolve ``api/<file>`` from the index, refusing absolute and parent-traversal paths."""
+    rel = Path(str(relative))
+    if rel.is_absolute() or ".." in rel.parts or not rel.parts:
+        raise ClientPackError(f"forecast: unsafe file path {relative!r}")
+    return Path(inputs_root) / "api" / rel
+
+
+def _forecast_specs(index: dict, inputs_root: Path) -> list[dict]:
+    """Every forecast contract listed by the API index; legacy oil fallback keeps v1 working."""
+    specs: list[dict] = []
+    seen: set[str] = set()
+    for item in index.get("forecasts") or []:
+        if not isinstance(item, dict):
+            raise ClientPackError("api_index: forecasts[] contains a non-object entry")
+        target, file = item.get("target"), item.get("file")
+        if not target or not file:
+            raise ClientPackError("api_index: every forecast needs target and file")
+        if str(target) in seen:
+            raise ClientPackError(f"api_index: duplicate forecast target {target!r}")
+        seen.add(str(target))
+        specs.append(dict(item))
+    if DEFAULT_FORECAST_TARGET not in seen:
+        legacy = Path(inputs_root) / "api" / LEGACY_FORECAST_PATH
+        if legacy.is_file():
+            specs.append({"target": DEFAULT_FORECAST_TARGET, "module_id": "oil.brent",
+                          "file": LEGACY_FORECAST_PATH, "units": "USD/bbl",
+                          "status": STATUS})
+    if not specs:
+        raise ClientPackError("api_index: no forecast contracts (forecasts[] is empty)")
+    return specs
+
+
+def _validate_index_counts(index: dict) -> None:
+    """Declared ``counts`` must agree with the listed sections (fail-closed, no silent drift)."""
+    counts = index.get("counts") or {}
+    for section in ("modules", "scenarios", "forecasts", "market_modules"):
+        items = index.get(section)
+        if items is None:
+            continue
+        if not isinstance(items, list):
+            raise ClientPackError(f"api_index: {section!r} is not a list")
+        declared = counts.get(section)
+        if declared is not None and int(declared) != len(items):
+            raise ClientPackError(
+                f"api_index: counts.{section}={declared} but {section}[] has {len(items)} entries")
+
+
+def _validate_forecast(document: dict, spec: dict) -> None:
+    if document.get("status") != STATUS:
+        raise ClientPackError(f"forecast {spec.get('target')!r}: status is "
+                              f"{document.get('status')!r}, expected {STATUS!r}")
+    if not isinstance(document.get("envelope"), dict):
+        raise ClientPackError(f"forecast {spec.get('target')!r}: envelope is missing")
+    if not document.get("module_id"):
+        raise ClientPackError(f"forecast {spec.get('target')!r}: module_id is missing")
+
+
 def load_inputs(inputs_root: Path, scenario_id: str, root: Path) -> dict:
     """Load and validate every artefact; raises ClientPackError (fail-closed) on any problem."""
     inputs_root = Path(inputs_root)
     paths = {key: inputs_root / relative for key, relative in INPUT_PATHS.items()}
     paths["scenario"] = inputs_root / SCENARIO_PATH.format(scenario=scenario_id)
     documents = {}
-    for key in ("product_feed", "api_index", "api_forecast", "scenario"):
+    for key in ("product_feed", "api_index", "scenario"):
         documents[key] = _read_json(paths[key], key)
     documents["registry"] = _read_jsonl(paths["registry"], "registry")
 
@@ -214,6 +276,29 @@ def load_inputs(inputs_root: Path, scenario_id: str, root: Path) -> dict:
     for key in ("modules", "endpoints", "scenarios", "forecasts"):
         if not index.get(key):
             raise ClientPackError(f"api_index: empty {key!r} section")
+    _validate_index_counts(index)
+
+    forecasts: dict[str, dict] = {}
+    forecast_paths: dict[str, Path] = {}
+    forecast_specs: dict[str, dict] = {}
+    for spec in _forecast_specs(index, inputs_root):
+        target = str(spec["target"])
+        path = _forecast_path(inputs_root, spec["file"])
+        document = _read_json(path, f"forecast:{target}")
+        _validate_forecast(document, spec)
+        forecasts[target] = document
+        forecast_paths[target] = path
+        forecast_specs[target] = spec
+    documents["forecasts"] = forecasts
+    documents["forecast_paths"] = forecast_paths
+    documents["forecast_specs"] = forecast_specs
+    # Legacy key: the oil contract when present, otherwise the first published contract.
+    documents["api_forecast"] = forecasts.get(DEFAULT_FORECAST_TARGET) or next(iter(forecasts.values()))
+    documents["paths"] = paths
+    documents["inputs_root"] = inputs_root
+    documents["root"] = root
+    documents["scenario_id"] = scenario_id
+
     scenario = documents["scenario"]
     if scenario.get("status") != STATUS:
         raise ClientPackError(f"scenario: status is {scenario.get('status')!r}, expected {STATUS!r}")
@@ -230,10 +315,6 @@ def load_inputs(inputs_root: Path, scenario_id: str, root: Path) -> dict:
         raise ClientPackError(f"api_forecast: status is {forecast.get('status')!r}, expected {STATUS!r}")
     if not isinstance(forecast.get("envelope"), dict):
         raise ClientPackError("api_forecast: envelope is missing")
-    documents["paths"] = paths
-    documents["inputs_root"] = inputs_root
-    documents["root"] = root
-    documents["scenario_id"] = scenario_id
     return documents
 
 
@@ -283,7 +364,7 @@ def latest_passports(entries: list) -> list:
 def _default_generated_at(documents: dict) -> str:
     candidates = []
     for document in (documents["product_feed"], documents["api_index"],
-                     documents["api_forecast"], documents["scenario"]):
+                     documents["scenario"], *documents["forecasts"].values()):
         value = document.get("generated_at")
         if value:
             _parse_timestamp(value, "input generated_at")
@@ -298,6 +379,49 @@ def _default_generated_at(documents: dict) -> str:
 
 
 # ------------------------------------------------------------------------------------- aggregate
+def _forecast_item(target: str, spec: dict, document: dict) -> dict:
+    """One published forecast contract, reduced to its aggregate envelope (no raw series)."""
+    envelope = document.get("envelope") or {}
+    return {
+        "target": target,
+        "file": spec.get("file"),
+        "module_id": spec.get("module_id") or document.get("module_id"),
+        "module_version": spec.get("module_version"),
+        "commodity": spec.get("commodity"),
+        "units": spec.get("units"),
+        "status": document.get("status"),
+        "no_point_forecast": document.get("no_point_forecast"),
+        "result_digest": document.get("result_digest"),
+        "assumptions_count": document.get("assumptions_count"),
+        "price_peak": envelope.get("price_peak"),
+        "price_mean": envelope.get("price_mean"),
+        "price_trough": envelope.get("price_trough"),
+        "price_peak_month": envelope.get("price_peak_month"),
+        "range_peak": envelope.get("range_peak"),
+        "interval": envelope.get("interval"),
+        "checks": envelope.get("checks") or {},
+    }
+
+
+def _market_module_item(item: dict) -> dict:
+    return {
+        "module_id": item.get("module_id"),
+        "module_version": item.get("module_version"),
+        "commodity": item.get("commodity"),
+        "default_scenario": item.get("default_scenario"),
+        "forecast_target": item.get("forecast_target"),
+        "status": item.get("status"),
+        "units": item.get("units"),
+        "scenarios": len(item.get("scenarios") or []),
+    }
+
+
+def _legacy_forecast_path(inputs: dict, forecast: dict) -> Path:
+    target = str(forecast.get("target") or DEFAULT_FORECAST_TARGET)
+    path = inputs["forecast_paths"].get(target)
+    return path if path is not None else next(iter(inputs["forecast_paths"].values()))
+
+
 def build_document(inputs: dict, client: str, generated_at: str) -> dict:
     feed = inputs["product_feed"]
     registry = latest_passports(inputs["registry"])
@@ -312,6 +436,11 @@ def build_document(inputs: dict, client: str, generated_at: str) -> dict:
     for entry in registry:
         by_status[entry["status"]] = by_status.get(entry["status"], 0) + 1
         by_kind[entry["kind"]] = by_kind.get(entry["kind"], 0) + 1
+    market_modules = list(index.get("market_modules") or [])
+    forecast_items = [_forecast_item(target, inputs["forecast_specs"][target],
+                                     inputs["forecasts"][target])
+                      for target in sorted(inputs["forecasts"])]
+    market_module_items = [_market_module_item(item) for item in market_modules]
     scenario_peak = summary.get("price_peak", envelope.get("price_peak"))
     scenario_mean = summary.get("price_mean", envelope.get("price_mean"))
     document = {
@@ -346,7 +475,11 @@ def build_document(inputs: dict, client: str, generated_at: str) -> dict:
             "api_version": index.get("api_version"),
             "api_modules": len(index.get("modules") or []),
             "api_endpoints": len(index.get("endpoints") or []),
-            "sources": len(inputs["paths"]),
+            "market_modules": len(market_modules),
+            "market_module_ids": [item.get("module_id") for item in market_modules],
+            "forecasts": len(forecast_items),
+            "forecast_targets": [item["target"] for item in forecast_items],
+            "sources": len(inputs["paths"]) + len(inputs["forecasts"]),
         },
         "product_feed": {
             "source": _repo_path(inputs["root"], inputs["paths"]["product_feed"]),
@@ -395,6 +528,20 @@ def build_document(inputs: dict, client: str, generated_at: str) -> dict:
             "by_kind": by_kind,
             "items": [{field: entry.get(field) for field in MODULE_FIELDS} for entry in registry],
         },
+        "market_modules": {
+            "source": _repo_path(inputs["root"], inputs["paths"]["api_index"]),
+            "count": len(market_module_items),
+            "items": market_module_items,
+            "note": ("market modules are read from api/index.json (market_modules[]); the count is "
+                     "never hard-coded, so a 1-module v1 index and a 2-module v2 index both build"),
+        },
+        "forecasts": {
+            "source": _repo_path(inputs["root"], inputs["paths"]["api_index"]),
+            "count": len(forecast_items),
+            "items": forecast_items,
+            "note": ("every forecast contract listed by api/index.json is included; the gas "
+                     "contract (gas_ttf) is a v2 addition and does not replace the oil contract"),
+        },
         "market_scenario": {
             "source": _repo_path(inputs["root"], inputs["paths"]["scenario"]),
             "scenario_id": result.get("scenario_id"),
@@ -431,8 +578,10 @@ def build_document(inputs: dict, client: str, generated_at: str) -> dict:
             "scenarios": [{"id": item.get("id"), "module": item.get("module"),
                            "horizon_months": item.get("horizon_months")}
                           for item in index.get("scenarios") or []],
+            "market_modules": market_module_items,
+            "forecasts": forecast_items,
             "forecast": {
-                "source": _repo_path(inputs["root"], inputs["paths"]["api_forecast"]),
+                "source": _repo_path(inputs["root"], _legacy_forecast_path(inputs, forecast)),
                 "target": forecast.get("target"),
                 "module_id": forecast.get("module_id"),
                 "status": forecast.get("status"),
@@ -449,17 +598,21 @@ def build_document(inputs: dict, client: str, generated_at: str) -> dict:
         "licence": dict(LICENCE),
         "sources": [],
     }
-    for key in ("product_feed", "registry", "api_index", "scenario", "api_forecast"):
-        path = inputs["paths"][key]
-        document["sources"].append({"kind": key, "path": _repo_path(inputs["root"], path),
+    source_paths = [(key, inputs["paths"][key])
+                    for key in ("product_feed", "registry", "api_index", "scenario")]
+    source_paths += [(f"forecast:{target}", inputs["forecast_paths"][target])
+                     for target in sorted(inputs["forecast_paths"])]
+    for kind, path in source_paths:
+        document["sources"].append({"kind": kind, "path": _repo_path(inputs["root"], path),
                                     "bytes": path.stat().st_size, "sha256": _sha256(path)})
     source_meta = {
         "product_feed": (feed.get("schema_version"), feed.get("generated_at")),
         "registry": ("module_registry.jsonl", None),
         "api_index": (index.get("schema"), index.get("generated_at")),
         "scenario": (scenario.get("schema"), scenario.get("generated_at")),
-        "api_forecast": (forecast.get("schema"), forecast.get("generated_at")),
     }
+    for target, item in inputs["forecasts"].items():
+        source_meta[f"forecast:{target}"] = (item.get("schema"), item.get("generated_at"))
     for item in document["sources"]:
         schema, generated = source_meta[item["kind"]]
         item["schema"] = schema
@@ -517,6 +670,9 @@ def build_executive(path: Path, data: dict, generated: datetime) -> None:
         ["C4 (рецессионные начала)", "PASS" if summary["c4_pass"] else "FAIL / открыт"],
         ["C6 (forward-журнал)", summary["c6_status"]],
         ["Модульные паспорта", f"{summary['modules_total']} · {STATUS}"],
+        ["Рыночные модули / forecast-контракты",
+         f"{summary['market_modules']} / {summary['forecasts']} "
+         f"({', '.join(summary['forecast_targets'])})"],
         ["Рыночный сценарий", f"{summary['scenario_id']} · пик {_fmt(summary['scenario_peak'])}"],
         ["Forecast API", f"версия {summary['api_version']} · модулей {summary['api_modules']} · "
                          f"эндпоинтов {summary['api_endpoints']}"],
@@ -546,10 +702,12 @@ def build_methodology(path: Path, data: dict, generated: datetime) -> None:
              _short(item["sha256"])] for item in data["sources"]])
     document.add_heading("Как строится пакет", level=1)
     for line in (
-            "1. Инструмент читает четыре артефакта: product feed, реестр модульных паспортов, "
-            "рыночный сценарий и forecast/API срез.",
+            "1. Инструмент читает product feed, реестр модульных паспортов, индекс forecast API, "
+            "рыночный сценарий и каждый forecast-контракт, который перечислен в индексе "
+            "(включая газовый gas_ttf).",
             "2. Числа копируются из артефактов; собственные вычисления — только счётчики, длины и "
-            "границы квантилей.",
+            "границы квантилей. Количество паспортов, рыночных модулей и контрактов выводится из "
+            "реестра и api/index.json, а не задано константой.",
             "3. Никаких сырых значений третьих сторон пакет не содержит: в репозиторий идут "
             "производные статистики и собственные прогнозы.",
             "4. Сборка fail-closed: отсутствующий/битый артефакт или недопустимый статус "
@@ -606,7 +764,11 @@ def build_xlsx(path: Path, data: dict, generated: datetime) -> None:
         ("Квантиль 5%", summary["interval_5_95"][0]),
         ("Квантиль 95%", summary["interval_5_95"][1]),
         ("C4 pass", summary["c4_pass"]), ("C6 статус", summary["c6_status"]),
-        ("Модулей", summary["modules_total"]), ("Сценарий", summary["scenario_id"]),
+        ("Модулей", summary["modules_total"]),
+        ("Рыночных модулей", summary["market_modules"]),
+        ("Forecast-контрактов", summary["forecasts"]),
+        ("Forecast targets", ", ".join(summary["forecast_targets"])),
+        ("Сценарий", summary["scenario_id"]),
         ("Пик сценария", summary["scenario_peak"]), ("Среднее сценария", summary["scenario_mean"]),
         ("API версия", summary["api_version"]), ("API модулей", summary["api_modules"]),
         ("API эндпоинтов", summary["api_endpoints"]),
@@ -640,6 +802,25 @@ def build_xlsx(path: Path, data: dict, generated: datetime) -> None:
     for row_index, entry in enumerate(data["modules"]["items"], start=2):
         for column, header in enumerate(headers, start=1):
             modules.cell(row=row_index, column=column, value=entry.get(header))
+
+    market_modules = workbook.create_sheet("Market_Modules")
+    market_headers = ("module_id", "module_version", "commodity", "default_scenario",
+                      "forecast_target", "status", "units", "scenarios")
+    for column, header in enumerate(market_headers, start=1):
+        market_modules.cell(row=1, column=column, value=header)
+    for row_index, entry in enumerate(data["market_modules"]["items"], start=2):
+        for column, header in enumerate(market_headers, start=1):
+            market_modules.cell(row=row_index, column=column, value=entry.get(header))
+
+    forecasts = workbook.create_sheet("Forecasts")
+    forecast_headers = ("target", "module_id", "module_version", "status", "units",
+                        "no_point_forecast", "price_peak", "price_mean", "price_trough",
+                        "result_digest")
+    for column, header in enumerate(forecast_headers, start=1):
+        forecasts.cell(row=1, column=column, value=header)
+    for row_index, entry in enumerate(data["forecasts"]["items"], start=2):
+        for column, header in enumerate(forecast_headers, start=1):
+            forecasts.cell(row=row_index, column=column, value=entry.get(header))
 
     scenario = data["market_scenario"]
     scenario_sheet = workbook.create_sheet("Scenario_Summary")
@@ -677,6 +858,10 @@ def build_xlsx(path: Path, data: dict, generated: datetime) -> None:
                 ("api_version", data["forecast_api"]["api_version"]),
                 ("base_path", data["forecast_api"]["base_path"]),
                 ("modules", data["forecast_api"]["counts"].get("modules")),
+                ("market modules", len(data["forecast_api"]["market_modules"])),
+                ("forecast contracts", len(data["forecast_api"]["forecasts"])),
+                ("forecast targets", ", ".join(item["target"]
+                                               for item in data["forecast_api"]["forecasts"])),
                 ("endpoints", len(data["forecast_api"]["endpoints"])),
                 ("forecast target", data["forecast_api"]["forecast"]["target"]),
                 ("forecast peak", data["forecast_api"]["forecast"]["price_peak"]),
@@ -733,6 +918,16 @@ def build_dashboard(path: Path, data: dict) -> None:
         f"<tr><td>{item.get('method')}</td><td>{item.get('path')}</td>"
         f"<td>{item.get('description')}</td></tr>"
         for item in data["forecast_api"]["endpoints"])
+    market_rows = "".join(
+        f"<tr><td>{item.get('module_id')}</td><td>{item.get('commodity')}</td>"
+        f"<td>{item.get('default_scenario')}</td><td>{item.get('forecast_target')}</td>"
+        f"<td>{item.get('status')}</td><td>{item.get('units')}</td></tr>"
+        for item in data["market_modules"]["items"])
+    forecast_rows = "".join(
+        f"<tr><td>{item.get('target')}</td><td>{item.get('module_id')}</td>"
+        f"<td>{item.get('units')}</td><td class=\"num\">{_fmt(item.get('price_peak'))}</td>"
+        f"<td>{item.get('status')}</td><td>{item.get('result_digest') or '—'}</td></tr>"
+        for item in data["forecasts"]["items"])
     path_rows = "".join(f"<tr><td>{index}</td><td class=\"num\">{_fmt(price)}</td></tr>"
                         for index, price in enumerate(data["market_scenario"]["price_path"]))
     html = f"""<!DOCTYPE html>
@@ -759,12 +954,19 @@ def build_dashboard(path: Path, data: dict) -> None:
       <div class="meta">{summary['scenario_id']}</div></div>
     <div class="card"><div>Модулей</div><div class="v">{summary['modules_total']}</div>
       <div class="meta">{STATUS}</div></div>
+    <div class="card"><div>Рыночных модулей</div><div class="v">{summary['market_modules']}</div>
+      <div class="meta">forecast-контрактов {summary['forecasts']}</div></div>
     <div class="card"><div>Forecast API</div><div class="v">{summary['api_version']}</div>
       <div class="meta">модулей {summary['api_modules']} · эндпоинтов {summary['api_endpoints']}</div></div>
   </div>
   <h2>Модульные паспорта</h2>
   <table><tr><th>module_id</th><th>версия</th><th>kind</th><th>статус</th><th>data_status</th></tr>
   {module_rows}</table>
+  <h2>Рыночные модули и forecast-контракты</h2>
+  <table><tr><th>module_id</th><th>товар</th><th>сценарий по умолчанию</th>
+  <th>forecast target</th><th>статус</th><th>единицы</th></tr>{market_rows}</table>
+  <table><tr><th>target</th><th>module_id</th><th>единицы</th><th>пик</th><th>статус</th>
+  <th>result_digest</th></tr>{forecast_rows}</table>
   <h2>Рыночный сценарий: путь цены</h2>
   <table><tr><th>месяц</th><th>цена</th></tr>{path_rows}</table>
   <h2>Forecast API</h2>
@@ -812,12 +1014,22 @@ def build_readme(path: Path, data: dict, files: list) -> None:
         f"{_fmt(summary['interval_5_95'][0], 4)}–{_fmt(summary['interval_5_95'][1], 4)}.",
         f"- Модульные паспорта: {summary['modules_total']} ({STATUS}); рыночный сценарий: "
         f"`{summary['scenario_id']}`, пик {_fmt(summary['scenario_peak'])}.",
+        f"- Рыночные модули: {summary['market_modules']} "
+        f"({', '.join(summary['market_module_ids'])}); forecast-контракты: "
+        f"{summary['forecasts']} ({', '.join(summary['forecast_targets'])}), включая газовый "
+        f"`gas_ttf`; счётчики выведены из реестра и api/index.json.",
         f"- Forecast API: {summary['api_version']}, модулей {summary['api_modules']}, "
         f"эндпоинтов {summary['api_endpoints']}.",
         "",
-        "## Источники",
+        "## Forecast-контракты",
         "",
+        "| target | module_id | единицы | пик | статус |",
+        "|---|---|---|---|---|",
     ]
+    for item in data["forecasts"]["items"]:
+        lines.append(f"| `{item['target']}` | `{item['module_id']}` | {item.get('units') or '—'} | "
+                     f"{_fmt(item.get('price_peak'))} | {item.get('status')} |")
+    lines += ["", "## Источники", ""]
     for item in data["sources"]:
         lines.append(f"- `{item['path']}` — `{_short(item['sha256'], 16)}` "
                      f"({item.get('schema') or '—'}, generated_at "
