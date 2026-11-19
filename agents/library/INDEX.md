@@ -1,12 +1,12 @@
 # Библиотека памяти AMFE
 
-Обновлено: 2026-11-19T14:12:04Z · записей: 69
+Обновлено: 2026-11-19T14:27:15Z · записей: 71
 
 ## По ролям
 
 - `accounting-core` — 8 записей (`agents/memory/accounting-core.jsonl`)
 - `baseline-models` — 5 записей (`agents/memory/baseline-models.jsonl`)
-- `dense-vintages` — 14 записей (`agents/memory/dense-vintages.jsonl`)
+- `dense-vintages` — 16 записей (`agents/memory/dense-vintages.jsonl`)
 - `evaluation-harness` — 9 записей (`agents/memory/evaluation-harness.jsonl`)
 - `lead` — 8 записей (`agents/memory/lead.jsonl`)
 - `licence-auditor` — 3 записей (`agents/memory/licence-auditor.jsonl`)
@@ -31,7 +31,7 @@
 - `docs/166_Реальные_PIT_1990_1996.md` ← mem-r2-completion-0001, mem-r2-completion-0002
 - `docs/168_Независимое_ревью_G3.md` ← mem-protocol-reviewer-0001, mem-protocol-reviewer-0003
 - `docs/170_Оценка_по_предрегистрации_0_3.md` ← mem-evaluation-harness-0002, mem-lead-0002, mem-lead-0003, mem-protocol-reviewer-0002
-- `docs/171_Client_Pack_v2.md` ← mem-dense-vintages-0001
+- `docs/171_Client_Pack_v2.md` ← mem-dense-vintages-0001, mem-dense-vintages-0015
 - `docs/173_План_2.1_ревизия_идей_и_практический_маршрут.md` ← mem-dense-vintages-0003
 - `docs/174_50_кейсов_использования.md` ← mem-accounting-core-0003, mem-baseline-models-0003, mem-licence-auditor-0003, mem-r2-completion-0003
 - `docs/175_Агентная_оркестрация_и_обучение.md` ← mem-accounting-core-0001, mem-baseline-models-0001, mem-evaluation-harness-0001, mem-lead-0001, mem-licence-auditor-0001, mem-multiplicity-rw-0001, mem-protocol-reviewer-0001, mem-r2-completion-0001
@@ -42,7 +42,7 @@
 - `docs/189_FLAKS_пилот.md` ← mem-dense-vintages-0010
 - `docs/190_Клиентский_пакет_Ормуз_США.md` ← mem-dense-vintages-0009
 - `docs/191_Маркетинг_нефтегаз.md` ← mem-dense-vintages-0014
-- `docs/192_Simulator_UI.md` ← mem-dense-vintages-0012
+- `docs/192_Simulator_UI.md` ← mem-dense-vintages-0012, mem-dense-vintages-0015
 - `docs/97_Лицензии_ряды_и_terms.md` ← mem-licence-auditor-0002
 - `marketing/crm_pipeline.csv` ← mem-dense-vintages-0014
 - `marketing/letters/gazpromneft.md` ← mem-dense-vintages-0014
@@ -66,7 +66,7 @@
 - `protocols/pit_prereg_evaluation_report.json` ← mem-evaluation-harness-0002
 - `src/amfe/forecast/country.py` ← mem-r2-completion-0006
 - `src/amfe/markets/storage.py` ← mem-accounting-core-0007
-- `tests/test_client_pack_v2.py` ← mem-dense-vintages-0008
+- `tests/test_client_pack_v2.py` ← mem-dense-vintages-0008, mem-dense-vintages-0015
 - `tests/test_country_forecast.py` ← mem-r2-completion-0006
 - `tests/test_flaks_pilot.py` ← mem-dense-vintages-0010
 - `tests/test_flaks_procurement.py` ← mem-dense-vintages-0006
@@ -78,9 +78,10 @@
 - `tests/test_market_client_pack.py` ← mem-dense-vintages-0008
 - `tests/test_marketing_crm.py` ← mem-dense-vintages-0014
 - `tests/test_module_registry.py` ← mem-dense-vintages-0008
-- `tests/test_simulator_ui.py` ← mem-dense-vintages-0012
+- `tests/test_simulator_ui.py` ← mem-dense-vintages-0012, mem-dense-vintages-0015, mem-dense-vintages-0016
 - `tests/test_storage_futures.py` ← mem-accounting-core-0007
 - `tools/c6_calendar.py` ← mem-evaluation-harness-0005, mem-evaluation-harness-0006
+- `tools/client_pack_v2.py` ← mem-dense-vintages-0015
 - `tools/country_forecast.py` ← mem-baseline-models-0005, mem-r2-completion-0006
 - `tools/eval_cache.py` ← mem-r2-completion-0005
 - `tools/external_forecast_scorecard.py` ← mem-r2-completion-0004
@@ -99,7 +100,7 @@
 - `tools/quantity_bridge.py` ← mem-dense-vintages-0007
 - `tools/register_modules.py` ← mem-dense-vintages-0008
 - `tools/sector_exposure.py` ← mem-accounting-core-0006, mem-dense-vintages-0007
-- `tools/simulator_ui.py` ← mem-dense-vintages-0012
+- `tools/simulator_ui.py` ← mem-dense-vintages-0012, mem-dense-vintages-0015
 - `tools/storage_futures.py` ← mem-accounting-core-0007
 
 ## Как читать любому агенту/модели

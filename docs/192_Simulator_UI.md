@@ -89,6 +89,9 @@ Invoke-WebRequest http://127.0.0.1:8090/api/run -Method Post -ContentType "appli
 | `GET /api/scenarios` | только каталог сценариев (для встраивания) |
 | `POST /api/run` | результат сценария целиком (см. §5) |
 
+В режиме `--require-auth` все строки, кроме `GET /` и `GET /api/health`, требуют ключ; `POST
+/api/run` дополнительно требует тариф с правом запуска (см. §7).
+
 Пример запроса и ответа (сокращённо):
 
 ```json
@@ -223,7 +226,7 @@ python tools/simulator_ui.py --require-auth `
 ```powershell
 $K = "demo_pro_key_01"
 curl.exe -s -H "X-API-Key: $K" -H "Content-Type: application/json" `
-  -d '{\"scenario\":\"hormuz_base\",\"price\":75,\"shock\":100,\"country\":\"US\"}' `
+  --data-raw '{"scenario":"hormuz_base","price":75,"shock":100,"country":"US"}' `
   http://127.0.0.1:8090/api/run
 curl.exe -s -H "Authorization: Bearer $K" http://127.0.0.1:8090/api/scenarios
 curl.exe -s http://127.0.0.1:8090/api/health          # без ключа

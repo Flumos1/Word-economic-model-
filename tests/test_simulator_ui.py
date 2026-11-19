@@ -12,11 +12,13 @@ import http.client
 import io
 import json
 import logging
+import os
 import sys
 import tempfile
 import threading
 import unittest
 from pathlib import Path
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
@@ -465,6 +467,8 @@ class Authentication(unittest.TestCase):
         self.assertEqual(forbidden.payload["code"], "PLAN_FORBIDDEN")
         self.assertEqual(forbidden.payload["details"]["plan"], "free")
         self.assertIn("pro", forbidden.payload["details"]["allowed_plans"])
+        self.assertEqual(forbidden.payload["research_status"], "RESEARCH_ONLY")
+        self.assertIs(forbidden.payload["admission"], False)
         self.assertEqual(header_map(forbidden)["X-Plan"], "free")
         catalogue = app.dispatch("GET", "/api/scenarios", b"",
                                  headers={"X-API-Key": FREE_KEY})
@@ -485,6 +489,8 @@ class Authentication(unittest.TestCase):
         limited = app.dispatch("POST", "/api/run", RUN_BODY, headers={"X-API-Key": PRO_KEY})
         self.assertEqual(limited.status, 429)
         self.assertEqual(limited.payload["code"], "RATE_LIMITED")
+        self.assertEqual(limited.payload["research_status"], "RESEARCH_ONLY")
+        self.assertIs(limited.payload["admission"], False)
         headers = header_map(limited)
         self.assertEqual(headers["X-RateLimit-Limit"], "2")
         self.assertEqual(headers["X-RateLimit-Remaining"], "0")
@@ -579,7 +585,8 @@ class AuthConfiguration(unittest.TestCase):
 
     def test_check_reports_auth_without_keys(self):
         buffer = io.StringIO()
-        with contextlib.redirect_stdout(buffer):
+        with mock.patch.dict(os.environ, {"AMFE_SIM_KEYS": ""}), \
+                contextlib.redirect_stdout(buffer):
             code = sim.main(["--check", "--require-auth", "--api-keys", KEYS])
         self.assertEqual(code, 0)
         output = buffer.getvalue()
@@ -591,7 +598,8 @@ class AuthConfiguration(unittest.TestCase):
 
     def test_bad_config_exits_two(self):
         stderr = io.StringIO()
-        with contextlib.redirect_stderr(stderr):
+        with mock.patch.dict(os.environ, {"AMFE_SIM_KEYS": ""}), \
+                contextlib.redirect_stderr(stderr):
             code = sim.main(["--check", "--require-auth"])
         self.assertEqual(code, 2)
         self.assertEqual(json.loads(stderr.getvalue())["status"], "BLOCKED_CONFIG")

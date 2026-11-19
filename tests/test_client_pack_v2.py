@@ -63,6 +63,7 @@ def build_fixture(base: Path) -> Path:
     })
     registry = [module_passport("oil.brent", "0.1.0", "market", "d" * 64),
                 module_passport("oil.brent", "0.2.0", "market", "e" * 64),
+                module_passport("gas.lng_eu", "0.1.0", "market", "9" * 64),
                 module_passport("AGRI_SOY", "0.1.0", "agri", "f" * 64)]
     (build / "registry").mkdir(parents=True, exist_ok=True)
     (build / "registry" / "modules.jsonl").write_text(
@@ -71,7 +72,7 @@ def build_fixture(base: Path) -> Path:
     write_json(build / "api" / "index.json", {
         "schema": "amfe.forecast_api.v2", "api_version": "v2", "base_path": "/v1",
         "status": "RESEARCH_ONLY", "generated_at": "2026-11-16T00:00:00Z",
-        "counts": {"modules": 2, "scenarios": 1, "forecasts": 1, "market_modules": 1},
+        "counts": {"modules": 3, "scenarios": 1, "forecasts": 2, "market_modules": 2},
         "endpoints": [
             {"method": "GET", "path": "/v1/modules", "description": "module passports"},
             {"method": "GET", "path": "/v1/scenarios/{scenario_id}", "description": "scenario"},
@@ -80,14 +81,32 @@ def build_fixture(base: Path) -> Path:
         "modules": [
             {"module_id": "oil.brent", "version": "0.2.0", "status": "RESEARCH_ONLY",
              "kind": "market"},
+            {"module_id": "gas.lng_eu", "version": "0.1.0", "status": "RESEARCH_ONLY",
+             "kind": "market"},
             {"module_id": "AGRI_SOY", "version": "0.1.0", "status": "RESEARCH_ONLY",
              "kind": "agri"},
+        ],
+        "market_modules": [
+            {"module_id": "oil.brent", "module_version": "0.2.0",
+             "commodity": "Brent crude oil", "default_scenario": "hormuz_closed_6m",
+             "forecast_target": "oil_brent", "status": "RESEARCH_ONLY", "units": "USD/bbl",
+             "scenarios": [{"scenario_id": "hormuz_closed_6m", "horizon_months": 6}]},
+            {"module_id": "gas.lng_eu", "module_version": "0.1.0",
+             "commodity": "Natural gas / LNG", "default_scenario": "eu_pipeline_shock_6m",
+             "forecast_target": "gas_ttf", "status": "RESEARCH_ONLY", "units": "USD/MMBtu",
+             "scenarios": [{"scenario_id": "eu_pipeline_shock_6m", "horizon_months": 6}]},
         ],
         "scenarios": [{"id": "oil.brent/hormuz_closed_6m", "module": "oil.brent",
                        "horizon_months": 6,
                        "file": "scenarios/oil.brent__hormuz_closed_6m.json"}],
-        "forecasts": [{"target": "oil_brent", "module_id": "oil.brent",
-                       "module_version": "0.2.0", "file": "forecasts/oil_brent.json"}],
+        "forecasts": [
+            {"target": "oil_brent", "module_id": "oil.brent",
+             "module_version": "0.2.0", "file": "forecasts/oil_brent.json",
+             "units": "USD/bbl"},
+            {"target": "gas_ttf", "module_id": "gas.lng_eu",
+             "module_version": "0.1.0", "file": "forecasts/gas_ttf.json",
+             "units": "USD/MMBtu"},
+        ],
     })
     write_json(build / "api" / "scenarios" / "oil.brent__hormuz_closed_6m.json", {
         "schema": "amfe.forecast_api.v2", "api_version": "v2", "status": "RESEARCH_ONLY",
@@ -121,6 +140,19 @@ def build_fixture(base: Path) -> Path:
         "envelope": {"price_peak": 170.0, "price_mean": 130.0, "price_trough": 110.0,
                      "price_peak_month": 0, "checks": {"price_positive": True}},
         "module_ref": {"module_id": "oil.brent", "version": "0.2.0",
+                       "status": "RESEARCH_ONLY"},
+    })
+    write_json(build / "api" / "forecasts" / "gas_ttf.json", {
+        "schema": "amfe.forecast_api.v2", "api_version": "v2", "status": "RESEARCH_ONLY",
+        "generated_at": "2026-11-16T00:00:00Z", "kind": "forecast", "target": "gas_ttf",
+        "module_id": "gas.lng_eu", "no_point_forecast": False, "research_only": True,
+        "result_digest": "2" * 64, "assumptions_count": 5,
+        "envelope": {"price_peak": 20.0, "price_mean": 16.0, "price_trough": 15.0,
+                     "price_peak_month": 0, "checks": {"ttf_price_positive": True},
+                     "interval": {"central": 20.0, "low": 15.0, "high": 28.0,
+                                  "units": "USD/MMBtu",
+                                  "note": "sensitivity variants, not a confidence interval"}},
+        "module_ref": {"module_id": "gas.lng_eu", "version": "0.1.0",
                        "status": "RESEARCH_ONLY"},
     })
     return root
@@ -245,7 +277,7 @@ class NumbersFromArtefacts(FixtureCase):
                     .splitlines() if line.strip()]
         document = self.machine()
         module = document["modules"]
-        self.assertEqual(module["count"], 2)  # two latest modules, history collapsed
+        self.assertEqual(module["count"], 3)  # latest records, history collapsed
         self.assertEqual(module["registry_sha256"], sha(self.build / "registry" / "modules.jsonl"))
         latest = {entry["module_id"]: entry for entry in registry}
         self.assertEqual(latest["oil.brent"]["version"], "0.2.0")
@@ -254,7 +286,7 @@ class NumbersFromArtefacts(FixtureCase):
             self.assertRegex(item["code_sha256"], r"^[0-9a-f]{64}$")
             self.assertEqual(item["version"], latest[item["module_id"]]["version"])
         self.assertEqual([item["module_id"] for item in module["items"]],
-                         ["AGRI_SOY", "oil.brent"])
+                         ["AGRI_SOY", "gas.lng_eu", "oil.brent"])
 
     def test_scenario_numbers_come_from_the_api_artefact(self):
         self.make_pack()
@@ -282,6 +314,8 @@ class NumbersFromArtefacts(FixtureCase):
         self.assertEqual(section["api_version"], index["api_version"])
         self.assertEqual(len(section["endpoints"]), len(index["endpoints"]))
         self.assertEqual(len(section["modules"]), len(index["modules"]))
+        self.assertEqual(len(section["market_modules"]), len(index["market_modules"]))
+        self.assertEqual(len(section["forecasts"]), len(index["forecasts"]))
         self.assertEqual(section["forecast"]["target"], forecast["target"])
         self.assertEqual(section["forecast"]["price_peak"],
                          forecast["envelope"]["price_peak"])
@@ -290,12 +324,46 @@ class NumbersFromArtefacts(FixtureCase):
     def test_sources_carry_real_digests(self):
         self.make_pack()
         document = self.machine()
-        self.assertEqual(len(document["sources"]), 5)
+        self.assertEqual(len(document["sources"]), 6)  # 4 fixed inputs + 2 forecast contracts
         for item in document["sources"]:
             path = self.root / item["path"]
             self.assertTrue(path.is_file(), item["path"])
             self.assertEqual(item["sha256"], sha(path), item["path"])
             self.assertEqual(item["bytes"], path.stat().st_size)
+
+    def test_market_modules_and_gas_contract_are_in_the_pack(self):
+        self.make_pack()
+        document = self.machine()
+        summary = document["summary"]
+        self.assertEqual(summary["modules_total"], 3)
+        self.assertEqual(summary["market_modules"], 2)
+        self.assertEqual(summary["market_module_ids"], ["oil.brent", "gas.lng_eu"])
+        self.assertEqual(summary["forecasts"], 2)
+        self.assertEqual(summary["forecast_targets"], ["gas_ttf", "oil_brent"])
+        gas = next(item for item in document["forecasts"]["items"]
+                   if item["target"] == "gas_ttf")
+        self.assertEqual(gas["module_id"], "gas.lng_eu")
+        self.assertEqual(gas["units"], "USD/MMBtu")
+        self.assertEqual(gas["price_peak"], 20.0)
+        self.assertEqual(gas["status"], "RESEARCH_ONLY")
+        self.assertIn("build/api/forecasts/gas_ttf.json",
+                      [item["path"] for item in document["sources"]])
+
+    def test_legacy_one_forecast_index_still_builds(self):
+        index_path = self.build / "api" / "index.json"
+        index = read_json(index_path)
+        index["forecasts"] = [item for item in index["forecasts"]
+                              if item["target"] == "oil_brent"]
+        index["counts"]["forecasts"] = 1
+        index.pop("market_modules", None)
+        index["counts"].pop("market_modules", None)
+        write_json(index_path, index)
+        self.make_pack()
+        document = self.machine()
+        self.assertEqual(document["summary"]["forecasts"], 1)
+        self.assertEqual(document["summary"]["forecast_targets"], ["oil_brent"])
+        self.assertEqual(document["summary"]["market_modules"], 0)
+        self.assertEqual(document["forecast_api"]["forecast"]["target"], "oil_brent")
 
 
 class OfficeDocuments(FixtureCase):
@@ -305,8 +373,9 @@ class OfficeDocuments(FixtureCase):
         self.make_pack()
         document = self.machine()
         workbook = load_workbook(self.out / "02_Numbers.xlsx", data_only=True)
-        for sheet in ("Summary", "Candidate", "Modules", "Scenario_Summary",
-                      "Scenario_Path", "Scenario_Sensitivity", "API", "Sources"):
+        for sheet in ("Summary", "Candidate", "Modules", "Market_Modules", "Forecasts",
+                      "Scenario_Summary", "Scenario_Path", "Scenario_Sensitivity", "API",
+                      "Sources"):
             self.assertIn(sheet, workbook.sheetnames, sheet)
         summary_values = {row[0]: row[1] for row in
                           workbook["Summary"].iter_rows(values_only=True) if row[0]}
@@ -316,6 +385,13 @@ class OfficeDocuments(FixtureCase):
         self.assertEqual(int(summary_values["Модулей"]), document["summary"]["modules_total"])
         module_rows = list(workbook["Modules"].iter_rows(min_row=2, values_only=True))
         self.assertEqual(len(module_rows), len(document["modules"]["items"]))
+        market_rows = list(workbook["Market_Modules"].iter_rows(min_row=2, values_only=True))
+        self.assertEqual(len(market_rows), document["summary"]["market_modules"])
+        forecast_rows = list(workbook["Forecasts"].iter_rows(min_row=2, values_only=True))
+        self.assertEqual([row[0] for row in forecast_rows],
+                         document["summary"]["forecast_targets"])
+        self.assertEqual(int(summary_values["Рыночных модулей"]),
+                         document["summary"]["market_modules"])
         path_rows = list(workbook["Scenario_Path"].iter_rows(min_row=2, values_only=True))
         self.assertEqual([float(row[1]) for row in path_rows],
                          [float(value) for value in document["market_scenario"]["price_path"]])
@@ -335,8 +411,10 @@ class OfficeDocuments(FixtureCase):
         self.assertIn("NO_RESOLVED_FORECASTS", text)
         self.assertIn("hormuz_closed_6m", text)
         self.assertIn("170", text)
+        self.assertIn("gas_ttf", text)
         self.assertIn("не прогноз", text.lower())
         self.assertIn(str(document["summary"]["modules_total"]), text)
+        self.assertIn(str(document["summary"]["market_modules"]), text)
 
     def test_methodology_lists_sources_and_determinism(self):
         self.make_pack()
@@ -368,14 +446,17 @@ class DashboardAndReadme(FixtureCase):
         self.assertIn("RESEARCH_ONLY", html)
         self.assertIn(document["market_scenario"]["scenario_id"], html)
         self.assertIn("ENSEMBLE_INVERSE_MSE", html)
+        self.assertIn("gas_ttf", html)
+        self.assertIn("oil.brent", html)
         self.assertIn(str(document["summary"]["modules_total"]), html)
+        self.assertIn(str(document["summary"]["market_modules"]), html)
 
     def test_readme_lists_files_status_and_limitations(self):
         self.make_pack()
         text = (self.out / "README.md").read_text(encoding="utf-8")
         for token in ("Client Pack v2", "RESEARCH_ONLY", "CANDIDATE", "C4", "C6",
                       "01_Executive_Summary.docx", "07_Reproducibility.json",
-                      "client_pack_v2.py"):
+                      "client_pack_v2.py", "gas_ttf", "Forecast-контракты"):
             self.assertIn(token, text, token)
 
 
@@ -387,7 +468,7 @@ class Reproducibility(FixtureCase):
         self.assertEqual(manifest["status"], "RESEARCH_ONLY")
         self.assertEqual(manifest["generated_at"], FIXED)
         self.assertIn("client_pack_v2.py", manifest["command"])
-        self.assertEqual(len(manifest["inputs"]), 5)
+        self.assertEqual(len(manifest["inputs"]), 6)
         for item in manifest["inputs"]:
             self.assertEqual(item["sha256"], sha(self.root / item["path"]), item["path"])
         for name, digest in manifest["deterministic_artifacts"].items():
@@ -455,6 +536,29 @@ class FailClosed(FixtureCase):
     def test_unknown_scenario_fails(self):
         with self.assertRaises(pack.ClientPackError):
             self.make_pack(scenario_id="nope")
+
+    def test_missing_forecast_contract_fails_closed(self):
+        (self.build / "api" / "forecasts" / "gas_ttf.json").unlink()
+        with self.assertRaises(pack.ClientPackError):
+            self.make_pack()
+        self.assertFalse(self.out.exists())
+
+    def test_inconsistent_api_counts_fail_closed(self):
+        index_path = self.build / "api" / "index.json"
+        index = read_json(index_path)
+        index["counts"]["forecasts"] = 9
+        write_json(index_path, index)
+        with self.assertRaises(pack.ClientPackError):
+            self.make_pack()
+        self.assertFalse(self.out.exists())
+
+    def test_unsafe_forecast_path_fails_closed(self):
+        index_path = self.build / "api" / "index.json"
+        index = read_json(index_path)
+        index["forecasts"][0]["file"] = "../index.json"
+        write_json(index_path, index)
+        with self.assertRaises(pack.ClientPackError):
+            self.make_pack()
 
     def test_bad_quantiles_fail(self):
         feed_path = self.build / "product" / "forecast_latest.json"
@@ -545,6 +649,19 @@ class RealArtifacts(unittest.TestCase):
             self.assertIn("oil.brent", latest)
             self.assertEqual(document["market_scenario"]["scenario_id"], "hormuz_closed_6m")
             self.assertTrue(document["sources"])
+            # The published G5 slice: 7 passports, 2 market modules, oil + gas contracts.
+            self.assertEqual(document["summary"]["modules_total"], 7)
+            self.assertEqual(document["summary"]["market_modules"], 2)
+            self.assertEqual(document["summary"]["market_module_ids"], ["gas.lng_eu", "oil.brent"])
+            self.assertEqual(document["summary"]["forecast_targets"], ["gas_ttf", "oil_brent"])
+            gas = next(item for item in document["forecasts"]["items"]
+                       if item["target"] == "gas_ttf")
+            self.assertEqual(gas["module_id"], "gas.lng_eu")
+            self.assertEqual(gas["status"], "RESEARCH_ONLY")
+            self.assertGreater(gas["price_peak"], 0)
+            self.assertIn("build/api/forecasts/gas_ttf.json",
+                          [item["path"] for item in document["sources"]])
+            self.assertEqual(len(document["sources"]), 6)
 
 
 if __name__ == "__main__":

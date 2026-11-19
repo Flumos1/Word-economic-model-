@@ -239,9 +239,16 @@ def _validate_index_counts(index: dict) -> None:
         if not isinstance(items, list):
             raise ClientPackError(f"api_index: {section!r} is not a list")
         declared = counts.get(section)
-        if declared is not None and int(declared) != len(items):
-            raise ClientPackError(
-                f"api_index: counts.{section}={declared} but {section}[] has {len(items)} entries")
+        if declared is not None:
+            try:
+                declared_count = int(declared)
+            except (TypeError, ValueError) as exc:
+                raise ClientPackError(
+                    f"api_index: counts.{section}={declared!r} is not an integer") from exc
+            if declared_count != len(items):
+                raise ClientPackError(
+                    f"api_index: counts.{section}={declared_count} but {section}[] has "
+                    f"{len(items)} entries")
 
 
 def _validate_forecast(document: dict, spec: dict) -> None:
@@ -1016,8 +1023,8 @@ def build_readme(path: Path, data: dict, files: list) -> None:
         f"`{summary['scenario_id']}`, пик {_fmt(summary['scenario_peak'])}.",
         f"- Рыночные модули: {summary['market_modules']} "
         f"({', '.join(summary['market_module_ids'])}); forecast-контракты: "
-        f"{summary['forecasts']} ({', '.join(summary['forecast_targets'])}), включая газовый "
-        f"`gas_ttf`; счётчики выведены из реестра и api/index.json.",
+        f"{summary['forecasts']} ({', '.join(summary['forecast_targets'])}); "
+        f"счётчики выведены из реестра и api/index.json.",
         f"- Forecast API: {summary['api_version']}, модулей {summary['api_modules']}, "
         f"эндпоинтов {summary['api_endpoints']}.",
         "",
@@ -1040,9 +1047,10 @@ def build_readme(path: Path, data: dict, files: list) -> None:
         "",
         "```",
         f"python tools/client_pack_v2.py --generated-at {data['generated_at']} "
-        f"--out build/client_pack/v2",
+        f"--out <OUT_DIR>",
         "```",
         "",
+        "<OUT_DIR> — каталог этого пакета (например, `build/client_pack/v2_7`). "
         "Пакет детерминирован при том же `--generated-at`: DOCX/XLSX нормализуются (zip-времена и "
         "docProps/core.xml), JSON пишется с сортировкой ключей. Сборка fail-closed: при "
         "отсутствующем/битом артефакте или недопустимом статусе выход не создаётся.",
@@ -1173,6 +1181,9 @@ def build_pack(out_dir: Path, *, inputs_root: Path | None = None, scenario_id: s
             "c4_pass": data["summary"]["c4_pass"],
             "c6_status": data["summary"]["c6_status"],
             "modules": data["summary"]["modules_total"],
+            "market_modules": data["summary"]["market_modules"],
+            "forecasts": data["summary"]["forecasts"],
+            "forecast_targets": data["summary"]["forecast_targets"],
             "scenario_id": data["summary"]["scenario_id"],
             "scenario_peak": data["summary"]["scenario_peak"],
             "api_version": data["summary"]["api_version"],
