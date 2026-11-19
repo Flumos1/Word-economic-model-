@@ -247,11 +247,6 @@ def _assumption(report: dict, name: str, default=None):
     return block.get("value", default)
 
 
-def _stress_assumption(report: dict, name: str):
-    block = ((report.get("stress") or {}).get("assumptions") or {}).get(name) or {}
-    return block
-
-
 def _normalise_office_zip(path: Path, moment: datetime) -> None:
     """Rewrite a DOCX/XLSX zip with fixed entry timestamps (same approach as market_client_pack).
 
@@ -607,9 +602,12 @@ def build_machine_json(out_path: Path, reports: dict, scenario: str, client: str
             "stress_content": stress["content_sha256"],
             "selected_content": reports[scenario]["content_sha256"],
         },
-        "files": [{"path": item["path"], "bytes": item["bytes"], "sha256": item["sha256"],
-                   "deterministic": item["deterministic"]}
-                  for item in sorted(files, key=lambda entry: entry["path"])],
+        "files": [{"path": item["path"], "bytes": item["bytes"], "sha256": item["sha256"]}
+                  for item in sorted(files, key=lambda entry: entry["path"])
+                  if item["deterministic"]],
+        "files_note": "перечислены только детерминированные файлы; PDF (если он есть) и его "
+                      "SHA-256 — в manifest.json, потому что LibreOffice может менять байты",
+        "pdf_included": any(not item["deterministic"] for item in files),
         "numbers_source": "hormuz_us_impact.build_report(scenario, generated_at, stress=...) — "
                           "полный отчёт без пересчёта и без округления в пакете",
         "licence": {
@@ -779,6 +777,7 @@ def build_manifest(out_path: Path, files: list[dict], reports: dict, scenario: s
             "manifest_excludes_itself": True,
             "pdf_included": has_pdf,
             "deterministic_artifacts": sum(1 for item in entries if item["deterministic"]),
+            "manifest_deterministic": not has_pdf,
         },
         "content_sha256": {"base": reports["base"]["content_sha256"],
                            "stress": reports["stress"]["content_sha256"]},
@@ -789,7 +788,8 @@ def build_manifest(out_path: Path, files: list[dict], reports: dict, scenario: s
             "невозможен) — он проверяется по содержимому каталога.",
             "PDF собирается LibreOffice и может нести метки конвертера: помечен "
             "deterministic=false и не входит в гарантию байт-идентичности.",
-            "DOCX/XLSX/JSON/HTML/README детерминированы при фиксированном --generated-at.",
+            "DOCX/XLSX/JSON/HTML/README детерминированы при фиксированном --generated-at; "
+            "манифест с PDF — нет (в нём хеш PDF), поэтому manifest_deterministic=false.",
         ],
         "disclaimer": DISCLAIMER,
     }

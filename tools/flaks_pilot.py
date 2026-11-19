@@ -83,7 +83,6 @@ SUPPLIER_REQUIRED = (
     "supplier_id", "country", "category", "annual_volume", "unit_price", "lead_time_days",
     "otif", "defect_ppm", "audit_score", "risk_financial", "risk_supply", "risk_compliance",
 )
-SUPPLIER_OPTIONAL = ("name", "currency", "unit", "freight_per_unit")
 CONTRACT_REQUIRED = CONTRACT_COLUMNS
 
 MAX_ROWS = 5000
@@ -135,7 +134,6 @@ PILOT_ACTIONS = (
 
 CSV_DELIMITERS = (",", ";", "\t", "|")
 CSV_ENCODINGS = ("utf-8-sig", "utf-8", "cp1251")
-FORBIDDEN_KEYS = fp.FORBIDDEN_KEYS
 FORBIDDEN_SUBSTRINGS = fp.FORBIDDEN_SUBSTRINGS
 
 COUNTRY_ALIASES = {}
@@ -242,13 +240,6 @@ def _text(value) -> str:
     if isinstance(value, float) and value.is_integer() and abs(value) < 1e15:
         return str(int(value))
     return str(value).strip()
-
-
-def _display(path: Path) -> str:
-    try:
-        return str(Path(path).resolve().relative_to(ROOT)).replace("\\", "/")
-    except ValueError:
-        return str(path)
 
 
 def _r(value, digits: int = 6):
@@ -410,7 +401,7 @@ def read_table(path, *, role: str) -> dict:
     suffix = source.suffix.lower()
     if suffix in (".xlsx", ".xlsm"):
         return _read_xlsx(source, role=role)
-    if suffix in (".csv", ".tsv", ".txt"):
+    if suffix in (".csv", ".tsv", ".txt", ".tmpl"):
         return _read_csv(source, role=role)
     raise IntakeError(f"{role}: формат {suffix or '(без расширения)'} не поддерживается; "
                       f"нужен CSV или XLSX")
@@ -928,7 +919,6 @@ def anonymize_records(suppliers: list, contracts: list, sensitive: set) -> tuple
     for position, record in enumerate(order, start=1):
         contract = contract_by_supplier[record["_source_id"]]
         anonymous.append({
-            "_source_order": position,
             "id": _pseudonym("ANON-SUP-", position, sensitive),
             "name": _pseudonym_name(position, sensitive),
             "country": record["country"],
@@ -976,8 +966,9 @@ def leak_scan(texts: dict, sensitive: set) -> list:
     problems = []
     for label, text in texts.items():
         folded = text.casefold()
+        compact = re.sub(r"\s+", "", folded)
         for value in sensitive:
-            if value and value in folded:
+            if value and (value in folded or value.replace(" ", "") in compact):
                 problems.append(f"{label}: найден исходный идентификатор (длина {len(value)})")
     for label, text in texts.items():
         for marker in FORBIDDEN_SUBSTRINGS:
@@ -1683,10 +1674,10 @@ def build_parser() -> argparse.ArgumentParser:
                     "scoring/TCO/budget, CFO report (JSON+MD+DOCX) and SHA-256 manifest")
     parser.add_argument("--suppliers", required=True,
                         help="CSV/XLSX таблица поставщиков по шаблону pilot/flaks/"
-                             "suppliers_template.csv")
+                             "suppliers_template.csv.tmpl")
     parser.add_argument("--contracts", required=True,
                         help="CSV/XLSX таблица договоров по шаблону pilot/flaks/"
-                             "contracts_template.csv")
+                             "contracts_template.csv.tmpl")
     parser.add_argument("--scenario", default=DEFAULT_SCENARIO,
                         help=f"сценарий из {list(fp.SCENARIO_ORDER)}")
     parser.add_argument("--out", default=str(DEFAULT_OUT),

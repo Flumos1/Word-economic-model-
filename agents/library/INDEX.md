@@ -1,12 +1,12 @@
 # Библиотека памяти AMFE
 
-Обновлено: 2026-11-18T18:05:11Z · записей: 59
+Обновлено: 2026-11-19T06:27:29Z · записей: 61
 
 ## По ролям
 
 - `accounting-core` — 8 записей (`agents/memory/accounting-core.jsonl`)
 - `baseline-models` — 5 записей (`agents/memory/baseline-models.jsonl`)
-- `dense-vintages` — 8 записей (`agents/memory/dense-vintages.jsonl`)
+- `dense-vintages` — 10 записей (`agents/memory/dense-vintages.jsonl`)
 - `evaluation-harness` — 6 записей (`agents/memory/evaluation-harness.jsonl`)
 - `lead` — 8 записей (`agents/memory/lead.jsonl`)
 - `licence-auditor` — 3 записей (`agents/memory/licence-auditor.jsonl`)
@@ -39,7 +39,15 @@
 - `docs/183_Forecast_API_шлюз.md` ← mem-dense-vintages-0005
 - `docs/184_FLAKS_Procurement_MVP.md` ← mem-dense-vintages-0006
 - `docs/187_Страновой_прогноз.md` ← mem-r2-completion-0006
+- `docs/189_FLAKS_пилот.md` ← mem-dense-vintages-0010
+- `docs/190_Клиентский_пакет_Ормуз_США.md` ← mem-dense-vintages-0009
 - `docs/97_Лицензии_ряды_и_terms.md` ← mem-licence-auditor-0002
+- `pilot/flaks/.gitignore` ← mem-dense-vintages-0010
+- `pilot/flaks/README.md` ← mem-dense-vintages-0010
+- `pilot/flaks/contracts_template.csv` ← mem-dense-vintages-0010
+- `pilot/flaks/data_dictionary.md` ← mem-dense-vintages-0010
+- `pilot/flaks/pilot_plan_2_weeks.md` ← mem-dense-vintages-0010
+- `pilot/flaks/suppliers_template.csv` ← mem-dense-vintages-0010
 - `protocols/evaluation_protocol_v5.json` ← mem-evaluation-harness-0001
 - `protocols/external_forecast_scorecard.json` ← mem-r2-completion-0004
 - `protocols/horizon_matrix_v5.json` ← mem-multiplicity-rw-0004, mem-multiplicity-rw-0005, mem-multiplicity-rw-0006, mem-multiplicity-rw-0007
@@ -49,10 +57,12 @@
 - `src/amfe/markets/storage.py` ← mem-accounting-core-0007
 - `tests/test_client_pack_v2.py` ← mem-dense-vintages-0008
 - `tests/test_country_forecast.py` ← mem-r2-completion-0006
+- `tests/test_flaks_pilot.py` ← mem-dense-vintages-0010
 - `tests/test_flaks_procurement.py` ← mem-dense-vintages-0006
 - `tests/test_forecast_api_server.py` ← mem-dense-vintages-0005
 - `tests/test_forecast_world_bridge.py` ← mem-accounting-core-0004
 - `tests/test_hash_canonicalization.py` ← mem-dense-vintages-0007
+- `tests/test_hormuz_us_client_pack.py` ← mem-dense-vintages-0009
 - `tests/test_market_client_pack.py` ← mem-dense-vintages-0008
 - `tests/test_module_registry.py` ← mem-dense-vintages-0008
 - `tests/test_storage_futures.py` ← mem-accounting-core-0007
@@ -61,11 +71,13 @@
 - `tools/eval_cache.py` ← mem-r2-completion-0005
 - `tools/external_forecast_scorecard.py` ← mem-r2-completion-0004
 - `tools/fetch_country_data.py` ← mem-r2-completion-0006
+- `tools/flaks_pilot.py` ← mem-dense-vintages-0010
 - `tools/flaks_procurement.py` ← mem-dense-vintages-0006
 - `tools/forecast_api_server.py` ← mem-dense-vintages-0005
 - `tools/forecast_world_bridge.py` ← mem-accounting-core-0004, mem-accounting-core-0005, mem-dense-vintages-0007
 - `tools/gas_scenarios.py` ← mem-accounting-core-0008
 - `tools/geopolitics_scenarios.py` ← mem-protocol-reviewer-0006
+- `tools/hormuz_us_client_pack.py` ← mem-dense-vintages-0009
 - `tools/market_bridge.py` ← mem-dense-vintages-0007
 - `tools/policy_scenarios.py` ← mem-baseline-models-0004
 - `tools/quantity_bridge.py` ← mem-dense-vintages-0007

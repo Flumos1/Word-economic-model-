@@ -182,6 +182,11 @@ class HormuzUsClientPack(unittest.TestCase):
                                    expected["oil_module"]["price_peak_usd_bbl"], places=6)
         self.assertIsNone(self.machine["reports"]["base"]["stress"])
         self.assertIsNotNone(self.machine["reports"]["stress"]["stress"])
+        # PDF bytes depend on the converter, so the machine-readable JSON lists only
+        # deterministic files; the manifest is the complete list (PDF included).
+        json_paths = [item["path"] for item in self.machine["files"]]
+        self.assertNotIn("01_Executive_Summary.pdf", json_paths)
+        self.assertEqual(self.machine["pdf_included"], self.summary["pdf"])
 
     def test_content_sha256_is_recomputable(self):
         for name in ("base", "stress"):
@@ -215,6 +220,8 @@ class HormuzUsClientPack(unittest.TestCase):
         self.assertEqual(manifest["integrity"]["algorithm"], "sha256")
         self.assertTrue(manifest["integrity"]["manifest_excludes_itself"])
         self.assertEqual(manifest["integrity"]["files"], len(manifest["files"]))
+        self.assertEqual(manifest["integrity"]["manifest_deterministic"],
+                         not manifest["integrity"]["pdf_included"])
         paths = [entry["path"] for entry in manifest["files"]]
         self.assertNotIn("manifest.json", paths)
         for required in REQUIRED:

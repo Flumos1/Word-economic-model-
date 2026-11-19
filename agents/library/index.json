@@ -1,7 +1,7 @@
 {
  "schema": "amfe.agent_library.v1",
- "updated_at": "2026-11-18T18:05:11Z",
- "entries": 59,
+ "updated_at": "2026-11-19T06:27:29Z",
+ "entries": 61,
  "open_questions": [
   {
    "id": "mem-lead-0003",
@@ -13,7 +13,7 @@
  "by_role": {
   "accounting-core": 8,
   "baseline-models": 5,
-  "dense-vintages": 8,
+  "dense-vintages": 10,
   "evaluation-harness": 6,
   "lead": 8,
   "licence-auditor": 3,
@@ -22,7 +22,7 @@
   "r2-completion": 7
  },
  "by_kind": {
-  "artifact": 21,
+  "artifact": 23,
   "lesson": 14,
   "open_question": 1,
   "role": 9,
@@ -30,6 +30,7 @@
   "task": 8
  },
  "by_tag": {
+  "anonymization": 1,
   "api": 1,
   "blocks": 2,
   "bridge": 3,
@@ -38,13 +39,16 @@
   "cache": 2,
   "candidates": 1,
   "canonical-write": 1,
+  "client-pack": 1,
   "correction": 1,
   "country": 4,
   "data": 2,
   "decision": 1,
+  "determinism": 1,
+  "docx": 2,
   "exposure": 1,
   "external": 3,
-  "flaks": 1,
+  "flaks": 2,
   "forecast": 1,
   "g4": 1,
   "g5": 2,
@@ -54,16 +58,20 @@
   "harness": 1,
   "hash": 1,
   "horizons": 6,
+  "hormuz": 1,
   "independence": 1,
+  "intake": 1,
   "lesson": 2,
   "librarian": 2,
   "licence": 3,
+  "manifest": 1,
   "memory": 1,
   "models": 1,
   "modules": 1,
   "oil": 1,
   "orchestrator": 1,
   "p2": 1,
+  "pilot": 1,
   "pit": 5,
   "policy": 1,
   "prereg": 4,
@@ -71,6 +79,7 @@
   "procurement": 1,
   "products": 1,
   "provenance": 2,
+  "quality": 1,
   "registry": 1,
   "review": 1,
   "science": 1,
@@ -84,10 +93,11 @@
   "storage": 2,
   "task": 8,
   "task-69": 1,
-  "tests": 2,
+  "tests": 3,
   "v2": 6,
   "windows-crlf": 1,
-  "world": 2
+  "world": 2,
+  "xlsx": 1
  },
  "artifacts": {
   "docs/101_Кэш_прогонов.md": [
@@ -165,8 +175,32 @@
   "docs/187_Страновой_прогноз.md": [
    "mem-r2-completion-0006"
   ],
+  "docs/189_FLAKS_пилот.md": [
+   "mem-dense-vintages-0010"
+  ],
+  "docs/190_Клиентский_пакет_Ормуз_США.md": [
+   "mem-dense-vintages-0009"
+  ],
   "docs/97_Лицензии_ряды_и_terms.md": [
    "mem-licence-auditor-0002"
+  ],
+  "pilot/flaks/.gitignore": [
+   "mem-dense-vintages-0010"
+  ],
+  "pilot/flaks/README.md": [
+   "mem-dense-vintages-0010"
+  ],
+  "pilot/flaks/contracts_template.csv": [
+   "mem-dense-vintages-0010"
+  ],
+  "pilot/flaks/data_dictionary.md": [
+   "mem-dense-vintages-0010"
+  ],
+  "pilot/flaks/pilot_plan_2_weeks.md": [
+   "mem-dense-vintages-0010"
+  ],
+  "pilot/flaks/suppliers_template.csv": [
+   "mem-dense-vintages-0010"
   ],
   "protocols/evaluation_protocol_v5.json": [
    "mem-evaluation-harness-0001"
@@ -198,6 +232,9 @@
   "tests/test_country_forecast.py": [
    "mem-r2-completion-0006"
   ],
+  "tests/test_flaks_pilot.py": [
+   "mem-dense-vintages-0010"
+  ],
   "tests/test_flaks_procurement.py": [
    "mem-dense-vintages-0006"
   ],
@@ -209,6 +246,9 @@
   ],
   "tests/test_hash_canonicalization.py": [
    "mem-dense-vintages-0007"
+  ],
+  "tests/test_hormuz_us_client_pack.py": [
+   "mem-dense-vintages-0009"
   ],
   "tests/test_market_client_pack.py": [
    "mem-dense-vintages-0008"
@@ -236,6 +276,9 @@
   "tools/fetch_country_data.py": [
    "mem-r2-completion-0006"
   ],
+  "tools/flaks_pilot.py": [
+   "mem-dense-vintages-0010"
+  ],
   "tools/flaks_procurement.py": [
    "mem-dense-vintages-0006"
   ],
@@ -252,6 +295,9 @@
   ],
   "tools/geopolitics_scenarios.py": [
    "mem-protocol-reviewer-0006"
+  ],
+  "tools/hormuz_us_client_pack.py": [
+   "mem-dense-vintages-0009"
   ],
   "tools/market_bridge.py": [
    "mem-dense-vintages-0007"

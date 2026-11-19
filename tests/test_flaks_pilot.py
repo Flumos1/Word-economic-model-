@@ -24,8 +24,8 @@ import flaks_pilot as fpl  # noqa: E402
 import flaks_procurement as fp  # noqa: E402
 
 TEMPLATES = ROOT / "pilot" / "flaks"
-SUPPLIERS_TEMPLATE = TEMPLATES / "suppliers_template.csv"
-CONTRACTS_TEMPLATE = TEMPLATES / "contracts_template.csv"
+SUPPLIERS_TEMPLATE = TEMPLATES / "suppliers_template.csv.tmpl"
+CONTRACTS_TEMPLATE = TEMPLATES / "contracts_template.csv.tmpl"
 GENERATED_AT = "2026-11-19T00:00:00Z"
 
 
