@@ -13,7 +13,7 @@
 | [outreach.md](outreach.md) | 3 последовательности писем + LinkedIn + скрипт звонка |
 | [outreach_5.md](outreach_5.md) | первые 5 персонализированных касаний: персона, боли, use cases, письма, вложения, критерий успеха |
 | [letters/](letters/) | готовые тексты писем по 5 аккаунтам (только плейсхолдеры, не отправлены) |
-| [crm_pipeline.csv](crm_pipeline.csv) | 20 аккаунтов, стадии, next_action/next_date (валидируется `tools/marketing_crm.py`) |
+| [crm_pipeline.csv.tmpl](crm_pipeline.csv.tmpl) | 20 аккаунтов, стадии, next_action/next_date (валидируется `tools/marketing_crm.py`) |
 | [discovery_questions.md](discovery_questions.md) | 20 вопросов для квалификации |
 | [pricing.md](pricing.md) | офферы и ориентиры цен |
 | [plan_90_days.md](plan_90_days.md) | календарь, каналы, KPI, бюджет |
@@ -46,3 +46,5 @@ python -m unittest tests.test_marketing_crm
 - Не отправлять внешним адресатам без проверки фактов о компании и NDA-рамки.
 - В материалах всегда: `RESEARCH_ONLY`, `admission=false`, «не прогноз».
 - Данные клиента — только по NDA, обезличенные, не в git.
+
+> CRM хранится как `crm_pipeline.csv.tmpl` (синтетическая схема, не реальные данные). Скопируйте в `.csv` для работы.

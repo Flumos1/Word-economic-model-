@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate and summarise the AMFE marketing CRM pipeline (``marketing/crm_pipeline.csv``).
+"""Validate and summarise the AMFE marketing CRM pipeline (``marketing/crm_pipeline.csv.tmpl``).
 
 The CRM is a plain CSV: 20 target accounts, one row per account, 8 required columns. The tool is
 deterministic (no clock, no network), fail-closed (any problem is an error, exit 2), and it never
@@ -25,7 +25,7 @@ from datetime import date
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_PATH = ROOT / "marketing" / "crm_pipeline.csv"
+DEFAULT_PATH = ROOT / "marketing" / "crm_pipeline.csv.tmpl"
 DEFAULT_TARGETS = ROOT / "marketing" / "target_accounts.json"
 TARGETS_TOOL = ROOT / "tools" / "marketing_targets.py"
 

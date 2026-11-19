@@ -15,7 +15,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 TOOL = ROOT / "tools" / "marketing_crm.py"
-CRM = ROOT / "marketing" / "crm_pipeline.csv"
+CRM = ROOT / "marketing" / "crm_pipeline.csv.tmpl"
 TARGETS = ROOT / "marketing" / "target_accounts.json"
 OUTREACH = ROOT / "marketing" / "outreach_5.md"
 LETTERS = ROOT / "marketing" / "letters"
@@ -311,7 +311,7 @@ class MarketingCrmTest(unittest.TestCase):
         self.assertIn("Первые 5 писем", text)
         self.assertIn("marketing/outreach_5.md", text)
         self.assertIn("letters/", text)
-        self.assertIn("crm_pipeline.csv", text)
+        self.assertIn("crm_pipeline.csv.tmpl", text)
         self.assertIn("требуют проверки", text)
 
 

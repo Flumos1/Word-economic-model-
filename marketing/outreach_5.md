@@ -6,7 +6,7 @@
 
 Связанные файлы: [one_pager.md](one_pager.md), [outreach.md](outreach.md),
 [target_accounts.json](target_accounts.json), [pricing.md](pricing.md),
-[crm_pipeline.csv](crm_pipeline.csv), [letters/](letters/), стратегия —
+[crm_pipeline.csv.tmpl](crm_pipeline.csv.tmpl), [letters/](letters/), стратегия —
 [docs/191](../docs/191_Маркетинг_нефтегаз.md) §12.
 
 ## 0. Правила этого пакета
@@ -410,7 +410,7 @@ one-pager + шаблоны, дата.
 - [ ] в письме нет выдуманных цифр о компании и нет ссылок на несуществующие кейсы;
 - [ ] есть `RESEARCH_ONLY` / «не прогноз» / NDA-оговорка;
 - [ ] вложения только по запросу, с дисклеймером и без чужих данных;
-- [ ] в CRM (`crm_pipeline.csv`) стадия переведена в `CONTACTED` и заполнен `next_date`;
+- [ ] в CRM (`crm_pipeline.csv.tmpl`) стадия переведена в `CONTACTED` и заполнен `next_date`;
 - [ ] после отправки — запись в память роли, без адресов и имён в тексте.
 
 ## 9. Что дальше по пакету
