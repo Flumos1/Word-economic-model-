@@ -1,0 +1,5 @@
+# Client files must never be committed: the pilot processes them locally, artefacts go to build/.
+inbox/
+*.real.*
+*_client.*
+*_confidential.*
