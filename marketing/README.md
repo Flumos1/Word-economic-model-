@@ -1,0 +1,33 @@
+# Marketing kit: нефть и газ
+
+Комплект для выхода на нефтегазовый рынок с продуктом AMFE (сценарии, закупки, газ/СПГ,
+геополитика, API).
+
+## Файлы
+
+| Файл | Что |
+|---|---|
+| [target_accounts.json](target_accounts.json) | 20 целевых компаний, 6 критериев, веса |
+| [target_accounts.md](target_accounts.md) | рейтинг и таблица (генерируется `tools/marketing_targets.py`) |
+| [one_pager.md](one_pager.md) | одностраничник для первого контакта |
+| [outreach.md](outreach.md) | 3 последовательности писем + LinkedIn + скрипт звонка |
+| [discovery_questions.md](discovery_questions.md) | 20 вопросов для квалификации |
+| [pricing.md](pricing.md) | офферы и ориентиры цен |
+| [plan_90_days.md](plan_90_days.md) | календарь, каналы, KPI, бюджет |
+| [../docs/191_Маркетинг_нефтегаз.md](../docs/191_Маркетинг_нефтегаз.md) | исследование рынка и стратегия |
+
+## Пересобрать рейтинг
+
+```powershell
+python tools/marketing_targets.py --generated-at 2026-11-19T00:00:00Z
+```
+
+Скрипт проверяет схему/диапазоны, считает балл `0.35*fit + 0.20*digital + 0.15*procurement +
+0.15*access + 0.10*budget + 0.05*risk`, присваивает Tier A/B/C и пишет Markdown.
+
+## Правила использования
+
+- Оценки — **экспертные допущения**, не рейтинг компаний; проверять на discovery.
+- Не отправлять внешним адресатам без проверки фактов о компании и NDA-рамки.
+- В материалах всегда: `RESEARCH_ONLY`, `admission=false`, «не прогноз».
+- Данные клиента — только по NDA, обезличенные, не в git.

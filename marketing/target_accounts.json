@@ -1,0 +1,382 @@
+[
+  {
+    "id": "TATNEFT",
+    "name": "ПАО «Татнефть»",
+    "segment": "integrated_oil_gas",
+    "hq": "Альметьевск, Татарстан",
+    "why": "Нефтедобыча + НПЗ ТАНЕКО + нефтехимия; активная цифровизация, публичная отчётность, доступный buying center, Татарстан как пилотный регион.",
+    "use_cases": [
+      "oil_price_scenarios",
+      "capex_budget",
+      "procurement_tco",
+      "geopolitics_logistics"
+    ],
+    "fit": 5,
+    "digital": 4,
+    "procurement": 4,
+    "access": 5,
+    "budget": 4,
+    "risk": 4,
+    "notes": "Приоритет №1 для пилота: стратегия/планирование + закупки. Публичные данные требуют проверки."
+  },
+  {
+    "id": "GAZPROMNEFT",
+    "name": "ПАО «Газпром нефть»",
+    "segment": "integrated_oil_gas",
+    "hq": "Санкт-Петербург",
+    "why": "Крупная нефтедобыча и переработка, сильная цифровая функция (ERA), большой закупочный контур; но длинный цикл и высокие требования к безопасности.",
+    "use_cases": [
+      "oil_price_scenarios",
+      "procurement_tco",
+      "capex_budget",
+      "api_integration"
+    ],
+    "fit": 5,
+    "digital": 5,
+    "procurement": 5,
+    "access": 3,
+    "budget": 5,
+    "risk": 3,
+    "notes": "Tier A: enterprise-пилот через цифровой блок/стратегию; долгий цикл."
+  },
+  {
+    "id": "NOVATEK",
+    "name": "ПАО «НОВАТЭК»",
+    "segment": "gas_lng",
+    "hq": "Тарко-Сале / Москва",
+    "why": "Газ и СПГ, экспортная логистика, чувствительность к фрахту/санкциям; наш газовый модуль и геополитика релевантны.",
+    "use_cases": [
+      "gas_lng_scenarios",
+      "geopolitics_logistics",
+      "freight_insurance",
+      "api_integration"
+    ],
+    "fit": 5,
+    "digital": 3,
+    "procurement": 3,
+    "access": 4,
+    "budget": 5,
+    "risk": 3,
+    "notes": "Tier A: пилот по газ/СПГ-сценариям; высокие требования к конфиденциальности."
+  },
+  {
+    "id": "ROSNEFT",
+    "name": "ПАО «Роснефть»",
+    "segment": "integrated_oil_gas",
+    "hq": "Москва",
+    "why": "Крупнейшая нефтедобыча и переработка, огромный закупочный контур; решение принимается централизованно.",
+    "use_cases": [
+      "oil_price_scenarios",
+      "procurement_tco",
+      "capex_budget",
+      "geopolitics"
+    ],
+    "fit": 5,
+    "digital": 4,
+    "procurement": 5,
+    "access": 2,
+    "budget": 5,
+    "risk": 2,
+    "notes": "Tier B: стратегический аккаунт, вход через партнёра/отраслевое мероприятие."
+  },
+  {
+    "id": "LUKOIL",
+    "name": "ПАО «ЛУКОЙЛ»",
+    "segment": "integrated_oil_gas",
+    "hq": "Москва",
+    "why": "Вертикально интегрированный холдинг, международные активы, трейдинг; ценовые и геополитические сценарии.",
+    "use_cases": [
+      "oil_price_scenarios",
+      "trading_risk",
+      "geopolitics",
+      "api_integration"
+    ],
+    "fit": 5,
+    "digital": 4,
+    "procurement": 4,
+    "access": 3,
+    "budget": 5,
+    "risk": 2,
+    "notes": "Tier B: фокус на сценарии/трейдинг, не на закупки."
+  },
+  {
+    "id": "SURGUTNEFTEGAS",
+    "name": "ПАО «Сургутнефтегаз»",
+    "segment": "upstream",
+    "hq": "Сургут",
+    "why": "Крупная добыча, консервативный стиль, устойчивый бюджет; сценарии для бюджета и CAPEX.",
+    "use_cases": [
+      "oil_price_scenarios",
+      "capex_budget"
+    ],
+    "fit": 4,
+    "digital": 2,
+    "procurement": 4,
+    "access": 4,
+    "budget": 4,
+    "risk": 3,
+    "notes": "Tier B: консервативный покупатель, нужен экономический кейс."
+  },
+  {
+    "id": "IRKUTSK_OIL",
+    "name": "Иркутская нефтяная компания (ИНК)",
+    "segment": "upstream_gas",
+    "hq": "Иркутск",
+    "why": "Независимая добыча нефти/газа и газопереработка, проекты СПГ; гибкость и потребность в сценариях.",
+    "use_cases": [
+      "oil_price_scenarios",
+      "gas_lng_scenarios",
+      "capex_budget"
+    ],
+    "fit": 4,
+    "digital": 3,
+    "procurement": 3,
+    "access": 4,
+    "budget": 3,
+    "risk": 3,
+    "notes": "Tier A/B: хороший пилот для газа/СПГ, меньше бюрократии."
+  },
+  {
+    "id": "RUSGAZDOBYCHA",
+    "name": "ООО «РусГазДобыча»",
+    "segment": "gas_upstream",
+    "hq": "Санкт-Петербург",
+    "why": "Газовые проекты, чувствительность к цене/логистике; газовый модуль.",
+    "use_cases": [
+      "gas_lng_scenarios",
+      "capex_budget",
+      "geopolitics_logistics"
+    ],
+    "fit": 4,
+    "digital": 3,
+    "procurement": 3,
+    "access": 4,
+    "budget": 3,
+    "risk": 3,
+    "notes": "Tier B: газовый пилот."
+  },
+  {
+    "id": "BASHNEFT",
+    "name": "ПАО «Башнефть»",
+    "segment": "integrated_oil_gas",
+    "hq": "Уфа",
+    "why": "Добыча и переработка, региональный центр; сценарии и закупки.",
+    "use_cases": [
+      "oil_price_scenarios",
+      "procurement_tco",
+      "capex_budget"
+    ],
+    "fit": 4,
+    "digital": 3,
+    "procurement": 3,
+    "access": 4,
+    "budget": 3,
+    "risk": 4,
+    "notes": "Tier B: вход через региональные мероприятия."
+  },
+  {
+    "id": "TANECO",
+    "name": "АО «ТАНЕКО»",
+    "segment": "refining",
+    "hq": "Нижнекамск",
+    "why": "Современный НПЗ в контуре Татнефти; маржа, сырьё, логистика.",
+    "use_cases": [
+      "refining_margin",
+      "oil_price_scenarios",
+      "procurement_tco"
+    ],
+    "fit": 5,
+    "digital": 4,
+    "procurement": 4,
+    "access": 5,
+    "budget": 3,
+    "risk": 4,
+    "notes": "Tier A: лучший вход через Татнефть, отдельный кейс по марже НПЗ."
+  },
+  {
+    "id": "YATEK",
+    "name": "ООО «ЯТЭК»",
+    "segment": "gas_upstream",
+    "hq": "Якутск",
+    "why": "Независимый газовый производитель, экспортные амбиции; газовые сценарии.",
+    "use_cases": [
+      "gas_lng_scenarios",
+      "capex_budget"
+    ],
+    "fit": 4,
+    "digital": 2,
+    "procurement": 2,
+    "access": 4,
+    "budget": 2,
+    "risk": 3,
+    "notes": "Tier C: небольшой бюджет, но хороший референс."
+  },
+  {
+    "id": "GAZPROM",
+    "name": "ПАО «Газпром»",
+    "segment": "gas",
+    "hq": "Москва",
+    "why": "Крупнейшая газовая компания, экспорт/цены/инфраструктура; огромный, но очень инерционный buying center.",
+    "use_cases": [
+      "gas_lng_scenarios",
+      "geopolitics",
+      "api_integration"
+    ],
+    "fit": 4,
+    "digital": 3,
+    "procurement": 5,
+    "access": 2,
+    "budget": 5,
+    "risk": 2,
+    "notes": "Tier C: стратегический, но не первый пилот."
+  },
+  {
+    "id": "SIBUR",
+    "name": "ПАО «СИБУР Холдинг»",
+    "segment": "petrochem_gas_processing",
+    "hq": "Москва",
+    "why": "Газопереработка и нефтехимия; цены на сырьё, логистика, CAPEX.",
+    "use_cases": [
+      "gas_lng_scenarios",
+      "procurement_tco",
+      "capex_budget"
+    ],
+    "fit": 3,
+    "digital": 4,
+    "procurement": 3,
+    "access": 3,
+    "budget": 4,
+    "risk": 3,
+    "notes": "Tier B: смежный рынок, хороший кейс по сырью."
+  },
+  {
+    "id": "NIZHNEKAMSKNEFTEKHIM",
+    "name": "ПАО «Нижнекамскнефтехим»",
+    "segment": "petrochem",
+    "hq": "Нижнекамск",
+    "why": "Нефтехимия в Татарстане, сырьё/цены/логистика; рядом с пилотом.",
+    "use_cases": [
+      "procurement_tco",
+      "oil_price_scenarios"
+    ],
+    "fit": 3,
+    "digital": 3,
+    "procurement": 3,
+    "access": 4,
+    "budget": 3,
+    "risk": 4,
+    "notes": "Tier B: региональный пилот."
+  },
+  {
+    "id": "SLAVNEFT",
+    "name": "ПАО «Славнефть»",
+    "segment": "integrated_oil_gas",
+    "hq": "Москва",
+    "why": "Добыча и переработка, совместное предприятие; сценарии/закупки.",
+    "use_cases": [
+      "oil_price_scenarios",
+      "procurement_tco"
+    ],
+    "fit": 3,
+    "digital": 2,
+    "procurement": 3,
+    "access": 3,
+    "budget": 3,
+    "risk": 3,
+    "notes": "Tier C."
+  },
+  {
+    "id": "RUSSNEFT",
+    "name": "ПАО «РуссНефть»",
+    "segment": "upstream",
+    "hq": "Москва",
+    "why": "Независимая добыча; бюджет/цена/CAPEX.",
+    "use_cases": [
+      "oil_price_scenarios",
+      "capex_budget"
+    ],
+    "fit": 3,
+    "digital": 2,
+    "procurement": 2,
+    "access": 4,
+    "budget": 2,
+    "risk": 3,
+    "notes": "Tier C."
+  },
+  {
+    "id": "ZARUBEZHNEFT",
+    "name": "АО «Зарубежнефть»",
+    "segment": "upstream_international",
+    "hq": "Москва",
+    "why": "Зарубежные проекты, страновые/геополитические риски; сценарии по странам.",
+    "use_cases": [
+      "geopolitics",
+      "oil_price_scenarios",
+      "capex_budget"
+    ],
+    "fit": 4,
+    "digital": 3,
+    "procurement": 2,
+    "access": 3,
+    "budget": 3,
+    "risk": 2,
+    "notes": "Tier B: геополитика/страновой риск."
+  },
+  {
+    "id": "LITASCO",
+    "name": "Litasco (трейдинг ЛУКОЙЛа)",
+    "segment": "trading",
+    "hq": "Женева",
+    "why": "Трейдинг нефти и нефтепродуктов; ценовые/логистические сценарии, API.",
+    "use_cases": [
+      "trading_risk",
+      "oil_price_scenarios",
+      "api_integration"
+    ],
+    "fit": 4,
+    "digital": 4,
+    "procurement": 1,
+    "access": 3,
+    "budget": 4,
+    "risk": 2,
+    "notes": "Tier B: быстрый пилот по сценариям, но санкционные ограничения."
+  },
+  {
+    "id": "SOVCOMFLOT",
+    "name": "ПАО «Совкомфлот»",
+    "segment": "shipping",
+    "hq": "Санкт-Петербург",
+    "why": "Морская логистика энергоносителей; фрахт/страховка/маршруты — прямой кейс.",
+    "use_cases": [
+      "freight_insurance",
+      "geopolitics_logistics",
+      "api_integration"
+    ],
+    "fit": 4,
+    "digital": 4,
+    "procurement": 1,
+    "access": 4,
+    "budget": 3,
+    "risk": 2,
+    "notes": "Tier B: логистический пилот."
+  },
+  {
+    "id": "GAZPROM_NEFTEKHIM_SALAVAT",
+    "name": "ООО «Газпром нефтехим Салават»",
+    "segment": "refining_petrochem",
+    "hq": "Салават, Башкортостан",
+    "why": "НПЗ и нефтехимия; маржа, сырьё, закупки; региональный доступ.",
+    "use_cases": [
+      "refining_margin",
+      "procurement_tco",
+      "oil_price_scenarios"
+    ],
+    "fit": 3,
+    "digital": 3,
+    "procurement": 3,
+    "access": 4,
+    "budget": 3,
+    "risk": 4,
+    "notes": "Tier B: региональный пилот по марже/закупкам."
+  }
+]
