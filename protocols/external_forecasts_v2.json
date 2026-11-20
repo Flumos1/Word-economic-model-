@@ -1,0 +1,905 @@
+{
+ "schema": "AMFE-EXTERNAL-FORECASTS-V2/1.0.0",
+ "registry_id": "AMFE-EXTERNAL-FORECASTS-V2",
+ "version": "2.0.0",
+ "date": "2026-11-20",
+ "intended_use": "Catalogue of external forecasts that the project may score on the frozen protocol windows W1/W2 (protocols/evaluation_protocol_v5.json). The registry stores metadata only: no forecast value, no series, no vintage value and no reconstructed number appears here. A source is scored only when an adapter exists, the licence register allows use and a local data path is registered; everything else is reported as NOT_FETCHED, UNAVAILABLE or RESTRICTED, never as a number.",
+ "rules": {
+  "no_raw_values": "this file carries provenance metadata only; a forecast value, vintage value, quantile or event probability must never be written here (tools/external_scorecard_v2.py rejects value-like keys and numeric series)",
+  "no_network": "the tool that validates this registry does not download anything and makes no network calls",
+  "licence_first": "the licence status is recorded before any data acquisition; RESTRICTED and UNVERIFIED entries are never read, even when a local copy exists",
+  "status_precedence": "when several conditions apply, the stricter status wins: RESTRICTED (licence) > UNAVAILABLE (no mappable target/horizon or no archive) > NOT_FETCHED (usable licence, no local data) > ADAPTER_READY (adapter + licence + local data path)",
+  "mapping_rule": "EXACT means the published quantity is the protocol quantity on the protocol grid; PENDING means a documented transformation would have to be registered before scoring (it changes the target, so it is a protocol decision, not a registry edit); NONE means no protocol target or horizon matches",
+  "change_rule": "a new source is added with status NOT_FETCHED and adapter_state PLANNED; it becomes ADAPTER_READY only after the adapter, the licence register entry and a local data path all exist and the tests cover the adapter"
+ },
+ "statuses": {
+  "ADAPTER_READY": "an adapter is implemented, the licence allows use and a local data path is registered: the source can be scored on the protocol windows now",
+  "UNAVAILABLE": "a non-licence blocker prevents scoring: the public archive is not in the repository, or the published quantity has no protocol target/horizon mapping (status_reason names the blocker)",
+  "RESTRICTED": "the terms of use do not allow scoring or republication (subscription, members-only, news terms, or an unverified licence); values are never read",
+  "NOT_FETCHED": "the licence allows use and the mapping is EXACT or PENDING, but no data has been retrieved into the project yet; nothing here is cited as observed"
+ },
+ "licence_statuses": {
+  "OPEN": "public terms allow research use (attribution may still be required in the derived report)",
+  "OPEN_ATTRIBUTION": "public terms allow research use with mandatory attribution and no logo/endorsement use",
+  "RESTRICTED": "subscription, members-only, news-redistribution or otherwise incompatible terms",
+  "UNVERIFIED": "no dated verification of the terms exists; treated as RESTRICTED and never read"
+ },
+ "targets": {
+  "CPI": "protocol T1_CPI_YOY: 100*(CPI_t/CPI_(t-12)-1), horizons 1/3/6/12 months",
+  "GDP": "protocol T2_GDP_GROWTH: 400*ln(GDP_q/GDP_(q-1)), horizons 0/1/2/4 quarters",
+  "RECESSION": "protocol T3_RECESSION: NBER recession month inside (t, t+h], horizons 3/6/12 months",
+  "UNRATE": "no protocol target in v5: sources that forecast unemployment are catalogued, but they cannot be scored until a target is registered (a protocol change, not a registry edit)"
+ },
+ "sources": [
+  {
+   "id": "SPF_GDP_MEDIAN",
+   "provider": "Federal Reserve Bank of Philadelphia",
+   "provider_type": "CENTRAL_BANK",
+   "target": "GDP",
+   "target_secondary": [],
+   "frequency": "QUARTERLY",
+   "horizon": {
+    "native": "current quarter and the next four quarters",
+    "protocol_h": [
+     0,
+     1
+    ],
+    "mapping": "EXACT"
+   },
+   "publication": {
+    "cadence": "quarterly survey with an official news release in the middle month of the survey quarter",
+    "vintage_policy": "the release date of the survey quarter fixes availability; the local file is the latest revision of the medians, not a point-in-time snapshot, and errata after the release are not audited",
+    "publication_date_source": "src/amfe/ensemble/spf_calendar.py (official SPF news-release dates; never the response deadline)"
+   },
+   "licence": {
+    "status": "OPEN",
+    "entry": "PHILADELPHIA_FED",
+    "values_publishable": false,
+    "terms_url": "https://www.philadelphiafed.org/about-us/privacy-notice",
+    "note": "research use; the register condition keeps the median values outside git and out of every published artefact, so only errors, counts and dates are published"
+   },
+   "status": "ADAPTER_READY",
+   "status_reason": "SCORED_IN_CURRENT_SCORECARD",
+   "adapter": "spf_local",
+   "adapter_state": "IMPLEMENTED",
+   "data_path": "data/raw/spf/spf_median.json (git-ignored)",
+   "url": "https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/survey-of-professional-forecasters",
+   "notes": "the only source scored by the current scorecard (T2 h=0/h=1, 233 PIT points); its values are read from the git-ignored file and never published"
+  },
+  {
+   "id": "SPF_CPI_1YR",
+   "provider": "Federal Reserve Bank of Philadelphia",
+   "provider_type": "CENTRAL_BANK",
+   "target": "CPI",
+   "target_secondary": [],
+   "frequency": "QUARTERLY",
+   "horizon": {
+    "native": "one-year and ten-year ahead CPI inflation expectations (INFCPI1YR/INFCPI10YR in the local file)",
+    "protocol_h": [],
+    "mapping": "NONE"
+   },
+   "publication": {
+    "cadence": "same quarterly SPF release as the GDP medians",
+    "vintage_policy": "release date fixes availability; latest revision in the local file",
+    "publication_date_source": "src/amfe/ensemble/spf_calendar.py"
+   },
+   "licence": {
+    "status": "OPEN",
+    "entry": "PHILADELPHIA_FED",
+    "values_publishable": false,
+    "terms_url": "https://www.philadelphiafed.org/about-us/privacy-notice",
+    "note": "same register entry and the same values-outside-git condition as the GDP medians"
+   },
+   "status": "UNAVAILABLE",
+   "status_reason": "NO_PROTOCOL_HORIZON_MAPPING",
+   "adapter": null,
+   "adapter_state": "NOT_APPLICABLE",
+   "data_path": null,
+   "url": "https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/median-forecasts",
+   "notes": "the local file already carries two CPI expectation codes, but they are 1-year and 10-year expectations, not the protocol y/y CPI at t-1+h: treating them as T1 would silently change the target, so no adapter exists"
+  },
+  {
+   "id": "SPF_RECESS_PROB",
+   "provider": "Federal Reserve Bank of Philadelphia",
+   "provider_type": "CENTRAL_BANK",
+   "target": "RECESSION",
+   "target_secondary": [],
+   "frequency": "QUARTERLY",
+   "horizon": {
+    "native": "probability of a decline in real GDP in the next quarter (the Anxious Index)",
+    "protocol_h": [],
+    "mapping": "NONE"
+   },
+   "publication": {
+    "cadence": "published with each quarterly SPF release",
+    "vintage_policy": "release date fixes availability; the published probability is a survey aggregate, not a vintage series",
+    "publication_date_source": "src/amfe/ensemble/spf_calendar.py"
+   },
+   "licence": {
+    "status": "OPEN",
+    "entry": "PHILADELPHIA_FED",
+    "values_publishable": false,
+    "terms_url": "https://www.philadelphiafed.org/about-us/privacy-notice",
+    "note": "same register entry as the other SPF products"
+   },
+   "status": "UNAVAILABLE",
+   "status_reason": "NO_EVENT_PROBABILITY_MAPPING",
+   "adapter": null,
+   "adapter_state": "NOT_APPLICABLE",
+   "data_path": null,
+   "url": "https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/anxious-index",
+   "notes": "the event is a decline in real GDP, while T3 is an NBER recession month in (t, t+h]: the definitions differ, so the Brier score would measure a different event (docs/174 section 6)"
+  },
+  {
+   "id": "SPF_UNRATE",
+   "provider": "Federal Reserve Bank of Philadelphia",
+   "provider_type": "CENTRAL_BANK",
+   "target": "UNRATE",
+   "target_secondary": [],
+   "frequency": "QUARTERLY",
+   "horizon": {
+    "native": "quarterly average unemployment rate for the current and next four quarters",
+    "protocol_h": [],
+    "mapping": "NONE"
+   },
+   "publication": {
+    "cadence": "published with each quarterly SPF release",
+    "vintage_policy": "release date fixes availability; latest revision in the published tables",
+    "publication_date_source": "src/amfe/ensemble/spf_calendar.py"
+   },
+   "licence": {
+    "status": "OPEN",
+    "entry": "PHILADELPHIA_FED",
+    "values_publishable": false,
+    "terms_url": "https://www.philadelphiafed.org/about-us/privacy-notice",
+    "note": "same register entry as the other SPF products"
+   },
+   "status": "UNAVAILABLE",
+   "status_reason": "NO_PROTOCOL_TARGET_MAPPING",
+   "adapter": null,
+   "adapter_state": "NOT_APPLICABLE",
+   "data_path": null,
+   "url": "https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/survey-of-professional-forecasters",
+   "notes": "protocol v5 has no unemployment target (T1 CPI, T2 GDP, T3 recession), so the source is catalogued but unscorable until a target is registered"
+  },
+  {
+   "id": "NY_FED_STAFF_NOWCAST",
+   "provider": "Federal Reserve Bank of New York",
+   "provider_type": "CENTRAL_BANK",
+   "target": "GDP",
+   "target_secondary": [],
+   "frequency": "WEEKLY",
+   "horizon": {
+    "native": "current-quarter real GDP growth, updated through the quarter",
+    "protocol_h": [
+     0
+    ],
+    "mapping": "EXACT"
+   },
+   "publication": {
+    "cadence": "weekly updates during the quarter",
+    "vintage_policy": "the local archive must carry an explicit publication date per row; rows flagged RECONSTRUCTED are historical reconstructions and are never scored as real-time publications",
+    "publication_date_source": "data/raw/ny_fed/nowcast.csv (schema NYFED_SCHEMA in tools/external_forecast_scorecard.py)"
+   },
+   "licence": {
+    "status": "OPEN",
+    "entry": "NY_FED",
+    "values_publishable": true,
+    "terms_url": "https://www.newyorkfed.org/privacy/termsofuse",
+    "note": "attribution required, modifications marked; values-only archive, so no re-estimation is possible"
+   },
+   "status": "UNAVAILABLE",
+   "status_reason": "ARCHIVE_NOT_LOCAL",
+   "adapter": "ny_fed_local",
+   "adapter_state": "IMPLEMENTED",
+   "data_path": null,
+   "url": "https://www.newyorkfed.org/research/policy/nowcast",
+   "notes": "the adapter and its strict schema exist and are covered by tests, but the archive is not in the repository; the current scorecard reports UNAVAILABLE/ARCHIVE_NOT_LOCAL and the registry repeats that, it does not claim coverage"
+  },
+  {
+   "id": "NY_FED_SCE",
+   "provider": "Federal Reserve Bank of New York",
+   "provider_type": "CENTRAL_BANK",
+   "target": "CPI",
+   "target_secondary": [],
+   "frequency": "MONTHLY",
+   "horizon": {
+    "native": "household inflation expectations at the one-year and three-year horizons",
+    "protocol_h": [],
+    "mapping": "NONE"
+   },
+   "publication": {
+    "cadence": "monthly release of the Survey of Consumer Expectations",
+    "vintage_policy": "monthly releases; no vintage archive in the repository",
+    "publication_date_source": "release calendar of the survey (not fetched)"
+   },
+   "licence": {
+    "status": "OPEN",
+    "entry": null,
+    "values_publishable": false,
+    "terms_url": null,
+    "note": "public research release; the licence register has no entry yet, so nothing may be read before one is added"
+   },
+   "status": "UNAVAILABLE",
+   "status_reason": "NO_PROTOCOL_TARGET_MAPPING",
+   "adapter": null,
+   "adapter_state": "NOT_APPLICABLE",
+   "data_path": null,
+   "url": "https://www.newyorkfed.org/microeconomics/sce",
+   "notes": "household expectations are not a CPI forecast: they measure what consumers expect, not a model or expert prediction of the protocol y/y series"
+  },
+  {
+   "id": "CLEVELAND_FED_NOWCAST",
+   "provider": "Federal Reserve Bank of Cleveland",
+   "provider_type": "CENTRAL_BANK",
+   "target": "CPI",
+   "target_secondary": [],
+   "frequency": "DAILY",
+   "horizon": {
+    "native": "current-month CPI inflation (month-over-month nowcast)",
+    "protocol_h": [],
+    "mapping": "NONE"
+   },
+   "publication": {
+    "cadence": "daily nowcast updates",
+    "vintage_policy": "each daily release is a separate publication; no local archive in the repository",
+    "publication_date_source": "release page (not fetched)"
+   },
+   "licence": {
+    "status": "OPEN",
+    "entry": "CLEVELAND_FED",
+    "values_publishable": true,
+    "terms_url": "https://www.clevelandfed.org/privacy",
+    "note": "non-commercial use with credit"
+   },
+   "status": "UNAVAILABLE",
+   "status_reason": "NO_PROTOCOL_HORIZON_MAPPING",
+   "adapter": "metadata_only",
+   "adapter_state": "IMPLEMENTED",
+   "data_path": null,
+   "url": "https://www.clevelandfed.org/indicators-and-data/inflation-nowcasting",
+   "notes": "the published figure is a current-month m/m nowcast while T1 is y/y at t-1+h; converting m/m to y/y would change the target, so the source stays metadata only (docs/174 section 9)"
+  },
+  {
+   "id": "ATLANTA_FED_GDPNOW",
+   "provider": "Federal Reserve Bank of Atlanta",
+   "provider_type": "CENTRAL_BANK",
+   "target": "GDP",
+   "target_secondary": [],
+   "frequency": "IRREGULAR",
+   "horizon": {
+    "native": "current-quarter real GDP growth, updated after each data release",
+    "protocol_h": [
+     0
+    ],
+    "mapping": "EXACT"
+   },
+   "publication": {
+    "cadence": "several updates per quarter, triggered by data releases",
+    "vintage_policy": "each update is a separate publication with its own date; no archive in the repository",
+    "publication_date_source": "GDPNow update pages (not fetched)"
+   },
+   "licence": {
+    "status": "RESTRICTED",
+    "entry": "ATLANTA_FED_GDPNOW",
+    "values_publishable": false,
+    "terms_url": "https://www.atlantafed.org/terms-of-use",
+    "note": "personal and educational use only; the stricter reading applies"
+   },
+   "status": "RESTRICTED",
+   "status_reason": "LICENCE_RESTRICTED",
+   "adapter": "restricted",
+   "adapter_state": "IMPLEMENTED",
+   "data_path": null,
+   "url": "https://www.atlantafed.org/research-and-data/data/gdpnow",
+   "notes": "values are never read, even when a local copy exists; the project's own OPEN OWN_NOWCAST_BRIDGE is named as the substitute and is never presented as a like-for-like replacement"
+  },
+  {
+   "id": "FOMC_SEP",
+   "provider": "Board of Governors of the Federal Reserve System",
+   "provider_type": "CENTRAL_BANK",
+   "target": "GDP",
+   "target_secondary": [
+    "CPI",
+    "UNRATE"
+   ],
+   "frequency": "QUARTERLY",
+   "horizon": {
+    "native": "projections for the current year and the next two to three years, expressed as Q4/Q4 changes",
+    "protocol_h": [],
+    "mapping": "PENDING"
+   },
+   "publication": {
+    "cadence": "four times a year, with the March/June/September/December FOMC statements",
+    "vintage_policy": "each SEP round is a dated publication; the medians and the participant ranges are published together, no revision afterwards",
+    "publication_date_source": "FOMC calendar and statement release dates"
+   },
+   "licence": {
+    "status": "OPEN",
+    "entry": null,
+    "values_publishable": false,
+    "terms_url": "https://www.federalreserve.gov/accessibility.htm",
+    "note": "Federal Reserve public information; the licence register has no entry yet, so nothing may be read before one is added"
+   },
+   "status": "NOT_FETCHED",
+   "status_reason": "MAPPING_PENDING",
+   "adapter": "fomc_sep_xlsx",
+   "adapter_state": "PLANNED",
+   "data_path": null,
+   "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+   "notes": "the SEP publishes breadth (median plus central tendency and ranges), but Q4/Q4 annual growth is not the protocol quarterly annualized series: a mapping would have to be registered, and that changes the target; unemployment is projected too, while protocol v5 has no UNRATE target"
+  },
+  {
+   "id": "CBO_OUTLOOK",
+   "provider": "Congressional Budget Office",
+   "provider_type": "GOVERNMENT",
+   "target": "GDP",
+   "target_secondary": [
+    "CPI",
+    "UNRATE"
+   ],
+   "frequency": "SEMIANNUAL",
+   "horizon": {
+    "native": "calendar-year projections for the next ten years",
+    "protocol_h": [],
+    "mapping": "PENDING"
+   },
+   "publication": {
+    "cadence": "a winter baseline and a summer update",
+    "vintage_policy": "each edition is a dated publication; earlier editions are superseded, not revised in place",
+    "publication_date_source": "CBO publication dates"
+   },
+   "licence": {
+    "status": "OPEN",
+    "entry": null,
+    "values_publishable": false,
+    "terms_url": "https://www.cbo.gov/about/website-information",
+    "note": "US federal government publication; the licence register has no entry yet"
+   },
+   "status": "NOT_FETCHED",
+   "status_reason": "MAPPING_PENDING",
+   "adapter": "cbo_outlook_csv",
+   "adapter_state": "PLANNED",
+   "data_path": null,
+   "url": "https://www.cbo.gov/data/budget-economic-data",
+   "notes": "annual calendar-year projections; mapping to quarterly annualized growth is a target change, so it is registered as PENDING rather than assumed"
+  },
+  {
+   "id": "IMF_WEO",
+   "provider": "International Monetary Fund",
+   "provider_type": "INTERNATIONAL_ORGANISATION",
+   "target": "GDP",
+   "target_secondary": [
+    "CPI"
+   ],
+   "frequency": "SEMIANNUAL",
+   "horizon": {
+    "native": "annual real GDP growth and inflation for the current and next years",
+    "protocol_h": [],
+    "mapping": "PENDING"
+   },
+   "publication": {
+    "cadence": "the April and October WEO rounds",
+    "vintage_policy": "each round is a dated publication; the WEO database keeps past rounds, so a real-time comparison is possible once a vintage is retrieved",
+    "publication_date_source": "WEO release dates"
+   },
+   "licence": {
+    "status": "OPEN_ATTRIBUTION",
+    "entry": null,
+    "values_publishable": false,
+    "terms_url": "https://www.imf.org/en/About/copyright",
+    "note": "attribution required; redistribution of the database may need permission, so the registry publishes no values"
+   },
+   "status": "NOT_FETCHED",
+   "status_reason": "PUBLIC_ARCHIVE_NOT_FETCHED",
+   "adapter": "imf_weo_csv",
+   "adapter_state": "PLANNED",
+   "data_path": null,
+   "url": "https://www.imf.org/en/Publications/WEO",
+   "notes": "public vintages exist and make a point-in-time comparison possible, but no round has been retrieved into the project and the annual grid does not match the protocol quarterly grid"
+  },
+  {
+   "id": "OECD_EO",
+   "provider": "Organisation for Economic Co-operation and Development",
+   "provider_type": "INTERNATIONAL_ORGANISATION",
+   "target": "GDP",
+   "target_secondary": [
+    "CPI"
+   ],
+   "frequency": "SEMIANNUAL",
+   "horizon": {
+    "native": "annual and quarterly projections for OECD members and major partners",
+    "protocol_h": [],
+    "mapping": "PENDING"
+   },
+   "publication": {
+    "cadence": "the spring and autumn Economic Outlook rounds",
+    "vintage_policy": "each round is a dated publication; quarterly projections are conditional on the assumptions stated in the round",
+    "publication_date_source": "OECD Economic Outlook release dates"
+   },
+   "licence": {
+    "status": "OPEN_ATTRIBUTION",
+    "entry": null,
+    "values_publishable": false,
+    "terms_url": "https://www.oecd.org/en/about/terms-conditions.html",
+    "note": "attribution required; some OECD datasets carry extra conditions, so no values are published before a register entry exists"
+   },
+   "status": "NOT_FETCHED",
+   "status_reason": "PUBLIC_ARCHIVE_NOT_FETCHED",
+   "adapter": "oecd_eo_csv",
+   "adapter_state": "PLANNED",
+   "data_path": null,
+   "url": "https://www.oecd.org/economic-outlook/",
+   "notes": "the closest international source to the protocol grid (quarterly projections exist), but neither the data nor the mapping is in the project"
+  },
+  {
+   "id": "WORLD_BANK_GEP",
+   "provider": "World Bank",
+   "provider_type": "INTERNATIONAL_ORGANISATION",
+   "target": "GDP",
+   "target_secondary": [],
+   "frequency": "SEMIANNUAL",
+   "horizon": {
+    "native": "annual growth projections by country and aggregate",
+    "protocol_h": [],
+    "mapping": "PENDING"
+   },
+   "publication": {
+    "cadence": "the January and June Global Economic Prospects editions",
+    "vintage_policy": "each edition is a dated publication with its own forecast table",
+    "publication_date_source": "GEP release dates"
+   },
+   "licence": {
+    "status": "OPEN_ATTRIBUTION",
+    "entry": null,
+    "values_publishable": false,
+    "terms_url": "https://www.worldbank.org/en/about/legal/terms-of-use",
+    "note": "open data with attribution; a register entry is still missing"
+   },
+   "status": "NOT_FETCHED",
+   "status_reason": "PUBLIC_ARCHIVE_NOT_FETCHED",
+   "adapter": "world_bank_gep_csv",
+   "adapter_state": "PLANNED",
+   "data_path": null,
+   "url": "https://www.worldbank.org/en/publication/global-economic-prospects",
+   "notes": "annual projections only; useful as a cross-check of the world model, not as a protocol target forecast until a mapping is registered"
+  },
+  {
+   "id": "EC_ECFIN_FORECAST",
+   "provider": "European Commission, DG Economic and Financial Affairs",
+   "provider_type": "INTERNATIONAL_ORGANISATION",
+   "target": "GDP",
+   "target_secondary": [
+    "CPI",
+    "UNRATE"
+   ],
+   "frequency": "QUARTERLY",
+   "horizon": {
+    "native": "annual and quarterly projections for EU member states and the euro area",
+    "protocol_h": [],
+    "mapping": "PENDING"
+   },
+   "publication": {
+    "cadence": "several rounds a year (winter, spring and autumn forecasts)",
+    "vintage_policy": "each round is a dated publication; the Commission keeps the published rounds",
+    "publication_date_source": "DG ECFIN forecast release calendar"
+   },
+   "licence": {
+    "status": "OPEN_ATTRIBUTION",
+    "entry": null,
+    "values_publishable": false,
+    "terms_url": "https://ec.europa.eu/info/legal-notice_en",
+    "note": "reuse with attribution; a register entry is still missing"
+   },
+   "status": "NOT_FETCHED",
+   "status_reason": "PUBLIC_ARCHIVE_NOT_FETCHED",
+   "adapter": "ec_ecfin_csv",
+   "adapter_state": "PLANNED",
+   "data_path": null,
+   "url": "https://economy-finance.ec.europa.eu/economic-forecast-and-surveys/economic-forecasts_en",
+   "notes": "quarterly projections exist, but the country/aggregate definitions and the HICP/CPI distinction need a registered mapping before scoring"
+  },
+  {
+   "id": "ECB_SPF",
+   "provider": "European Central Bank",
+   "provider_type": "CENTRAL_BANK",
+   "target": "CPI",
+   "target_secondary": [
+    "GDP"
+   ],
+   "frequency": "QUARTERLY",
+   "horizon": {
+    "native": "annual HICP inflation and real GDP growth expectations for the current and next two years plus longer horizons",
+    "protocol_h": [],
+    "mapping": "PENDING"
+   },
+   "publication": {
+    "cadence": "quarterly survey rounds",
+    "vintage_policy": "each round is a dated publication; the ECB publishes the aggregate tables with the round",
+    "publication_date_source": "ECB SPF release dates"
+   },
+   "licence": {
+    "status": "OPEN_ATTRIBUTION",
+    "entry": null,
+    "values_publishable": false,
+    "terms_url": "https://www.ecb.europa.eu/services/using-our-site/html/index.en.html",
+    "note": "attribution required; a register entry is still missing"
+   },
+   "status": "NOT_FETCHED",
+   "status_reason": "PUBLIC_ARCHIVE_NOT_FETCHED",
+   "adapter": "ecb_spf_csv",
+   "adapter_state": "PLANNED",
+   "data_path": null,
+   "url": "https://www.ecb.europa.eu/stats/ecb_surveys/survey_of_professional_forecasters/html/index.en.html",
+   "notes": "the European counterpart of the SPF; HICP is not CPI-U, so a mapping would change the target"
+  },
+  {
+   "id": "BOE_MPR",
+   "provider": "Bank of England",
+   "provider_type": "CENTRAL_BANK",
+   "target": "CPI",
+   "target_secondary": [
+    "GDP"
+   ],
+   "frequency": "QUARTERLY",
+   "horizon": {
+    "native": "CPI inflation and GDP projections over a three-year horizon, conditioned on the market-implied path",
+    "protocol_h": [],
+    "mapping": "PENDING"
+   },
+   "publication": {
+    "cadence": "quarterly Monetary Policy Report with the MPC decision",
+    "vintage_policy": "each report is a dated publication; projections are conditional forecasts, not unconditional point forecasts",
+    "publication_date_source": "MPC meeting and report publication dates"
+   },
+   "licence": {
+    "status": "OPEN_ATTRIBUTION",
+    "entry": null,
+    "values_publishable": false,
+    "terms_url": "https://www.bankofengland.co.uk/legal",
+    "note": "reuse with attribution; a register entry is still missing"
+   },
+   "status": "NOT_FETCHED",
+   "status_reason": "MAPPING_PENDING",
+   "adapter": "boe_mpr_xlsx",
+   "adapter_state": "PLANNED",
+   "data_path": null,
+   "url": "https://www.bankofengland.co.uk/monetary-policy-report",
+   "notes": "the fan charts are a genuine predictive distribution (the only one in this catalogue), but they are conditional on market rates and use a mode-based central path: CRPS against the protocol target would not be comparable without a registered mapping"
+  },
+  {
+   "id": "NABE_OUTLOOK",
+   "provider": "National Association for Business Economics",
+   "provider_type": "RESEARCH_INSTITUTE",
+   "target": "GDP",
+   "target_secondary": [
+    "CPI",
+    "UNRATE"
+   ],
+   "frequency": "QUARTERLY",
+   "horizon": {
+    "native": "quarterly GDP, inflation and unemployment forecasts for the next five to six quarters",
+    "protocol_h": [],
+    "mapping": "PENDING"
+   },
+   "publication": {
+    "cadence": "quarterly Outlook survey",
+    "vintage_policy": "the full tables are members-only; a press summary is public",
+    "publication_date_source": "NABE Outlook release notes"
+   },
+   "licence": {
+    "status": "RESTRICTED",
+    "entry": null,
+    "values_publishable": false,
+    "terms_url": "https://www.nabe.com",
+    "note": "members-only full report; the public summary is not a forecast table and is never read as one"
+   },
+   "status": "RESTRICTED",
+   "status_reason": "MEMBERS_ONLY",
+   "adapter": null,
+   "adapter_state": "NOT_APPLICABLE",
+   "data_path": null,
+   "url": "https://www.nabe.com",
+   "notes": "the quarterly grid would fit T2/T1 best of the private surveys, but the licence blocks use, so no adapter is written"
+  },
+  {
+   "id": "BLUE_CHIP_CONSENSUS",
+   "provider": "Blue Chip Economic Indicators (Wolters Kluwer)",
+   "provider_type": "PRIVATE_VENDOR",
+   "target": "GDP",
+   "target_secondary": [
+    "CPI"
+   ],
+   "frequency": "MONTHLY",
+   "horizon": {
+    "native": "monthly consensus of quarterly and annual GDP, inflation and unemployment forecasts",
+    "protocol_h": [],
+    "mapping": "PENDING"
+   },
+   "publication": {
+    "cadence": "monthly issues",
+    "vintage_policy": "each issue is a dated publication; the vendor keeps the archive, the project does not",
+    "publication_date_source": "issue date (not fetched)"
+   },
+   "licence": {
+    "status": "RESTRICTED",
+    "entry": null,
+    "values_publishable": false,
+    "terms_url": "https://www.wolterskluwer.com",
+    "note": "paid subscription; no redistribution"
+   },
+   "status": "RESTRICTED",
+   "status_reason": "SUBSCRIPTION_ONLY",
+   "adapter": null,
+   "adapter_state": "NOT_APPLICABLE",
+   "data_path": null,
+   "url": "https://www.wolterskluwer.com",
+   "notes": "the best-known US consensus series, but behind a subscription; the entry documents the gap instead of hiding it"
+  },
+  {
+   "id": "CONSENSUS_ECONOMICS",
+   "provider": "Consensus Economics",
+   "provider_type": "PRIVATE_VENDOR",
+   "target": "GDP",
+   "target_secondary": [
+    "CPI"
+   ],
+   "frequency": "MONTHLY",
+   "horizon": {
+    "native": "monthly consensus of annual and quarterly forecasts for major economies",
+    "protocol_h": [],
+    "mapping": "PENDING"
+   },
+   "publication": {
+    "cadence": "monthly Consensus Forecasts issues",
+    "vintage_policy": "each issue is a dated publication; the vendor archive is not in the project",
+    "publication_date_source": "issue date (not fetched)"
+   },
+   "licence": {
+    "status": "RESTRICTED",
+    "entry": null,
+    "values_publishable": false,
+    "terms_url": "https://www.consensuseconomics.com",
+    "note": "paid subscription; no redistribution"
+   },
+   "status": "RESTRICTED",
+   "status_reason": "SUBSCRIPTION_ONLY",
+   "adapter": null,
+   "adapter_state": "NOT_APPLICABLE",
+   "data_path": null,
+   "url": "https://www.consensuseconomics.com",
+   "notes": "international consensus panel; subscription only, so the source remains a catalogued gap"
+  },
+  {
+   "id": "REUTERS_POLL",
+   "provider": "Reuters",
+   "provider_type": "MEDIA",
+   "target": "GDP",
+   "target_secondary": [
+    "CPI"
+   ],
+   "frequency": "IRREGULAR",
+   "horizon": {
+    "native": "polls around data releases: monthly for CPI and payrolls, quarterly for GDP",
+    "protocol_h": [],
+    "mapping": "PENDING"
+   },
+   "publication": {
+    "cadence": "monthly polls published as news articles",
+    "vintage_policy": "no systematic public archive with publication dates and per-forecaster rows; a news article is not a vintage",
+    "publication_date_source": "article date (not fetched)"
+   },
+   "licence": {
+    "status": "RESTRICTED",
+    "entry": null,
+    "values_publishable": false,
+    "terms_url": "https://www.reuters.com/legal/",
+    "note": "news redistribution terms; no bulk reuse"
+   },
+   "status": "RESTRICTED",
+   "status_reason": "NEWS_TERMS_NO_ARCHIVE",
+   "adapter": null,
+   "adapter_state": "NOT_APPLICABLE",
+   "data_path": null,
+   "url": "https://www.reuters.com/markets/",
+   "notes": "the poll exists and is widely quoted, but there is no dated, downloadable panel: PIT scoring would depend on scraped article text, which the project does not do"
+  },
+  {
+   "id": "WSJ_SURVEY",
+   "provider": "The Wall Street Journal",
+   "provider_type": "MEDIA",
+   "target": "GDP",
+   "target_secondary": [
+    "CPI",
+    "UNRATE"
+   ],
+   "frequency": "QUARTERLY",
+   "horizon": {
+    "native": "quarterly survey of academic and business economists",
+    "protocol_h": [],
+    "mapping": "PENDING"
+   },
+   "publication": {
+    "cadence": "quarterly Economic Forecasting Survey articles",
+    "vintage_policy": "published as articles; no public per-forecaster archive",
+    "publication_date_source": "article date (not fetched)"
+   },
+   "licence": {
+    "status": "RESTRICTED",
+    "entry": null,
+    "values_publishable": false,
+    "terms_url": "https://www.wsj.com/legal/terms-of-use",
+    "note": "subscription content; no reuse"
+   },
+   "status": "RESTRICTED",
+   "status_reason": "SUBSCRIPTION_ONLY",
+   "adapter": null,
+   "adapter_state": "NOT_APPLICABLE",
+   "data_path": null,
+   "url": "https://www.wsj.com/economy",
+   "notes": "same blocker as Reuters: the numbers are published in prose behind a paywall, not as a dated panel that can be scored"
+  },
+  {
+   "id": "EIU_FORECAST",
+   "provider": "Economist Intelligence Unit",
+   "provider_type": "PRIVATE_VENDOR",
+   "target": "GDP",
+   "target_secondary": [
+    "CPI"
+   ],
+   "frequency": "MONTHLY",
+   "horizon": {
+    "native": "country forecasts with monthly updates and a five-year horizon",
+    "protocol_h": [],
+    "mapping": "PENDING"
+   },
+   "publication": {
+    "cadence": "monthly country reports and forecast updates",
+    "vintage_policy": "each update is dated; the vendor archive is not in the project",
+    "publication_date_source": "report date (not fetched)"
+   },
+   "licence": {
+    "status": "RESTRICTED",
+    "entry": null,
+    "values_publishable": false,
+    "terms_url": "https://www.eiu.com",
+    "note": "paid subscription; no redistribution"
+   },
+   "status": "RESTRICTED",
+   "status_reason": "SUBSCRIPTION_ONLY",
+   "adapter": null,
+   "adapter_state": "NOT_APPLICABLE",
+   "data_path": null,
+   "url": "https://www.eiu.com",
+   "notes": "country-level forecasts would extend the catalogue beyond the US, but the licence blocks use"
+  },
+  {
+   "id": "UMICH_SURVEY_CONSUMERS",
+   "provider": "University of Michigan, Surveys of Consumers",
+   "provider_type": "ACADEMIC",
+   "target": "CPI",
+   "target_secondary": [],
+   "frequency": "MONTHLY",
+   "horizon": {
+    "native": "one-year and five-to-ten-year household inflation expectations, plus the sentiment index",
+    "protocol_h": [],
+    "mapping": "NONE"
+   },
+   "publication": {
+    "cadence": "monthly preliminary and final releases",
+    "vintage_policy": "preliminary and final releases are separate publications; no archive in the project",
+    "publication_date_source": "release dates of the survey"
+   },
+   "licence": {
+    "status": "OPEN_ATTRIBUTION",
+    "entry": null,
+    "values_publishable": false,
+    "terms_url": "https://data.sca.isr.umich.edu",
+    "note": "free for research with citation; the terms page must be recorded in the licence register before any retrieval"
+   },
+   "status": "UNAVAILABLE",
+   "status_reason": "NO_PROTOCOL_TARGET_MAPPING",
+   "adapter": null,
+   "adapter_state": "NOT_APPLICABLE",
+   "data_path": null,
+   "url": "https://data.sca.isr.umich.edu",
+   "notes": "expectations are not a CPI forecast and the sentiment index is not a recession probability; the survey is an input to the model, never a scored target"
+  },
+  {
+   "id": "CONFERENCE_BOARD_CCI",
+   "provider": "The Conference Board",
+   "provider_type": "RESEARCH_INSTITUTE",
+   "target": "RECESSION",
+   "target_secondary": [],
+   "frequency": "MONTHLY",
+   "horizon": {
+    "native": "monthly Consumer Confidence Index and its expectations component",
+    "protocol_h": [],
+    "mapping": "NONE"
+   },
+   "publication": {
+    "cadence": "monthly press release with the headline index; the historical series is licensed",
+    "vintage_policy": "monthly releases; the full series is subscription data",
+    "publication_date_source": "release date (not fetched)"
+   },
+   "licence": {
+    "status": "RESTRICTED",
+    "entry": null,
+    "values_publishable": false,
+    "terms_url": "https://www.conference-board.org",
+    "note": "headline press release is public; the historical series is licensed, so the source is treated as restricted"
+   },
+   "status": "RESTRICTED",
+   "status_reason": "SUBSCRIPTION_ONLY",
+   "adapter": null,
+   "adapter_state": "NOT_APPLICABLE",
+   "data_path": null,
+   "url": "https://www.conference-board.org/topics/consumer-confidence",
+   "notes": "the index is not an NBER recession probability (no event mapping), and the series is licensed: two independent reasons not to score it"
+  },
+  {
+   "id": "DALLAS_FED_TMOS",
+   "provider": "Federal Reserve Bank of Dallas",
+   "provider_type": "CENTRAL_BANK",
+   "target": "GDP",
+   "target_secondary": [],
+   "frequency": "MONTHLY",
+   "horizon": {
+    "native": "monthly Texas Manufacturing Outlook Survey indices (production, new orders, outlook)",
+    "protocol_h": [],
+    "mapping": "NONE"
+   },
+   "publication": {
+    "cadence": "monthly survey release",
+    "vintage_policy": "monthly releases; no national forecast and no archive in the project",
+    "publication_date_source": "survey release dates"
+   },
+   "licence": {
+    "status": "OPEN",
+    "entry": null,
+    "values_publishable": false,
+    "terms_url": "https://www.dallasfed.org",
+    "note": "public Federal Reserve Bank release; the licence register has no entry yet"
+   },
+   "status": "UNAVAILABLE",
+   "status_reason": "NO_PROTOCOL_TARGET_MAPPING",
+   "adapter": null,
+   "adapter_state": "NOT_APPLICABLE",
+   "data_path": null,
+   "url": "https://www.dallasfed.org/research/surveys/tmos",
+   "notes": "a regional diffusion index, not a national GDP forecast: the name appears in the idea list, the mapping to T2 does not exist"
+  },
+  {
+   "id": "KANSAS_CITY_FED_MFG",
+   "provider": "Federal Reserve Bank of Kansas City",
+   "provider_type": "CENTRAL_BANK",
+   "target": "GDP",
+   "target_secondary": [],
+   "frequency": "MONTHLY",
+   "horizon": {
+    "native": "monthly Tenth District manufacturing survey indices",
+    "protocol_h": [],
+    "mapping": "NONE"
+   },
+   "publication": {
+    "cadence": "monthly survey release",
+    "vintage_policy": "monthly releases; regional diffusion indices, no national forecast",
+    "publication_date_source": "survey release dates"
+   },
+   "licence": {
+    "status": "OPEN",
+    "entry": null,
+    "values_publishable": false,
+    "terms_url": "https://www.kansascityfed.org",
+    "note": "public Federal Reserve Bank release; the licence register has no entry yet"
+   },
+   "status": "UNAVAILABLE",
+   "status_reason": "NO_PROTOCOL_TARGET_MAPPING",
+   "adapter": null,
+   "adapter_state": "NOT_APPLICABLE",
+   "data_path": null,
+   "url": "https://www.kansascityfed.org",
+   "notes": "same as the Dallas entry: a regional activity index is an early-warning input, not a T2 forecast"
+  }
+ ]
+}

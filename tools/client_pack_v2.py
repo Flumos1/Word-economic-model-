@@ -8,7 +8,13 @@ copied (or counted) — nothing is re-estimated, invented or scraped:
   (status CANDIDATE / RESEARCH_ONLY; no admission is ever claimed);
 * ``build/registry/modules.jsonl`` — the append-only module registry with RESEARCH_ONLY passports;
 * ``build/api/index.json`` and **every forecast contract it lists** (``forecasts/oil_brent.json``,
-  ``forecasts/gas_ttf.json``, …) plus one market scenario (``hormuz_closed_6m`` by default).
+  ``forecasts/gas_ttf.json``, …) plus one market scenario (``hormuz_closed_6m`` by default);
+* optionally, ``build/forecast_world_bridge/report.json`` (or ``--bridge``) — the reduced-form
+  forecast→world bridge, reduced to a scenario × country/industry top-effects table with its
+  source and SHA-256.  The block is optional: a missing artefact yields ``available: false`` with
+  an explicit reason and the pack still builds (fail-open); a present artefact that is corrupt,
+  foreign (wrong schema/status), carries raw-data markers or contradicts its ``.sha256`` sidecar
+  fails the build closed.
 
 Counts (passports, market modules, scenario, forecasts) are **read from the registry and the API
 index**, never hard-coded: the 5-passport / 1-market-module v1 layout still builds, while a v2 index
@@ -34,11 +40,13 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import re
 import shutil
 import sys
 import tempfile
 from datetime import datetime, timezone
+from html import escape as _escape
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -86,6 +94,24 @@ MODULE_FIELDS = ("module_id", "display_name", "version", "kind", "status", "owne
                  "limitations", "code_sha256", "data_sha256", "data_status", "components",
                  "entrypoints", "docs", "tests", "created_at")
 
+# Optional reduced-form bridge (tools/forecast_world_bridge.py).  Absence is fail-open, a present
+# but invalid artefact is fail-closed.
+BRIDGE_SCHEMA = "amfe.forecast_world_bridge.v1"
+BRIDGE_DIR = "forecast_world_bridge"
+BRIDGE_FILE_NAMES = ("report.json", "forecast_world.json")
+BRIDGE_STATUSES = ("RESEARCH_ONLY", "PARTIAL_INPUTS")
+BRIDGE_SCENARIO_STATUSES = ("OK", "BLOCKED_INPUT")
+BRIDGE_RAW_MARKERS = ("data/mrio", "data\\mrio", "dataset.json", "\\data\\", "F:\\", "F:/")
+BRIDGE_RAW_KEYS = frozenset({"Z", "Z_sparse", "x", "y", "va", "sector_rows", "sector_cols"})
+BRIDGE_DOC_TOP = 5
+BRIDGE_NOTE = (
+    "reduced-form: мост переводит точечный прогноз и интервал T1/T2/T3 в сценарные агрегаты "
+    "мира через уже опубликованные эластичности (ценовой канал quantity_bridge и агрегатный "
+    "множитель Леонтьева). Это сравнительная статика, НЕ прогноз мира и НЕ допуск; аллокация "
+    "страна×отрасль сепарабельная (внешнее произведение маргиналов), кросс-взаимодействие "
+    "не моделируется, ошибка растёт с шагом шока."
+)
+
 
 class ClientPackError(RuntimeError):
     """Fail-closed aggregation error (missing/corrupt/unsafe input artefact)."""
@@ -128,6 +154,310 @@ def _repo_path(root: Path, path: Path) -> str:
         return str(Path(path).resolve().relative_to(Path(root).resolve())).replace("\\", "/")
     except ValueError:
         return str(path).replace("\\", "/")
+
+
+# ------------------------------------------------------------- optional bridge (forecast → world)
+def _finite(value):
+    """A finite float from a JSON number, or ``None`` for anything else (bool/None/NaN/∞)."""
+    if value is None or isinstance(value, bool):
+        return None
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    return number if math.isfinite(number) else None
+
+
+def _bridge_default_paths(inputs_root: Path) -> list[Path]:
+    return [Path(inputs_root) / BRIDGE_DIR / name for name in BRIDGE_FILE_NAMES]
+
+
+def _resolve_bridge_path(inputs_root: Path, explicit, root: Path) -> tuple[Path | None, list[Path]]:
+    """Resolve the optional bridge artefact; refuse traversal and paths outside the artefact roots.
+
+    ``explicit`` may name a JSON file or a directory containing ``report.json`` /
+    ``forecast_world.json`` (the natural target is a ``tools/forecast_world_bridge.py`` output
+    directory).  Without ``explicit`` the default ``<inputs_root>/forecast_world_bridge/`` is
+    searched and ``(None, searched)`` is returned when nothing is there.
+    """
+    inputs_root, root = Path(inputs_root), Path(root)
+    searched = _bridge_default_paths(inputs_root)
+    if explicit is None or not str(explicit).strip():
+        for candidate in searched:
+            if candidate.is_file():
+                return candidate.resolve(), searched
+        return None, searched
+    raw = Path(str(explicit).strip())
+    if ".." in raw.parts:
+        raise ClientPackError(
+            f"bridge: unsafe path {str(explicit)!r} (parent traversal is refused)")
+    if raw.is_absolute():
+        candidate = raw.resolve()
+        inside = False
+        for base in (inputs_root.resolve(), root.resolve()):
+            try:
+                candidate.relative_to(base)
+                inside = True
+                break
+            except ValueError:
+                continue
+        if not inside:
+            raise ClientPackError(
+                f"bridge: unsafe path {str(explicit)!r}: outside the artefact roots")
+    else:
+        candidate = root / raw
+        if not candidate.exists():
+            candidate = inputs_root / raw
+        candidate = candidate.resolve()
+    if candidate.is_dir():
+        for name in BRIDGE_FILE_NAMES:
+            inner = candidate / name
+            if inner.is_file():
+                return inner.resolve(), [inner]
+        raise ClientPackError(
+            f"bridge: directory {str(explicit)!r} has no {' / '.join(BRIDGE_FILE_NAMES)}")
+    if not candidate.is_file():
+        raise ClientPackError(f"bridge: explicit artefact is missing: {str(explicit)!r}")
+    return candidate, [candidate]
+
+
+def _bridge_sidecar_sha(path: Path) -> str | None:
+    """Read ``<file>.sha256`` next to the artefact when present (optional integrity pin)."""
+    sidecar = Path(str(path) + ".sha256")
+    if not sidecar.is_file():
+        return None
+    try:
+        text = sidecar.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise ClientPackError(
+            f"bridge: cannot read the digest sidecar {sidecar.name}: {exc!r}") from exc
+    match = re.search(r"[0-9a-fA-F]{64}", text)
+    if not match:
+        raise ClientPackError(f"bridge: the digest sidecar {sidecar.name} has no SHA-256")
+    return match.group(0).lower()
+
+
+def _bridge_raw_markers(payload) -> list[str]:
+    """Raw-data markers in a bridge payload (must be empty: only aggregates are published)."""
+    problems: list[str] = []
+
+    def walk(node, path: str) -> None:
+        if isinstance(node, dict):
+            for key, value in node.items():
+                if isinstance(key, str) and key in BRIDGE_RAW_KEYS:
+                    problems.append(f"{path}.{key}: raw key")
+                walk(value, f"{path}.{key}")
+        elif isinstance(node, list):
+            for position, value in enumerate(node):
+                walk(value, f"{path}[{position}]")
+        elif isinstance(node, str):
+            for marker in BRIDGE_RAW_MARKERS:
+                if marker in node:
+                    problems.append(f"{path}: raw path marker {marker!r}")
+
+    walk(payload, "$")
+    return problems
+
+
+def _validate_bridge(document: dict, path: Path) -> None:
+    """Fail-closed validation of a present bridge artefact (schema, status, numbers, no raw)."""
+    name = Path(path).name
+    if document.get("schema") != BRIDGE_SCHEMA:
+        raise ClientPackError(
+            f"bridge: {name} is a foreign artefact (schema {document.get('schema')!r}, "
+            f"expected {BRIDGE_SCHEMA!r})")
+    if document.get("status") not in BRIDGE_STATUSES:
+        raise ClientPackError(
+            f"bridge: {name} has status {document.get('status')!r}, expected one of "
+            f"{list(BRIDGE_STATUSES)}")
+    if document.get("admission") is not False:
+        raise ClientPackError(f"bridge: {name} does not declare admission=false")
+    model = document.get("model")
+    if not isinstance(model, dict) or not model.get("dataset"):
+        raise ClientPackError(f"bridge: {name} has no model.dataset")
+    scenarios = document.get("scenarios")
+    if not isinstance(scenarios, list) or not scenarios:
+        raise ClientPackError(f"bridge: {name} has an empty scenarios[]")
+    seen: set[str] = set()
+    for item in scenarios:
+        if not isinstance(item, dict) or not item.get("id"):
+            raise ClientPackError(f"bridge: {name}: a scenario has no id")
+        if item["id"] in seen:
+            raise ClientPackError(f"bridge: {name}: duplicate scenario {item['id']!r}")
+        seen.add(item["id"])
+        if item.get("status") not in BRIDGE_SCENARIO_STATUSES:
+            raise ClientPackError(
+                f"bridge: {name}: scenario {item['id']!r} has status {item.get('status')!r}")
+        combined = item.get("combined")
+        if not isinstance(combined, dict):
+            raise ClientPackError(f"bridge: {name}: scenario {item['id']!r} has no combined block")
+        if item["status"] == "OK" and _finite(combined.get("delta_output_usd_mn")) is None:
+            raise ClientPackError(
+                f"bridge: {name}: scenario {item['id']!r} has a non-numeric delta_output_usd_mn")
+        for cell in item.get("top_country_industry") or []:
+            if not isinstance(cell, dict) or not cell.get("country") or not cell.get("industry"):
+                raise ClientPackError(
+                    f"bridge: {name}: scenario {item['id']!r}: a top cell has no country/industry")
+            if _finite(cell.get("delta_output")) is None:
+                raise ClientPackError(
+                    f"bridge: {name}: scenario {item['id']!r}: a top cell has a non-numeric delta")
+    problems = _bridge_raw_markers(document)
+    if problems:
+        raise ClientPackError(
+            f"bridge: {name} carries raw-data markers: " + "; ".join(problems[:5]))
+    checks = document.get("checks")
+    if not isinstance(checks, dict) or checks.get("no_raw_data") is not True:
+        raise ClientPackError(f"bridge: {name} does not declare checks.no_raw_data=true")
+
+
+def load_bridge(inputs_root: Path, explicit, root: Path) -> dict:
+    """Load the optional bridge block: fail-open on absence, fail-closed on a bad artefact."""
+    path, searched = _resolve_bridge_path(inputs_root, explicit, root)
+    if path is None:
+        relative = [_repo_path(root, item) for item in searched]
+        return {
+            "available": False, "path": None, "sha256": None, "sidecar_sha256": None,
+            "document": None,
+            "section": {
+                "available": False,
+                "status": "NOT_AVAILABLE",
+                "optional": True,
+                "reason": ("bridge-артефакт не найден: " + " / ".join(relative) +
+                           " (запустите tools/forecast_world_bridge.py или укажите --bridge)"),
+                "searched": relative,
+                "source": None,
+                "sha256": None,
+                "dataset": None,
+                "scenarios": [],
+                "effects": [],
+                "note": ("опциональный блок: пакет собирается без него; это не ошибка данных, "
+                         "но раздел явно помечен как недоступный"),
+            },
+        }
+    document = _read_json(path, "bridge")
+    digest = _sha256(path)
+    sidecar = _bridge_sidecar_sha(path)
+    if sidecar is not None and sidecar != digest:
+        raise ClientPackError(
+            f"bridge: SHA-256 sidecar {Path(str(path) + '.sha256').name} does not match the "
+            f"artefact ({sidecar[:12]} != {digest[:12]})")
+    _validate_bridge(document, path)
+    return {"available": True, "path": path, "sha256": digest, "sidecar_sha256": sidecar,
+            "document": document, "section": None}
+
+
+def _bridge_section(bridge: dict, root: Path) -> dict:
+    """Reduce the bridge payload to the client-facing block (scenario → country/industry)."""
+    if not bridge.get("available"):
+        return dict(bridge["section"])
+    document = bridge["document"]
+    path = bridge["path"]
+    model = document.get("model") or {}
+    dataset_info = model.get("dataset_info") or {}
+    price_calibration = model.get("price_channel") or {}
+    growth_calibration = model.get("growth_channel") or {}
+    source_checks = document.get("checks") or {}
+    risk = document.get("risk_overlay") or {}
+    scenarios: list[dict] = []
+    effects: list[dict] = []
+    for scenario in document["scenarios"]:
+        combined = scenario.get("combined") or {}
+        price_channel = scenario.get("price_channel") or {}
+        shifts = scenario.get("shifts") or {}
+        interval = combined.get("interval") or {}
+        step = _finite(price_channel.get("relative_price_shock"))
+        relative = _finite(combined.get("relative_output"))
+        top: list[dict] = []
+        if scenario.get("status") == "OK":
+            for cell in scenario.get("top_country_industry") or []:
+                row = {
+                    "scenario": scenario["id"],
+                    "country": str(cell["country"]),
+                    "industry": str(cell["industry"]),
+                    "delta_output_usd_mn": _finite(cell.get("delta_output")),
+                    "share_of_abs": _finite(cell.get("share_of_abs")),
+                }
+                top.append(row)
+                effects.append(row)
+        scenarios.append({
+            "id": scenario["id"],
+            "label": scenario.get("label"),
+            "status": scenario.get("status"),
+            "shifts_pp": {"cpi": _finite(shifts.get("cpi_pp")),
+                          "growth": _finite(shifts.get("growth_pp"))},
+            "price_step_pct": round(step * 100.0, 9) if step is not None else None,
+            "delta_output_usd_mn": _finite(combined.get("delta_output_usd_mn")),
+            "relative_output_pct": round(relative * 100.0, 9) if relative is not None else None,
+            "interval_usd_mn": [_finite(interval.get("delta_low")),
+                                _finite(interval.get("delta_high"))],
+            "base_output_usd_mn": _finite(combined.get("base_output_usd_mn")),
+            "top_effects": top,
+            "effects_count": len(top),
+            "reason": scenario.get("reason"),
+        })
+    scenario_checks = [item["checks"] for item in document["scenarios"]
+                       if item.get("status") == "OK"
+                       and isinstance(item.get("checks"), dict)
+                       and "conservation" in item["checks"]]
+    return {
+        "available": True,
+        "status": "OK",
+        "optional": True,
+        "schema": document.get("schema"),
+        "artefact_status": document.get("status"),
+        "admission": False,
+        "generated_at": document.get("generated_at"),
+        "source": _repo_path(root, path),
+        "sha256": bridge["sha256"],
+        "sha256_verified": "sidecar" if bridge.get("sidecar_sha256") else "file",
+        "bytes": Path(path).stat().st_size,
+        "dataset": {
+            "id": model.get("dataset"),
+            "label": model.get("dataset_label"),
+            "source": dataset_info.get("source"),
+            "units": dataset_info.get("units"),
+            "countries": dataset_info.get("countries"),
+            "industries": dataset_info.get("industries"),
+            "sectors": dataset_info.get("sectors"),
+        },
+        "calibration": {
+            "price_sensitivity": _finite(price_calibration.get("sensitivity")),
+            "aggregate_relative_price": _finite(price_calibration.get("relative_output")),
+            "growth_multiplier": _finite(growth_calibration.get("value")),
+            "pass_through": _finite(model.get("pass_through")),
+            "channel": model.get("channel_used"),
+            "horizon": model.get("horizon"),
+        },
+        "risk_overlay": {
+            "target": risk.get("target"),
+            "status": risk.get("status"),
+            "probability": _finite(risk.get("probability")),
+            "threshold": _finite(risk.get("threshold")),
+            "flag": risk.get("flag"),
+            "effect_on_numbers": risk.get("effect_on_numbers"),
+        },
+        "scenarios": scenarios,
+        "effects": effects,
+        "checks": {
+            "no_raw_data": True,
+            "admission": False,
+            "mode": source_checks.get("mode"),
+            "scenarios_ok": list(source_checks.get("scenarios_ok") or []),
+            "scenarios_blocked": list(source_checks.get("scenarios_blocked") or []),
+            "allocated_scenarios": len(scenario_checks),
+            "conservation": bool(scenario_checks) and all(
+                item.get("conservation") is True for item in scenario_checks),
+            "country_margins": bool(scenario_checks) and all(
+                item.get("country_margins") is True for item in scenario_checks),
+            "industry_margins": bool(scenario_checks) and all(
+                item.get("industry_margins") is True for item in scenario_checks),
+            "relative_matches_channel": bool(scenario_checks) and all(
+                item.get("relative_matches_channel") is True for item in scenario_checks),
+            "fail_closed": source_checks.get("fail_closed"),
+        },
+        "limitations": [str(item) for item in document.get("limitations") or []],
+        "note": BRIDGE_NOTE,
+    }
 
 
 def _read_json(path: Path, label: str) -> dict:
@@ -261,7 +591,8 @@ def _validate_forecast(document: dict, spec: dict) -> None:
         raise ClientPackError(f"forecast {spec.get('target')!r}: module_id is missing")
 
 
-def load_inputs(inputs_root: Path, scenario_id: str, root: Path) -> dict:
+def load_inputs(inputs_root: Path, scenario_id: str, root: Path,
+                bridge_path=None) -> dict:
     """Load and validate every artefact; raises ClientPackError (fail-closed) on any problem."""
     inputs_root = Path(inputs_root)
     paths = {key: inputs_root / relative for key, relative in INPUT_PATHS.items()}
@@ -270,6 +601,7 @@ def load_inputs(inputs_root: Path, scenario_id: str, root: Path) -> dict:
     for key in ("product_feed", "api_index", "scenario"):
         documents[key] = _read_json(paths[key], key)
     documents["registry"] = _read_jsonl(paths["registry"], "registry")
+    documents["bridge"] = load_bridge(inputs_root, bridge_path, root)
 
     feed = documents["product_feed"]
     _validate_product_feed(feed)
@@ -380,6 +712,12 @@ def _default_generated_at(documents: dict) -> str:
         created = entry.get("created_at")
         if created:
             candidates.append(f"{created}T00:00:00Z")
+    bridge = documents.get("bridge") or {}
+    if bridge.get("available"):
+        value = (bridge.get("document") or {}).get("generated_at")
+        if value:
+            _parse_timestamp(value, "bridge generated_at")
+            candidates.append(value)
     for value in candidates:
         _parse_timestamp(value, "input generated_at")
     return max(candidates) if candidates else FALLBACK_GENERATED_AT
@@ -439,6 +777,7 @@ def build_document(inputs: dict, client: str, generated_at: str) -> dict:
     envelope = forecast["envelope"]
     summary = result.get("summary") or {}
     quantiles = [float(value) for value in feed["quantiles_5_to_95_step_5"]]
+    bridge = _bridge_section(inputs["bridge"], inputs["root"])
     by_status, by_kind = {}, {}
     for entry in registry:
         by_status[entry["status"]] = by_status.get(entry["status"], 0) + 1
@@ -486,7 +825,13 @@ def build_document(inputs: dict, client: str, generated_at: str) -> dict:
             "market_module_ids": [item.get("module_id") for item in market_modules],
             "forecasts": len(forecast_items),
             "forecast_targets": [item["target"] for item in forecast_items],
-            "sources": len(inputs["paths"]) + len(inputs["forecasts"]),
+            "bridge_available": bridge["available"],
+            "bridge_source": bridge.get("source"),
+            "bridge_sha256": bridge.get("sha256"),
+            "bridge_scenarios": len(bridge.get("scenarios") or []),
+            "bridge_effects": len(bridge.get("effects") or []),
+            "sources": (len(inputs["paths"]) + len(inputs["forecasts"])
+                        + (1 if bridge["available"] else 0)),
         },
         "product_feed": {
             "source": _repo_path(inputs["root"], inputs["paths"]["product_feed"]),
@@ -602,6 +947,7 @@ def build_document(inputs: dict, client: str, generated_at: str) -> dict:
             },
             "generated_at": index.get("generated_at"),
         },
+        "bridge": bridge,
         "licence": dict(LICENCE),
         "sources": [],
     }
@@ -609,6 +955,8 @@ def build_document(inputs: dict, client: str, generated_at: str) -> dict:
                     for key in ("product_feed", "registry", "api_index", "scenario")]
     source_paths += [(f"forecast:{target}", inputs["forecast_paths"][target])
                      for target in sorted(inputs["forecast_paths"])]
+    if bridge["available"]:
+        source_paths.append(("bridge", inputs["bridge"]["path"]))
     for kind, path in source_paths:
         document["sources"].append({"kind": kind, "path": _repo_path(inputs["root"], path),
                                     "bytes": path.stat().st_size, "sha256": _sha256(path)})
@@ -620,6 +968,8 @@ def build_document(inputs: dict, client: str, generated_at: str) -> dict:
     }
     for target, item in inputs["forecasts"].items():
         source_meta[f"forecast:{target}"] = (item.get("schema"), item.get("generated_at"))
+    if bridge["available"]:
+        source_meta["bridge"] = (bridge.get("schema"), bridge.get("generated_at"))
     for item in document["sources"]:
         schema, generated = source_meta[item["kind"]]
         item["schema"] = schema
@@ -662,6 +1012,41 @@ def _table(document, headers: list, rows: list) -> None:
             cells[index].text = "" if value is None else str(value)
 
 
+def _bridge_docx(document, bridge: dict) -> None:
+    """Optional section: scenario → country/industry top effects, or an explicit absence note."""
+    document.add_heading("Мост «прогноз → мир» (reduced-form, опционально)", level=1)
+    if not bridge.get("available"):
+        document.add_paragraph("Раздел недоступен: " + str(bridge.get("reason")))
+        document.add_paragraph(
+            "Это не ошибка сборки: блок опциональный, пакет собран без него. Чтобы включить "
+            "раздел, запустите tools/forecast_world_bridge.py или укажите --bridge.")
+        return
+    dataset = bridge.get("dataset") or {}
+    calibration = bridge.get("calibration") or {}
+    document.add_paragraph(
+        f"Источник: {bridge['source']} · SHA-256 {bridge['sha256']} · набор "
+        f"{dataset.get('id')} ({dataset.get('label')}, {dataset.get('units')}) · "
+        f"S_price {_fmt(calibration.get('price_sensitivity'), 4)} · M "
+        f"{_fmt(calibration.get('growth_multiplier'), 4)} · pass-through "
+        f"{_fmt(calibration.get('pass_through'), 2)} · статус артефакта "
+        f"{bridge.get('artefact_status')}.")
+    _table(document, ["Сценарий", "Статус", "Шаг CPI, пп", "Δ выпуска, USD млн",
+                      "% выпуска", "Интервал 5–95, USD млн"],
+           [[item["id"], item["status"], _fmt(item["shifts_pp"]["cpi"], 2),
+             _fmt(item["delta_output_usd_mn"], 1), _fmt(item["relative_output_pct"], 4),
+             f"{_fmt(item['interval_usd_mn'][0], 1)} … {_fmt(item['interval_usd_mn'][1], 1)}"]
+            for item in bridge["scenarios"]])
+    rows = []
+    for item in bridge["scenarios"]:
+        for cell in item["top_effects"][:BRIDGE_DOC_TOP]:
+            rows.append([item["id"], cell["country"], cell["industry"],
+                         _fmt(cell["delta_output_usd_mn"], 1), _fmt(cell["share_of_abs"], 4)])
+    document.add_paragraph("Топ-эффекты «сценарий → страна/отрасль» "
+                           f"(до {BRIDGE_DOC_TOP} ячеек на сценарий, полный список — в XLSX/JSON):")
+    _table(document, ["Сценарий", "Страна", "Отрасль", "Δ выпуска, USD млн", "Доля"], rows)
+    document.add_paragraph(bridge["note"])
+
+
 def build_executive(path: Path, data: dict, generated: datetime) -> None:
     document = _new_document("AMFE — клиентский пакет v2 (executive summary)", data["client"],
                              data["generated_at"])
@@ -691,9 +1076,11 @@ def build_executive(path: Path, data: dict, generated: datetime) -> None:
         "остаются открытыми (см. docs/076, docs/088). Числа пакета — это значения из артефактов "
         "product feed и forecast API; пакет ничего не пересчитывает. Это не прогноз и не "
         "инвестиционная рекомендация.")
+    _bridge_docx(document, data["bridge"])
     document.add_heading("Что внутри", level=1)
     document.add_paragraph(
-        "02_Numbers.xlsx — числа по кандидату, паспортам модулей, рыночному сценарию и API; "
+        "02_Numbers.xlsx — числа по кандидату, паспортам модулей, рыночному сценарию и API "
+        "(листы Bridge/Bridge_Scenarios/Bridge_Effects при наличии моста); "
         "03_Dashboard.html — статическая панель; 04_Machine_Readable.json — машиночитаемая версия; "
         "05_Methodology_and_Sources.docx — источники и метод; "
         "06_Licence_and_Disclaimer.docx — лицензии и дисклеймеры; "
@@ -721,6 +1108,17 @@ def build_methodology(path: Path, data: dict, generated: datetime) -> None:
             "(например, admitted model) останавливают сборку до записи выходного каталога.",
     ):
         document.add_paragraph(line)
+    bridge = data["bridge"]
+    if bridge.get("available"):
+        document.add_paragraph(
+            "Опциональный блок «Мост прогноз → мир» прочитан из "
+            f"{bridge['source']} (SHA-256 {bridge['sha256']}, статус артефакта "
+            f"{bridge.get('artefact_status')}). Это reduced-form сравнительная статика по "
+            "объявленным эластичностям; сырых рядов в артефакте нет (checks.no_raw_data=true).")
+    else:
+        document.add_paragraph(
+            "Опциональный блок «Мост прогноз → мир» не включён: "
+            f"{bridge.get('reason')}. Отсутствие необязательного артефакта не является ошибкой.")
     document.add_heading("Детерминизм", level=1)
     document.add_paragraph(
         "Дата пакета фиксируется --generated-at (по умолчанию — самый свежий timestamp входов). "
@@ -878,6 +1276,56 @@ def build_xlsx(path: Path, data: dict, generated: datetime) -> None:
         api.cell(row=row_index, column=1, value=label)
         api.cell(row=row_index, column=2, value=value)
 
+    bridge = data["bridge"]
+    bridge_sheet = workbook.create_sheet("Bridge")
+    bridge_rows = [
+        ("available", bridge["available"]),
+        ("status", bridge["status"]),
+        ("reason", bridge.get("reason")),
+        ("source", bridge.get("source")),
+        ("sha256", bridge.get("sha256")),
+        ("sha256_verified", bridge.get("sha256_verified")),
+        ("artefact_status", bridge.get("artefact_status")),
+        ("dataset", (bridge.get("dataset") or {}).get("id")),
+        ("dataset_label", (bridge.get("dataset") or {}).get("label")),
+        ("units", (bridge.get("dataset") or {}).get("units")),
+        ("price_sensitivity", (bridge.get("calibration") or {}).get("price_sensitivity")),
+        ("growth_multiplier", (bridge.get("calibration") or {}).get("growth_multiplier")),
+        ("pass_through", (bridge.get("calibration") or {}).get("pass_through")),
+        ("scenarios", len(bridge.get("scenarios") or [])),
+        ("effects", len(bridge.get("effects") or [])),
+        ("note", bridge.get("note")),
+    ]
+    for row_index, (label, value) in enumerate(bridge_rows, start=1):
+        bridge_sheet.cell(row=row_index, column=1, value=label)
+        bridge_sheet.cell(row=row_index, column=2, value=value)
+
+    bridge_scenarios = workbook.create_sheet("Bridge_Scenarios")
+    bridge_scenario_headers = ("scenario_id", "status", "cpi_shift_pp", "growth_shift_pp",
+                               "price_step_pct", "delta_output_usd_mn", "relative_output_pct",
+                               "interval_low_usd_mn", "interval_high_usd_mn", "reason")
+    for column, header in enumerate(bridge_scenario_headers, start=1):
+        bridge_scenarios.cell(row=1, column=column, value=header)
+    for row_index, item in enumerate(bridge.get("scenarios") or [], start=2):
+        interval = item.get("interval_usd_mn") or [None, None]
+        values = (item.get("id"), item.get("status"),
+                  (item.get("shifts_pp") or {}).get("cpi"),
+                  (item.get("shifts_pp") or {}).get("growth"),
+                  item.get("price_step_pct"), item.get("delta_output_usd_mn"),
+                  item.get("relative_output_pct"), interval[0], interval[1],
+                  item.get("reason"))
+        for column, value in enumerate(values, start=1):
+            bridge_scenarios.cell(row=row_index, column=column, value=value)
+
+    bridge_effects = workbook.create_sheet("Bridge_Effects")
+    bridge_effect_headers = ("scenario", "country", "industry", "delta_output_usd_mn",
+                             "share_of_abs")
+    for column, header in enumerate(bridge_effect_headers, start=1):
+        bridge_effects.cell(row=1, column=column, value=header)
+    for row_index, item in enumerate(bridge.get("effects") or [], start=2):
+        for column, key in enumerate(bridge_effect_headers, start=1):
+            bridge_effects.cell(row=row_index, column=column, value=item.get(key))
+
     sources = workbook.create_sheet("Sources")
     for column, header in enumerate(("kind", "path", "schema", "generated_at", "bytes", "sha256"),
                                     start=1):
@@ -912,6 +1360,45 @@ _HTML_STYLE = """
   footer { margin-top: 2rem; border-top: 1px solid #8884; padding-top: .7rem;
            color: #666; font-size: .85rem; }
 """
+
+
+def _bridge_html(bridge: dict) -> str:
+    """Optional bridge section for the static dashboard (escaped, no external resources)."""
+    if not bridge.get("available"):
+        return ("  <h2>Мост «прогноз → мир» (reduced-form)</h2>\n"
+                f"  <div class=\"banner\">Раздел недоступен: "
+                f"{_escape(str(bridge.get('reason')))}</div>")
+    dataset = bridge.get("dataset") or {}
+    calibration = bridge.get("calibration") or {}
+    meta = (f"Источник: {bridge['source']} · SHA-256 {bridge['sha256']} · набор "
+            f"{dataset.get('id')} ({dataset.get('label')}, {dataset.get('units')}) · S_price "
+            f"{_fmt(calibration.get('price_sensitivity'), 4)} · M "
+            f"{_fmt(calibration.get('growth_multiplier'), 4)}")
+    scenario_rows = "".join(
+        f"<tr><td>{_escape(str(item.get('id')))}</td><td>{_escape(str(item.get('status')))}</td>"
+        f"<td class=\"num\">{_fmt(item.get('price_step_pct'), 2)}</td>"
+        f"<td class=\"num\">{_fmt(item.get('delta_output_usd_mn'), 1)}</td>"
+        f"<td class=\"num\">{_fmt(item.get('relative_output_pct'), 4)}</td>"
+        f"<td class=\"num\">{_fmt(interval[0], 1)} … {_fmt(interval[1], 1)}</td></tr>"
+        for item, interval in ((item, (item.get("interval_usd_mn") or [None, None])[:2])
+                               for item in bridge.get("scenarios") or []))
+    effect_rows = "".join(
+        f"<tr><td>{_escape(str(item.get('id')))}</td>"
+        f"<td>{_escape(cell['country'])}</td><td>{_escape(cell['industry'])}</td>"
+        f"<td class=\"num\">{_fmt(cell.get('delta_output_usd_mn'), 1)}</td>"
+        f"<td class=\"num\">{_fmt(cell.get('share_of_abs'), 4)}</td></tr>"
+        for item in bridge.get("scenarios") or []
+        for cell in (item.get("top_effects") or [])[:BRIDGE_DOC_TOP])
+    return f"""  <h2>Мост «прогноз → мир» (reduced-form, опционально)</h2>
+  <p class="meta">{_escape(meta)}</p>
+  <table><tr><th>сценарий</th><th>статус</th><th>шаг CPI, пп</th>
+  <th>Δ выпуска, USD млн</th><th>% выпуска</th><th>интервал 5–95, USD млн</th></tr>
+  {scenario_rows}</table>
+  <p class="meta">Топ-эффекты «сценарий → страна/отрасль» (до {BRIDGE_DOC_TOP} ячеек на
+  сценарий; полный список — в 02_Numbers.xlsx и 04_Machine_Readable.json):</p>
+  <table><tr><th>сценарий</th><th>страна</th><th>отрасль</th><th>Δ выпуска, USD млн</th>
+  <th>доля</th></tr>{effect_rows}</table>
+  <p class="meta">{_escape(bridge.get('note'))}</p>"""
 
 
 def build_dashboard(path: Path, data: dict) -> None:
@@ -978,6 +1465,7 @@ def build_dashboard(path: Path, data: dict) -> None:
   <table><tr><th>месяц</th><th>цена</th></tr>{path_rows}</table>
   <h2>Forecast API</h2>
   <table><tr><th>метод</th><th>путь</th><th>описание</th></tr>{endpoint_rows}</table>
+{_bridge_html(data['bridge'])}
   <h2>Источники</h2>
   <ul>{''.join(f"<li>{item['path']} — sha256 {_short(item['sha256'])}</li>" for item in data['sources'])}</ul>
   <footer>Research only; not a forecast, not an admission decision, not investment advice.
@@ -1036,6 +1524,43 @@ def build_readme(path: Path, data: dict, files: list) -> None:
     for item in data["forecasts"]["items"]:
         lines.append(f"| `{item['target']}` | `{item['module_id']}` | {item.get('units') or '—'} | "
                      f"{_fmt(item.get('price_peak'))} | {item.get('status')} |")
+    bridge = data["bridge"]
+    lines += ["", "## Мост «прогноз → мир» (опционально, reduced-form)", ""]
+    if bridge.get("available"):
+        dataset = bridge.get("dataset") or {}
+        calibration = bridge.get("calibration") or {}
+        lines += [
+            f"- Источник: `{bridge['source']}` · SHA-256 `{bridge['sha256']}` · статус артефакта "
+            f"`{bridge.get('artefact_status')}`.",
+            f"- Набор: `{dataset.get('id')}` ({dataset.get('label')}, {dataset.get('units')}); "
+            f"S_price {_fmt(calibration.get('price_sensitivity'), 4)}, M "
+            f"{_fmt(calibration.get('growth_multiplier'), 4)}, pass-through "
+            f"{_fmt(calibration.get('pass_through'), 2)}.",
+            f"- Сценариев: {len(bridge['scenarios'])}; топ-эффектов «сценарий → страна/отрасль»: "
+            f"{len(bridge['effects'])} (полный список — в `02_Numbers.xlsx` и "
+            f"`04_Machine_Readable.json`).",
+            "",
+            "| сценарий | статус | шаг CPI, пп | Δ выпуска, USD млн | % выпуска |",
+            "|---|---|---|---|---|",
+        ]
+        for item in bridge["scenarios"]:
+            lines.append(f"| `{item['id']}` | {item['status']} | "
+                         f"{_fmt(item['shifts_pp']['cpi'], 2)} | "
+                         f"{_fmt(item['delta_output_usd_mn'], 1)} | "
+                         f"{_fmt(item['relative_output_pct'], 4)} |")
+        lines += ["", "| сценарий | страна | отрасль | Δ выпуска, USD млн | доля |",
+                  "|---|---|---|---|---|"]
+        for item in bridge["scenarios"]:
+            for cell in item["top_effects"][:BRIDGE_DOC_TOP]:
+                lines.append(f"| `{item['id']}` | {cell['country']} | {cell['industry']} | "
+                             f"{_fmt(cell['delta_output_usd_mn'], 1)} | "
+                             f"{_fmt(cell['share_of_abs'], 4)} |")
+        lines += ["", f"> {bridge['note']}"]
+    else:
+        lines += [f"- Недоступен: {bridge.get('reason')}.",
+                  "- Отсутствие необязательного артефакта не ошибка: пакет собран без раздела. "
+                  "Чтобы включить, запустите `tools/forecast_world_bridge.py` или укажите "
+                  "`--bridge <path>`."]
     lines += ["", "## Источники", ""]
     for item in data["sources"]:
         lines.append(f"- `{item['path']}` — `{_short(item['sha256'], 16)}` "
@@ -1095,7 +1620,7 @@ def build_reproducibility(path: Path, data: dict, files: list, command: str) -> 
 # --------------------------------------------------------------------------------------- build pack
 def build_pack(out_dir: Path, *, inputs_root: Path | None = None, scenario_id: str = DEFAULT_SCENARIO,
                client: str = DEFAULT_CLIENT, generated_at: str | None = None,
-               root: Path | None = None) -> dict:
+               root: Path | None = None, bridge_path=None) -> dict:
     """Build the whole client pack; raises ClientPackError (fail-closed) before any output."""
     root = Path(root) if root is not None else ROOT
     inputs_root = Path(inputs_root) if inputs_root is not None else root / "build"
@@ -1104,7 +1629,7 @@ def build_pack(out_dir: Path, *, inputs_root: Path | None = None, scenario_id: s
         raise ClientPackError("client name must not be empty")
     if not re.fullmatch(r"[a-z0-9_]+", scenario_id or ""):
         raise ClientPackError(f"invalid scenario id {scenario_id!r}")
-    inputs = load_inputs(inputs_root, scenario_id, root)
+    inputs = load_inputs(inputs_root, scenario_id, root, bridge_path=bridge_path)
     generated_at = generated_at or _default_generated_at(inputs)
     _parse_timestamp(generated_at, "generated_at")
     generated = _parse_timestamp(generated_at, "generated_at")
@@ -1155,6 +1680,8 @@ def build_pack(out_dir: Path, *, inputs_root: Path | None = None, scenario_id: s
         command = (f"python tools/client_pack_v2.py --client {client!r} "
                    f"--scenario {scenario_id} --generated-at {generated_at} --out "
                    f"{out_display}")
+        if data["bridge"].get("available"):
+            command += f" --bridge {data['bridge']['source']}"
         build_reproducibility(staging / "07_Reproducibility.json", data, files, command)
         record(staging / "07_Reproducibility.json")
 
@@ -1188,6 +1715,13 @@ def build_pack(out_dir: Path, *, inputs_root: Path | None = None, scenario_id: s
             "scenario_peak": data["summary"]["scenario_peak"],
             "api_version": data["summary"]["api_version"],
             "sources": data["summary"]["sources"],
+            "bridge": {
+                "available": data["bridge"]["available"],
+                "scenarios": len(data["bridge"].get("scenarios") or []),
+                "effects": len(data["bridge"].get("effects") or []),
+                "sha256": data["bridge"].get("sha256"),
+                "source": data["bridge"].get("source"),
+            },
         },
     }
 
@@ -1205,6 +1739,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--scenario", default=DEFAULT_SCENARIO, help="market scenario id")
     parser.add_argument("--generated-at", default=None,
                         help="ISO 8601 timestamp YYYY-MM-DDTHH:MM:SSZ (determinism)")
+    parser.add_argument("--bridge", default=None,
+                        help=("optional forecast→world bridge artefact: JSON file or an output "
+                              "directory of tools/forecast_world_bridge.py (default "
+                              "<inputs-root>/forecast_world_bridge/report.json)"))
     parser.add_argument("--json", action="store_true", help="print the build summary as JSON")
     return parser
 
@@ -1216,7 +1754,8 @@ def main(argv=None) -> int:
     out_dir = Path(args.out) if args.out else root / "build" / "client_pack" / "v2"
     try:
         summary = build_pack(out_dir, inputs_root=inputs_root, scenario_id=args.scenario,
-                             client=args.client, generated_at=args.generated_at, root=root)
+                             client=args.client, generated_at=args.generated_at, root=root,
+                             bridge_path=args.bridge)
     except ClientPackError as error:
         print(json.dumps({"status": "BLOCKED_DATA", "error": str(error)}, ensure_ascii=False),
               file=sys.stderr)

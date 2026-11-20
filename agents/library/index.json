@@ -1,7 +1,7 @@
 {
  "schema": "amfe.agent_library.v1",
- "updated_at": "2026-11-19T14:27:15Z",
- "entries": 71,
+ "updated_at": "2026-11-20T11:57:56Z",
+ "entries": 73,
  "open_questions": [
   {
    "id": "mem-lead-0003",
@@ -13,7 +13,7 @@
  "by_role": {
   "accounting-core": 8,
   "baseline-models": 5,
-  "dense-vintages": 16,
+  "dense-vintages": 18,
   "evaluation-harness": 9,
   "lead": 8,
   "licence-auditor": 3,
@@ -22,7 +22,7 @@
   "r2-completion": 7
  },
  "by_kind": {
-  "artifact": 29,
+  "artifact": 31,
   "decision": 1,
   "lesson": 15,
   "open_question": 1,
@@ -31,6 +31,8 @@
   "task": 8
  },
  "by_tag": {
+  "P-003": 1,
+  "P-004": 1,
   "REAL_TIME": 1,
   "T3": 2,
   "abm": 1,
@@ -38,14 +40,14 @@
   "api": 1,
   "auth": 1,
   "blocks": 2,
-  "bridge": 3,
+  "bridge": 4,
   "bug": 1,
   "c4": 1,
   "c6": 3,
   "cache": 3,
   "candidates": 1,
   "canonical-write": 1,
-  "client-pack": 2,
+  "client-pack": 3,
   "correction": 1,
   "country": 4,
   "crm": 1,
@@ -53,15 +55,17 @@
   "decision": 1,
   "demo": 1,
   "determinism": 1,
+  "docs-201": 1,
   "docx": 2,
   "evaluation-harness": 1,
   "exposure": 1,
   "external": 3,
+  "external-forecasts": 1,
   "flaks": 2,
   "forecast": 1,
   "forecast-api": 2,
   "g4": 1,
-  "g5": 6,
+  "g5": 7,
   "gas": 4,
   "gateway": 1,
   "geopolitics": 1,
@@ -91,14 +95,14 @@
   "prereg": 4,
   "process": 2,
   "procurement": 1,
-  "products": 1,
+  "products": 2,
   "provenance": 2,
   "quality": 1,
   "quotas": 1,
   "registry": 2,
   "review": 1,
   "science": 1,
-  "scorecard": 1,
+  "scorecard": 2,
   "sector": 1,
   "selfcheck": 1,
   "sfc": 1,
@@ -165,7 +169,8 @@
   ],
   "docs/171_Client_Pack_v2.md": [
    "mem-dense-vintages-0001",
-   "mem-dense-vintages-0015"
+   "mem-dense-vintages-0015",
+   "mem-dense-vintages-0018"
   ],
   "docs/173_План_2.1_ревизия_идей_и_практический_маршрут.md": [
    "mem-dense-vintages-0003"
@@ -210,6 +215,9 @@
   "docs/192_Simulator_UI.md": [
    "mem-dense-vintages-0012",
    "mem-dense-vintages-0015"
+  ],
+  "docs/201_Внешние_прогнозы_20.md": [
+   "mem-dense-vintages-0017"
   ],
   "docs/97_Лицензии_ряды_и_terms.md": [
    "mem-licence-auditor-0002"
@@ -259,6 +267,9 @@
   "protocols/external_forecast_scorecard.json": [
    "mem-r2-completion-0004"
   ],
+  "protocols/external_forecasts_v2.json": [
+   "mem-dense-vintages-0017"
+  ],
   "protocols/horizon_matrix_v5.json": [
    "mem-multiplicity-rw-0004",
    "mem-multiplicity-rw-0005",
@@ -285,10 +296,14 @@
   ],
   "tests/test_client_pack_v2.py": [
    "mem-dense-vintages-0008",
-   "mem-dense-vintages-0015"
+   "mem-dense-vintages-0015",
+   "mem-dense-vintages-0018"
   ],
   "tests/test_country_forecast.py": [
    "mem-r2-completion-0006"
+  ],
+  "tests/test_external_scorecard_v2.py": [
+   "mem-dense-vintages-0017"
   ],
   "tests/test_flaks_pilot.py": [
    "mem-dense-vintages-0010"
@@ -335,7 +350,8 @@
    "mem-evaluation-harness-0006"
   ],
   "tools/client_pack_v2.py": [
-   "mem-dense-vintages-0015"
+   "mem-dense-vintages-0015",
+   "mem-dense-vintages-0018"
   ],
   "tools/country_forecast.py": [
    "mem-baseline-models-0005",
@@ -346,6 +362,9 @@
   ],
   "tools/external_forecast_scorecard.py": [
    "mem-r2-completion-0004"
+  ],
+  "tools/external_scorecard_v2.py": [
+   "mem-dense-vintages-0017"
   ],
   "tools/fetch_country_data.py": [
    "mem-r2-completion-0006"

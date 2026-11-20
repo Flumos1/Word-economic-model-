@@ -2,7 +2,9 @@
 
 Most tests build a small synthetic artefact tree (the same schemas as the real build/ artefacts with
 known numbers), so the aggregation logic is tested without depending on the generated build/ folder.
-One optional integration test runs the pack on the real ``build/`` artefacts when they are present.
+The optional forecast→world bridge block is tested the same way: present/absent/corrupt/foreign,
+its table in XLSX/JSON/DOCX/HTML, the SHA pinning and the raw-data refusal. One optional integration
+test runs the pack on the real ``build/`` artefacts when they are present.
 """
 import hashlib
 import json
@@ -160,6 +162,86 @@ def build_fixture(base: Path) -> Path:
 
 def read_json(path: Path) -> dict:
     return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def bridge_report(dataset: str = "oecd_2025", status: str = "PARTIAL_INPUTS", **overrides) -> dict:
+    """A minimal but schema-faithful ``amfe.forecast_world_bridge.v1`` payload."""
+    report = {
+        "schema": pack.BRIDGE_SCHEMA,
+        "status": status,
+        "admission": False,
+        "generated_at": "2026-11-18T00:00:00Z",
+        "statement": "fixture bridge: reduced-form, research only",
+        "forecast": {"T1": {"target": "T1_CPI_YOY", "point": 3.5, "interval": [2.4, 4.8]},
+                     "T2": {"target": "T2_GDP_GROWTH", "status": "NOT_AVAILABLE"}},
+        "model": {
+            "dataset": dataset,
+            "dataset_label": "OECD ICIO 2025, 2019 (81 country x 50 industries)",
+            "dataset_info": {"countries": 81, "industries": 50, "sectors": 4050,
+                             "source": "OECD Inter-Country Input-Output tables (ICIO)",
+                             "units": "USD_mn"},
+            "price_channel": {"sensitivity": -0.392772, "relative_output": -0.025111,
+                              "pass_through": 0.6, "channel": "combined", "horizon": "long"},
+            "growth_channel": {"value": 2.031873, "base_output": 168480917.49},
+            "channel_used": "combined", "horizon": "long", "pass_through": 0.6,
+            "templates": {},
+        },
+        "inputs": {"feeds": [],
+                   "world_index": {"path": "build/world_oecd_2025/report_index.json"},
+                   "quantity_report": {"path": "build/quantity_bridge/quantity_report.json"},
+                   "missing_targets": ["T2_GDP_GROWTH", "T3_RECESSION"]},
+        "scenarios": [
+            {"id": "base", "label": "база", "status": "OK",
+             "shifts": {"cpi_pp": 0.0, "growth_pp": 0.0},
+             "price_channel": {"relative_price_shock": 0.0},
+             "combined": {"delta_output_usd_mn": 0.0, "relative_output": 0.0,
+                          "base_output_usd_mn": 168480917.49,
+                          "interval": {"delta_low": 0.0, "delta_high": 0.0}},
+             "countries": [], "industries": [], "top_country_industry": [],
+             "checks": {"computed": True, "fail_closed": False}},
+            {"id": "inflation_plus_1pp", "label": "инфляция +1 пп", "status": "OK",
+             "shifts": {"cpi_pp": 1.0, "growth_pp": 0.0},
+             "price_channel": {"relative_price_shock": 0.01},
+             "combined": {"delta_output_usd_mn": -661745.206052682,
+                          "relative_output": -0.003927716063701749,
+                          "base_output_usd_mn": 168480917.49,
+                          "interval": {"delta_low": -775131.1543317123,
+                                       "delta_high": 772810.858871888}},
+             "countries": [], "industries": [],
+             "top_country_industry": [
+                 {"country": "CHN", "industry": "G", "delta_output": -9073.292972,
+                  "share_of_abs": 0.013711158},
+                 {"country": "USA", "industry": "G", "delta_output": -6750.7,
+                  "share_of_abs": 0.0102},
+             ],
+             "checks": {"computed": True, "fail_closed": False, "conservation": True,
+                        "country_margins": True, "industry_margins": True,
+                        "relative_matches_channel": True, "cells": 4050}},
+            {"id": "growth_minus_1pp", "label": "рост −1 пп", "status": "BLOCKED_INPUT",
+             "reason": "нет прогноза для ['T2_GDP_GROWTH']",
+             "shifts": {"cpi_pp": 0.0, "growth_pp": -1.0},
+             "price_channel": {"status": "BLOCKED_INPUT"},
+             "combined": {"status": "BLOCKED_INPUT", "delta_output_usd_mn": None,
+                          "relative_output": None},
+             "countries": [], "industries": [], "top_country_industry": [],
+             "checks": {"computed": False, "fail_closed": True}},
+        ],
+        "risk_overlay": {"target": "T3_RECESSION", "status": "NOT_AVAILABLE",
+                         "probability": None, "interval": None, "threshold": 0.5,
+                         "flag": "NOT_AVAILABLE", "effect_on_numbers": "нет"},
+        "checks": {"mode": "partial", "scenarios_ok": ["base", "inflation_plus_1pp"],
+                   "scenarios_blocked": ["growth_minus_1pp"], "no_raw_data": True,
+                   "admission": False, "fail_closed": False},
+        "limitations": ["сравнительная статика", "не допуск"],
+    }
+    report.update(overrides)
+    return report
+
+
+def write_bridge(build: Path, **overrides) -> Path:
+    path = Path(build) / "forecast_world_bridge" / "report.json"
+    write_json(path, bridge_report(**overrides))
+    return path
 
 
 def sha(path: Path) -> str:
@@ -587,6 +669,189 @@ class NoRawData(FixtureCase):
         self.assertEqual(numeric_lists(document), [])
         html = (self.out / "03_Dashboard.html").read_text(encoding="utf-8")
         self.assertNotIn("data/raw", html)
+
+
+class BridgeSection(FixtureCase):
+    """Optional forecast→world bridge: present/absent/corrupt, tables in all formats, SHA, no raw."""
+
+    def setUp(self):
+        super().setUp()
+        self.bridge = write_bridge(self.build)
+
+    def test_bridge_available_with_sha_dataset_and_explicit_path(self):
+        self.make_pack()
+        document = self.machine()
+        section = document["bridge"]
+        self.assertTrue(section["available"])
+        self.assertTrue(section["optional"])
+        self.assertEqual(section["sha256"], sha(self.bridge))
+        self.assertEqual(section["sha256_verified"], "file")
+        self.assertEqual(section["source"], "build/forecast_world_bridge/report.json")
+        self.assertEqual(section["schema"], pack.BRIDGE_SCHEMA)
+        self.assertEqual(section["artefact_status"], "PARTIAL_INPUTS")
+        self.assertFalse(section["admission"])
+        self.assertEqual(section["dataset"]["id"], "oecd_2025")
+        self.assertAlmostEqual(section["calibration"]["price_sensitivity"], -0.392772)
+        self.assertAlmostEqual(section["calibration"]["growth_multiplier"], 2.031873)
+        self.assertEqual([item["id"] for item in section["scenarios"]],
+                         ["base", "inflation_plus_1pp", "growth_minus_1pp"])
+        self.assertEqual(section["checks"]["scenarios_blocked"], ["growth_minus_1pp"])
+        self.assertTrue(section["checks"]["no_raw_data"])
+        self.assertEqual(len(section["effects"]), 2)
+        self.assertEqual(document["summary"]["bridge_available"], True)
+        self.assertEqual(document["summary"]["bridge_effects"], 2)
+        self.assertEqual(document["summary"]["sources"], 7)
+        self.assertIn("build/forecast_world_bridge/report.json",
+                      [item["path"] for item in document["sources"]])
+        # An explicit --bridge may point at the bridge tool's output directory.
+        explicit_out = self.base / "explicit"
+        self.make_pack(out=explicit_out, bridge_path=str(self.build / "forecast_world_bridge"))
+        explicit = read_json(explicit_out / "04_Machine_Readable.json")
+        self.assertEqual(explicit["bridge"]["sha256"], section["sha256"])
+        # the same explicit path through the CLI: --bridge <repo-relative file>
+        import contextlib
+        import io
+
+        buffer = io.StringIO()
+        with contextlib.redirect_stdout(buffer):
+            code = pack.main(["--root", str(self.root), "--inputs-root", str(self.build),
+                              "--out", str(self.base / "cli"), "--generated-at", FIXED,
+                              "--bridge", "build/forecast_world_bridge/report.json", "--json"])
+        self.assertEqual(code, 0)
+        self.assertTrue(json.loads(buffer.getvalue())["numbers"]["bridge"]["available"])
+
+    def test_bridge_table_in_xlsx_json_docx_html(self):
+        from openpyxl import load_workbook
+
+        self.make_pack()
+        document = self.machine()
+        effects = document["bridge"]["effects"]
+        self.assertEqual([(item["scenario"], item["country"], item["industry"])
+                          for item in effects],
+                         [("inflation_plus_1pp", "CHN", "G"),
+                          ("inflation_plus_1pp", "USA", "G")])
+        workbook = load_workbook(self.out / "02_Numbers.xlsx", data_only=True)
+        for sheet in ("Bridge", "Bridge_Scenarios", "Bridge_Effects"):
+            self.assertIn(sheet, workbook.sheetnames, sheet)
+        rows = list(workbook["Bridge_Effects"].iter_rows(min_row=2, values_only=True))
+        self.assertEqual([(row[0], row[1], row[2]) for row in rows],
+                         [(item["scenario"], item["country"], item["industry"])
+                          for item in effects])
+        for row, item in zip(rows, effects):
+            self.assertAlmostEqual(float(row[3]), item["delta_output_usd_mn"], places=6)
+            self.assertAlmostEqual(float(row[4]), item["share_of_abs"], places=9)
+        scenario_rows = list(workbook["Bridge_Scenarios"].iter_rows(min_row=2, values_only=True))
+        self.assertEqual([row[0] for row in scenario_rows],
+                         [item["id"] for item in document["bridge"]["scenarios"]])
+        bridge_values = {row[0]: row[1] for row in
+                         workbook["Bridge"].iter_rows(values_only=True) if row[0]}
+        self.assertEqual(bridge_values["available"], True)
+        self.assertEqual(bridge_values["sha256"], document["bridge"]["sha256"])
+        self.assertEqual(int(bridge_values["effects"]), len(effects))
+        text = docx_text(self.out / "01_Executive_Summary.docx")
+        for token in ("Мост «прогноз → мир»", "CHN", "inflation_plus_1pp", "reduced-form"):
+            self.assertIn(token, text, token)
+        html = (self.out / "03_Dashboard.html").read_text(encoding="utf-8")
+        for token in ("Мост «прогноз → мир»", "CHN", "BLOCKED_INPUT", "S_price"):
+            self.assertIn(token, html, token)
+        self.assertIn(document["bridge"]["sha256"], html)
+
+    def test_bridge_absent_is_explicit_and_pack_builds(self):
+        self.bridge.unlink()
+        summary = self.make_pack()
+        document = self.machine()
+        section = document["bridge"]
+        self.assertFalse(section["available"])
+        self.assertEqual(section["status"], "NOT_AVAILABLE")
+        self.assertTrue(section["optional"])
+        self.assertIn("не найден", section["reason"])
+        self.assertIn("build/forecast_world_bridge/report.json", section["searched"])
+        self.assertEqual(section["scenarios"], [])
+        self.assertEqual(section["effects"], [])
+        self.assertEqual(len(summary["files"]), 8)
+        self.assertFalse(summary["numbers"]["bridge"]["available"])
+        self.assertIsNone(document["summary"]["bridge_sha256"])
+        self.assertNotIn("bridge", [item["kind"] for item in document["sources"]])
+        self.assertIn("Раздел недоступен",
+                      docx_text(self.out / "01_Executive_Summary.docx"))
+        self.assertIn("Раздел недоступен",
+                      (self.out / "03_Dashboard.html").read_text(encoding="utf-8"))
+
+    def test_bridge_corrupt_or_foreign_artefact_fails_closed(self):
+        self.bridge.write_text("{not json", encoding="utf-8")
+        with self.assertRaises(pack.ClientPackError):
+            self.make_pack()
+        self.assertFalse(self.out.exists())
+        # a foreign artefact at the bridge path is an error, not a silently skipped block
+        write_json(self.bridge, {"schema": "amfe.something_else.v9", "status": "OK"})
+        with self.assertRaises(pack.ClientPackError):
+            self.make_pack()
+        self.assertFalse(self.out.exists())
+        write_json(self.bridge, bridge_report(admission=True))
+        with self.assertRaises(pack.ClientPackError):
+            self.make_pack()
+        self.assertFalse(self.out.exists())
+
+    def test_bridge_unsafe_path_is_refused(self):
+        for bad in ("../outside.json", str(self.base / "outside.json")):
+            with self.assertRaises(pack.ClientPackError):
+                self.make_pack(bridge_path=bad)
+        self.assertFalse(self.out.exists())
+
+    def test_bridge_raw_rows_are_refused(self):
+        report = read_json(self.bridge)
+        report["inputs"]["world_index"]["path"] = "data/mrio/Z.csv"
+        write_json(self.bridge, report)
+        with self.assertRaises(pack.ClientPackError):
+            self.make_pack()
+        self.assertFalse(self.out.exists())
+        # an artefact that stops declaring checks.no_raw_data=true is refused too
+        report["inputs"]["world_index"]["path"] = "build/world/report_index.json"
+        report["checks"]["no_raw_data"] = False
+        write_json(self.bridge, report)
+        with self.assertRaises(pack.ClientPackError):
+            self.make_pack()
+        self.assertFalse(self.out.exists())
+
+    def test_bridge_sidecar_sha_is_enforced(self):
+        sidecar = Path(str(self.bridge) + ".sha256")
+        digest = sha(self.bridge)
+        sidecar.write_text(f"{digest}  report.json\n", encoding="utf-8")
+        self.make_pack()
+        section = self.machine()["bridge"]
+        self.assertEqual(section["sha256"], digest)
+        self.assertEqual(section["sha256_verified"], "sidecar")
+        bad = self.base / "bad"
+        sidecar.write_text("0" * 64 + "  report.json\n", encoding="utf-8")
+        with self.assertRaises(pack.ClientPackError):
+            self.make_pack(out=bad)
+        self.assertFalse(bad.exists())
+
+    def test_no_bridge_pack_is_deterministic_and_bridge_changes_the_digest(self):
+        self.bridge.unlink()
+        first, second = self.base / "legacy1", self.base / "legacy2"
+        self.make_pack(out=first)
+        self.make_pack(out=second)
+        for name in sorted(path.name for path in first.iterdir()):
+            self.assertEqual(sha(first / name), sha(second / name), name)
+        legacy = read_json(first / "04_Machine_Readable.json")
+        self.assertFalse(legacy["bridge"]["available"])
+        self.assertEqual(legacy["bridge"]["searched"],
+                         ["build/forecast_world_bridge/report.json",
+                          "build/forecast_world_bridge/forecast_world.json"])
+        self.assertNotIn("bridge", [item["kind"] for item in legacy["sources"]])
+        write_bridge(self.build)
+        with_bridge, again = self.base / "with_bridge", self.base / "with_bridge_again"
+        self.make_pack(out=with_bridge)
+        self.make_pack(out=again)
+        document = read_json(with_bridge / "04_Machine_Readable.json")
+        self.assertNotEqual(document["document_digest"], legacy["document_digest"])
+        self.assertTrue(document["bridge"]["available"])
+        self.assertEqual(sha(with_bridge / "04_Machine_Readable.json"),
+                         sha(again / "04_Machine_Readable.json"))
+        self.assertEqual(sha(with_bridge / "03_Dashboard.html"),
+                         sha(again / "03_Dashboard.html"))
+
 
 
 class CommandLine(FixtureCase):
