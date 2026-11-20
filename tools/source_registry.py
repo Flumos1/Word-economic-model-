@@ -2,10 +2,12 @@
 """CLI for the source registry (G3, docs/162): validate, list, missing, export, template, assumptions.
 
 No network access.  The registry distinguishes **CATALOGUED** (record checked, no data retrieved),
-**NOT_DOWNLOADED** (paid/licensed/manual, nothing retrieved) and **VERIFIED** (data actually
-retrieved and checked, with a retrieval date and named evidence).  ``CATALOGUED`` is never reported
-as verified; the ``--assumptions`` check only *reports* which assumptions are explicit and which
-sources they could resolve to — it never promotes an assumption to observed data.
+**NOT_DOWNLOADED** (paid/licensed/manual, nothing retrieved), **ACCESS_VERIFIED** (public page and
+terms/licence checked with dated evidence, but no data retrieved) and **VERIFIED** (data actually
+retrieved and checked, with a retrieval date and named evidence).  ``ACCESS_VERIFIED`` is access
+evidence, never observed data and never reported as ``VERIFIED``; the ``--assumptions`` check only
+*reports* which assumptions are explicit and which sources they could resolve to — it never
+promotes an assumption to observed data.
 
 Usage:
     python tools/source_registry.py                          # validate (default)

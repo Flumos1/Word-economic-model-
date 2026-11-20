@@ -53,11 +53,13 @@ class RealRegistry(unittest.TestCase):
     def test_status_and_access_distribution(self):
         counts = sr.counts(document())
         self.assertEqual(counts["sources"], 15)
-        self.assertEqual(counts["by_status"], {"CATALOGUED": 8, "NOT_DOWNLOADED": 4,
-                                               "VERIFIED": 3})
+        self.assertEqual(counts["by_status"], {"CATALOGUED": 6, "NOT_DOWNLOADED": 4,
+                                               "ACCESS_VERIFIED": 2, "VERIFIED": 3})
         self.assertEqual(counts["by_access"], {"api": 6, "file": 5, "paid": 4})
         self.assertEqual(set(sr.missing(document())["verified"]),
                          {"EIA", "OECD_ICIO", "WORLD_BANK"})
+        self.assertEqual(set(sr.missing(document())["access_verified"]),
+                         {"EUROSTAT", "UN_COMTRADE"})
 
     def test_every_record_is_complete_and_https(self):
         for item in sr.sources(document()):
@@ -75,6 +77,11 @@ class RealRegistry(unittest.TestCase):
                 self.assertTrue(item["notes"].strip(), item["source_id"])
             if item["status"] == "CATALOGUED":
                 self.assertIn(item["retrieved_at"], (None,), item["source_id"])
+            if item["status"] == "ACCESS_VERIFIED":
+                # access evidence only: must not claim data retrieval and must not be VERIFIED
+                self.assertIsNone(item["retrieved_at"], item["source_id"])
+                self.assertTrue(item["notes"].strip(), item["source_id"])
+                self.assertNotEqual(item["status"], "VERIFIED", item["source_id"])
             if item["access"] == "paid":
                 self.assertEqual(item["status"], "NOT_DOWNLOADED", item["source_id"])
 
@@ -110,6 +117,23 @@ class Validation(unittest.TestCase):
         for overrides in cases:
             with self.assertRaises(sr.SourceRegistryError, msg=str(overrides)):
                 sr.validate_source(source(**overrides))
+
+    def test_access_verified_invariants(self):
+        good = sr.validate_source(source(status="ACCESS_VERIFIED",
+                                         notes="page/terms checked, evidence log"))
+        self.assertEqual(good["status"], "ACCESS_VERIFIED")
+        self.assertIsNone(good["retrieved_at"])
+        # access evidence may not claim a retrieval date (= masquerading as VERIFIED)
+        with self.assertRaises(sr.SourceRegistryError):
+            sr.validate_source(source(status="ACCESS_VERIFIED", retrieved_at="2026-11-20",
+                                      notes="page/terms checked"))
+        # ... and it must name the evidence
+        with self.assertRaises(sr.SourceRegistryError):
+            sr.validate_source(source(status="ACCESS_VERIFIED", notes=""))
+        # a paid source may be ACCESS_VERIFIED (page checked) but not VERIFIED
+        self.assertEqual(sr.validate_source(source(status="ACCESS_VERIFIED", access="paid",
+                                                   notes="page checked"))["status"],
+                         "ACCESS_VERIFIED")
 
     def test_verified_invariants(self):
         with self.assertRaises(sr.SourceRegistryError):
@@ -174,6 +198,7 @@ class Views(unittest.TestCase):
 
     def test_counts_and_license_classes(self):
         self.assertEqual(sr.counts(document())["by_status"]["VERIFIED"], 3)
+        self.assertEqual(sr.counts(document())["by_status"]["ACCESS_VERIFIED"], 2)
         self.assertEqual(sr.license_class("public domain (U.S. Government work)"), "public_domain")
         self.assertEqual(sr.license_class("CC BY 4.0"), "open_attribution")
         self.assertEqual(sr.license_class("CC BY-NC-SA 3.0 IGO (non-commercial)"),

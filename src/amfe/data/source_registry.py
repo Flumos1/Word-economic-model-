@@ -8,6 +8,10 @@ fields and an honest **status**:
                        has been retrieved into the project yet;
 * ``NOT_DOWNLOADED`` — the source is identified but access is paid/licensed/manual and no data was
                        retrieved; nothing may be cited as observed from it;
+* ``ACCESS_VERIFIED`` — the public page and its terms/licence page were checked (HTTP status,
+                       SHA-256, licence/coverage/field markers) but **no data was retrieved**
+                       (``retrieved_at`` must be null; the evidence note names the verification).
+                       This is access evidence, NOT observed data and NOT ``VERIFIED``;
 * ``VERIFIED``      — data was actually retrieved into the project and checked (``retrieved_at`` is
                        set, a note points to the evidence). Only VERIFIED may be cited as observed.
 
@@ -34,7 +38,7 @@ from typing import Mapping
 
 SCHEMA = "AMFE-SOURCE-REGISTRY/1.0.0"
 EXPORT_SCHEMA = "AMFE-SOURCE-REGISTRY-EXPORT/1.0.0"
-STATUSES = ("CATALOGUED", "NOT_DOWNLOADED", "VERIFIED")
+STATUSES = ("CATALOGUED", "NOT_DOWNLOADED", "ACCESS_VERIFIED", "VERIFIED")
 ACCESS = ("api", "file", "paid")
 VINTAGE_SUPPORT = ("full", "partial", "none", "unknown")
 LICENSE_CLASSES = ("public_domain", "open_attribution", "non_commercial", "commercial", "unknown")
@@ -150,6 +154,20 @@ def validate_source(source: Mapping, *, index: int = 0) -> dict:
         if license_text.lower().startswith("unknown"):
             raise SourceRegistryError(
                 f"sources[{index}] ({source_id}) cannot be VERIFIED with an unknown licence")
+    if status == "ACCESS_VERIFIED":
+        # Access/terms evidence only: it must NOT masquerade as data retrieval (= VERIFIED).
+        if retrieved_at is not None:
+            raise SourceRegistryError(
+                f"sources[{index}] ({source_id}) is ACCESS_VERIFIED but has retrieved_at="
+                f"{retrieved_at!r}: ACCESS_VERIFIED means the page/terms were checked and no data "
+                "was retrieved; use VERIFIED only after ingestion")
+        if not notes:
+            raise SourceRegistryError(
+                f"sources[{index}] ({source_id}) is ACCESS_VERIFIED but has no notes: the evidence "
+                "(page/terms SHA-256, log path) must be named")
+        if license_text.lower().startswith("unknown"):
+            raise SourceRegistryError(
+                f"sources[{index}] ({source_id}) cannot be ACCESS_VERIFIED with an unknown licence")
     return record
 
 
@@ -281,12 +299,17 @@ def missing(document: Mapping | Path) -> dict:
     source_list = sources(document)
     pending = [{"source_id": source["source_id"], "status": source["status"],
                 "access": source["access"],
-                "reason": ("catalogued only, no data retrieved" if source["status"] == "CATALOGUED"
-                           else "paid/licensed or manual source, no data retrieved")}
+                "reason": ("catalogued only, no data retrieved"
+                           if source["status"] == "CATALOGUED" else
+                           "access/terms verified, but no data retrieved"
+                           if source["status"] == "ACCESS_VERIFIED" else
+                           "paid/licensed or manual source, no data retrieved")}
                for source in source_list if source["status"] != "VERIFIED"]
     return {"pending": pending, "n_pending": len(pending),
             "verified": [source["source_id"] for source in source_list
-                         if source["status"] == "VERIFIED"]}
+                         if source["status"] == "VERIFIED"],
+            "access_verified": [source["source_id"] for source in source_list
+                                if source["status"] == "ACCESS_VERIFIED"]}
 
 
 def export_for_api(document: Mapping | Path, *, source_path: str | None = None) -> dict:

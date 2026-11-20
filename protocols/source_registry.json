@@ -5,9 +5,35 @@
   "statuses": {
     "CATALOGUED": "Source is catalogued (URL, publisher, licence, coverage and fields checked on the web page or documentation); no data has been retrieved into the project yet.",
     "NOT_DOWNLOADED": "Source is identified and needed, but access is paid/licensed or manual and no data has been retrieved; nothing may be cited as observed from it.",
+    "ACCESS_VERIFIED": "The public page and its terms/licence page were checked on a dated verification run (HTTP status, page/terms SHA-256, licence/coverage/field markers) and recorded in protocols/source_verification_log.jsonl. No data was retrieved into the project: retrieved_at must stay null. ACCESS_VERIFIED is access evidence, NOT observed data and NOT VERIFIED; it must never be cited as observations.",
     "VERIFIED": "The source was actually retrieved into the project and its identity was checked against the dataset/manifest used (retrieved_at is set and the note points to the evidence). Only VERIFIED may be cited as observed data."
   },
   "sources": [
+    {
+      "source_id": "BLS",
+      "name": "U.S. Bureau of Labor Statistics CPI and employment releases",
+      "publisher": "U.S. Bureau of Labor Statistics",
+      "url": "https://www.bls.gov/developers/",
+      "license": "public domain (U.S. Government work); attribution recommended",
+      "access": "api",
+      "coverage": {
+        "geography": "United States, national and metro",
+        "period": "monthly CPI releases; history from 1913",
+        "frequency": "monthly"
+      },
+      "fields": [
+        "CPI all items",
+        "CPI core",
+        "PPI",
+        "unemployment",
+        "payrolls",
+        "release dates"
+      ],
+      "retrieved_at": null,
+      "vintage_support": "none",
+      "status": "CATALOGUED",
+      "notes": "The target feed for C6 forward forecasts; release calendar is public, but no BLS series is ingested into the C6 journal yet."
+    },
     {
       "source_id": "EIA",
       "name": "U.S. Energy Information Administration: API v2, STEO and International Energy Data",
@@ -20,155 +46,18 @@
         "period": "monthly/annual series, history to 1949+ and STEO forecasts",
         "frequency": "monthly, quarterly, annual"
       },
-      "fields": ["crude oil production", "petroleum stocks", "refinery throughput", "prices", "STEO balances", "natural gas"],
+      "fields": [
+        "crude oil production",
+        "petroleum stocks",
+        "refinery throughput",
+        "prices",
+        "STEO balances",
+        "natural gas"
+      ],
       "retrieved_at": "2026-11-16",
       "vintage_support": "partial",
       "status": "VERIFIED",
       "notes": "Monthly Europe Brent spot price (EIA series RBRTE) obtained and pinned in the project: data/oil/brent_monthly_eia.csv, 474 monthly observations 1987-05..2026-10, sha256 0d173df09db3331c7deffa40aaf19f9f58dd718ad0c8ab38483bcb9a33041a79, 3 149 bytes. Source page: https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=PET&s=RBRTE&f=M; public domain (U.S. Government work). Monthly averages only; no intraday or vintage history, API access still requires a key for other series. Used by the oil v3 validation (docs/165)."
-    },
-    {
-      "source_id": "IEA",
-      "name": "IEA Oil Market Report (OMR) and World Energy Outlook data",
-      "publisher": "International Energy Agency",
-      "url": "https://www.iea.org/reports/oil-market-report",
-      "license": "commercial subscription licence; summary tables publicly readable only",
-      "access": "paid",
-      "coverage": {
-        "geography": "global OECD and non-OECD energy balances",
-        "period": "monthly OMR and annual WEO",
-        "frequency": "monthly, annual"
-      },
-      "fields": ["oil demand", "oil supply", "refinery runs", "stocks", "trade flows", "prices"],
-      "retrieved_at": null,
-      "vintage_support": "none",
-      "status": "NOT_DOWNLOADED",
-      "notes": "Licensed product; not used for any number in the repository. Any future use requires a subscription and a licence review before ingestion."
-    },
-    {
-      "source_id": "OPEC",
-      "name": "OPEC Monthly Oil Market Report (MOMR) and Annual Statistical Bulletin",
-      "publisher": "OPEC Secretariat",
-      "url": "https://www.opec.org/opec_web/en/publications/338.htm",
-      "license": "publicly readable reports; reuse of tables needs attribution to OPEC",
-      "access": "file",
-      "coverage": {
-        "geography": "OPEC member countries and global balances",
-        "period": "monthly MOMR, annual ASB",
-        "frequency": "monthly, annual"
-      },
-      "fields": ["crude production by member", "spare capacity", "oil demand", "exports", "prices"],
-      "retrieved_at": null,
-      "vintage_support": "none",
-      "status": "CATALOGUED",
-      "notes": "Useful cross-check for OPEC production assumptions; PDF-only tables imply a manual extraction step, not an API."
-    },
-    {
-      "source_id": "USDA_PSD",
-      "name": "USDA Production, Supply and Distribution (PSD) database",
-      "publisher": "U.S. Department of Agriculture, Foreign Agricultural Service",
-      "url": "https://apps.fas.usda.gov/psdonline/",
-      "license": "public domain (U.S. Government work)",
-      "access": "file",
-      "coverage": {
-        "geography": "global, by country and commodity",
-        "period": "marketing years, history from 1960s",
-        "frequency": "monthly updates"
-      },
-      "fields": ["production", "consumption", "stocks", "imports", "exports", "yield", "area"],
-      "retrieved_at": null,
-      "vintage_support": "partial",
-      "status": "CATALOGUED",
-      "notes": "The main candidate to replace the soybean balance assumptions; monthly PSD revisions can reconstruct a short pseudo-vintage history, not a full PIT archive."
-    },
-    {
-      "source_id": "USDA_FAS_EXPORT_SALES",
-      "name": "USDA FAS Export Sales and GAIN reports",
-      "publisher": "U.S. Department of Agriculture, Foreign Agricultural Service",
-      "url": "https://apps.fas.usda.gov/export-sales/",
-      "license": "public domain (U.S. Government work); attribution recommended",
-      "access": "file",
-      "coverage": {
-        "geography": "U.S. exports by destination country",
-        "period": "weekly reporting, marketing-year totals",
-        "frequency": "weekly"
-      },
-      "fields": ["commodity", "destination", "week", "volume", "outstanding sales"],
-      "retrieved_at": null,
-      "vintage_support": "partial",
-      "status": "CATALOGUED",
-      "notes": "Weekly export-sales files are the natural PIT input for trade-flow assumptions in the soy pilot."
-    },
-    {
-      "source_id": "FAO_FAOSTAT",
-      "name": "FAO FAOSTAT food and agriculture statistics",
-      "publisher": "Food and Agriculture Organization of the United Nations",
-      "url": "https://www.fao.org/faostat/",
-      "license": "CC BY-NC-SA 3.0 IGO (non-commercial; share-alike)",
-      "access": "file",
-      "coverage": {
-        "geography": "global, by country",
-        "period": "annual, history from 1961",
-        "frequency": "annual"
-      },
-      "fields": ["production", "trade", "food balance sheets", "prices", "yields", "area harvested"],
-      "retrieved_at": null,
-      "vintage_support": "none",
-      "status": "CATALOGUED",
-      "notes": "License differs from the other sources (non-commercial, share-alike); any redistribution must be tracked per row. Not used for numbers yet."
-    },
-    {
-      "source_id": "WORLD_BANK",
-      "name": "World Bank Commodity Markets (Pink Sheet) and World Development Indicators (WDI)",
-      "publisher": "World Bank",
-      "url": "https://www.worldbank.org/en/research/commodity-markets",
-      "license": "CC BY 4.0",
-      "access": "api",
-      "coverage": {
-        "geography": "global, by country and commodity",
-        "period": "monthly commodity prices; annual WDI series from 1960",
-        "frequency": "monthly, annual"
-      },
-      "fields": ["commodity prices", "GDP", "trade", "population", "deflators", "investment"],
-      "retrieved_at": "2026-11-14",
-      "vintage_support": "partial",
-      "status": "VERIFIED",
-      "notes": "Offline WDI cache used for macro cross-checks (data/mrio/wb, docs/130 D1 country checks); retrieved_at is the date the cache was fixed in the project. WDI revisions are not stored per vintage."
-    },
-    {
-      "source_id": "UN_COMTRADE",
-      "name": "UN Comtrade bilateral trade statistics",
-      "publisher": "United Nations Statistics Division",
-      "url": "https://comtradeplus.un.org/",
-      "license": "UN Comtrade terms of use (free for non-commercial use, attribution; premium API limits apply)",
-      "access": "api",
-      "coverage": {
-        "geography": "bilateral trade, global reporters/partners",
-        "period": "annual and monthly, history from 1962 (annual)",
-        "frequency": "monthly, annual"
-      },
-      "fields": ["reporter", "partner", "commodity (HS)", "trade value", "net weight", "quantity unit"],
-      "retrieved_at": null,
-      "vintage_support": "partial",
-      "status": "CATALOGUED",
-      "notes": "Candidate for replacing trade-share assumptions; reporter revisions mean a short pseudo-vintage window only. Premium API limits apply above the free tier."
-    },
-    {
-      "source_id": "OECD_ICIO",
-      "name": "OECD Inter-Country Input-Output (ICIO) tables 2025",
-      "publisher": "OECD",
-      "url": "https://www.oecd.org/sti/ind/inter-country-input-output-tables.htm",
-      "license": "OECD terms and conditions (attribution; non-commercial research use)",
-      "access": "file",
-      "coverage": {
-        "geography": "81 economies x 50 industries (incl. ROW)",
-        "period": "annual 1995-2022, current prices",
-        "frequency": "annual"
-      },
-      "fields": ["Z matrix", "final demand", "value added", "taxes less subsidies", "imports", "gross output"],
-      "retrieved_at": "2026-11-16",
-      "vintage_support": "partial",
-      "status": "VERIFIED",
-      "notes": "The main world dataset of P2 0.2: dataset sha256 c3ac04b6...b80673d, 81x50x28 verified, D1 PASS x28 (docs/146, docs/130). retrieved_at is the release date of P2 0.2; only one ICIO 2025 release is stored, so no multi-vintage history."
     },
     {
       "source_id": "EUROSTAT",
@@ -182,11 +71,42 @@
         "period": "monthly and annual, history from 1995+",
         "frequency": "monthly, annual"
       },
-      "fields": ["trade value", "quantity", "partner", "product (CN/HS)", "energy balances"],
+      "fields": [
+        "trade value",
+        "quantity",
+        "partner",
+        "product (CN/HS)",
+        "energy balances"
+      ],
       "retrieved_at": null,
       "vintage_support": "partial",
+      "status": "ACCESS_VERIFIED",
+      "notes": "Useful for EU-level cross-checks of MRIO trade shares; no data retrieved yet. | Source-page verification 2026-11-20T07:30:00Z: HTTP 200 for https://ec.europa.eu/eurostat/web/international-trade-in-goods (page sha256 1ad64f464464ba50…), terms https://ec.europa.eu/eurostat/help/copyright-notice HTTP 200 (sha256 528cd3676bacc130…); coverage/field markers confirmed. Dataset ingestion NOT performed: VERIFIED here means source-page evidence, not observed data (protocols/source_verification_log.jsonl). | ACCESS_VERIFIED 2026-11-20: page and terms HTTP 200 (evidence SHA-256 and markers in protocols/source_verification_log.jsonl, docs/197). No data retrieved into the project: ACCESS_VERIFIED is access evidence, NOT VERIFIED and not observed data."
+    },
+    {
+      "source_id": "FAO_FAOSTAT",
+      "name": "FAO FAOSTAT food and agriculture statistics",
+      "publisher": "Food and Agriculture Organization of the United Nations",
+      "url": "https://www.fao.org/faostat/",
+      "license": "CC BY-NC-SA 3.0 IGO (non-commercial; share-alike)",
+      "access": "file",
+      "coverage": {
+        "geography": "global, by country",
+        "period": "annual, history from 1961",
+        "frequency": "annual"
+      },
+      "fields": [
+        "production",
+        "trade",
+        "food balance sheets",
+        "prices",
+        "yields",
+        "area harvested"
+      ],
+      "retrieved_at": null,
+      "vintage_support": "none",
       "status": "CATALOGUED",
-      "notes": "Useful for EU-level cross-checks of MRIO trade shares; no data retrieved yet."
+      "notes": "License differs from the other sources (non-commercial, share-alike); any redistribution must be tracked per row. Not used for numbers yet."
     },
     {
       "source_id": "FRED_ALFRED",
@@ -200,7 +120,14 @@
         "period": "series-dependent, some from 1900s",
         "frequency": "daily, weekly, monthly, quarterly, annual"
       },
-      "fields": ["CPI", "industrial production", "employment", "interest rates", "FX", "revisions via ALFRED"],
+      "fields": [
+        "CPI",
+        "industrial production",
+        "employment",
+        "interest rates",
+        "FX",
+        "revisions via ALFRED"
+      ],
       "retrieved_at": null,
       "vintage_support": "full",
       "status": "CATALOGUED",
@@ -218,11 +145,42 @@
         "period": "daily, contract-dependent history",
         "frequency": "daily"
       },
-      "fields": ["settlement price", "open interest", "volume", "contract month", "curve"],
+      "fields": [
+        "settlement price",
+        "open interest",
+        "volume",
+        "contract month",
+        "curve"
+      ],
       "retrieved_at": null,
       "vintage_support": "partial",
       "status": "NOT_DOWNLOADED",
       "notes": "Needed to replace price-level assumptions with observed settlement curves; licence review required before any ingestion or redistribution."
+    },
+    {
+      "source_id": "IEA",
+      "name": "IEA Oil Market Report (OMR) and World Energy Outlook data",
+      "publisher": "International Energy Agency",
+      "url": "https://www.iea.org/reports/oil-market-report",
+      "license": "commercial subscription licence; summary tables publicly readable only",
+      "access": "paid",
+      "coverage": {
+        "geography": "global OECD and non-OECD energy balances",
+        "period": "monthly OMR and annual WEO",
+        "frequency": "monthly, annual"
+      },
+      "fields": [
+        "oil demand",
+        "oil supply",
+        "refinery runs",
+        "stocks",
+        "trade flows",
+        "prices"
+      ],
+      "retrieved_at": null,
+      "vintage_support": "none",
+      "status": "NOT_DOWNLOADED",
+      "notes": "Licensed product; not used for any number in the repository. Any future use requires a subscription and a licence review before ingestion."
     },
     {
       "source_id": "KPLER",
@@ -236,11 +194,141 @@
         "period": "daily to monthly, contract-dependent",
         "frequency": "daily, monthly"
       },
-      "fields": ["cargo flows", "floating storage", "inventory estimates", "port calls", "trade volumes"],
+      "fields": [
+        "cargo flows",
+        "floating storage",
+        "inventory estimates",
+        "port calls",
+        "trade volumes"
+      ],
       "retrieved_at": null,
       "vintage_support": "none",
       "status": "NOT_DOWNLOADED",
       "notes": "Paid alternative for real trade-flow observations; no access, no derived numbers currently use it."
+    },
+    {
+      "source_id": "OECD_ICIO",
+      "name": "OECD Inter-Country Input-Output (ICIO) tables 2025",
+      "publisher": "OECD",
+      "url": "https://www.oecd.org/sti/ind/inter-country-input-output-tables.htm",
+      "license": "OECD terms and conditions (attribution; non-commercial research use)",
+      "access": "file",
+      "coverage": {
+        "geography": "81 economies x 50 industries (incl. ROW)",
+        "period": "annual 1995-2022, current prices",
+        "frequency": "annual"
+      },
+      "fields": [
+        "Z matrix",
+        "final demand",
+        "value added",
+        "taxes less subsidies",
+        "imports",
+        "gross output"
+      ],
+      "retrieved_at": "2026-11-16",
+      "vintage_support": "partial",
+      "status": "VERIFIED",
+      "notes": "The main world dataset of P2 0.2: dataset sha256 c3ac04b6...b80673d, 81x50x28 verified, D1 PASS x28 (docs/146, docs/130). retrieved_at is the release date of P2 0.2; only one ICIO 2025 release is stored, so no multi-vintage history."
+    },
+    {
+      "source_id": "OPEC",
+      "name": "OPEC Monthly Oil Market Report (MOMR) and Annual Statistical Bulletin",
+      "publisher": "OPEC Secretariat",
+      "url": "https://www.opec.org/opec_web/en/publications/338.htm",
+      "license": "publicly readable reports; reuse of tables needs attribution to OPEC",
+      "access": "file",
+      "coverage": {
+        "geography": "OPEC member countries and global balances",
+        "period": "monthly MOMR, annual ASB",
+        "frequency": "monthly, annual"
+      },
+      "fields": [
+        "crude production by member",
+        "spare capacity",
+        "oil demand",
+        "exports",
+        "prices"
+      ],
+      "retrieved_at": null,
+      "vintage_support": "none",
+      "status": "CATALOGUED",
+      "notes": "Useful cross-check for OPEC production assumptions; PDF-only tables imply a manual extraction step, not an API."
+    },
+    {
+      "source_id": "UN_COMTRADE",
+      "name": "UN Comtrade bilateral trade statistics",
+      "publisher": "United Nations Statistics Division",
+      "url": "https://comtradeplus.un.org/",
+      "license": "UN Comtrade terms of use (free for non-commercial use, attribution; premium API limits apply)",
+      "access": "api",
+      "coverage": {
+        "geography": "bilateral trade, global reporters/partners",
+        "period": "annual and monthly, history from 1962 (annual)",
+        "frequency": "monthly, annual"
+      },
+      "fields": [
+        "reporter",
+        "partner",
+        "commodity (HS)",
+        "trade value",
+        "net weight",
+        "quantity unit"
+      ],
+      "retrieved_at": null,
+      "vintage_support": "partial",
+      "status": "ACCESS_VERIFIED",
+      "notes": "Candidate for replacing trade-share assumptions; reporter revisions mean a short pseudo-vintage window only. Premium API limits apply above the free tier. | Source-page verification 2026-11-20T07:30:00Z: HTTP 200 for https://comtradeplus.un.org/ (page sha256 f9a44dca4960162d…), terms https://comtradeplus.un.org/en/license-agreement HTTP 200 (sha256 0b29daf6f703dc74…); coverage/field markers confirmed. Dataset ingestion NOT performed: VERIFIED here means source-page evidence, not observed data (protocols/source_verification_log.jsonl). | ACCESS_VERIFIED 2026-11-20: page and terms HTTP 200 (evidence SHA-256 and markers in protocols/source_verification_log.jsonl, docs/197). No data retrieved into the project: ACCESS_VERIFIED is access evidence, NOT VERIFIED and not observed data."
+    },
+    {
+      "source_id": "USDA_FAS_EXPORT_SALES",
+      "name": "USDA FAS Export Sales and GAIN reports",
+      "publisher": "U.S. Department of Agriculture, Foreign Agricultural Service",
+      "url": "https://apps.fas.usda.gov/export-sales/",
+      "license": "public domain (U.S. Government work); attribution recommended",
+      "access": "file",
+      "coverage": {
+        "geography": "U.S. exports by destination country",
+        "period": "weekly reporting, marketing-year totals",
+        "frequency": "weekly"
+      },
+      "fields": [
+        "commodity",
+        "destination",
+        "week",
+        "volume",
+        "outstanding sales"
+      ],
+      "retrieved_at": null,
+      "vintage_support": "partial",
+      "status": "CATALOGUED",
+      "notes": "Weekly export-sales files are the natural PIT input for trade-flow assumptions in the soy pilot."
+    },
+    {
+      "source_id": "USDA_PSD",
+      "name": "USDA Production, Supply and Distribution (PSD) database",
+      "publisher": "U.S. Department of Agriculture, Foreign Agricultural Service",
+      "url": "https://apps.fas.usda.gov/psdonline/",
+      "license": "public domain (U.S. Government work)",
+      "access": "file",
+      "coverage": {
+        "geography": "global, by country and commodity",
+        "period": "marketing years, history from 1960s",
+        "frequency": "monthly updates"
+      },
+      "fields": [
+        "production",
+        "consumption",
+        "stocks",
+        "imports",
+        "exports",
+        "yield",
+        "area"
+      ],
+      "retrieved_at": null,
+      "vintage_support": "partial",
+      "status": "CATALOGUED",
+      "notes": "The main candidate to replace the soybean balance assumptions; monthly PSD revisions can reconstruct a short pseudo-vintage history, not a full PIT archive."
     },
     {
       "source_id": "VORTEXA",
@@ -254,29 +342,42 @@
         "period": "daily updates, contract-dependent history",
         "frequency": "daily"
       },
-      "fields": ["cargo tracking", "floating storage", "refinery runs", "freight rates", "port congestion"],
+      "fields": [
+        "cargo tracking",
+        "floating storage",
+        "refinery runs",
+        "freight rates",
+        "port congestion"
+      ],
       "retrieved_at": null,
       "vintage_support": "none",
       "status": "NOT_DOWNLOADED",
       "notes": "Paid source; useful only after a licence decision and an ingestion pipeline, neither of which exists."
     },
     {
-      "source_id": "BLS",
-      "name": "U.S. Bureau of Labor Statistics CPI and employment releases",
-      "publisher": "U.S. Bureau of Labor Statistics",
-      "url": "https://www.bls.gov/developers/",
-      "license": "public domain (U.S. Government work); attribution recommended",
+      "source_id": "WORLD_BANK",
+      "name": "World Bank Commodity Markets (Pink Sheet) and World Development Indicators (WDI)",
+      "publisher": "World Bank",
+      "url": "https://www.worldbank.org/en/research/commodity-markets",
+      "license": "CC BY 4.0",
       "access": "api",
       "coverage": {
-        "geography": "United States, national and metro",
-        "period": "monthly CPI releases; history from 1913",
-        "frequency": "monthly"
+        "geography": "global, by country and commodity",
+        "period": "monthly commodity prices; annual WDI series from 1960",
+        "frequency": "monthly, annual"
       },
-      "fields": ["CPI all items", "CPI core", "PPI", "unemployment", "payrolls", "release dates"],
-      "retrieved_at": null,
-      "vintage_support": "none",
-      "status": "CATALOGUED",
-      "notes": "The target feed for C6 forward forecasts; release calendar is public, but no BLS series is ingested into the C6 journal yet."
+      "fields": [
+        "commodity prices",
+        "GDP",
+        "trade",
+        "population",
+        "deflators",
+        "investment"
+      ],
+      "retrieved_at": "2026-11-14",
+      "vintage_support": "partial",
+      "status": "VERIFIED",
+      "notes": "Offline WDI cache used for macro cross-checks (data/mrio/wb, docs/130 D1 country checks); retrieved_at is the date the cache was fixed in the project. WDI revisions are not stored per vintage."
     }
   ]
 }
