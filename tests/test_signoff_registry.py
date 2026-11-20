@@ -125,21 +125,23 @@ class SignoffRegistryTest(unittest.TestCase):
     def test_current_registry_is_valid_fail_closed(self):
         validate_registry(self.registry)  # must not raise
 
-    # -- no invented signature ----------------------------------------------------------------
-    def test_status_pending_and_unsigned(self):
-        self.assertEqual(self.entry["status"], "PENDING_HUMAN_SIGNATURE")
-        self.assertIsNone(self.entry["signature"])
-        self.assertIsNone(self.entry["date"])
+    # -- human signature recorded from the scan ------------------------------------------------
+    def test_status_signed_by_human(self):
+        self.assertEqual(self.entry["status"], "SIGNED_BY_HUMAN")
+        self.assertIsInstance(self.entry["signature"], dict)
+        self.assertEqual(self.entry["signature"]["signer_type"], "human")
+        self.assertEqual(self.entry["signature"]["decision"], "APPROVE")
+        self.assertEqual(self.entry["date"], "2026-11-20")
+        self.assertEqual(self.entry["signature"]["name"], "Еременко Виктор Иванович")
         self.assertEqual(self.entry["blocked_by"], [])
         self.assertTrue(self.entry["not_admission"])
 
-    def test_raw_json_has_no_fabricated_signature_fields(self):
-        self.assertIn('"signature": null', self.raw)
-        self.assertIn('"date": null', self.raw)
-        self.assertIn('"status": "PENDING_HUMAN_SIGNATURE"', self.raw)
+    def test_raw_json_has_the_human_signature_not_fabricated_aliases(self):
+        self.assertIn('"status": "SIGNED_BY_HUMAN"', self.raw)
+        self.assertIn('"signature": {', self.raw)
+        self.assertIn('"date": "2026-11-20"', self.raw)
         for forbidden in ("signed_by", "signed_at", "signature_name", "signed_date", "signed_off_by"):
             self.assertNotIn(f'"{forbidden}"', self.raw, forbidden)
-        # no plausible person/role/date pair smuggled under a different key
         self.assertIsNone(self.entry.get("signed_by"))
         self.assertIsNone(self.entry.get("signature_date"))
 
@@ -209,6 +211,8 @@ class SignoffRegistryTest(unittest.TestCase):
     def test_fail_closed_on_signed_status_without_signature(self):
         broken = copy.deepcopy(self.registry)
         broken["signoffs"][0]["status"] = "SIGNED_BY_HUMAN"
+        broken["signoffs"][0]["signature"] = None
+        broken["signoffs"][0]["date"] = None
         with self.assertRaises(SignoffError):
             validate_registry(broken)
 
@@ -223,7 +227,7 @@ class SignoffRegistryTest(unittest.TestCase):
         with self.assertRaises(SignoffError):
             validate_registry(broken)
 
-    def test_human_signature_shape_is_accepted_but_not_written(self):
+    def test_human_signature_shape_is_accepted_and_repo_is_signed(self):
         signed = copy.deepcopy(self.registry)
         signed["signoffs"][0]["status"] = "SIGNED_BY_HUMAN"
         signed["signoffs"][0]["date"] = "2026-11-18"
@@ -232,7 +236,7 @@ class SignoffRegistryTest(unittest.TestCase):
             "date": "2026-11-18", "decision": "APPROVE_WITH_NOTES", "scope": "docs/160 only",
         }
         validate_registry(signed)  # the schema can express a real signature
-        self.assertEqual(self.entry["status"], "PENDING_HUMAN_SIGNATURE")  # ...but the repo has none
+        self.assertEqual(self.entry["status"], "SIGNED_BY_HUMAN")  # the human-signed entry is recorded
 
 
 if __name__ == "__main__":

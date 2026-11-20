@@ -1,7 +1,7 @@
 {
   "schema": "amfe.signoff_registry.v1",
   "created": "2026-11-18",
-  "updated": "2026-11-18",
+  "updated": "2026-11-20",
   "description": "Machine-readable registry of human gate signatures. An agent may only create or update an entry with status PENDING_HUMAN_SIGNATURE and null signature/date. Verification is fail-closed: object/packet must exist and their SHA-256 must recompute, otherwise the entry is invalid.",
   "hash_policy": {
     "algorithm": "sha256",
@@ -111,12 +111,28 @@
           "price_bridge": 0
         }
       },
-      "status": "PENDING_HUMAN_SIGNATURE",
-      "signature": null,
-      "date": null,
-      "note": "Automated PASS is neither a human signature nor an admission. Signature is OPEN: a human must read docs/185 and decide. Scope is docs/160 only: docs/170/V2 remains NOT_CONFIRMED (docs/172), G3 remains CONFIRMED_WITH_NOTES (docs/168), and the model status remains PROVISIONAL with admission=false. This agent cannot and must not sign.",
+      "status": "SIGNED_BY_HUMAN",
+      "signature": {
+        "name": "Еременко Виктор Иванович",
+        "role": "директор ТПО «ЛЕГАТ»",
+        "organization": "ТПО «ЛЕГАТ»",
+        "signer_type": "human",
+        "decision": "APPROVE",
+        "scope": "docs/160 external adversarial review of G2, run 2026-11-16",
+        "notes": "Рукописное замечание на форме: «улучшить исследование значимости применения модели» (прочитано по скану; формулировка может быть уточнена подписантом)."
+      },
+      "date": "2026-11-20",
+      "note": "Human-signed form received 2026-11-20: APPROVE, all checklist items ticked, handwritten note about improving the significance/application study. Signature/date/decision transcribed from the scan by the Lead; scope is docs/160 only. This is not admission: docs/170/V2 remains NOT_CONFIRMED (docs/172), G3 remains CONFIRMED_WITH_NOTES (docs/168), model status remains PROVISIONAL, admission=false.",
       "not_admission": true,
-      "blocked_by": []
+      "blocked_by": [],
+      "signed_scan": {
+        "path": "signoff/scanned/G4_SIGN_160_signed.pdf",
+        "sha256": "30e1502f7f0e7d0c591e1ba648c41cf9ab36d21aea4688ca66594ec1b6491f4b",
+        "bytes": 444053,
+        "original_docx_sha256": "c16ce2f16dfe1c5c5154cc32828eb3565be3db013dd21b29d0f3818817c655a2",
+        "original_docx_bytes": 675885,
+        "note": "Подписанный экземпляр получен 2026-11-20; scan/ в .gitignore, хеши зафиксированы в signoff/G4_SIGN_160_SIGNED.md."
+      }
     }
   ]
 }
