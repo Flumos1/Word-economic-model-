@@ -1,13 +1,13 @@
 # Библиотека памяти AMFE
 
-Обновлено: 2026-11-20T11:57:56Z · записей: 73
+Обновлено: 2026-11-20T12:12:29Z · записей: 74
 
 ## По ролям
 
 - `accounting-core` — 8 записей (`agents/memory/accounting-core.jsonl`)
 - `baseline-models` — 5 записей (`agents/memory/baseline-models.jsonl`)
 - `dense-vintages` — 18 записей (`agents/memory/dense-vintages.jsonl`)
-- `evaluation-harness` — 9 записей (`agents/memory/evaluation-harness.jsonl`)
+- `evaluation-harness` — 10 записей (`agents/memory/evaluation-harness.jsonl`)
 - `lead` — 8 записей (`agents/memory/lead.jsonl`)
 - `licence-auditor` — 3 записей (`agents/memory/licence-auditor.jsonl`)
 - `multiplicity-rw` — 8 записей (`agents/memory/multiplicity-rw.jsonl`)
@@ -84,6 +84,7 @@
 - `tests/test_simulator_ui.py` ← mem-dense-vintages-0012, mem-dense-vintages-0015, mem-dense-vintages-0016
 - `tests/test_storage_futures.py` ← mem-accounting-core-0007
 - `tools/c6_calendar.py` ← mem-evaluation-harness-0005, mem-evaluation-harness-0006
+- `tools/c6_runbook.py` ← mem-evaluation-harness-0010
 - `tools/client_pack_v2.py` ← mem-dense-vintages-0015, mem-dense-vintages-0018
 - `tools/country_forecast.py` ← mem-baseline-models-0005, mem-r2-completion-0006
 - `tools/eval_cache.py` ← mem-r2-completion-0005

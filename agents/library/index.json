@@ -1,7 +1,7 @@
 {
  "schema": "amfe.agent_library.v1",
- "updated_at": "2026-11-20T11:57:56Z",
- "entries": 73,
+ "updated_at": "2026-11-20T12:12:29Z",
+ "entries": 74,
  "open_questions": [
   {
    "id": "mem-lead-0003",
@@ -14,7 +14,7 @@
   "accounting-core": 8,
   "baseline-models": 5,
   "dense-vintages": 18,
-  "evaluation-harness": 9,
+  "evaluation-harness": 10,
   "lead": 8,
   "licence-auditor": 3,
   "multiplicity-rw": 8,
@@ -22,7 +22,7 @@
   "r2-completion": 7
  },
  "by_kind": {
-  "artifact": 31,
+  "artifact": 32,
   "decision": 1,
   "lesson": 15,
   "open_question": 1,
@@ -43,7 +43,7 @@
   "bridge": 4,
   "bug": 1,
   "c4": 1,
-  "c6": 3,
+  "c6": 4,
   "cache": 3,
   "candidates": 1,
   "canonical-write": 1,
@@ -348,6 +348,9 @@
   "tools/c6_calendar.py": [
    "mem-evaluation-harness-0005",
    "mem-evaluation-harness-0006"
+  ],
+  "tools/c6_runbook.py": [
+   "mem-evaluation-harness-0010"
   ],
   "tools/client_pack_v2.py": [
    "mem-dense-vintages-0015",
