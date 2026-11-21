@@ -10,8 +10,8 @@
   "ru",
   "en"
  ],
- "companies_count": 50,
- "cases_count": 100,
+ "companies_count": 51,
+ "cases_count": 102,
  "segments": [
   "major",
   "upstream",
@@ -3672,6 +3672,176 @@
     "2-page memo"
    ],
    "price_note_en": "Full scenario 8-12 weeks: 20 000-30 000 USD; 24 000 USD."
+  },
+  {
+   "id": "wc-101",
+   "company": "Equinor",
+   "segment": "major",
+   "hq_region": "Норвегия (Ставангер)",
+   "hq_region_en": "Norway (Stavanger)",
+   "profile_hypothesis": "Крупный шельфовый мейджор с газом, СПГ и энергопереходом; ключевые решения — портфель проектов, налоги и график.",
+   "pain": "Инвестиционная программа привязана к одной цене нефти, а газовый и шельфовый портфель требуют разных сценариев.",
+   "question": "Какой портфель проектов выдержит Brent 139,04–268,52 USD/bbl и газовый шок при горизонте 6–12 месяцев?",
+   "solution": "Ормуз/бюджет + газ/СПГ: ценовой путь, три портфеля, пороги пересмотра CAPEX и газовых контрактов.",
+   "modules": [
+    "Ормуз/бюджет",
+    "газ/СПГ"
+   ],
+   "deliverables": [
+    "PDF 8–10 страниц: портфель и пороги",
+    "XLSX: параметры и сценарии",
+    "Мемо на 2 страницы"
+   ],
+   "duration_weeks": 8,
+   "price_usd": 20000,
+   "price_note": "Полный сценарий 8–12 недель: 20 000–30 000 USD; 20 000 USD.",
+   "evidence_status": "HYPOTHESIS",
+   "not_client": true,
+   "title_en": "Project portfolio under an oil and gas shock",
+   "pain_en": "The investment programme is tied to one oil price, while the gas and offshore portfolio needs separate scenarios.",
+   "question_en": "Which project portfolio survives Brent at 139.04–268.52 USD/bbl and a gas shock over 6–12 months?",
+   "solution_en": "Hormuz/budget + gas/LNG: a price path, three portfolios, CAPEX and gas-contract review thresholds.",
+   "deliverables_en": [
+    "PDF 8–10 pages: portfolio and thresholds",
+    "XLSX: parameters and scenarios",
+    "2-page memo"
+   ],
+   "price_note_en": "Full scenario 8–12 weeks: 20 000–30 000 USD; 20 000 USD.",
+   "facts": [
+    {
+     "label": "Equity production 2025",
+     "value": "2 137 mboe/d",
+     "source_id": "SRC-EQNR-AR-2025",
+     "source_date": "2026-11-21",
+     "evidence": "A",
+     "note": "record equity production"
+    },
+    {
+     "label": "Доказанные запасы на конец 2025",
+     "value": "5 183 MBOE",
+     "source_id": "SRC-EQNR-AR-2025",
+     "source_date": "2026-11-21",
+     "evidence": "A",
+     "note": "proved reserves"
+    },
+    {
+     "label": "Стран присутствия",
+     "value": ">20",
+     "source_id": "SRC-EQNR-AR-2025",
+     "source_date": "2026-11-21",
+     "evidence": "A",
+     "note": "offices in more than 20 countries"
+    },
+    {
+     "label": "Hammerfest LNG",
+     "value": "6,5 BCM/год",
+     "source_id": "SRC-EQNR-AR-2025",
+     "source_date": "2026-11-21",
+     "evidence": "A",
+     "note": "LNG plant, Norway"
+    },
+    {
+     "label": "Добыча EPI 2025",
+     "value": "1 410 mboe/d",
+     "source_id": "SRC-EQNR-AR-2025",
+     "source_date": "2026-11-21",
+     "evidence": "A",
+     "note": "E&P International"
+    },
+    {
+     "label": "Добыча E&P USA 2025",
+     "value": "434 mboe/d",
+     "source_id": "SRC-EQNR-AR-2025",
+     "source_date": "2026-11-21",
+     "evidence": "A",
+     "note": "E&P USA"
+    }
+   ]
+  },
+  {
+   "id": "wc-102",
+   "company": "Equinor",
+   "segment": "major",
+   "hq_region": "Норвегия (Ставангер)",
+   "hq_region_en": "Norway (Stavanger)",
+   "profile_hypothesis": "Шельфовый оператор с длинным циклом проектов; закупки и логистика критичны для графика и бюджета.",
+   "pain": "TCO поставщиков считается по цене, без срока, риска и стоимости простоя на шельфе.",
+   "question": "Кто дешевле по TCO в двух категориях и сколько даст смена поставщика с учётом срока и риска?",
+   "solution": "FLAKS TCO + геополитика: 2 категории, 7 компонентов TCO, сравнение переключения и логистический риск.",
+   "modules": [
+    "FLAKS TCO",
+    "геополитика"
+   ],
+   "deliverables": [
+    "MD-отчёт 6 страниц",
+    "XLSX: скоринг и вклад компонентов",
+    "CSV-шаблоны для факта"
+   ],
+   "duration_weeks": 3,
+   "price_usd": 9500,
+   "price_note": "Пилот 2–4 недели: 7 500–10 000 USD; 9 500 USD.",
+   "evidence_status": "HYPOTHESIS",
+   "not_client": true,
+   "title_en": "Offshore supplier TCO and switch risk",
+   "pain_en": "Supplier TCO is compared on price alone, without lead time, risk and offshore downtime cost.",
+   "question_en": "Who is cheaper on TCO in two categories, and what does a supplier switch give after lead time and risk?",
+   "solution_en": "FLAKS TCO + geopolitics: 2 categories, seven TCO components, switch comparison and logistics risk.",
+   "deliverables_en": [
+    "MD report 6 pages",
+    "XLSX: scoring and component contributions",
+    "CSV templates for actuals"
+   ],
+   "price_note_en": "Pilot 2–4 weeks: 7 500–10 000 USD; 9 500 USD.",
+   "facts": [
+    {
+     "label": "Equity production 2025",
+     "value": "2 137 mboe/d",
+     "source_id": "SRC-EQNR-AR-2025",
+     "source_date": "2026-11-21",
+     "evidence": "A",
+     "note": "record equity production"
+    },
+    {
+     "label": "Доказанные запасы на конец 2025",
+     "value": "5 183 MBOE",
+     "source_id": "SRC-EQNR-AR-2025",
+     "source_date": "2026-11-21",
+     "evidence": "A",
+     "note": "proved reserves"
+    },
+    {
+     "label": "Стран присутствия",
+     "value": ">20",
+     "source_id": "SRC-EQNR-AR-2025",
+     "source_date": "2026-11-21",
+     "evidence": "A",
+     "note": "offices in more than 20 countries"
+    },
+    {
+     "label": "Hammerfest LNG",
+     "value": "6,5 BCM/год",
+     "source_id": "SRC-EQNR-AR-2025",
+     "source_date": "2026-11-21",
+     "evidence": "A",
+     "note": "LNG plant, Norway"
+    },
+    {
+     "label": "Добыча EPI 2025",
+     "value": "1 410 mboe/d",
+     "source_id": "SRC-EQNR-AR-2025",
+     "source_date": "2026-11-21",
+     "evidence": "A",
+     "note": "E&P International"
+    },
+    {
+     "label": "Добыча E&P USA 2025",
+     "value": "434 mboe/d",
+     "source_id": "SRC-EQNR-AR-2025",
+     "source_date": "2026-11-21",
+     "evidence": "A",
+     "note": "E&P USA"
+    }
+   ]
   }
  ]
 }

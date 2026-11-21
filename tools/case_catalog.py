@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Validate the 100 western commercial cases (50 companies x 2) and build both catalogs.
+"""Validate the 102 western commercial cases (51 companies x 2) and build both catalogs.
 
-Source of truth is ``marketing/western_cases/cases.json``: 100 bilingual cases (Russian and
-English fields) for 50 western companies, two cases per company. The tool validates it
+Source of truth is ``marketing/western_cases/cases.json``: 102 bilingual cases (Russian and
+English fields) for 51 western companies, two cases per company. The tool validates it
 fail-closed, then renders the Russian ``catalog.md`` + 4-6 page ``catalog.pdf`` and the English
 ``catalog_en.md`` + 4-6 page ``catalog_en.pdf``, plus ``manifest.json`` with SHA-256 for every
 file and the page count of both PDFs.
@@ -46,8 +46,8 @@ SOFFICE = Path(r"C:\Program Files\LibreOffice\program\soffice.exe")
 SCHEMA = "amfe.marketing.western_case_catalog.v2"
 CREATED = "2026-11-21"
 PDF_PAGES = (4, 6)
-MIN_CASES = 100
-COMPANIES_COUNT = 50
+MIN_CASES = 102
+COMPANIES_COUNT = 51
 CASES_PER_COMPANY = 2
 
 SEGMENTS = (
@@ -598,6 +598,19 @@ def _short(text: str, limit: int) -> str:
     return head.rstrip(" ,;:-") + "…"
 
 
+
+def _fact_rows(cases: list[dict], lang: str) -> list[list[str]]:
+    """Sourced numeric facts for the appendix; no URLs or contacts, only source ids."""
+    rows: list[list[str]] = []
+    for case in cases:
+        for fact in case.get("facts", []):
+            label = fact.get("label", "")
+            value = fact.get("value", "")
+            source = fact.get("source_id", "")
+            rows.append([case["id"], case["company"], label, value, source])
+    return rows
+
+
 def _module_labels(case: dict, lang: str) -> list[str]:
     if lang == "en":
         return [MODULE_EN[str(module)] for module in case["modules"]]
@@ -614,7 +627,7 @@ def render_markdown(catalog: dict, source_sha: str, lang: str = "ru") -> str:
 
 def _render_markdown_ru(catalog: dict, cases: list[dict], stats: dict, source_sha: str) -> str:
     lines: list[str] = [
-        "# Каталог 100 западных кейсов",
+        "# Каталог 102 западных кейсов",
         "",
         f"Собрано: {CREATED} · статус DRAFT · `RESEARCH_ONLY` · `admission=false` · "
         "`not_client=true` · ничего не отправлено",
@@ -627,7 +640,7 @@ def _render_markdown_ru(catalog: dict, cases: list[dict], stats: dict, source_sh
         "",
         "## 1. Что это",
         "",
-        "100 кратких коммерческих кейсов для западных корпораций: 50 компаний по 2 кейса и",
+        "102 кратких коммерческих кейса для западных корпораций: 51 компания по 2 кейса и",
         "9 сегментов. Каждый кейс — **гипотеза** о боли и вопросе, который эта роль могла бы",
         "задать, и о том, какие наши модули её закрывают. Это не описание компании, не КП, не",
         "аудит и не прогноз: `evidence_status` у каждого кейса — `HYPOTHESIS` или `NOT_FETCHED`,",
@@ -726,11 +739,27 @@ def _render_markdown_ru(catalog: dict, cases: list[dict], stats: dict, source_sh
             for case in group
         )
         lines.append(f"- **{company}** (`{head['segment']}`, {head['hq_region']}): {items}")
+
+    fact_rows = _fact_rows(cases, "ru")
+    if fact_rows:
+        lines += [
+            "",
+            "## 5.1 Факт-паки: числа с источниками",
+            "",
+            "Это не гипотезы: числа взяты из открытых годовых отчётов и проверяются по `source_id`.",
+            "Они не делают боль кейса подтверждённой и не являются клиентскими данными.",
+            "",
+            "| ID | Компания | Факт | Значение | Источник |",
+            "|---|---|---|---|---|",
+        ]
+        for row in fact_rows:
+            lines.append("| " + " | ".join(row) + " |")
+
     lines += [
         "",
         "## 6. Как использовать",
         "",
-        "1. Выбрать сегмент и одну боль — не показывать каталог целиком: 100 кейсов читаются как",
+        "1. Выбрать сегмент и одну боль — не показывать каталог целиком: 102 кейса читаются как",
         "   прайс, один кейс — как разбор задачи.",
         "2. Проверить гипотезу на discovery: совпадает ли роль, контур решений и срок бюджета.",
         "3. Заменить `profile_hypothesis`, `pain` и `question` на то, что сказано на созвоне, и",
@@ -741,7 +770,7 @@ def _render_markdown_ru(catalog: dict, cases: list[dict], stats: dict, source_sh
         "",
         "## 7. Границы",
         "",
-        "- Все 100 кейсов — гипотезы; ни один не проверен на компании и не является КП.",
+        "- Все 102 кейса — гипотезы; ни один не проверен на компании и не является КП.",
         "- Нет ни одного контакта, телефона, адреса и персонального имени — и не должно быть.",
         "- Нет цифр выручки, штата и доли рынка: такие утверждения требуют источника и проверки.",
         "- Проценты в вопросах — только те, что прослеживаются к docs/186, docs/188 и docs/190.",
@@ -758,7 +787,7 @@ def _render_markdown_ru(catalog: dict, cases: list[dict], stats: dict, source_sh
 
 def _render_markdown_en(catalog: dict, cases: list[dict], stats: dict, source_sha: str) -> str:
     lines: list[str] = [
-        "# 100 Western Cases: hypothesis catalog, prices and rules",
+        "# 102 Western Cases: hypothesis catalog, prices and rules",
         "",
         f"Built: {CREATED} · status DRAFT · `RESEARCH_ONLY` · `admission=false` · "
         "`not_client=true` · nothing sent",
@@ -771,7 +800,7 @@ def _render_markdown_en(catalog: dict, cases: list[dict], stats: dict, source_sh
         "",
         "## 1. What this is",
         "",
-        "100 short commercial cases for western corporations: 50 companies with two cases each,",
+        "102 short commercial cases for western corporations: 51 companies with two cases each,",
         "across 9 segments. Every case is a **hypothesis** about a pain, the question that role",
         "might ask, and the modules that would answer it. It is not a company profile, not an",
         "offer, not an audit and not a forecast: every `evidence_status` is `HYPOTHESIS` or",
@@ -870,11 +899,27 @@ def _render_markdown_en(catalog: dict, cases: list[dict], stats: dict, source_sh
         )
         lines.append(
             f"- **{company}** (`{head['segment']}`, {head['hq_region_en']}): {items}")
+
+    fact_rows = _fact_rows(cases, "en")
+    if fact_rows:
+        lines += [
+            "",
+            "## 5.1 Fact packs: numbers with sources",
+            "",
+            "These are not hypotheses: the numbers come from open annual reports and are traceable by `source_id`.",
+            "They do not confirm the case pain and are not client data.",
+            "",
+            "| ID | Company | Fact | Value | Source |",
+            "|---|---|---|---|---|",
+        ]
+        for row in fact_rows:
+            lines.append("| " + " | ".join(row) + " |")
+
     lines += [
         "",
         "## 6. How to use",
         "",
-        "1. Pick a segment and one pain — never show the whole catalog: 100 rows read as a price",
+        "1. Pick a segment and one pain — never show the whole catalog: 102 rows read as a price",
         "   list, one row reads as a task breakdown.",
         "2. Test the hypothesis on discovery: does the role, the decision loop and the budget cycle match?",
         "3. Replace `profile_hypothesis`, `pain` and `question` with what was said on the call, and set",
@@ -885,7 +930,7 @@ def _render_markdown_en(catalog: dict, cases: list[dict], stats: dict, source_sh
         "",
         "## 7. Boundaries",
         "",
-        "- All 100 cases are hypotheses; none is verified on a company and none is an offer.",
+        "- All 102 cases are hypotheses; none is verified on a company and none is an offer.",
         "- There is no contact, phone number, address or personal name in the pack, and there must be none.",
         "- There is no revenue, headcount or market-share figure: such claims need a source and a check.",
         "- Percent figures in questions are only those traceable to docs/186, docs/188 and docs/190.",
@@ -934,7 +979,8 @@ def _docx_table(document, rows, sizes):
     from docx.oxml.ns import qn
     from docx.shared import Cm, Pt, RGBColor
 
-    width = len(rows[0])
+    width = max(len(row) for row in rows)
+    rows = [list(row) + [""] * (width - len(row)) for row in rows]
     table = document.add_table(rows=0, cols=width)
     table.style = "Table Grid"
     table.autofit = False
@@ -973,9 +1019,9 @@ def _docx_table(document, rows, sizes):
 def _pdf_texts(lang: str) -> dict:
     if lang == "en":
         return {
-            "title": "AMFE · 100 western cases",
+            "title": "AMFE · 102 western cases",
             "subtitle": (
-                "Hypothesis catalog · 100 cases · 50 companies x 2 · 9 segments · "
+                "Hypothesis catalog · 102 cases · 51 companies x 2 · 9 segments · "
                 f"built {CREATED} · DRAFT · RESEARCH_ONLY · admission=false · not_client=true"),
             "intro": (
                 "Short cards to work through one pain on a call: segment, question, our modules, "
@@ -1012,12 +1058,14 @@ def _pdf_texts(lang: str) -> dict:
                 "NOT_FETCHED means the answer needs external data that was not fetched in this session.",
             ),
             "companies": "Companies in the catalog",
-            "cases": "100 cases: company, question, modules, duration, price",
+            "facts": "Fact packs: numbers with sources",
+            "facts_head": ["ID", "Company", "Fact", "Value", "Source"],
+            "cases": "102 cases: company, question, modules, duration, price",
             "cases_head": ["#", "Company", "Segment", "Question (hypothesis)", "Modules", "Wks", "USD"],
-            "continuation": "100 cases (continued: {start}-{end})",
+            "continuation": "102 cases (continued: {start}-{end})",
             "how": "How to use the catalog",
             "how_items": (
-                "Show one case, not the catalog: 100 rows read as a price list, one row as a task.",
+                "Show one case, not the catalog: 102 rows read as a price list, one row as a task.",
                 "Test the hypothesis on discovery and replace pain/question with what was said.",
                 "After the diagnostic fix one price and the scope in price_note, then rebuild.",
                 "Sending, NDA and contracting is done by a human; the agent neither sends nor commits.",
@@ -1029,9 +1077,9 @@ def _pdf_texts(lang: str) -> dict:
             "quote_limit": 120,
         }
     return {
-        "title": "AMFE · 100 западных кейсов",
+        "title": "AMFE · 102 западных кейса",
         "subtitle": (
-            f"Каталог гипотез · {100} кейсов · 50 компаний × 2 · 9 сегментов · "
+            f"Каталог гипотез · {102} кейсов · 51 компания × 2 · 9 сегментов · "
             f"собрано {CREATED} · DRAFT · RESEARCH_ONLY · admission=false · not_client=true"),
         "intro": (
             "Краткие карточки для разбора одной боли на созвоне: сегмент, вопрос, наши модули, срок "
@@ -1067,12 +1115,14 @@ def _pdf_texts(lang: str) -> dict:
             "NOT_FETCHED значит: для ответа нужны внешние данные, в этой сессии они не забирались.",
         ),
         "companies": "Компании в каталоге",
-        "cases": "100 кейсов: компания, вопрос, модули, срок, цена",
+        "facts": "Факт-паки: числа с источниками",
+        "facts_head": ["ID", "Компания", "Факт", "Значение", "Источник"],
+        "cases": "102 кейса: компания, вопрос, модули, срок, цена",
         "cases_head": ["#", "Компания", "Сегмент", "Вопрос (гипотеза)", "Модули", "Нед.", "USD"],
-        "continuation": "100 кейсов (продолжение: {start}-{end})",
+        "continuation": "102 кейса (продолжение: {start}-{end})",
         "how": "Как использовать каталог",
         "how_items": (
-            "Показать один кейс, а не каталог: 100 строк читаются как прайс, одна строка — как разбор задачи.",
+            "Показать один кейс, а не каталог: 102 строки читаются как прайс, одна строка — как разбор задачи.",
             "Проверить гипотезу на discovery и заменить pain/question на то, что сказано на созвоне.",
             "После диагностики зафиксировать одну цену и объём работ в price_note и пересобрать каталог.",
             "Отправка, NDA и договор — только человеком; агент не отправляет и не коммитит.",
@@ -1155,6 +1205,12 @@ def render_pdf(catalog: dict, source_sha: str, pdf_path: Path, lang: str = "ru")
     for start in range(0, len(order), 5):
         rows.append([f"{name} ({segment_of[name]})" for name in order[start:start + 5]])
     _docx_table(document, rows, (3.4, 3.4, 3.4, 3.4, 3.4))
+
+    fact_rows = _fact_rows(cases, lang)
+    if fact_rows:
+        document.add_heading(texts["facts"], level=1)
+        rows = [list(texts["facts_head"])] + fact_rows
+        _docx_table(document, rows, (1.6, 3.2, 5.2, 4.6, 3.2))
 
     sizes = (0.9, 3.0, 1.4, 6.9, 2.4, 1.0, 1.3)
 

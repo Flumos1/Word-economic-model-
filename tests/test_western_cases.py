@@ -44,7 +44,7 @@ ALLOWED_COMPANIES = {
     "SLB", "Halliburton", "Baker Hughes", "TechnipFMC", "Saipem", "Subsea7", "Transocean",
     "Frontline", "Euronav", "Vitol", "Trafigura", "Glencore", "Gunvor", "Dow", "LyondellBasell",
     "BASF", "Borealis", "Duke Energy", "NextEra", "Enel", "Iberdrola", "RWE", "Engie", "Uniper",
-    "Linde", "Air Liquide", "E.ON", "National Grid", "SSE", "Ørsted", "Dominion Energy", "Southern Company", "AEP", "Exelon", "Sempra", "TC Energy", "Enbridge", "Williams", "GE Vernova", "Siemens Energy", "Schneider Electric", "ABB", "Honeywell", "Emerson", "Rockwell Automation",
+    "Linde", "Air Liquide", "Equinor", "E.ON", "National Grid", "SSE", "Ørsted", "Dominion Energy", "Southern Company", "AEP", "Exelon", "Sempra", "TC Energy", "Enbridge", "Williams", "GE Vernova", "Siemens Energy", "Schneider Electric", "ABB", "Honeywell", "Emerson", "Rockwell Automation",
 }
 SEGMENTS = {"major", "upstream", "lng", "services", "trading", "chemicals", "utilities", "industrials", "pipelines"}
 MODULES = {"Ормуз/бюджет", "FLAKS TCO", "газ/СПГ", "геополитика", "API/Client Pack"}
@@ -102,10 +102,10 @@ class TestCaseData(unittest.TestCase):
         self.assertIs(self.catalog["admission"], False)
         self.assertIs(self.catalog["causal_claim"], False)
         self.assertIs(self.catalog["sent"], False)
-        self.assertEqual(len(self.cases), 100)
-        self.assertEqual(len({case["company"] for case in self.cases}), 50)
-        self.assertEqual(self.catalog["cases_count"], 100)
-        self.assertEqual(self.catalog["companies_count"], 50)
+        self.assertEqual(len(self.cases), 102)
+        self.assertEqual(len({case["company"] for case in self.cases}), 51)
+        self.assertEqual(self.catalog["cases_count"], 102)
+        self.assertEqual(self.catalog["companies_count"], 51)
 
     def test_02_required_fields_and_types(self):
         for case in self.cases:
@@ -122,7 +122,7 @@ class TestCaseData(unittest.TestCase):
     def test_03_unique_ids_and_questions(self):
         ids = [case["id"] for case in self.cases]
         self.assertEqual(len(ids), len(set(ids)))
-        self.assertEqual(ids, [f"wc-{index:03d}" for index in range(1, 101)])
+        self.assertEqual(ids, [f"wc-{index:03d}" for index in range(1, 103)])
         questions = [" ".join(case["question"].lower().split()) for case in self.cases]
         self.assertEqual(len(questions), len(set(questions)))
 
@@ -133,7 +133,7 @@ class TestCaseData(unittest.TestCase):
         per_company: dict[str, list[dict]] = {}
         for case in self.cases:
             per_company.setdefault(case["company"], []).append(case)
-        self.assertEqual(len(per_company), 50)
+        self.assertEqual(len(per_company), 51)
         for company, group in per_company.items():
             self.assertEqual(len(group), 2, company)
             first, second = group
@@ -148,7 +148,7 @@ class TestCaseData(unittest.TestCase):
             counts[case["segment"]] += 1
         for segment, count in counts.items():
             self.assertGreaterEqual(count, 2, f"{segment} has only {count} cases")
-        self.assertEqual(sum(counts.values()), 100)
+        self.assertEqual(sum(counts.values()), 102)
 
     def test_06_prices_and_duration_match_bands(self):
         tool = load_tool()
@@ -263,7 +263,7 @@ class TestCaseData(unittest.TestCase):
             out = tmp_path / "out"
             done = run_cli("--cases", str(source), "--out", str(out), "--no-pdf")
             self.assertEqual(done.returncode, 1, done.stderr)
-            self.assertIn("!= 100", done.stderr)
+            self.assertIn("!= 102", done.stderr)
             self.assertFalse(out.exists())
 
 
@@ -292,7 +292,7 @@ class TestCatalogArtifacts(unittest.TestCase):
             match = re.search(rf"\| {re.escape(label)} \| (\d+) \|", text)
             self.assertIsNotNone(match, label)
             counts[label] = int(match.group(1))
-        self.assertEqual(sum(counts.values()), 100)
+        self.assertEqual(sum(counts.values()), 102)
         self.assertGreaterEqual(counts[labels[0]], 2)
 
     def test_18_catalog_md_is_deterministic(self):
@@ -338,7 +338,7 @@ class TestCatalogArtifacts(unittest.TestCase):
             self.assertEqual(sha256(path), entry["sha256"], entry["path"])
             self.assertEqual(path.stat().st_size, entry["bytes"], entry["path"])
         self.assertEqual(manifest["source"]["sha256"], sha256(CASES_JSON))
-        self.assertEqual(manifest["source"]["cases"], 100)
+        self.assertEqual(manifest["source"]["cases"], 102)
         done = run_cli("--check")
         self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
         self.assertIn("OK", done.stdout)
@@ -363,10 +363,10 @@ class TestCatalogArtifacts(unittest.TestCase):
             self.assertEqual(done.returncode, 0, done.stderr)
             payload = json.loads(done.stdout)
             self.assertTrue(payload["ok"])
-            self.assertEqual(payload["cases"], 100)
-            self.assertEqual(payload["companies"], 50)
-            self.assertEqual(payload["coverage"]["cases"], 100)
-            self.assertEqual(sum(payload["coverage"]["segments"][s]["cases"] for s in SEGMENTS), 100)
+            self.assertEqual(payload["cases"], 102)
+            self.assertEqual(payload["companies"], 51)
+            self.assertEqual(payload["coverage"]["cases"], 102)
+            self.assertEqual(sum(payload["coverage"]["segments"][s]["cases"] for s in SEGMENTS), 102)
             self.assertFalse(out.exists())
 
     def test_23_cli_help_and_no_pdf(self):
@@ -473,7 +473,7 @@ class TestDocumentationAndPricing(unittest.TestCase):
         text = DOCS214.read_text(encoding="utf-8")
         for token in ("Как использовать", "гипотез", "заменить", "Цены", "RESEARCH_ONLY",
                       "not_client", "HYPOTHESIS", "NOT_FETCHED", "case_catalog.py",
-                      "50 компаний", "100 кейсов"):
+                      "51 компания", "102 кейса"):
             self.assertIn(token, text)
         for token in ("admitted", "точность выше рынка"):
             self.assertNotIn(token, text)

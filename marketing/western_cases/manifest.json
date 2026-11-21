@@ -12,15 +12,15 @@
   ],
   "source": {
     "path": "marketing/western_cases/cases.json",
-    "sha256": "fb5a30c6519b36fee1fef2c54d7af39c074406459bb6b077b6c16155ea4c1e93",
-    "cases": 100,
-    "companies": 50
+    "sha256": "e19bcc1ffee973b83a9e6cd0fe37f8c9008a052c1beb8300440236929acad70b",
+    "cases": 102,
+    "companies": 51
   },
   "coverage": {
     "segments": {
       "major": {
-        "cases": 10,
-        "companies": 5
+        "cases": 12,
+        "companies": 6
       },
       "upstream": {
         "cases": 6,
@@ -56,28 +56,28 @@
       }
     },
     "modules": {
-      "Ормуз/бюджет": 19,
-      "FLAKS TCO": 26,
-      "газ/СПГ": 30,
-      "геополитика": 13,
+      "Ормуз/бюджет": 20,
+      "FLAKS TCO": 27,
+      "газ/СПГ": 31,
+      "геополитика": 14,
       "API/Client Pack": 13
     },
     "modules_en": {
-      "Hormuz/budget": 19,
-      "FLAKS TCO": 26,
-      "gas/LNG": 30,
-      "geopolitics": 13,
+      "Hormuz/budget": 20,
+      "FLAKS TCO": 27,
+      "gas/LNG": 31,
+      "geopolitics": 14,
       "API/Client Pack": 13
     },
     "price_bands": {
       "0 — диагностика": 3,
-      "7 500-10 000 — пилот": 26,
+      "7 500-10 000 — пилот": 27,
       "15 000-25 000 — полный сценарий, узкий": 33,
-      "20 000-30 000 — полный сценарий": 25,
+      "20 000-30 000 — полный сценарий": 26,
       "25 000-80 000 — API и подписка": 13
     },
     "evidence_status": {
-      "HYPOTHESIS": 78,
+      "HYPOTHESIS": 80,
       "NOT_FETCHED": 22
     },
     "price_usd": {
@@ -90,7 +90,7 @@
       "max": 12
     },
     "english": {
-      "cases_with_en": 100,
+      "cases_with_en": 102,
       "fields": 7
     }
   },
@@ -114,43 +114,43 @@
       "path": "cases.json",
       "lang": "json",
       "kind": "json",
-      "sha256": "fb5a30c6519b36fee1fef2c54d7af39c074406459bb6b077b6c16155ea4c1e93",
-      "bytes": 203745,
+      "sha256": "e19bcc1ffee973b83a9e6cd0fe37f8c9008a052c1beb8300440236929acad70b",
+      "bytes": 210467,
       "deterministic": true
     },
     {
       "path": "catalog.md",
       "lang": "ru",
       "kind": "markdown",
-      "sha256": "9968db02a9febe9f42b9239fa834a23f291d885af7651a177d96ef6868d4b08f",
-      "bytes": 47137,
+      "sha256": "70daadafe9aab1516e10ed910c5ca8f320628e464dcb0c9a541070b7cb82848f",
+      "bytes": 51729,
       "deterministic": true
     },
     {
       "path": "catalog_en.md",
       "lang": "en",
       "kind": "markdown",
-      "sha256": "2f432c8dc28ef8d571126f79b7748ff4e70756a3f58486ab9434d7ffe844feff",
-      "bytes": 27828,
+      "sha256": "dfb7b2b034ff22d893cc026c522f0e7f27eb9c6b761ab55f0a2a58ad69b8c8c2",
+      "bytes": 31798,
       "deterministic": true
     },
     {
       "path": "catalog.pdf",
       "lang": "ru",
       "kind": "pdf",
-      "sha256": "fc6be0d70fd080a267a6edc383b63653f98228c7eaf6293fe99fdce41307af70",
-      "bytes": 474397,
+      "sha256": "280897a97e3d6019c24dabb9f5f4e0e81c42888ace0387b318930830f448ec53",
+      "bytes": 550932,
       "deterministic": false,
-      "pages": 4
+      "pages": 5
     },
     {
       "path": "catalog_en.pdf",
       "lang": "en",
       "kind": "pdf",
-      "sha256": "6388903e99f7e562bde46573d8356b0bf4c492131af79483d2de65e9bd981d8f",
-      "bytes": 460016,
+      "sha256": "00774eaac07bf794d349f846220e15e43ac2ae2e8f4f24d4560ce0f1dd977ff6",
+      "bytes": 539810,
       "deterministic": false,
-      "pages": 4
+      "pages": 5
     }
   ]
 }
