@@ -420,7 +420,8 @@ def build_manifest() -> dict:
 
 def write_manifest() -> Path:
     MANIFEST.write_text(
-        json.dumps(build_manifest(), ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        json.dumps(build_manifest(), ensure_ascii=False, indent=2) + "\n", encoding="utf-8",
+        newline="\n",
     )
     return MANIFEST
 

@@ -1,7 +1,7 @@
 {
  "schema": "amfe.agent_library.v1",
- "updated_at": "2026-11-21T06:52:23Z",
- "entries": 80,
+ "updated_at": "2026-11-21T07:05:36Z",
+ "entries": 81,
  "open_questions": [
   {
    "id": "mem-dense-vintages-0023",
@@ -19,7 +19,7 @@
  "by_role": {
   "accounting-core": 8,
   "baseline-models": 5,
-  "dense-vintages": 23,
+  "dense-vintages": 24,
   "evaluation-harness": 10,
   "lead": 8,
   "licence-auditor": 4,
@@ -28,7 +28,7 @@
   "r2-completion": 7
  },
  "by_kind": {
-  "artifact": 36,
+  "artifact": 37,
   "decision": 1,
   "lesson": 15,
   "open_question": 2,
@@ -46,7 +46,8 @@
   "api": 2,
   "auth": 1,
   "block-15": 1,
-  "block17": 1,
+  "block15": 1,
+  "block17": 2,
   "blockers": 1,
   "blocks": 2,
   "bridge": 4,
@@ -57,6 +58,7 @@
   "candidates": 1,
   "canonical-write": 1,
   "client-pack": 3,
+  "client_pack": 1,
   "correction": 1,
   "country": 4,
   "crm": 2,
@@ -117,7 +119,7 @@
   "quality": 1,
   "quotas": 1,
   "registry": 3,
-  "research_only": 1,
+  "research_only": 2,
   "review": 1,
   "science": 1,
   "scorecard": 2,
@@ -125,7 +127,7 @@
   "selfcheck": 1,
   "sfc": 1,
   "signoff": 2,
-  "simulator": 3,
+  "simulator": 4,
   "sources": 1,
   "stats": 2,
   "status": 6,
@@ -134,7 +136,7 @@
   "task": 8,
   "task-69": 1,
   "technology": 1,
-  "tests": 5,
+  "tests": 6,
   "time-box": 1,
   "ui": 1,
   "v1-compat": 1,
@@ -193,7 +195,8 @@
   "docs/171_Client_Pack_v2.md": [
    "mem-dense-vintages-0001",
    "mem-dense-vintages-0015",
-   "mem-dense-vintages-0018"
+   "mem-dense-vintages-0018",
+   "mem-dense-vintages-0024"
   ],
   "docs/173_План_2.1_ревизия_идей_и_практический_маршрут.md": [
    "mem-dense-vintages-0003"
@@ -237,7 +240,8 @@
   ],
   "docs/192_Simulator_UI.md": [
    "mem-dense-vintages-0012",
-   "mem-dense-vintages-0015"
+   "mem-dense-vintages-0015",
+   "mem-dense-vintages-0024"
   ],
   "docs/201_Внешние_прогнозы_20.md": [
    "mem-dense-vintages-0017"
@@ -348,7 +352,8 @@
    "mem-dense-vintages-0008",
    "mem-dense-vintages-0015",
    "mem-dense-vintages-0018",
-   "mem-dense-vintages-0021"
+   "mem-dense-vintages-0021",
+   "mem-dense-vintages-0024"
   ],
   "tests/test_country_forecast.py": [
    "mem-r2-completion-0006"
@@ -399,7 +404,8 @@
   "tests/test_simulator_ui.py": [
    "mem-dense-vintages-0012",
    "mem-dense-vintages-0015",
-   "mem-dense-vintages-0016"
+   "mem-dense-vintages-0016",
+   "mem-dense-vintages-0024"
   ],
   "tests/test_source_verification.py": [
    "mem-licence-auditor-0004"
@@ -422,7 +428,8 @@
   ],
   "tools/client_pack_v2.py": [
    "mem-dense-vintages-0015",
-   "mem-dense-vintages-0018"
+   "mem-dense-vintages-0018",
+   "mem-dense-vintages-0024"
   ],
   "tools/country_forecast.py": [
    "mem-baseline-models-0005",
@@ -493,7 +500,8 @@
   ],
   "tools/simulator_ui.py": [
    "mem-dense-vintages-0012",
-   "mem-dense-vintages-0015"
+   "mem-dense-vintages-0015",
+   "mem-dense-vintages-0024"
   ],
   "tools/source_verification.py": [
    "mem-licence-auditor-0004"
