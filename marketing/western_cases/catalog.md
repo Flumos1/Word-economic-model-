@@ -2,7 +2,7 @@
 
 Собрано: 2026-11-21 · статус DRAFT · `RESEARCH_ONLY` · `admission=false` · `not_client=true` · ничего не отправлено
 
-Источник: `marketing/western_cases/cases.json` · SHA-256 `cb995f821c4e0608e1bdcbffd8e6e7548657c5e7a6ec1f59e53750c07aa69caa` · 100 кейсов, 50 компаний · русская и английская версии
+Источник: `marketing/western_cases/cases.json` · SHA-256 `6c96e79ee2ccfb8c06d75a6fc9f92126fe6e416a9e78129ba790acac42271299` · 100 кейсов, 50 компаний · русская и английская версии
 
 Каталог генерируется `tools/case_catalog.py` из `cases.json`; руками не правится.
 Английская версия тех же кейсов — `catalog_en.md` и `catalog_en.pdf`.

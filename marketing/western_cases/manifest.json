@@ -12,7 +12,7 @@
   ],
   "source": {
     "path": "marketing/western_cases/cases.json",
-    "sha256": "cb995f821c4e0608e1bdcbffd8e6e7548657c5e7a6ec1f59e53750c07aa69caa",
+    "sha256": "6c96e79ee2ccfb8c06d75a6fc9f92126fe6e416a9e78129ba790acac42271299",
     "cases": 100,
     "companies": 50
   },
@@ -114,15 +114,15 @@
       "path": "cases.json",
       "lang": "json",
       "kind": "json",
-      "sha256": "cb995f821c4e0608e1bdcbffd8e6e7548657c5e7a6ec1f59e53750c07aa69caa",
-      "bytes": 209369,
+      "sha256": "6c96e79ee2ccfb8c06d75a6fc9f92126fe6e416a9e78129ba790acac42271299",
+      "bytes": 201361,
       "deterministic": true
     },
     {
       "path": "catalog.md",
       "lang": "ru",
       "kind": "markdown",
-      "sha256": "e0865876c7e9304236ec418c32cd8c4f591a50fa36877a51a6a8e068a009348e",
+      "sha256": "29021a21ff1988aeba1a914b5bd6a9004b6d62ed6bf6c1d76d0741cf5096afbd",
       "bytes": 47137,
       "deterministic": true
     },
@@ -130,7 +130,7 @@
       "path": "catalog_en.md",
       "lang": "en",
       "kind": "markdown",
-      "sha256": "1ef188596997e998b55e4ec6484fad0a85532d3b80359d9cfee46810675dd66a",
+      "sha256": "9432376bd2df2d6c04ab7651af71599246ec4de692b0fd5e5d335079c6835b8b",
       "bytes": 27828,
       "deterministic": true
     },
@@ -138,8 +138,8 @@
       "path": "catalog.pdf",
       "lang": "ru",
       "kind": "pdf",
-      "sha256": "2eeeab0c5df33a6133fb7ce903bbb97b005113194da87111a97a03fce6141995",
-      "bytes": 474065,
+      "sha256": "eeb44e05b668042557350d7d2a32fe3fe2b3d6fd507d4c257edbc5a71fc1b64e",
+      "bytes": 474147,
       "deterministic": false,
       "pages": 4
     },
@@ -147,8 +147,8 @@
       "path": "catalog_en.pdf",
       "lang": "en",
       "kind": "pdf",
-      "sha256": "359c8601702447f5493caf23844af6163ccbf69900d4ac391680b93cda5d393e",
-      "bytes": 459752,
+      "sha256": "48bc080a3b41f7a761c92846159f3a91df20b683969e6dad03aac027c7a75da0",
+      "bytes": 459753,
       "deterministic": false,
       "pages": 4
     }

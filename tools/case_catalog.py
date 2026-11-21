@@ -258,6 +258,49 @@ def _check_text(label: str, text: str, lang: str, problems: list[str]) -> None:
         problems.append(f"{label}: unsourced percent figure(s) {bad}")
 
 
+FACT_REQUIRED = ("label", "value", "source_id", "source_date", "evidence")
+FACT_EVIDENCE = ("A", "B", "C")
+
+
+def _validate_facts(case: dict, label: str, problems: list[str]) -> None:
+    """Facts are optional, but when present they must be sourced and number-safe."""
+    facts = case.get("facts")
+    if facts is None:
+        return
+    if not isinstance(facts, list) or not (1 <= len(facts) <= 12):
+        problems.append(f"{label}: facts must be a list of 1-12 items")
+        return
+    for index, fact in enumerate(facts, 1):
+        item = f"{label}: facts[{index}]"
+        if not isinstance(fact, dict):
+            problems.append(f"{item}: must be an object")
+            continue
+        missing = [field for field in FACT_REQUIRED if field not in fact]
+        if missing:
+            problems.append(f"{item}: missing {missing}")
+            continue
+        for field in ("label", "value", "source_id", "source_date"):
+            if not isinstance(fact[field], str) or not fact[field].strip():
+                problems.append(f"{item}: {field} must be a non-empty string")
+        if not re.match(r"^SRC-[A-Z0-9-]{3,40}$", str(fact["source_id"])):
+            problems.append(f"{item}: bad source_id")
+        if not re.match(r"^\d{4}-\d{2}-\d{2}$", str(fact["source_date"])):
+            problems.append(f"{item}: source_date must be YYYY-MM-DD")
+        if fact["evidence"] not in FACT_EVIDENCE:
+            problems.append(f"{item}: evidence must be one of {FACT_EVIDENCE}")
+        for field in ("label", "value"):
+            text = str(fact[field])
+            if EMAIL_RE.search(text) or URL_RE.search(text) or PHONE_RE.search(text):
+                problems.append(f"{item}: contact/link in {field}")
+            lowered = text.lower()
+            for word in MONEY_WORDS:
+                if word in lowered:
+                    problems.append(f"{item}: revenue/headcount word {word!r} in {field}")
+            bad = _unsourced_percent(text)
+            if bad:
+                problems.append(f"{item}: unsourced percent {bad}")
+
+
 def _validate_english(case: dict, label: str, price, weeks, seen_en_questions: dict,
                       problems: list[str]) -> None:
     for field in EN_FIELDS:
@@ -462,6 +505,7 @@ def validate(catalog: dict) -> list[str]:
             _check_text(label, text, "ru", problems)
 
         _validate_english(case, label, price, weeks, seen_en_questions, problems)
+        _validate_facts(case, label, problems)
 
         module_key = frozenset(str(item) for item in modules)
         seen_per_company.setdefault(company, []).append(module_key)

@@ -88,7 +88,8 @@ REQUIRED_BOUNDARIES = (
     "publication",
     "no_fabrication",
 )
-PLAYBOOKS = ("lawful_osint.md", "source_hierarchy.md", "evidence_grading.md", "red_lines.md")
+PLAYBOOKS = ("lawful_osint.md", "source_hierarchy.md", "evidence_grading.md", "red_lines.md",
+             "numeric_facts.md")
 SOURCE_HIERARCHY_MARKERS = ("S1", "S2", "S3", "S4", "S5", "OSINT_ONLY", "paywall", "DEFERRED")
 LAWFUL_OSINT_MARKERS = ("paywall", "robots", "S1–S3", "OSINT_ONLY", "персональные данные")
 RED_LINES_MARKERS = ("RL-19", "RL-20", "RL-21", "RL-22", "OSINT_ONLY", "paywall", "robots")

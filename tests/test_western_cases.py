@@ -386,6 +386,43 @@ class TestCatalogArtifacts(unittest.TestCase):
             self.assertEqual((out / "cases.json").read_bytes(), CASES_JSON.read_bytes())
 
 
+
+class TestConocoFactPack(unittest.TestCase):
+    """Conoco cases carry open-source numbers, not invented figures."""
+
+    def test_facts_are_sourced_and_numeric(self):
+        cases = {case["id"]: case for case in load_cases()["cases"]}
+        for case_id in ("wc-011", "wc-012"):
+            facts = cases[case_id].get("facts")
+            self.assertIsInstance(facts, list, case_id)
+            self.assertGreaterEqual(len(facts), 5, case_id)
+            for fact in facts:
+                for field in ("label", "value", "source_id", "source_date", "evidence"):
+                    self.assertIn(field, fact, f"{case_id}: {field}")
+                self.assertTrue(any(ch.isdigit() for ch in fact["value"]), fact)
+                self.assertRegex(fact["source_id"], r"^SRC-COP-")
+                self.assertRegex(fact["source_date"], r"^\d{4}-\d{2}-\d{2}$")
+                self.assertEqual(fact["evidence"], "A")
+                self.assertNotRegex(fact["value"], r"(https?://|@)")
+
+    def test_facts_cover_budget_and_lng(self):
+        cases = {case["id"]: case for case in load_cases()["cases"]}
+        budget = " ".join(fact["value"] for fact in cases["wc-011"]["facts"])
+        lng = " ".join(fact["value"] for fact in cases["wc-012"]["facts"])
+        for token in ("2 375 MBOED", "4,2 BBOE", "~$12B", "15"):
+            self.assertIn(token, budget)
+        for token in ("28", "10,2 MTPA", "6,7 MTPA", "5 MTPA"):
+            self.assertIn(token, lng)
+
+    def test_docs_219_lists_sources_and_limits(self):
+        text = (ROOT / "docs" / "219_Conoco_факты.md").read_text(encoding="utf-8")
+        self.assertIn("2025-conocophillips-annual-report.pdf", text)
+        self.assertIn("2 375 MBOED", text)
+        self.assertIn("not_client=true", text)
+        self.assertIn("proved developed", text)
+        self.assertIn("HYPOTHESIS", text)
+
+
 class TestDocumentationAndPricing(unittest.TestCase):
     def test_26_numbers_trace_to_source_documents(self):
         sources = {

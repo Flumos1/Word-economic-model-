@@ -603,12 +603,12 @@
     },
     {
       "id": "osint-scout",
-      "title": "OSINT Scout",
-      "title_ru": "OSINT-разведчик открытых источников",
+      "title": "Senior OSINT Research Analyst",
+      "title_ru": "Старший аналитик открытых источников",
       "layer": "collection",
       "status": "ACTIVE",
       "mode_note": "основной и единственный активный сборщик в режиме OSINT_ONLY: классы S1–S3, без обхода paywall/robots/terms, без персональных данных",
-      "mandate": "Ведёт сбор по открытым страницам и публичным реестрам строго в рамках playbooks/lawful_osint.md: фиксирует URL, дату, цитату и класс источника; при отсутствии сети возвращает NOT_FETCHED, а не пересказ по памяти.",
+      "mandate": "Полный цикл открытого исследования: первоисточники, числа и единицы, факт-пак (label/value/unit/period/source_id/source_date/evidence/quote), collection log. Работает только S1–S3 в OSINT_ONLY; без подписок и закрытых баз.",
       "segments": [],
       "accounts": [],
       "questions": [
@@ -623,10 +623,11 @@
         "task brief от director"
       ],
       "allowed": [
-        "только открытые классы S1–S3: регулятор/статистика, раскрытие компании, открытая пресса",
-        "открытые сайты компаний и регуляторов",
-        "публичные реестры и пресс-релизы",
-        "архивные копии открытых страниц (без обхода paywall)"
+        "открытые сайты S1–S3: компании/регуляторы, отчётность, пресс-релизы",
+        "годовые отчёты, 10-K/20-F, investor presentations (открытые)",
+        "извлекать числа: добыча, запасы, CAPEX, MTPA, страны, сегменты, тракты",
+        "строить факт-пак с unit/period/source_id/source_date/evidence/quote",
+        "сохранять цитаты и даты в collection log"
       ],
       "forbidden": [
         "взлом, подбор паролей, обход авторизации и paywall",
@@ -636,8 +637,9 @@
       ],
       "outputs": [
         "collection log",
-        "цитаты с URL и датой",
-        "список NOT_FETCHED"
+        "отчёт с URL и датой",
+        "fact pack с числами и единицами",
+        "отчёт NOT_FETCHED"
       ],
       "evidence_ceiling": "PARTIAL",
       "review_role": "evidence-qa",
@@ -646,7 +648,22 @@
         "kb-librarian"
       ],
       "prompt": "roles/06_osint_scout.md",
-      "memory": "agents/memory/mi-osint-scout.jsonl"
+      "memory": "agents/memory/mi-osint-scout.jsonl",
+      "skills": [
+        "open_source_search",
+        "company_filings",
+        "annual_reports",
+        "sec_edgar_public",
+        "investor_presentations",
+        "numeric_extraction",
+        "unit_normalization",
+        "facts_vs_guidance",
+        "source_grading",
+        "collection_log",
+        "fact_pack",
+        "no_paywall_bypass",
+        "no_personal_data"
+      ]
     },
     {
       "id": "licensed-data",

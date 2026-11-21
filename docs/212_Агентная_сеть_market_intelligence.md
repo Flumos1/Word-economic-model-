@@ -194,3 +194,7 @@ python -m unittest tests.test_market_intel
 ## OSINT_ONLY (2026-11-21)
 
 Подписок нет: сеть работает в режиме OSINT_ONLY, licensed-data остаётся в схеме как deferred/справочная роль и не используется. Разрешены S1–S3 и аккуратно S4; S5 (платные/закрытые базы) — только при появлении подписки. План — [docs/216](216_OSINT_план.md).
+
+## Senior OSINT Research Analyst (2026-11-21)
+
+Роль osint-scout усилена до Senior OSINT Research Analyst: помимо сбора источников она извлекает числа с единицами и периодом, ведёт fact pack (label/value/unit/period/source_id/source_date/evidence/quote) и передаёт его в кейсы. Правила — playbooks/numeric_facts.md; пример — [docs/219](219_Conoco_факты.md).
