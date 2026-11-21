@@ -1,16 +1,20 @@
 {
-  "schema": "amfe.marketing.western_case_catalog.v1",
+  "schema": "amfe.marketing.western_case_catalog.v2",
   "created": "2026-11-21",
   "status": "DRAFT",
   "model_status": "RESEARCH_ONLY",
   "admission": false,
   "causal_claim": false,
   "sent": false,
+  "languages": [
+    "ru",
+    "en"
+  ],
   "source": {
     "path": "marketing/western_cases/cases.json",
-    "sha256": "c0d69dbcfb00b2309906551d3b7d0364bbd6eb266a4dac6000d1f3346c6e692f",
-    "cases": 50,
-    "companies": 25
+    "sha256": "cb995f821c4e0608e1bdcbffd8e6e7548657c5e7a6ec1f59e53750c07aa69caa",
+    "cases": 100,
+    "companies": 50
   },
   "coverage": {
     "segments": {
@@ -31,44 +35,63 @@
         "companies": 4
       },
       "trading": {
-        "cases": 6,
-        "companies": 3
+        "cases": 8,
+        "companies": 4
       },
       "chemicals": {
-        "cases": 6,
-        "companies": 3
+        "cases": 10,
+        "companies": 5
       },
       "utilities": {
-        "cases": 6,
-        "companies": 3
+        "cases": 28,
+        "companies": 14
+      },
+      "industrials": {
+        "cases": 14,
+        "companies": 7
+      },
+      "pipelines": {
+        "cases": 8,
+        "companies": 4
       }
     },
     "modules": {
-      "Ормуз/бюджет": 12,
-      "FLAKS TCO": 12,
-      "газ/СПГ": 13,
-      "геополитика": 8,
-      "API/Client Pack": 6
+      "Ормуз/бюджет": 19,
+      "FLAKS TCO": 26,
+      "газ/СПГ": 30,
+      "геополитика": 13,
+      "API/Client Pack": 13
+    },
+    "modules_en": {
+      "Hormuz/budget": 19,
+      "FLAKS TCO": 26,
+      "gas/LNG": 30,
+      "geopolitics": 13,
+      "API/Client Pack": 13
     },
     "price_bands": {
-      "0 — диагностика": 2,
-      "7 500-10 000 — пилот": 13,
-      "15 000-25 000 — полный сценарий, узкий": 16,
-      "20 000-30 000 — полный сценарий": 13,
-      "25 000-80 000 — API и подписка": 6
+      "0 — диагностика": 3,
+      "7 500-10 000 — пилот": 26,
+      "15 000-25 000 — полный сценарий, узкий": 33,
+      "20 000-30 000 — полный сценарий": 25,
+      "25 000-80 000 — API и подписка": 13
     },
     "evidence_status": {
-      "HYPOTHESIS": 41,
-      "NOT_FETCHED": 9
+      "HYPOTHESIS": 78,
+      "NOT_FETCHED": 22
     },
     "price_usd": {
       "min": 0,
       "max": 60000,
-      "free": 2
+      "free": 3
     },
     "duration_weeks": {
       "min": 1,
       "max": 12
+    },
+    "english": {
+      "cases_with_en": 100,
+      "fields": 7
     }
   },
   "rules": {
@@ -79,6 +102,8 @@
     "no_admission_claim": true,
     "nothing_sent": true,
     "price_in_usd_only": true,
+    "english_fields": true,
+    "bilingual": true,
     "markdown_deterministic": true,
     "pdf_deterministic": false,
     "manifest_excludes_itself": true,
@@ -87,25 +112,45 @@
   "files": [
     {
       "path": "cases.json",
+      "lang": "json",
       "kind": "json",
-      "sha256": "c0d69dbcfb00b2309906551d3b7d0364bbd6eb266a4dac6000d1f3346c6e692f",
-      "bytes": 72282,
+      "sha256": "cb995f821c4e0608e1bdcbffd8e6e7548657c5e7a6ec1f59e53750c07aa69caa",
+      "bytes": 209369,
       "deterministic": true
     },
     {
       "path": "catalog.md",
+      "lang": "ru",
       "kind": "markdown",
-      "sha256": "fb48ea3683c724d5660ab33535a7570273382ef8c2b1b8c1bff6ba47457c264e",
-      "bytes": 26149,
+      "sha256": "e0865876c7e9304236ec418c32cd8c4f591a50fa36877a51a6a8e068a009348e",
+      "bytes": 47137,
+      "deterministic": true
+    },
+    {
+      "path": "catalog_en.md",
+      "lang": "en",
+      "kind": "markdown",
+      "sha256": "1ef188596997e998b55e4ec6484fad0a85532d3b80359d9cfee46810675dd66a",
+      "bytes": 27828,
       "deterministic": true
     },
     {
       "path": "catalog.pdf",
+      "lang": "ru",
       "kind": "pdf",
-      "sha256": "17afd2bb43b6edecd7b8f1ab18f35e1ad3a6da780835215f87b3dc79146090e1",
-      "bytes": 325116,
+      "sha256": "2eeeab0c5df33a6133fb7ce903bbb97b005113194da87111a97a03fce6141995",
+      "bytes": 474065,
       "deterministic": false,
-      "pages": 3
+      "pages": 4
+    },
+    {
+      "path": "catalog_en.pdf",
+      "lang": "en",
+      "kind": "pdf",
+      "sha256": "359c8601702447f5493caf23844af6163ccbf69900d4ac391680b93cda5d393e",
+      "bytes": 459752,
+      "deterministic": false,
+      "pages": 4
     }
   ]
 }

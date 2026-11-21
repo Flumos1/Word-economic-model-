@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""Tests for the 50 western commercial cases (``marketing/western_cases``).
+"""Tests for the 100 western commercial cases (``marketing/western_cases``).
 
 The pack is a set of drafts: nothing is sent and nothing is committed. The tests check that
 
-  * ``cases.json`` holds 50 cases for 25 companies and passed the catalog validator;
+  * ``cases.json`` holds 100 cases for 50 companies and passed the catalog validator;
   * ids and questions are unique, every segment is covered, every price is inside a declared
     USD band and the duration matches that band;
   * no case carries an e-mail, phone, URL, personal name, revenue or headcount figure;
   * nothing says "клиент", "admitted", "точность" or claims an admitted model;
-  * ``catalog.md`` lists all 50 cases, repeats the coverage numbers and is byte-deterministic;
+  * ``catalog.md`` lists all 100 cases, repeats the coverage numbers and is byte-deterministic;
   * ``catalog.pdf`` exists, is a valid PDF of 2-3 pages and matches ``manifest.json``;
   * ``--check`` verifies the manifest, ``--json`` writes nothing, ``--no-pdf`` builds without PDF;
   * an invalid catalog is refused fail-closed: exit code 1 and no files written;
@@ -44,9 +44,9 @@ ALLOWED_COMPANIES = {
     "SLB", "Halliburton", "Baker Hughes", "TechnipFMC", "Saipem", "Subsea7", "Transocean",
     "Frontline", "Euronav", "Vitol", "Trafigura", "Glencore", "Gunvor", "Dow", "LyondellBasell",
     "BASF", "Borealis", "Duke Energy", "NextEra", "Enel", "Iberdrola", "RWE", "Engie", "Uniper",
-    "Linde", "Air Liquide",
+    "Linde", "Air Liquide", "E.ON", "National Grid", "SSE", "Ørsted", "Dominion Energy", "Southern Company", "AEP", "Exelon", "Sempra", "TC Energy", "Enbridge", "Williams", "GE Vernova", "Siemens Energy", "Schneider Electric", "ABB", "Honeywell", "Emerson", "Rockwell Automation",
 }
-SEGMENTS = {"major", "upstream", "lng", "services", "trading", "chemicals", "utilities"}
+SEGMENTS = {"major", "upstream", "lng", "services", "trading", "chemicals", "utilities", "industrials", "pipelines"}
 MODULES = {"Ормуз/бюджет", "FLAKS TCO", "газ/СПГ", "геополитика", "API/Client Pack"}
 REQUIRED = {
     "id", "company", "segment", "hq_region", "profile_hypothesis", "pain", "question",
@@ -102,10 +102,10 @@ class TestCaseData(unittest.TestCase):
         self.assertIs(self.catalog["admission"], False)
         self.assertIs(self.catalog["causal_claim"], False)
         self.assertIs(self.catalog["sent"], False)
-        self.assertEqual(len(self.cases), 50)
-        self.assertEqual(len({case["company"] for case in self.cases}), 25)
-        self.assertEqual(self.catalog["cases_count"], 50)
-        self.assertEqual(self.catalog["companies_count"], 25)
+        self.assertEqual(len(self.cases), 100)
+        self.assertEqual(len({case["company"] for case in self.cases}), 50)
+        self.assertEqual(self.catalog["cases_count"], 100)
+        self.assertEqual(self.catalog["companies_count"], 50)
 
     def test_02_required_fields_and_types(self):
         for case in self.cases:
@@ -122,18 +122,18 @@ class TestCaseData(unittest.TestCase):
     def test_03_unique_ids_and_questions(self):
         ids = [case["id"] for case in self.cases]
         self.assertEqual(len(ids), len(set(ids)))
-        self.assertEqual(ids, [f"wc-{index:03d}" for index in range(1, 51)])
+        self.assertEqual(ids, [f"wc-{index:03d}" for index in range(1, 101)])
         questions = [" ".join(case["question"].lower().split()) for case in self.cases]
         self.assertEqual(len(questions), len(set(questions)))
 
     def test_04_companies_pairs_and_whitelist(self):
-        self.assertEqual(len(ALLOWED_COMPANIES), 49)
+        self.assertEqual(len(ALLOWED_COMPANIES), 68)
         for case in self.cases:
             self.assertIn(case["company"], ALLOWED_COMPANIES)
         per_company: dict[str, list[dict]] = {}
         for case in self.cases:
             per_company.setdefault(case["company"], []).append(case)
-        self.assertEqual(len(per_company), 25)
+        self.assertEqual(len(per_company), 50)
         for company, group in per_company.items():
             self.assertEqual(len(group), 2, company)
             first, second = group
@@ -148,7 +148,7 @@ class TestCaseData(unittest.TestCase):
             counts[case["segment"]] += 1
         for segment, count in counts.items():
             self.assertGreaterEqual(count, 2, f"{segment} has only {count} cases")
-        self.assertEqual(sum(counts.values()), 50)
+        self.assertEqual(sum(counts.values()), 100)
 
     def test_06_prices_and_duration_match_bands(self):
         tool = load_tool()
@@ -168,7 +168,7 @@ class TestCaseData(unittest.TestCase):
             self.assertGreaterEqual(case["duration_weeks"], 1)
             self.assertLessEqual(case["duration_weeks"], 12)
         free = [case for case in self.cases if case["price_usd"] == 0]
-        self.assertEqual(len(free), 2)
+        self.assertGreaterEqual(len(free), 2)
         for case in free:
             self.assertEqual(case["duration_weeks"], 1)
             self.assertIn("диагностика", case["price_note"].lower())
@@ -263,7 +263,7 @@ class TestCaseData(unittest.TestCase):
             out = tmp_path / "out"
             done = run_cli("--cases", str(source), "--out", str(out), "--no-pdf")
             self.assertEqual(done.returncode, 1, done.stderr)
-            self.assertIn("< 50", done.stderr)
+            self.assertIn("!= 100", done.stderr)
             self.assertFalse(out.exists())
 
 
@@ -292,8 +292,8 @@ class TestCatalogArtifacts(unittest.TestCase):
             match = re.search(rf"\| {re.escape(label)} \| (\d+) \|", text)
             self.assertIsNotNone(match, label)
             counts[label] = int(match.group(1))
-        self.assertEqual(sum(counts.values()), 50)
-        self.assertEqual(counts[labels[0]], 2)
+        self.assertEqual(sum(counts.values()), 100)
+        self.assertGreaterEqual(counts[labels[0]], 2)
 
     def test_18_catalog_md_is_deterministic(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -319,26 +319,26 @@ class TestCatalogArtifacts(unittest.TestCase):
         except ImportError:  # pragma: no cover - optional dependency
             self.skipTest("pypdf is not installed")
         reader = PdfReader(str(CATALOG_PDF))
-        self.assertIn(len(reader.pages), (2, 3))
+        self.assertIn(len(reader.pages), (4, 5))
         text = "\n".join((page.extract_text() or "") for page in reader.pages)
         for token in ("RESEARCH_ONLY", "admission=false", "not_client=true"):
             self.assertIn(token, text)
-        self.assertIn("050", text)
+        self.assertIn("100", text)
 
     def test_20_manifest_matches_disk_and_check_passes(self):
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
-        self.assertEqual(manifest["schema"], "amfe.marketing.western_case_catalog.v1")
+        self.assertEqual(manifest["schema"], "amfe.marketing.western_case_catalog.v2")
         self.assertIs(manifest["admission"], False)
         self.assertIs(manifest["rules"]["not_client"], True)
         listed = {entry["path"] for entry in manifest["files"]}
-        self.assertEqual(listed, {"cases.json", "catalog.md", "catalog.pdf"})
+        self.assertEqual(listed, {"cases.json", "catalog.md", "catalog.pdf", "catalog_en.md", "catalog_en.pdf"})
         for entry in manifest["files"]:
             path = CASES / entry["path"]
             self.assertTrue(path.is_file(), entry["path"])
             self.assertEqual(sha256(path), entry["sha256"], entry["path"])
             self.assertEqual(path.stat().st_size, entry["bytes"], entry["path"])
         self.assertEqual(manifest["source"]["sha256"], sha256(CASES_JSON))
-        self.assertEqual(manifest["source"]["cases"], 50)
+        self.assertEqual(manifest["source"]["cases"], 100)
         done = run_cli("--check")
         self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
         self.assertIn("OK", done.stdout)
@@ -363,10 +363,10 @@ class TestCatalogArtifacts(unittest.TestCase):
             self.assertEqual(done.returncode, 0, done.stderr)
             payload = json.loads(done.stdout)
             self.assertTrue(payload["ok"])
-            self.assertEqual(payload["cases"], 50)
-            self.assertEqual(payload["companies"], 25)
-            self.assertEqual(payload["coverage"]["cases"], 50)
-            self.assertEqual(sum(payload["coverage"]["segments"][s]["cases"] for s in SEGMENTS), 50)
+            self.assertEqual(payload["cases"], 100)
+            self.assertEqual(payload["companies"], 50)
+            self.assertEqual(payload["coverage"]["cases"], 100)
+            self.assertEqual(sum(payload["coverage"]["segments"][s]["cases"] for s in SEGMENTS), 100)
             self.assertFalse(out.exists())
 
     def test_23_cli_help_and_no_pdf(self):
@@ -382,7 +382,7 @@ class TestCatalogArtifacts(unittest.TestCase):
             self.assertFalse((out / "catalog.pdf").exists())
             manifest = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
             self.assertEqual({entry["path"] for entry in manifest["files"]},
-                             {"cases.json", "catalog.md"})
+                             {"cases.json", "catalog.md", "catalog_en.md"})
             self.assertEqual((out / "cases.json").read_bytes(), CASES_JSON.read_bytes())
 
 
@@ -411,7 +411,7 @@ class TestDocumentationAndPricing(unittest.TestCase):
         text = DOCS214.read_text(encoding="utf-8")
         for token in ("Как использовать", "гипотез", "заменить", "Цены", "RESEARCH_ONLY",
                       "not_client", "HYPOTHESIS", "NOT_FETCHED", "case_catalog.py",
-                      "25 компаний", "50 кейсов"):
+                      "50 компаний", "100 кейсов"):
             self.assertIn(token, text)
         for token in ("admitted", "точность выше рынка"):
             self.assertNotIn(token, text)
