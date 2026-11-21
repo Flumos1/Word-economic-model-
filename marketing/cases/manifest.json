@@ -1,0 +1,104 @@
+{
+  "schema": "amfe.marketing.cases.v1",
+  "created": "2026-11-21",
+  "status": {
+    "stage": "DRAFT",
+    "sent": false,
+    "channel": "none",
+    "client_specific": false,
+    "data_basis": "public_scenarios_and_synthetic_demo"
+  },
+  "model_status": "RESEARCH_ONLY",
+  "admission": false,
+  "causal_claim": false,
+  "cases": [
+    {
+      "stem": "case_tatneft_budget",
+      "markdown": "case_tatneft_budget.md",
+      "pdf": "case_tatneft_budget.pdf",
+      "sources": [
+        "docs/186_Ормуз_нефть_США_последствия.md",
+        "docs/190_Клиентский_пакет_Ормуз_США.md",
+        "docs/184_FLAKS_Procurement_MVP.md"
+      ]
+    },
+    {
+      "stem": "case_taneco_refining",
+      "markdown": "case_taneco_refining.md",
+      "pdf": "case_taneco_refining.pdf",
+      "sources": [
+        "docs/186_Ормуз_нефть_США_последствия.md",
+        "docs/190_Клиентский_пакет_Ормуз_США.md",
+        "docs/184_FLAKS_Procurement_MVP.md"
+      ]
+    },
+    {
+      "stem": "case_flaks_procurement",
+      "markdown": "case_flaks_procurement.md",
+      "pdf": "case_flaks_procurement.pdf",
+      "sources": [
+        "docs/184_FLAKS_Procurement_MVP.md",
+        "docs/189_FLAKS_пилот.md"
+      ]
+    }
+  ],
+  "sources": [
+    "docs/186_Ормуз_нефть_США_последствия.md",
+    "docs/188_Газ_LNG.md",
+    "docs/189_FLAKS_пилот.md",
+    "docs/190_Клиентский_пакет_Ормуз_США.md",
+    "docs/192_Simulator_UI.md",
+    "docs/203_Блок_15_институты.md",
+    "docs/204_Блок_17_технологии_ИИ.md",
+    "docs/208_Коммерческие_кейсы.md",
+    "marketing/outreach_5.md"
+  ],
+  "rules": {
+    "demo_never_presented_as_client_data": true,
+    "no_refining_margin_numbers_without_client_data": true,
+    "no_raw_rows": true,
+    "pdf_deterministic": false,
+    "manifest_excludes_itself": true
+  },
+  "files": [
+    {
+      "path": "case_flaks_procurement.md",
+      "kind": "markdown",
+      "sha256": "1ad191e11309554834f32dfbfb1281c2b890be8b60234856dceed7469f2cd98e",
+      "bytes": 8635
+    },
+    {
+      "path": "case_flaks_procurement.pdf",
+      "kind": "pdf",
+      "sha256": "ade01dab2248e19c9a422e16d3b4208203282c9bb21e8aec8976cebfd7c9cfb1",
+      "bytes": 189373,
+      "pages": 2
+    },
+    {
+      "path": "case_taneco_refining.md",
+      "kind": "markdown",
+      "sha256": "2bab71c897b190d1a76dfb554bf2fe1fa9af25bb6ea303eecc8b4cd1417656fb",
+      "bytes": 9733
+    },
+    {
+      "path": "case_taneco_refining.pdf",
+      "kind": "pdf",
+      "sha256": "762c8df9697f00e9313f0ffe908ee6df17a2c57492ec928ed6f7a90aaab22a88",
+      "bytes": 204916,
+      "pages": 2
+    },
+    {
+      "path": "case_tatneft_budget.md",
+      "kind": "markdown",
+      "sha256": "85d817ab08a305810c4d958c6710fb4298b9f7c680020fa6179245671ac115d5",
+      "bytes": 9342
+    },
+    {
+      "path": "case_tatneft_budget.pdf",
+      "kind": "pdf",
+      "sha256": "e86a7e95cfdf47bd9d07582a1e0cffa2256dfad20a4fb8b1a5daac2eea06e137",
+      "bytes": 208725,
+      "pages": 2
+    }
+  ]
+}

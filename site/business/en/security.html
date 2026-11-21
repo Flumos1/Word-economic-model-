@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Security and data: NDA, anonymisation, on-prem, deletion — AMFE</title>
+<meta name="description" content="AMFE data rules: NDA before any file, ANON- anonymisation, on-prem, deletion after the project, no raw — reports and API carry aggregates only.">
+<meta name="theme-color" content="#0b3b4a">
+<meta property="og:type" content="website">
+<meta property="og:title" content="AMFE security and data: NDA, anonymisation, on-prem">
+<meta property="og:description" content="NDA before files, identifier anonymisation, local environment, deletion after the project, no raw data in reports or API.">
+<meta property="og:locale" content="en_US">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap top-bar">
+    <a class="brand" href="index.html">AMFE<span class="brand-sub"> · scenario analytics for oil &amp; gas</span></a>
+    <p class="meta"><a href="../security.html" hreflang="ru" lang="ru">RU</a> · <a href="../../index.html">Research site</a></p>
+    <nav class="nav" aria-label="Sections">
+      <a href="index.html">Home</a>
+      <a href="solutions.html">Solutions</a>
+      <a href="cases.html">Cases</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="security.html" class="on" aria-current="page">Security</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </div>
+</header>
+<main class="wrap">
+
+<section class="hero">
+  <p class="kicker">Data and security</p>
+  <h1>Client data: NDA, anonymisation, local environment</h1>
+  <p class="lead">The rule is simple: no files before the NDA, then a minimum of data, anonymisation and
+  deletion after the project. Reports and API responses carry aggregates only — no raw rows and no file
+  paths.</p>
+</section>
+
+<section class="panel" id="nda">
+  <h2>1. NDA before any file</h2>
+  <ul>
+    <li>The NDA is signed before you hand over any data; before that we only discuss decisions.</li>
+    <li>The channel is the client's secure cloud or file share. No public links, no open drives and no
+    email attachments.</li>
+    <li>The NDA records the data scope, purpose, retention period, deletion procedure and who has
+    access.</li>
+  </ul>
+</section>
+
+<section class="panel" id="anon">
+  <h2>2. Anonymisation</h2>
+  <ul>
+    <li>Identifiers are replaced deterministically: <code>ANON-SUP-NNN</code>,
+    <code>ANON-CT-NNN</code>, names become “Anonymous supplier NNN”. Numbering follows the sort order
+    of the source ids, so row order does not affect the pseudonyms.</li>
+    <li><strong>No reverse mapping is kept.</strong> The manifest holds only SHA-256 digests of the
+    inputs, without file names.</li>
+    <li>Leak scan: after the build, files are checked for source names and identifiers; on a match the
+    build stops (exit 2) and no files are written.</li>
+    <li>You may anonymise the data yourself — the tool anonymises it again regardless.</li>
+  </ul>
+</section>
+
+<section class="panel" id="onprem">
+  <h2>3. Local environment (on-prem)</h2>
+  <ul>
+    <li>The computation can run in your environment: a local stack with no mandatory external APIs and
+    no cloud dependency.</li>
+    <li>The demo server listens on <code>127.0.0.1</code> by default; exposing it is a deliberate
+    decision, with keys and quotas.</li>
+    <li>API responses pass an “aggregates only” check: if raw fields, local paths or external links
+    would be returned, the response is refused instead of served.</li>
+    <li>Access keys are stored as SHA-256 digests; plaintext never appears in responses or logs.</li>
+  </ul>
+</section>
+
+<section class="panel" id="noraw">
+  <h2>4. No raw: what goes into a report</h2>
+  <ul>
+    <li>Reports and packages contain aggregates: prices, TCO, shares, ranges, country and sector
+    effects. No raw rows, no full contracts, no observations.</li>
+    <li>Third-party datasets (FIGARO, WIOD, OECD, Eora and similar) are not resold or published; only
+    derived metrics are used, under the source licence.</li>
+    <li>Generated files live outside git (<code>build/</code>); the repository holds code,
+    documentation and aggregates, never client data.</li>
+  </ul>
+</section>
+
+<section class="panel" id="delete">
+  <h2>5. Deletion</h2>
+  <ul>
+    <li>Source data is deleted under the client's policy and within the period fixed in the NDA; on
+    request, earlier.</li>
+    <li>Deletion is confirmed in writing: what was deleted, when, and from which environment.</li>
+    <li>Aggregates and the report code stay with you: the result can be reproduced on your data
+    again.</li>
+  </ul>
+</section>
+
+<section class="callout" id="notsend">
+  <h2>6. What not to send</h2>
+  <ul>
+    <li>Personal data, bank details, payment documents.</li>
+    <li>Full contract texts and correspondence: only parameters are needed (status, cpi/ppi/fx shares,
+    cap, floor_zero, payment terms).</li>
+    <li>Complete price lists and supplier quotations.</li>
+    <li>Secrets, tokens, keys, passwords and system access.</li>
+    <li>Any data prohibited by your internal policy or the NDA.</li>
+  </ul>
+  <p class="muted">If in doubt, do not send it: we will first discuss in the diagnostic whether an
+  aggregate or a demo template is enough.</p>
+</section>
+
+<section>
+  <h2>What is not here</h2>
+  <ul>
+    <li>Forms, sign-up, cookies and trackers: the site is static and email is the only channel.</li>
+    <li>Certifications and “compliance” the project does not have: no ISO or SOC 2 claims are
+    implied.</li>
+    <li>A promise that “data never leaves your environment”: you choose the environment, and that is
+    fixed in the NDA.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Next step</h2>
+  <p>Write to <a href="mailto:flumos@gmail.com?subject=AMFE%20NDA">flumos@gmail.com</a> and we will send
+  the NDA and the minimum data list for a pilot.</p>
+  <ul class="cta">
+    <li><a class="btn primary" href="mailto:flumos@gmail.com?subject=AMFE%20NDA">Request the NDA</a></li>
+    <li><a class="btn" href="pricing.html">Pricing and terms</a></li>
+    <li><a class="btn" href="contact.html">Contact</a></li>
+  </ul>
+</section>
+
+</main>
+<footer class="foot">
+  <div class="wrap">
+    <p><strong>RESEARCH_ONLY · admission=false.</strong> AMFE is a research project: the model is not
+    admitted for use, and this is not a forecast or investment advice. We sell scenarios, assumptions
+    and reproducibility, not an “admitted model”.</p>
+    <p class="muted">Contact: <a href="mailto:flumos@gmail.com">flumos@gmail.com</a>. These pages are
+    static: no JavaScript, forms, cookies, trackers or external resources.
+    <a href="../../index.html">Research site</a> ·
+    <a href="../../methodology.html">methodology</a> ·
+    <a href="../../status.html">status</a>.</p>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Solutions: Hormuz and budget, FLAKS TCO, gas/LNG, API — AMFE for oil &amp; gas</title>
+<meta name="description" content="Four AMFE directions for oil and gas: Hormuz/budget scenarios, FLAKS TCO for procurement, gas and LNG, API and Client Pack. With assumptions, ranges and SHA-256; RESEARCH_ONLY, admission=false.">
+<meta name="theme-color" content="#0b3b4a">
+<meta property="og:type" content="website">
+<meta property="og:title" content="AMFE solutions: budget, procurement, gas/LNG, API">
+<meta property="og:description" content="Hormuz and budget, FLAKS TCO, gas/LNG, API/Client Pack: deliverables, timeline, limits of applicability.">
+<meta property="og:locale" content="en_US">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap top-bar">
+    <a class="brand" href="index.html">AMFE<span class="brand-sub"> · scenario analytics for oil &amp; gas</span></a>
+    <p class="meta"><a href="../solutions.html" hreflang="ru" lang="ru">RU</a> · <a href="../../index.html">Research site</a></p>
+    <nav class="nav" aria-label="Sections">
+      <a href="index.html">Home</a>
+      <a href="solutions.html" class="on" aria-current="page">Solutions</a>
+      <a href="cases.html">Cases</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="security.html">Security</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </div>
+</header>
+<main class="wrap">
+
+<section class="hero">
+  <p class="kicker">Solutions</p>
+  <h1>Four directions: budget, procurement, gas/LNG, API</h1>
+  <p class="lead">One core — scenarios on real input–output tables and on oil/gas modules — but
+  different decisions and different artefacts. Below: the questions we answer, the deliverables, the
+  timeline and the limits.</p>
+</section>
+
+<section class="panel" id="hormuz">
+  <h2>1. Hormuz, oil price and budget</h2>
+  <div class="grid">
+    <div class="card">
+      <span class="tag">Client questions</span>
+      <ul>
+        <li>What happens to budget and margin at Brent USD 120–170 and a six-month closure of the
+        strait?</li>
+        <li>How does it reach fuel, diesel, jet fuel and household spending?</li>
+        <li>Where is the threshold after which a decision (hedge, purchase, rescheduling) becomes
+        mandatory?</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="tag">Deliverables</span>
+      <ul>
+        <li>Base and stress variants kept apart: stress does not repaint the base.</li>
+        <li>A range instead of a single number, a monthly path, monitoring trigger thresholds.</li>
+        <li>PDF/DOCX for the CFO, an Excel sheet with assumptions, JSON with checks and SHA-256.</li>
+      </ul>
+    </div>
+  </div>
+  <p><strong>Timeline:</strong> 4–6 weeks for 1–2 decisions. <strong>Start:</strong> a 20-minute
+  diagnostic and an NDA.</p>
+  <p class="muted"><strong>Limits:</strong> we compute scenarios under declared assumptions, not
+  probabilities; a range is a spread of sensitivity variants, not a confidence interval; no political
+  forecasts. An oil shock can be combined with a country effect from the world model, but that is
+  comparative statics, not a forecast.</p>
+</section>
+
+<section class="panel" id="flaks">
+  <h2>2. FLAKS: TCO, risk and the procurement budget</h2>
+  <div class="grid">
+    <div class="card">
+      <span class="tag">Client questions</span>
+      <ul>
+        <li>How do indexation, FX and duties move supplier TCO and the category budget?</li>
+        <li>Where is the contract risk: cap, floor_zero, cpi/ppi/fx shares, payment terms?</li>
+        <li>What do we show the CFO: a single budget number or a range decomposed by drivers?</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="tag">Deliverables</span>
+      <ul>
+        <li>2–4 categories, 2–4 suppliers per category: TCO, factor contributions, risk score.</li>
+        <li>CFO report + Excel + JSON; the calculation can be repeated next period.</li>
+        <li>Data is anonymised: <code>ANON-SUP-NNN</code>, <code>ANON-CT-NNN</code>, no reverse
+        mapping.</li>
+      </ul>
+    </div>
+  </div>
+  <p><strong>Timeline:</strong> 4 weeks after a signed NDA and a template extract (12 months of
+  actuals). <strong>We need:</strong> the NDA, 2–4 categories, contract parameters and confirmation
+  that the export is allowed by your internal policy.</p>
+  <p class="muted"><strong>Limits:</strong> the pilot does not start without the NDA and the template.
+  The report does not replace a legal reading of indexation clauses or tax advice — it is not a legal
+  opinion.</p>
+</section>
+
+<section class="panel" id="gas">
+  <h2>3. Gas and LNG: price, storage, route</h2>
+  <div class="grid">
+    <div class="card">
+      <span class="tag">Client questions</span>
+      <ul>
+        <li>What happens to TTF/JKM and energy costs under a supply interruption or a route change?</li>
+        <li>How does the cost of energy-intensive processing and the gas budget change?</li>
+        <li>Which thresholds should be monitored: storage, spread, fill level?</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="tag">Deliverables</span>
+      <ul>
+        <li>Gas scenarios (base plus stress), price/spread, energy intensity, cost impact.</li>
+        <li>JSON/Excel/PDF, assumptions separately, checks and limitations shown in the report.</li>
+        <li>Compatible with the budget contour: one frame for oil, gas and fuel.</li>
+      </ul>
+    </div>
+  </div>
+  <p><strong>Timeline:</strong> 4 weeks for one direction. <strong>Start:</strong> diagnostic and
+  NDA.</p>
+  <p class="muted"><strong>Limits:</strong> we do not compute country-level CPI for gas and do not
+  invent it; where the model does not cover a country, the report says so. This is a scenario under
+  declared assumptions, not a price forecast.</p>
+</section>
+
+<section class="panel" id="api">
+  <h2>4. API and Client Pack</h2>
+  <div class="grid">
+    <div class="card">
+      <span class="tag">Client questions</span>
+      <ul>
+        <li>How do we embed scenarios in Excel, BI or an internal system instead of an analyst's
+        inbox?</li>
+        <li>What exactly is in the JSON, and can the result be reproduced on our side?</li>
+        <li>How is access limited and request volume capped?</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="tag">Deliverables</span>
+      <ul>
+        <li>A stable JSON contract, an OpenAPI draft, keys and quotas (401/403/429).</li>
+        <li>Client Pack: PDF/DOCX + Excel + JSON + README + <code>manifest.json</code> with
+        SHA-256.</li>
+        <li>API responses pass an “aggregates only” check: no raw rows and no file paths.</li>
+      </ul>
+    </div>
+  </div>
+  <p><strong>Timeline:</strong> 4–8 weeks for the first integration. <strong>Scope:</strong> included
+  in the full scenario or priced separately by volume.</p>
+  <p class="muted"><strong>Limits:</strong> there is no standard SLA yet — it is agreed separately; we
+  do not promise 24/7 “during an incident”. On-prem is possible: the computation can run in your
+  environment.</p>
+</section>
+
+<section>
+  <h2>Where to start</h2>
+  <p>The diagnostic takes 20 minutes and is free: we go through 2–3 of your decisions and say which of
+  the four scenarios answers fastest. Then either a <a href="pricing.html">pilot</a> or a no, without
+  sales pressure.</p>
+  <ul class="cta">
+    <li><a class="btn primary" href="mailto:flumos@gmail.com?subject=AMFE%20demo%2020%20min">Email: 20-minute diagnostic</a></li>
+    <li><a class="btn" href="pricing.html">Pricing and terms</a></li>
+    <li><a class="btn" href="security.html">Security and NDA</a></li>
+  </ul>
+</section>
+
+</main>
+<footer class="foot">
+  <div class="wrap">
+    <p><strong>RESEARCH_ONLY · admission=false.</strong> AMFE is a research project: the model is not
+    admitted for use, and this is not a forecast or investment advice. We sell scenarios, assumptions
+    and reproducibility, not an “admitted model”.</p>
+    <p class="muted">Contact: <a href="mailto:flumos@gmail.com">flumos@gmail.com</a>. These pages are
+    static: no JavaScript, forms, cookies, trackers or external resources.
+    <a href="../../index.html">Research site</a> ·
+    <a href="../../methodology.html">methodology</a> ·
+    <a href="../../status.html">status</a>.</p>
+  </div>
+</footer>
+</body>
+</html>

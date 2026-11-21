@@ -1,11 +1,17 @@
 {
  "schema": "amfe.agent_library.v1",
- "updated_at": "2026-11-21T09:14:16Z",
- "entries": 82,
+ "updated_at": "2026-11-21T10:59:38Z",
+ "entries": 85,
  "open_questions": [
   {
    "id": "mem-dense-vintages-0023",
    "title": "Кто владелец почтового канала и проверенных контактов по 5 аккаунтам?",
+   "role": "dense-vintages",
+   "task": ""
+  },
+  {
+   "id": "mem-dense-vintages-0027",
+   "title": "Коммерческий слой: подтвердить USD-цены и судьбу черновиков кейсов",
    "role": "dense-vintages",
    "task": ""
   },
@@ -19,7 +25,7 @@
  "by_role": {
   "accounting-core": 8,
   "baseline-models": 5,
-  "dense-vintages": 24,
+  "dense-vintages": 27,
   "evaluation-harness": 10,
   "lead": 9,
   "licence-auditor": 4,
@@ -28,10 +34,10 @@
   "r2-completion": 7
  },
  "by_kind": {
-  "artifact": 37,
+  "artifact": 39,
   "decision": 1,
   "lesson": 15,
-  "open_question": 2,
+  "open_question": 3,
   "role": 9,
   "status": 9,
   "task": 9
@@ -42,23 +48,27 @@
   "REAL_TIME": 1,
   "T3": 2,
   "abm": 1,
+  "accounts": 1,
   "anonymization": 1,
   "api": 2,
   "auth": 1,
   "block-15": 1,
   "block15": 1,
   "block17": 2,
-  "blockers": 1,
+  "blockers": 2,
   "blocks": 2,
   "bridge": 4,
   "bug": 1,
+  "business": 2,
   "c4": 1,
   "c6": 4,
   "cache": 3,
   "candidates": 1,
   "canonical-write": 1,
+  "cases": 1,
   "client-pack": 3,
   "client_pack": 1,
+  "commercial": 1,
   "correction": 1,
   "country": 4,
   "crm": 2,
@@ -72,6 +82,7 @@
   "docs-203": 1,
   "docx": 2,
   "evaluation-harness": 1,
+  "evidence": 1,
   "exposure": 1,
   "external": 3,
   "external-forecasts": 1,
@@ -97,7 +108,7 @@
   "licence": 3,
   "licences": 1,
   "manifest": 1,
-  "marketing": 1,
+  "marketing": 2,
   "memory": 1,
   "models": 1,
   "modules": 1,
@@ -111,6 +122,7 @@
   "pit": 5,
   "policy": 1,
   "prereg": 4,
+  "prices": 1,
   "process": 2,
   "procurement": 1,
   "products": 2,
@@ -119,6 +131,7 @@
   "quality": 1,
   "quotas": 1,
   "registry": 3,
+  "research": 1,
   "research_only": 2,
   "review": 1,
   "science": 1,
@@ -128,6 +141,7 @@
   "sfc": 1,
   "signoff": 2,
   "simulator": 4,
+  "site": 2,
   "sources": 1,
   "stats": 2,
   "status": 6,
@@ -136,7 +150,7 @@
   "task": 8,
   "task-69": 1,
   "technology": 1,
-  "tests": 6,
+  "tests": 7,
   "time-box": 1,
   "ui": 1,
   "v1-compat": 1,
@@ -258,6 +272,12 @@
   "docs/207_План_до_конечного_продукта.md": [
    "mem-lead-0009"
   ],
+  "docs/209_Исследование_заказчиков.md": [
+   "mem-dense-vintages-0025"
+  ],
+  "docs/211_Сайт_коммерческий.md": [
+   "mem-dense-vintages-0026"
+  ],
   "docs/97_Лицензии_ряды_и_terms.md": [
    "mem-licence-auditor-0002"
   ],
@@ -281,6 +301,9 @@
   ],
   "marketing/outreach_5.md": [
    "mem-dense-vintages-0014"
+  ],
+  "marketing/research/README.md": [
+   "mem-dense-vintages-0025"
   ],
   "outreach/batch_2026-11-21/crm_update.md": [
    "mem-dense-vintages-0022"
@@ -339,6 +362,45 @@
   "protocols/pit_prereg_evaluation_report.json": [
    "mem-evaluation-harness-0002"
   ],
+  "site/business/assets/style.css": [
+   "mem-dense-vintages-0026"
+  ],
+  "site/business/cases.html": [
+   "mem-dense-vintages-0026"
+  ],
+  "site/business/contact.html": [
+   "mem-dense-vintages-0026"
+  ],
+  "site/business/en/cases.html": [
+   "mem-dense-vintages-0026"
+  ],
+  "site/business/en/contact.html": [
+   "mem-dense-vintages-0026"
+  ],
+  "site/business/en/index.html": [
+   "mem-dense-vintages-0026"
+  ],
+  "site/business/en/pricing.html": [
+   "mem-dense-vintages-0026"
+  ],
+  "site/business/en/security.html": [
+   "mem-dense-vintages-0026"
+  ],
+  "site/business/en/solutions.html": [
+   "mem-dense-vintages-0026"
+  ],
+  "site/business/index.html": [
+   "mem-dense-vintages-0026"
+  ],
+  "site/business/pricing.html": [
+   "mem-dense-vintages-0026"
+  ],
+  "site/business/security.html": [
+   "mem-dense-vintages-0026"
+  ],
+  "site/business/solutions.html": [
+   "mem-dense-vintages-0026"
+  ],
   "src/amfe/forecast/country.py": [
    "mem-r2-completion-0006"
   ],
@@ -350,6 +412,9 @@
   ],
   "src/amfe/world/technology.py": [
    "mem-dense-vintages-0019"
+  ],
+  "tests/test_account_research.py": [
+   "mem-dense-vintages-0025"
   ],
   "tests/test_client_pack_v2.py": [
    "mem-dense-vintages-0008",
@@ -410,6 +475,9 @@
    "mem-dense-vintages-0016",
    "mem-dense-vintages-0024"
   ],
+  "tests/test_site_business.py": [
+   "mem-dense-vintages-0026"
+  ],
   "tests/test_source_verification.py": [
    "mem-licence-auditor-0004"
   ],
@@ -418,6 +486,9 @@
   ],
   "tests/test_technology_scenarios.py": [
    "mem-dense-vintages-0019"
+  ],
+  "tools/account_research.py": [
+   "mem-dense-vintages-0025"
   ],
   "tools/build_outreach_batch.py": [
    "mem-dense-vintages-0022"

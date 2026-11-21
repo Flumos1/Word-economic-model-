@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Решения: Ормуз и бюджет, FLAKS TCO, газ/СПГ, API — AMFE для нефтегаза</title>
+<meta name="description" content="Четыре направления AMFE для нефтегаза: сценарии Ормуз/бюджет, FLAKS TCO для закупок, газ и СПГ, API и Client Pack. С допущениями, диапазонами и SHA-256; RESEARCH_ONLY, admission=false.">
+<meta name="theme-color" content="#0b3b4a">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Решения AMFE: бюджет, закупки, газ/СПГ, API">
+<meta property="og:description" content="Ормуз и бюджет, FLAKS TCO, газ/СПГ, API/Client Pack: что на выходе, срок, границы применимости.">
+<meta property="og:locale" content="ru_RU">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap top-bar">
+    <a class="brand" href="index.html">AMFE<span class="brand-sub"> · сценарная аналитика для нефтегаза</span></a>
+    <p class="meta"><a href="en/solutions.html" hreflang="en" lang="en">EN</a> · <a href="../index.html">Исследовательский сайт</a></p>
+    <nav class="nav" aria-label="Разделы">
+      <a href="index.html">Главная</a>
+      <a href="solutions.html" class="on" aria-current="page">Решения</a>
+      <a href="cases.html">Кейсы</a>
+      <a href="pricing.html">Цены</a>
+      <a href="security.html">Безопасность</a>
+      <a href="contact.html">Контакты</a>
+    </nav>
+  </div>
+</header>
+<main class="wrap">
+
+<section class="hero">
+  <p class="kicker">Решения</p>
+  <h1>Четыре направления: бюджет, закупки, газ/СПГ, API</h1>
+  <p class="lead">Одно и то же ядро — сценарии на таблицах «затраты–выпуск» и модулях нефти/газа —
+  но разные решения и разные артефакты. Ниже: какие вопросы закрываем, что на выходе, сколько это
+  занимает и где граница применимости.</p>
+</section>
+
+<section class="panel" id="hormuz">
+  <h2>1. Ормуз, цена нефти и бюджет</h2>
+  <div class="grid">
+    <div class="card">
+      <span class="tag">Вопросы клиента</span>
+      <ul>
+        <li>Что будет с бюджетом и маржой при Brent USD 120–170 и перекрытии Ормуза на 6 месяцев?</li>
+        <li>Как это дойдёт до топлива, дизеля, авиакеросина и расходов домохозяйств?</li>
+        <li>Где порог, после которого решение (хедж, закупка, перенос сроков) становится
+        обязательным?</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="tag">Что на выходе</span>
+      <ul>
+        <li>База и стресс-вариант отдельно: стресс не «перекрашивает» базу.</li>
+        <li>Диапазон вместо одной цифры, путь по месяцам, пороги-триггеры мониторинга.</li>
+        <li>PDF/DOCX для CFO, Excel с листом допущений, JSON с проверками и SHA-256.</li>
+      </ul>
+    </div>
+  </div>
+  <p><strong>Срок:</strong> 4–6 недель на 1–2 решения. <strong>Старт:</strong> 20-минутная
+  диагностика и NDA.</p>
+  <p class="muted"><strong>Границы:</strong> считаем сценарии на объявленных допущениях, а не
+  вероятности; диапазон — разброс вариантов чувствительности, а не доверительный интервал;
+  политических прогнозов нет. Шок нефти может дополняться страновым эффектом из модели мира, но
+  это сравнительная статика, а не прогноз.</p>
+</section>
+
+<section class="panel" id="flaks">
+  <h2>2. FLAKS: TCO, риск и бюджет закупок</h2>
+  <div class="grid">
+    <div class="card">
+      <span class="tag">Вопросы клиента</span>
+      <ul>
+        <li>Как индексация, курс и пошлины меняют TCO поставщиков и бюджет категории?</li>
+        <li>Где риск в контракте: cap, floor_zero, доли cpi/ppi/fx, отсрочка платежа?</li>
+        <li>Что показать CFO: одна цифра бюджета или диапазон с разложением по драйверам?</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="tag">Что на выходе</span>
+      <ul>
+        <li>2–4 категории, 2–4 поставщика на категорию: TCO, вклад факторов, риск-скор.</li>
+        <li>CFO-отчёт + Excel + JSON; расчёт повторяем на следующем периоде.</li>
+        <li>Данные обезличиваются: <code>ANON-SUP-NNN</code>, <code>ANON-CT-NNN</code>, обратного
+        соответствия нет.</li>
+      </ul>
+    </div>
+  </div>
+  <p><strong>Срок:</strong> 4 недели после подписанного NDA и выгрузки по шаблону (12 месяцев
+  факта). <strong>Нужно от вас:</strong> NDA, 2–4 категории, параметры договоров, подтверждение,
+  что выгрузка разрешена внутренней политикой.</p>
+  <p class="muted"><strong>Границы:</strong> без NDA и шаблона пилот не стартует. Юридическую
+  трактовку формул индексации и налоговые вопросы отчёт не заменяет — это не правовое
+  заключение.</p>
+</section>
+
+<section class="panel" id="gas">
+  <h2>3. Газ и СПГ: цена, ПХГ, маршрут</h2>
+  <div class="grid">
+    <div class="card">
+      <span class="tag">Вопросы клиента</span>
+      <ul>
+        <li>Что с TTF/JKM и энергозатратами при перебое поставок или переориентации маршрута?</li>
+        <li>Как изменится себестоимость энергоёмких переделов и бюджет на газ?</li>
+        <li>Какие пороги держать под наблюдением: ПХГ, спред, заполненность?</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="tag">Что на выходе</span>
+      <ul>
+        <li>Газовые сценарии (база + стресс), цена/спред, энергоёмкость, влияние на издержки.</li>
+        <li>JSON/Excel/PDF, допущения отдельно, проверки и ограничения на экране отчёта.</li>
+        <li>Совместимо с бюджетным контуром: одна рамка для нефти, газа и топлива.</li>
+      </ul>
+    </div>
+  </div>
+  <p><strong>Срок:</strong> 4 недели на одно направление. <strong>Старт:</strong> диагностика и
+  NDA.</p>
+  <p class="muted"><strong>Границы:</strong> страновых CPI по газу не считаем и не выдумываем; там,
+  где модель страну не считает, в отчёте стоит честная пометка. Это сценарий на объявленных
+  допущениях, а не прогноз цены.</p>
+</section>
+
+<section class="panel" id="api">
+  <h2>4. API и Client Pack</h2>
+  <div class="grid">
+    <div class="card">
+      <span class="tag">Вопросы клиента</span>
+      <ul>
+        <li>Как встроить сценарии в Excel/BI/внутренний контур, а не в переписку с аналитиком?</li>
+        <li>Что именно приходит в JSON и можно ли пересчитать результат у себя?</li>
+        <li>Как ограничить доступ и объём запросов?</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="tag">Что на выходе</span>
+      <ul>
+        <li>Стабильный JSON-контракт, OpenAPI-заготовка, ключи и квоты (401/403/429).</li>
+        <li>Client Pack: PDF/DOCX + Excel + JSON + README + <code>manifest.json</code> с SHA-256.</li>
+        <li>Ответ API проходит проверку «только агрегаты»: сырых строк и путей в ответе нет.</li>
+      </ul>
+    </div>
+  </div>
+  <p><strong>Срок:</strong> 4–8 недель на первую интеграцию. <strong>Формат:</strong> входит в
+  полный сценарий или считается отдельно по объёму.</p>
+  <p class="muted"><strong>Границы:</strong> SLA пока не стандартизирован — обсуждается отдельным
+  соглашением; «работает в момент аварии 24/7» не обещаем. On-prem возможен: расчёт можно держать
+  в вашем контуре.</p>
+</section>
+
+<section>
+  <h2>С чего начать</h2>
+  <p>Диагностика — 20 минут, бесплатно: разбираем 2–3 ваших решения и говорим, какой из четырёх
+  сценариев даст ответ быстрее всего. Дальше — <a href="pricing.html">пилот</a> или отказ, без
+  «продающего» давления.</p>
+  <ul class="cta">
+    <li><a class="btn primary" href="mailto:flumos@gmail.com?subject=AMFE%20demo%2020%20min">Написать: 20-минутная диагностика</a></li>
+    <li><a class="btn" href="pricing.html">Цены и условия</a></li>
+    <li><a class="btn" href="security.html">Безопасность и NDA</a></li>
+  </ul>
+</section>
+
+</main>
+<footer class="foot">
+  <div class="wrap">
+    <p><strong>RESEARCH_ONLY · admission=false.</strong> AMFE — исследовательский проект: модель не
+    допущена к применению, это не прогноз и не инвестиционная рекомендация. Продаём сценарии,
+    допущения и воспроизводимость, а не «допущенную модель».</p>
+    <p class="muted">Контакт: <a href="mailto:flumos@gmail.com">flumos@gmail.com</a>. Страницы
+    статические: без JavaScript, форм, cookie, трекеров и внешних ресурсов.
+    <a href="../index.html">Исследовательский сайт</a> ·
+    <a href="../methodology.html">методология</a> ·
+    <a href="../status.html">статус</a>.</p>
+  </div>
+</footer>
+</body>
+</html>

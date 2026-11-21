@@ -12,6 +12,7 @@
 | [one_pager.md](one_pager.md) | одностраничник для первого контакта |
 | [outreach.md](outreach.md) | 3 последовательности писем + LinkedIn + скрипт звонка |
 | [outreach_5.md](outreach_5.md) | первые 5 персонализированных касаний: персона, боли, use cases, письма, вложения, критерий успеха |
+| [research/](research/README.md) | 10 досье аккаунтов: боли, buying center, триггеры, use cases, discovery-вопросы (валидируется `tools/account_research.py`) |
 | [letters/](letters/) | готовые тексты писем по 5 аккаунтам (только плейсхолдеры, не отправлены) |
 | [crm_pipeline.csv.tmpl](crm_pipeline.csv.tmpl) | 20 аккаунтов, стадии, next_action/next_date (валидируется `tools/marketing_crm.py`) |
 | [discovery_questions.md](discovery_questions.md) | 20 вопросов для квалификации |
@@ -34,7 +35,9 @@ python tools/marketing_targets.py --generated-at 2026-11-19T00:00:00Z
 python tools/marketing_crm.py --check     # exit 0/2: схема, стадии, tier, даты, нет контактов
 python tools/marketing_crm.py --summary   # сводка по стадиям и следующие действия
 python tools/marketing_crm.py --json      # машиночитаемая сводка (amfe.marketing.crm.v1)
+python tools/account_research.py --check  # 10 досье: схема, evidence, нет контактов
 python -m unittest tests.test_marketing_crm
+python -m unittest tests.test_account_research
 ```
 
 Валидатор fail-closed: дубли id/компаний, неизвестная стадия, битая дата, tier не из пересчёта,

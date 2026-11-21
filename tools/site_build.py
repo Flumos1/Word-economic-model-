@@ -146,6 +146,10 @@ EN_DISCLAIMER = ("Research only — not admission, not investment advice. AMFE i
                  "scenario results, not advice or trading forecasts.")
 
 PAGES = ("index", "model", "forecast", "scenarios", "data", "methodology", "docs", "status")
+# The commercial mini-site (site/business/) is a hand-written static layer, not generated here: this
+# builder only links to it from the two index pages and lists its URLs in sitemap.xml. The tuple below
+# is the list of its non-index pages, used for the sitemap only.
+BUSINESS_PAGES = ("solutions", "cases", "pricing", "security", "contact")
 
 SITE_URL = "https://flumos1.github.io/Word-economic-model-/"
 REPO_URL = "https://github.com/Flumos1/Word-economic-model-"
@@ -665,6 +669,12 @@ def render_index(context: dict, generated_at: str) -> str:
 </section>
 {_disclaimer_box()}
 <section>
+  <p class="lead"><strong>Для бизнеса:</strong>
+  <a href="business/index.html">сценарии для решений в нефтегазе</a> — бюджет, закупки, газ/СПГ, API.
+  Пилот USD 7 500 – 10 000, NDA, без форм и трекеров: отдельный коммерческий мини-сайт, не часть
+  исследовательской публикации.</p>
+</section>
+<section>
   <h2>Последний прогноз CPI (T1, год к году, h=1)</h2>
   <div class="grid">
     <div class="card"><div class="card-label">Точка</div>
@@ -1127,6 +1137,12 @@ def render_index_en(context: dict, generated_at: str) -> str:
   shadow track {esc(v4["candidate"] or "ENSEMBLE_REGIME_V4")} · statuses are not assigned by this site</p>
 </section>
 {_disclaimer_box_en()}
+<section>
+  <p class="lead"><strong>For business:</strong>
+  <a href="../business/en/index.html">scenarios for oil &amp; gas decisions</a> — budget, procurement,
+  gas/LNG, API. Pilot USD 7,500 – 10,000, NDA, no forms or trackers: a separate commercial mini-site,
+  not part of the research publication.</p>
+</section>
 <section>
   <h2>Latest CPI forecast (T1, year over year, h=1)</h2>
   <div class="grid">
@@ -1931,7 +1947,9 @@ def build_site(root: Path = ROOT, out_dir: Path | None = None,
     # Crawler metadata: sitemap and robots are static files of the deployed site (absolute URLs are
     # required by the sitemap protocol; they never appear in the HTML/CSS themselves).
     pages = [""] + [f"{name}.html" for name in PAGES] + ["en/"] + [
-        f"en/{name}.html" for name in PAGES]
+        f"en/{name}.html" for name in PAGES] + ["business/"] + [
+        f"business/{name}.html" for name in BUSINESS_PAGES] + ["business/en/"] + [
+        f"business/en/{name}.html" for name in BUSINESS_PAGES]
     urls = "\n".join(
         f"  <url><loc>{esc(SITE_URL + page)}</loc><lastmod>{generated_at[:10]}</lastmod></url>"
         for page in pages)

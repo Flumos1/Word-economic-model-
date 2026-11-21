@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AMFE для нефтегаза: сценарии для решений — бюджет, закупки, газ/СПГ, API</title>
+<meta name="description" content="Сценарная аналитика AMFE для нефтегаза: бюджет и маржа при шоке цены нефти, TCO и бюджет закупок, газ/СПГ, JSON/API. Пилот USD 7 500 – 10 000, NDA, RESEARCH_ONLY, admission=false.">
+<meta name="theme-color" content="#0b3b4a">
+<meta property="og:type" content="website">
+<meta property="og:title" content="AMFE для нефтегаза: сценарии для решений">
+<meta property="og:description" content="Бюджет, закупки, газ/СПГ и API: сценарии с допущениями, диапазонами и SHA-256. Пилот USD 7 500 – 10 000. RESEARCH_ONLY, admission=false.">
+<meta property="og:locale" content="ru_RU">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap top-bar">
+    <a class="brand" href="index.html">AMFE<span class="brand-sub"> · сценарная аналитика для нефтегаза</span></a>
+    <p class="meta"><a href="en/index.html" hreflang="en" lang="en">EN</a> · <a href="../index.html">Исследовательский сайт</a></p>
+    <nav class="nav" aria-label="Разделы">
+      <a href="index.html" class="on" aria-current="page">Главная</a>
+      <a href="solutions.html">Решения</a>
+      <a href="cases.html">Кейсы</a>
+      <a href="pricing.html">Цены</a>
+      <a href="security.html">Безопасность</a>
+      <a href="contact.html">Контакты</a>
+    </nav>
+  </div>
+</header>
+<main class="wrap">
+
+<section class="hero">
+  <p class="kicker">AMFE · сценарная аналитика для нефтегаза</p>
+  <h1>Сценарии для решений: бюджет, закупки, газ/СПГ, API</h1>
+  <p class="lead">Считаем, что будет с бюджетом, закупками и маржой при шоке цены нефти или газа,
+  логистики или поставок. На выходе — не «ответ в чате», а пакет: допущения, диапазоны, Excel/JSON,
+  PDF для CFO и SHA-256 каждого файла.</p>
+  <ul class="badges">
+    <li><span class="badge warn">RESEARCH_ONLY</span></li>
+    <li><span class="badge warn">admission=false</span></li>
+    <li><span class="badge">не прогноз</span></li>
+    <li><span class="badge ok">NDA</span></li>
+  </ul>
+  <ul class="cta">
+    <li><a class="btn primary" href="mailto:flumos@gmail.com?subject=AMFE%20demo%2020%20min">Демо: 20-минутная диагностика</a></li>
+    <li><a class="btn" href="pricing.html">Пилот: USD 7 500 – 10 000</a></li>
+    <li><a class="btn" href="security.html">NDA и правила данных</a></li>
+  </ul>
+</section>
+
+<section class="panel">
+  <h2>Почему этому можно верить — и где границы</h2>
+  <ul class="checks">
+    <li><strong>Методология открыта.</strong> Протокол оценки 5.0.1 (FROZEN,
+    SHA-256 <code>48c2f6a18a28cefc…</code>), критерии C1–C6 и честный список ограничений — на
+    <a href="../methodology.html">странице методологии</a>.</li>
+    <li><strong>SHA-256 и воспроизводимость.</strong> Пакет собирается детерминированно: в
+    <code>manifest.json</code> лежит SHA-256 каждого файла, повторная сборка даёт те же файлы.
+    Актуальный хеш и статусы — на <a href="../status.html">странице статуса</a>.</li>
+    <li><strong>Допущения видны.</strong> Каждый параметр помечен: данные, расчёт или допущение.
+    Диапазон — это разброс вариантов чувствительности, а не «доверительный интервал».</li>
+    <li><strong>Статус честный.</strong> Модель исследовательская: <code>RESEARCH_ONLY</code>,
+    <code>admission=false</code>. Это не допущенная модель, не прогноз и не инвестиционная
+    рекомендация. Статус <code>admission</code> не «почти получен» — его нет.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Четыре направления</h2>
+  <div class="grid">
+    <div class="card">
+      <span class="tag">Бюджет</span>
+      <h3>Ормуз, цена нефти и бюджет</h3>
+      <p>Что будет с выручкой, бюджетом, топливом и расходами домохозяйств при Brent USD 120–170 и
+      перекрытии пролива. База + стресс, диапазоны, путь по месяцам.</p>
+      <p><a href="solutions.html#hormuz">Подробнее</a></p>
+    </div>
+    <div class="card">
+      <span class="tag">Закупки</span>
+      <h3>FLAKS: TCO и бюджет категории</h3>
+      <p>Как индексация, FX и пошлины меняют TCO поставщиков и бюджет закупок; где риск в
+      контракте (cap, floor, доли cpi/ppi/fx). Данные обезличиваются.</p>
+      <p><a href="solutions.html#flaks">Подробнее</a></p>
+    </div>
+    <div class="card">
+      <span class="tag">Газ и СПГ</span>
+      <h3>Газ/СПГ и энергозатраты</h3>
+      <p>TTF/JKM, ПХГ, диверсия маршрута поставок и что это делает с энергоёмкостью и издержками
+      производства.</p>
+      <p><a href="solutions.html#gas">Подробнее</a></p>
+    </div>
+    <div class="card">
+      <span class="tag">Интеграция</span>
+      <h3>API и Client Pack</h3>
+      <p>Стабильный JSON-контракт, ключи и квоты, пакет PDF/DOCX + Excel + JSON + manifest — чтобы
+      сценарии жили в вашем контуре, а не в переписке.</p>
+      <p><a href="solutions.html#api">Подробнее</a></p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Как проходит пилот</h2>
+  <ol class="steps">
+    <li><strong>20-минутная диагностика.</strong> Разбираем 2–3 решения: что считаем, какие данные
+    есть, что будет считаться успехом. Итог — one-pager с рамкой решения, бесплатно.</li>
+    <li><strong>NDA и обезличивание.</strong> До NDA файлы не передаются; идентификаторы
+    заменяются, обратное соответствие не сохраняется (<a href="security.html">правила данных</a>).</li>
+    <li><strong>Сценарии: база + 2 стресса.</strong> 4–6 недель: цены, бюджет, TCO, риски; каждый
+    шаг с допущениями и проверками балансов.</li>
+    <li><strong>Отчёт и воркшоп.</strong> PDF/DOCX для CFO/стратегии, Excel и JSON, разбор
+    результатов и границ применимости.</li>
+  </ol>
+  <p class="muted">Пилот — это сервис/исследование, а не покупка «допущенной модели»: статус
+  <code>admission=false</code> сохраняется и в отчёте, и в договоре.</p>
+</section>
+
+<section class="callout">
+  <h2>Чего мы не обещаем</h2>
+  <ul>
+    <li>«Точность выше рынка» и «допущенный прогноз» — модель исследовательская, admission нет.</li>
+    <li>Замену Bloomberg/WoodMac/Platts — дополняем там, где нужен свой сценарий и закупочный
+    контур.</li>
+    <li>Гарантированную экономию X% — считаем на ваших данных и показываем диапазон, без гарантий.</li>
+    <li>Вероятности беспорядков, исходы выборов и политические предсказания — не наш продукт.</li>
+  </ul>
+  <p class="muted">Клиентских логотипов и отзывов на этом сайте нет, потому что публичных
+  референсов пока нет. Появятся — появятся и здесь, с разрешения клиента.</p>
+</section>
+
+<section>
+  <h2>Начать</h2>
+  <p>Напишите на <a href="mailto:flumos@gmail.com?subject=AMFE%20demo%2020%20min">flumos@gmail.com</a>
+  — договоримся о 20-минутной диагностике. Форм и регистрации нет: только письмо.</p>
+  <ul class="cta">
+    <li><a class="btn primary" href="mailto:flumos@gmail.com?subject=AMFE%20demo%2020%20min">Написать: 20-минутная диагностика</a></li>
+    <li><a class="btn" href="pricing.html">Цены и условия</a></li>
+    <li><a class="btn" href="cases.html">Кейсы</a></li>
+  </ul>
+</section>
+
+</main>
+<footer class="foot">
+  <div class="wrap">
+    <p><strong>RESEARCH_ONLY · admission=false.</strong> AMFE — исследовательский проект: модель не
+    допущена к применению, это не прогноз и не инвестиционная рекомендация. Продаём сценарии,
+    допущения и воспроизводимость, а не «допущенную модель».</p>
+    <p class="muted">Контакт: <a href="mailto:flumos@gmail.com">flumos@gmail.com</a>. Страницы
+    статические: без JavaScript, форм, cookie, трекеров и внешних ресурсов.
+    <a href="../index.html">Исследовательский сайт</a> ·
+    <a href="../methodology.html">методология</a> ·
+    <a href="../status.html">статус</a>.</p>
+  </div>
+</footer>
+</body>
+</html>
