@@ -63,7 +63,8 @@ class Contracts(unittest.TestCase):
         self.assertIs(health["admission"], False)
         self.assertIs(health["causal_claim"], False)
         self.assertEqual([item["id"] for item in health["scenarios"]],
-                         ["hormuz_base", "hormuz_stress", "gas_shock", "geopolitics"])
+                         ["hormuz_base", "hormuz_stress", "gas_shock", "geopolitics",
+                          "institutions", "technology"])
         self.assertGreaterEqual(len(health["countries"]), 10)
         self.assertIn("US", [item["code"] for item in health["countries"]])
         self.assertTrue(health["checks"]["oil_module"])
@@ -195,6 +196,223 @@ class Contracts(unittest.TestCase):
         self.assertLess(partial["prices"]["peak"], closed["prices"]["peak"])
 
 
+class BlockScenarios(unittest.TestCase):
+    """Blocks 15/17: institutions and technology scenarios on the declared assumptions only."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.app = sim.SimulatorApp(geopolitics_artifact=ARTIFACT)
+        cls.institutions = cls.app.run({"scenario": "institutions"})
+        cls.technology = cls.app.run({"scenario": "technology"})
+
+    def test_institutions_scenario_contract(self):
+        document = self.institutions
+        self.assertEqual(document["scenario"]["id"], "institutions")
+        self.assertEqual(document["scenario"]["family"], "institutions")
+        self.assertEqual(document["scenario"]["model_scenario"], "REFORM")
+        self.assertEqual(document["parameters"]["applied"]["profile"], "EXAMPLE-MID")
+        self.assertEqual(document["parameters"]["applied"]["scenario_id"], "REFORM")
+        self.assertEqual([card["key"] for card in document["cards"]],
+                         ["score_base", "delta_score", "premium_delta", "premium_level",
+                          "investment_delta", "growth_delta"])
+        self.assertEqual(document["cards"][0]["value"], 51.5)  # EXAMPLE-MID composite
+        self.assertIn("premium_delta", [card["key"] for card in document["cards"]])
+        self.assertEqual(document["charts"][0]["kind"], "line")
+        self.assertEqual(document["charts"][1]["kind"], "bar")
+        self.assertEqual(len(document["charts"][1]["labels"]), 6)
+        self.assertEqual(len(document["table"]["rows"]), 5)
+        self.assertEqual([column["key"] for column in document["table"]["columns"]],
+                         ["year", "ramp", "score", "premium", "investment", "growth"])
+        self.assertFalse(document["prices"]["available"])
+        self.assertFalse(document["sectors"]["available"])
+        self.assertFalse(document["country"]["available"])
+        self.assertTrue(document["risk"]["available"])
+        self.assertEqual(document["details"]["institutions_module"]["profile"], "EXAMPLE-MID")
+        self.assertFalse(document["details"]["institutions_module"]["modifier"]["gating"])
+        self.assertTrue(all(value is True for value in document["checks"].values()))
+        self.assertGreaterEqual(document["assumptions"]["count"], 10)
+
+    def test_institutions_scenario_signs(self):
+        reform = self.app.run({"scenario": "institutions", "inst_scenario": "REFORM"})
+        deterioration = self.app.run({"scenario": "institutions",
+                                      "inst_scenario": "DETERIORATION"})
+        polarization = self.app.run({"scenario": "institutions",
+                                     "inst_scenario": "POLARIZATION"})
+        status_quo = self.app.run({"scenario": "institutions", "inst_scenario": "STATUS-QUO"})
+        by_key = lambda doc: {card["key"]: card["value"] for card in doc["cards"]}
+        reform_cards = by_key(reform)
+        deterioration_cards = by_key(deterioration)
+        polarization_cards = by_key(polarization)
+        status_quo_cards = by_key(status_quo)
+        self.assertGreater(reform_cards["delta_score"], 0)
+        self.assertLess(reform_cards["premium_delta"], 0)
+        self.assertGreater(reform_cards["investment_delta"], 0)
+        self.assertLess(deterioration_cards["delta_score"], 0)
+        self.assertGreater(deterioration_cards["premium_delta"], 0)
+        self.assertLess(deterioration_cards["investment_delta"], 0)
+        # polarization loses less of the composite than deterioration but still raises the premium
+        self.assertGreater(polarization_cards["delta_score"], deterioration_cards["delta_score"])
+        self.assertGreater(polarization_cards["premium_delta"], 0)
+        self.assertAlmostEqual(status_quo_cards["delta_score"], 0.0, places=9)
+        self.assertAlmostEqual(status_quo_cards["premium_delta"], 0.0, places=9)
+        self.assertNotEqual(reform["digest"], deterioration["digest"])
+        self.assertNotEqual(polarization["digest"], deterioration["digest"])
+
+    def test_institutions_refuses_unknown_choice(self):
+        for case in ({"scenario": "institutions", "profile": "GERMANY"},
+                     {"scenario": "institutions", "inst_scenario": "COUP"},
+                     {"scenario": "technology", "tech_scenario": "quantum_leap"},
+                     {"scenario": "technology", "tech_scenario": 7}):
+            with self.assertRaises(sim.BadRequest, msg=str(case)) as caught:
+                self.app.run(case)
+            self.assertEqual(caught.exception.code, "INVALID_CHOICE", msg=str(case))
+            self.assertTrue(caught.exception.details["allowed"])
+
+    def test_technology_scenario_contract(self):
+        document = self.technology
+        self.assertEqual(document["scenario"]["family"], "technology")
+        self.assertEqual(document["scenario"]["model_scenario"], "ai_acceleration")
+        self.assertEqual(document["parameters"]["values"]["horizon"], 15)
+        self.assertEqual(document["parameters"]["applied"]["horizon_years"], 15)
+        self.assertEqual([card["key"] for card in document["cards"]],
+                         ["adoption", "tfp", "output", "energy", "energy_intensity",
+                          "tfp_share"])
+        self.assertGreater(document["cards"][2]["value"], 0)  # output gain
+        self.assertLess(document["cards"][4]["value"], 0)  # energy intensity falls
+        self.assertEqual(len(document["charts"]), 2)
+        self.assertLessEqual(len(document["charts"][0]["lines"][0]["values"]),
+                             sim.MAX_PATH_POINTS)
+        self.assertLessEqual(len(document["table"]["rows"]), sim.MAX_PATH_POINTS)
+        self.assertTrue(document["sectors"]["available"])
+        self.assertEqual(len(document["sectors"]["rows"]), 5)
+        self.assertFalse(document["prices"]["available"])
+        self.assertFalse(document["country"]["available"])
+        self.assertEqual(document["details"]["technology_module"]["block"], 17)
+        self.assertEqual(document["details"]["technology_module"]["calibration"],
+                         "NOT_CALIBRATED")
+        self.assertTrue(all(value is True for value in document["checks"].values()))
+        self.assertEqual(document["checks"]["horizon_in_ui_range"], True)
+        self.assertEqual(document["assumptions"]["count"], 42)
+        self.assertEqual(len(document["assumptions"]["items"]), 20)
+
+    def test_technology_scenario_order(self):
+        by_scenario = {}
+        for scenario_id in ("baseline", "ai_acceleration", "ai_slowdown", "energy_transition"):
+            document = self.app.run({"scenario": "technology", "tech_scenario": scenario_id,
+                                     "horizon": 15})
+            by_scenario[scenario_id] = {card["key"]: card["value"] for card in document["cards"]}
+        self.assertGreater(by_scenario["ai_acceleration"]["output"],
+                           by_scenario["baseline"]["output"])
+        self.assertGreater(by_scenario["baseline"]["output"],
+                           by_scenario["ai_slowdown"]["output"])
+        self.assertGreater(by_scenario["ai_acceleration"]["adoption"],
+                           by_scenario["baseline"]["adoption"])
+        self.assertLess(by_scenario["energy_transition"]["energy"],
+                        by_scenario["baseline"]["energy"])
+        self.assertLess(by_scenario["energy_transition"]["energy_intensity"],
+                        by_scenario["baseline"]["energy_intensity"])
+
+    def test_technology_horizon_range(self):
+        for horizon in (10, 15):
+            document = self.app.run({"scenario": "technology", "horizon": horizon})
+            self.assertEqual(document["parameters"]["values"]["horizon"], horizon)
+            self.assertEqual(document["details"]["technology_module"]["horizon_years"], horizon)
+        for horizon in (9, 16, 0):
+            with self.assertRaises(sim.BadRequest, msg=str(horizon)) as caught:
+                self.app.run({"scenario": "technology", "horizon": horizon})
+            self.assertEqual(caught.exception.code, "PARAM_OUT_OF_RANGE")
+
+    def test_block_documents_are_research_only_without_raw(self):
+        for document in (self.institutions, self.technology):
+            self.assertEqual(document["status"], "RESEARCH_ONLY")
+            self.assertIs(document["admission"], False)
+            self.assertIs(document["causal_claim"], False)
+            self.assertEqual(document["scenario"]["status"], "RESEARCH_ONLY")
+            self.assertIn("не прогноз", document["disclaimer"])
+            self.assertTrue(document["limitations"])
+            self.assertGreaterEqual(document["assumptions"]["count"], 10)
+            self.assertTrue(document["checks"]["aggregate_only"])
+            text = json.dumps(document, ensure_ascii=False).lower()
+            for forbidden in ("observations", "source_rows", "data_points", "vintage_dates",
+                              "third_party_data", "actual_values", "forecast_values",
+                              "\"raw\":", "series_values"):
+                self.assertNotIn(forbidden, text)
+            self.assertNotIn("https://", text)
+            self.assertNotIn("/users/", text)
+            self.assertNotIn("\\\\", text)
+
+    def test_block_documents_are_deterministic(self):
+        for body in ({"scenario": "institutions", "inst_scenario": "POLARIZATION"},
+                     {"scenario": "technology", "tech_scenario": "ai_slowdown"}):
+            first = json.dumps(self.app.run(dict(body)), ensure_ascii=False, sort_keys=True)
+            second = json.dumps(self.app.run(dict(body)), ensure_ascii=False, sort_keys=True)
+            self.assertEqual(first, second)
+            document = self.app.run(dict(body))
+            digest = sim._digest({key: value for key, value in document.items()
+                                  if key != "digest"})
+            self.assertEqual(document["digest"], digest)
+        # one parameter change must change the digest
+        other = self.app.run({"scenario": "institutions", "magnitude": 2.0})
+        self.assertNotEqual(other["digest"], self.institutions["digest"])
+        other = self.app.run({"scenario": "technology", "horizon": 10})
+        self.assertNotEqual(other["digest"], self.technology["digest"])
+
+    def test_health_and_scenarios_expose_block_choices(self):
+        health = self.app.health()
+        self.assertTrue(health["checks"]["institutions_module"])
+        self.assertTrue(health["checks"]["technology_module"])
+        by_id = {item["id"]: item for item in health["scenarios"]}
+        institutions = by_id["institutions"]
+        technology = by_id["technology"]
+        self.assertEqual(institutions["choices"]["profile"]["options"],
+                         ["EXAMPLE-LOW", "EXAMPLE-MID", "EXAMPLE-HIGH", "EXAMPLE-POLARIZED"])
+        self.assertEqual(institutions["choices"]["inst_scenario"]["options"],
+                         ["STATUS-QUO", "REFORM", "DETERIORATION", "POLARIZATION"])
+        self.assertEqual(institutions["defaults"]["profile"], "EXAMPLE-MID")
+        self.assertEqual(institutions["defaults"]["inst_scenario"], "REFORM")
+        self.assertIsNone(institutions["country_default"])
+        self.assertEqual(technology["choices"]["tech_scenario"]["options"],
+                         ["baseline", "ai_acceleration", "ai_slowdown", "energy_transition"])
+        self.assertEqual(technology["params"]["horizon"]["min"], 10)
+        self.assertEqual(technology["params"]["horizon"]["max"], 15)
+        self.assertIsNone(technology["country_default"])
+        catalogue = self.app.scenarios_document()
+        self.assertEqual([item["id"] for item in catalogue["scenarios"]],
+                         [item["id"] for item in health["scenarios"]])
+
+    def test_blocks_ignore_country_with_a_note(self):
+        document = self.app.run({"scenario": "institutions", "country": "DE"})
+        self.assertIsNone(document["parameters"]["country"])
+        self.assertTrue(any("country" in note for note in document["parameters"]["notes"]))
+        self.assertFalse(document["country"]["available"])
+        self.assertIn("страновой таблицы", document["country"]["note"])
+
+
+class BlockAuth(unittest.TestCase):
+    """The optional auth mode keeps protecting the new block scenarios (fail-closed)."""
+
+    def test_auth_still_protects_block_scenarios(self):
+        body = json.dumps({"scenario": "technology", "tech_scenario": "ai_acceleration"}).encode()
+        app = auth_app(quota=2)
+        missing = app.dispatch("POST", "/api/run", body)
+        self.assertEqual(missing.status, 401)
+        self.assertEqual(missing.payload["code"], "MISSING_API_KEY")
+        forbidden = app.dispatch("POST", "/api/run", body, headers={"X-API-Key": FREE_KEY})
+        self.assertEqual(forbidden.status, 403)
+        self.assertEqual(forbidden.payload["code"], "PLAN_FORBIDDEN")
+        allowed = app.dispatch("POST", "/api/run", body, headers={"X-API-Key": PRO_KEY})
+        self.assertEqual(allowed.status, 200)
+        self.assertEqual(allowed.payload["status"], "RESEARCH_ONLY")
+        self.assertIs(allowed.payload["admission"], False)
+        self.assertEqual(header_map(allowed)["X-Plan"], "pro")
+        self.assertEqual(header_map(allowed)["X-RateLimit-Limit"], "2")
+        self.assertEqual(allowed.payload["scenario"]["id"], "technology")
+        again = auth_app(quota=2).dispatch("POST", "/api/run", body,
+                                           headers={"Authorization": f"Bearer {PRO_KEY}"})
+        self.assertEqual(again.status, 200)
+        self.assertEqual(again.payload["digest"], allowed.payload["digest"])
+
+
 class Validation(unittest.TestCase):
     """Fail-closed parameter handling: nothing is fixed up silently."""
 
@@ -234,6 +452,27 @@ class Validation(unittest.TestCase):
             with self.assertRaises(sim.BadRequest, msg=str(case)) as caught:
                 self.app.run(case)
             self.assertEqual(caught.exception.code, code, msg=str(case))
+
+    def test_block_param_validation(self):
+        cases = [
+            ({"scenario": "institutions", "magnitude": True}, "INVALID_PARAM"),
+            ({"scenario": "institutions", "magnitude": None}, "INVALID_PARAM"),
+            ({"scenario": "institutions", "magnitude": float("nan")}, "INVALID_PARAM"),
+            ({"scenario": "institutions", "magnitude": 10.0}, "PARAM_OUT_OF_RANGE"),
+            ({"scenario": "institutions", "horizon": 0}, "PARAM_OUT_OF_RANGE"),
+            ({"scenario": "institutions", "horizon": 2.5}, "INVALID_PARAM"),
+            ({"scenario": "institutions", "horizon": "много"}, "INVALID_PARAM"),
+            ({"scenario": "technology", "horizon": "десять"}, "INVALID_PARAM"),
+            ({"scenario": "technology", "horizon": 10.5}, "INVALID_PARAM"),
+            ({"scenario": "institutions", "profile": ["EXAMPLE-MID"]}, "INVALID_CHOICE"),
+        ]
+        for case, code in cases:
+            with self.assertRaises(sim.BadRequest, msg=str(case)) as caught:
+                self.app.run(case)
+            self.assertEqual(caught.exception.code, code, msg=str(case))
+        # numeric strings for the horizon are coerced, not rejected (same rule as price/shock)
+        document = self.app.run({"scenario": "technology", "horizon": "10"})
+        self.assertEqual(document["parameters"]["values"]["horizon"], 10)
 
     def test_numeric_strings_are_accepted(self):
         document = self.app.run({"scenario": "hormuz_base", "price": "80,0", "shock": "100"})
@@ -399,7 +638,7 @@ class HttpServer(unittest.TestCase):
         document = json.loads(payload)
         self.assertEqual(document["kind"], "scenarios")
         self.assertIs(document["admission"], False)
-        self.assertEqual(len(document["scenarios"]), 4)
+        self.assertEqual(len(document["scenarios"]), 6)
         for item in document["scenarios"]:
             self.assertIn("params", item)
             self.assertIn("id", item)

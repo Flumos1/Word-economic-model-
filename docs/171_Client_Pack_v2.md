@@ -1,13 +1,15 @@
 # 171. Client Pack v2: единый клиентский пакет
 
-Дата: 2026-11-17 (обновлено 2026-11-20: опциональный раздел Bridge, 42 теста). Волна G5.
+Дата: 2026-11-17 (обновлено 2026-11-20: опциональный раздел Bridge; 2026-11-21: опциональные
+блоки 15/17, 47 тестов). Волна G5.
 Инструмент: [tools/client_pack_v2.py](../tools/client_pack_v2.py),
-тесты: [tests/test_client_pack_v2.py](../tests/test_client_pack_v2.py) (42 теста).
+тесты: [tests/test_client_pack_v2.py](../tests/test_client_pack_v2.py) (47 тестов).
 Источники чисел: `build/product/forecast_latest.json` (product feed), `protocols/module_registry`
 (паспорта модулей), рыночный сценарий `hormuz_closed_6m` (oil v3), `build/api/index.json`
 (forecast API v2), **все** forecast-контракты из индекса (`oil_brent`, `gas_ttf`),
-`build/registry/modules.jsonl` и — если он есть — `build/forecast_world_bridge/report.json`
-(мост «прогноз → мир», §7). Ничего не пересчитывается и не коммитится.
+`build/registry/modules.jsonl`, — если он есть — `build/forecast_world_bridge/report.json`
+(мост «прогноз → мир», §7) и при `--include-blocks` — артефакты блоков 15/17 (§8). Ничего не
+пересчитывается и не коммитится.
 
 ## 1. Что это
 
@@ -41,6 +43,7 @@ Client Pack v2 — один пакет для исследовательског
 | Рыночный сценарий | oil v3 `hormuz_closed_6m` | пик/среднее Brent, units/assumptions, `RESEARCH_ONLY` |
 | Forecast API | `build/api/index.json` | версия v2, модули/сценарии/эндпоинты |
 | Мост «прогноз → мир» (опционально) | `build/forecast_world_bridge/report.json` или `--bridge` | reduced-form, `RESEARCH_ONLY`/`PARTIAL_INPUTS`, SHA-256, без сырых рядов (§7) |
+| Блоки 15/17 (опционально) | `build/institutions/report.json`, `build/technology_scenarios/report.json` (fallback — `technology_scenarios/demo/demo.json`) | `--include-blocks`; сценарные модификаторы, не forecast-контракты; SHA-256 каждого артефакта (§8) |
 | Лицензии | `protocols/licence_register.json` | ссылки на записи, без сырых значений |
 
 Все числа пакета берутся из артефактов; пакет fail-closed: отсутствие любого **обязательного**
@@ -154,3 +157,50 @@ false, "c6_status": "NO_RESOLVED_FORECASTS", "modules": 7, "market_modules": 2, 
 кросс-взаимодействие не моделируется; отдельная ячейка — следствие маргиналов. Это
 сравнительная статика, **не прогноз мира**, не поведенческая модель и не допуск; `T3` в числа не
 входит (риск-контекст). Заявления о превосходстве не делаются, `admission=false`.
+
+## 8. Блоки 15/17 (опционально, `--include-blocks`)
+
+Пакет умеет включать компактные сценарные разделы двух исследовательских блоков: 15 «Институты»
+([docs/203](203_Блок_15_институты.md), `amfe.world.institutions`) и 17 «Наука, технологии, ИИ»
+([docs/204](204_Блок_17_технологии_ИИ.md), `amfe.world.technology`). Это **не** forecast-контракты
+и не точечный прогноз: блоки показывают сценарную арифметику на объявленных допущениях
+(`NOT_CALIBRATED`, `admission=false`), поэтому они лежат отдельной секцией `blocks`, а счётчики
+`forecasts`/`market_modules` и `summary.point` не меняются.
+
+```bash
+python tools/institutions_scenarios.py --out build/institutions
+python tools/technology_scenarios.py --out build/technology_scenarios
+python tools/client_pack_v2.py --out build/client_pack/v2_blocks \
+  --include-blocks --generated-at 2026-11-21T00:00:00Z --json
+```
+
+- по умолчанию ищутся `build/institutions/report.json` (блок 15) и
+  `build/technology_scenarios/report.json`, затем `build/technology_scenarios/demo/demo.json`
+  (блок 17; демо-артефакт 10 лет/2 сценария — источник виден в `blocks.blocks[].source`);
+- без флага секция присутствует, но помечена `included=false`, `status=NOT_REQUESTED`: пакет
+  собирается как раньше (8 файлов, `sources=6`).
+
+| Ситуация | Поведение |
+|---|---|
+| артефакта нет | блок `available=false`, `status=NOT_AVAILABLE`, причина + `searched` + команда сборки; пакет собирается (`available=false` у секции) |
+| битый JSON, чужая схема (≠ `amfe.world.institutions.report.v1` / `amfe.world.technology_report.v1`), статус ≠ `RESEARCH_ONLY`, `admission≠false` (у блока 15 и `gating≠false`) | `ClientPackError`, exit 2, выходной каталог не создаётся |
+| нечисловые Δ композита/премии (15) или `aggregate.horizon.output_gain_pct` (17), нет `profile`/`scenarios[]` | fail-closed |
+
+| Формат | Что видно |
+|---|---|
+| `04_Machine_Readable.json` | `blocks`: `included`, `available`, `status` (`OK`/`PARTIAL`/`NOT_AVAILABLE`/`NOT_REQUESTED`), `note`, `blocks[]` — `source`, `sha256`, `horizon_years`, `profile` (15), `scenarios[]` с числами, `assumptions_count` + 10 допущений, `limitations`, `docs`; артефакты попадают в `sources` и `07_Reproducibility.json` (команда получает `--include-blocks`) |
+| `02_Numbers.xlsx` | листы `Blocks` (мета, SHA, причина при отсутствии) и `Blocks_Scenarios` (все сценарии: Δ композита/премии/инвестиций/роста, внедрение/TFP/выпуск/энергия/энергоёмкость) |
+| `01_Executive_Summary.docx` | раздел «Блоки 15/17» с таблицами, SHA-256, профилем и ограничениями |
+| `03_Dashboard.html` | те же таблицы в статической панели (без JS и внешних ссылок) |
+| `README.md` | источник, SHA, горизонт, допущения, строки сценариев, ограничение «не прогноз» |
+
+**Демо-прогон** (2026-11-21): `sources: 8`, `blocks: {"included": true, "available": true,
+"status": "OK", "count": 2}`; блок 15 — `build/institutions/report.json`, SHA-256 `0858c51c…`,
+профиль `EXAMPLE-MID`, 4 сценария (REFORM: Δ композита +6,00 п., Δ премии −23,5 б.п.); блок 17 —
+`build/technology_scenarios/demo/demo.json`, SHA-256 `ecce55b1…`, горизонт 10 лет, 2 сценария
+(ai_acceleration: выпуск +33,16 % против +22,08 % у базовой). Две сборки с одним `--generated-at`
+байт-идентичны (8/8 файлов).
+
+**Ограничения.** Раздел не добавляет данных: числа — те же объявленные допущения A1–A10 (блок 15)
+и H-005 (блок 17); страновых значений в блоке 15 нет, отраслевого моста в MRIO у блока 17 нет.
+Блоки не входят в `forecasts`, не меняют `admission` и не должны цитироваться как прогноз.

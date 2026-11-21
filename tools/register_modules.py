@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Register the G2/G5 modules (oil / storage / gas / agri / finance / agentic / world P2 0.2).
+"""Register the G2/G5 modules (oil / storage / gas / agri / finance / agentic / world P2 0.2 /
+world blocks 15 and 17).
 
 The tool builds deterministic passports from the modules themselves (their exported passport /
 model-card metadata) plus docs/tests/hashes; it does not modify module code, protocols or the
@@ -7,9 +8,14 @@ learning registry.  Records are appended to an append-only JSONL log; re-running
 log fails closed (duplicates are not overwritten).
 
 Modules are registered only when they are framework ``MarketModule`` instances (``oil.brent``,
-``gas.lng_eu``) or module-level layers that expose a stable ``MODULE_ID`` and a build entrypoint
-(``oil.storage_curve``).  Tools and reports that are not modules (policy block, geopolitics library,
-sector exposure, FLAKS, the API gateways) are **not** registered here — see docs/157 §4.1.
+``gas.lng_eu``), module-level layers that expose a stable ``MODULE_ID`` and a build entrypoint
+(``oil.storage_curve``, ``world.technology``) or self-contained blocks with documented build
+entrypoints (``world.institutions``, block 15).  Tools and reports that are not modules (policy
+block, geopolitics library, sector exposure, FLAKS, the API gateways) are **not** registered here —
+see docs/157 §4.1–§4.2.  ``world.institutions`` and ``world.technology`` are ``kind=world``
+scenario blocks: they are **not** ``MarketModule`` instances and have **no** forecast contract, so
+they never appear in ``market_modules``/``scenarios``/``forecasts`` of the Forecast API; only their
+passports are published in ``/v1/modules`` (docs/161 §12).
 
 Usage:
     python tools/register_modules.py                       # write build/registry/modules.jsonl
@@ -61,6 +67,8 @@ CODE_FILES = {
     "world": ["src/amfe/world/io_core.py", "src/amfe/world/sfc_core.py",
                  "src/amfe/world/sfc_io.py", "tools/world_pipeline.py",
                  "tools/world_reports.py", "tools/p2_release.py"],
+    "institutions": ["src/amfe/world/institutions.py", "tools/institutions_scenarios.py"],
+    "technology": ["src/amfe/world/technology.py", "tools/technology_scenarios.py"],
 }
 
 #: committed data pins: ``data_sha256`` is the hash of this file when it is present locally
@@ -68,8 +76,9 @@ DATA_FILES = {"storage": "data/oil/brent_monthly_eia.csv"}
 
 #: registration dates of modules that are newer than ``--date``: the five G2 passports keep their
 #: 2026-11-16 date, the G5 gas/storage passports are dated when they were registered (docs/180,
-#: docs/188).  ``--date`` controls every other manifest.
-REGISTERED_AT = {"gas": "2026-11-18", "storage": "2026-11-18"}
+#: docs/188), and the block-15/17 world passports are dated 2026-11-21 (docs/203, docs/204).
+REGISTERED_AT = {"gas": "2026-11-18", "storage": "2026-11-18",
+                 "institutions": "2026-11-21", "technology": "2026-11-21"}
 
 
 class RegistrationError(RuntimeError):
@@ -92,6 +101,8 @@ def _module_passports() -> dict:
     from amfe import markets, markets_agri, markets_finance
     from amfe.markets import gas as gas_module
     from amfe.markets import storage as storage_module
+    from amfe.world import institutions as institutions_module
+    from amfe.world import technology as technology_module
 
     #: gas registers itself on import, so select by module_id instead of by position
     documents = {item["module_id"]: item for item in markets.modules_document()}
@@ -216,6 +227,55 @@ def _module_passports() -> dict:
                                   "scenario arithmetic with declared assumptions, not a forecast"],
                   "components": ["world_scenarios", "sfc_checks", "release_manifest"],
                   "note": "data_sha256 is the SHA-256 of the P2 0.2 release manifest"},
+        "institutions": {"module_id": "world.institutions", "kind": "world", "version": "0.1.0",
+                         "display_name": "Institutions (block 15): governance quality as a scenario "
+                                         "modifier (scenario block)",
+                         "summary": ("Six declared 0-100 governance indicators -> weighted composite, "
+                                     "risk premium in bps and investment/growth channels through declared "
+                                     "elasticities; four 'what if' scenarios plus an export as a scenario "
+                                     "modifier. Assumptions only: not a forecast, not an admission and not "
+                                     "a country rating."),
+                         "owner": "track-b", "data_status": "ASSUMPTION_BASED",
+                         "docs": ["docs/203_Блок_15_институты.md",
+                                  "docs/157_Реестр_модулей.md"],
+                         "tests": ["tests/test_institutions_scenarios.py"],
+                         "entrypoints": ["amfe.world.institutions.institutional_score",
+                                         "amfe.world.institutions.scenario_overlay",
+                                         "amfe.world.institutions.as_scenario_modifier"],
+                         "limitations": list(institutions_module.LIMITATIONS) + [
+                             "not a MarketModule: no market scenarios()/run() contract and no forecast "
+                             "target; products call the documented functions",
+                             "RESEARCH_ONLY: admission=false, gating=false, causal_claim=false; not a "
+                             "forecast, not an admission, not investment advice"],
+                         "components": [scenario.scenario_id
+                                        for scenario in institutions_module.default_scenarios()],
+                         "note": ("version 0.1.0 is the first registry version of the MVP; the module has "
+                                  "no MODULE_ID constant, so the registry id/entrypoints identify it "
+                                  "(TOOL_VERSION=1.0.0 is the CLI schema version, not the module version)")},
+        "technology": {"module_id": "world.technology", "kind": "world", "version": "0.1.0",
+                       "display_name": "Science, technology and AI (block 17): diffusion -> TFP -> "
+                                       "output and energy (scenario block)",
+                       "summary": ("Logistic adoption diffusion -> growth accounting (TFP, capital, "
+                                   "labour) -> aggregate output and energy by sector, with four declared "
+                                   "scenarios. Arithmetic on declared assumptions only: not a forecast, "
+                                   "no estimate of the AI effect, no admission."),
+                       "owner": "track-b", "data_status": "ASSUMPTION_BASED",
+                       "docs": ["docs/204_Блок_17_технологии_ИИ.md",
+                                "docs/157_Реестр_модулей.md"],
+                       "tests": ["tests/test_technology_scenarios.py"],
+                       "entrypoints": ["amfe.world.technology.run_scenario",
+                                       "amfe.world.technology.build_report",
+                                       "amfe.world.technology.describe"],
+                       "limitations": list(technology_module.LIMITATIONS) + [
+                           "not a MarketModule: no market scenarios()/run() contract and no forecast "
+                           "target; products call the documented functions",
+                           "RESEARCH_ONLY: admission=false; the scenario is not a probability, a "
+                           "forecast or an admission"],
+                       "components": list(technology_module.describe()["scenarios"]),
+                       "note": ("registry id world.technology; the module itself exports "
+                                "MODULE_ID=world.technology_diffusion via describe() — the mapping is by "
+                                "entrypoints and the code was not changed. No MRIO ΔA bridge, no "
+                                "calibration, assumption-based scenario arithmetic only")},
     }
 
 
@@ -264,7 +324,7 @@ def _data_pins(p2_manifest: Path) -> tuple[dict, list[str]]:
 
 def build_report(*, registry: Path = DEFAULT_REGISTRY, created_at: str = DEFAULT_DATE,
                  p2_manifest: Path = P2_MANIFEST) -> dict:
-    """Register all modules (G2 + G5 gas/storage) into ``registry`` and return the report."""
+    """Register all modules (G2 + G5 gas/storage + world blocks 15/17) and return the report."""
     manifests = _module_passports()
     pins, code_warnings = _data_pins(p2_manifest)
     passports = {}
@@ -274,7 +334,8 @@ def build_report(*, registry: Path = DEFAULT_REGISTRY, created_at: str = DEFAULT
                                     created_at=REGISTERED_AT.get(name, created_at),
                                     data_sha256=data_sha256, data_status=data_status)
     #: append-only spirit: the five G2 records keep their order, new modules are appended
-    order = ("oil", "agri", "finance", "agentic", "world", "gas", "storage")
+    order = ("oil", "agri", "finance", "agentic", "world", "gas", "storage",
+             "institutions", "technology")
     registered = []
     for name in order:
         passport = passports[name]
@@ -302,8 +363,8 @@ def build_report(*, registry: Path = DEFAULT_REGISTRY, created_at: str = DEFAULT
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(
-        description="Register the modules (oil/agri/finance/agentic/world P2 0.2 + G5 gas/storage) "
-                    "in the module registry (append-only JSONL, RESEARCH_ONLY)")
+        description="Register the modules (oil/agri/finance/agentic/world P2 0.2, G5 gas/storage and "
+                    "world blocks 15/17) in the module registry (append-only JSONL, RESEARCH_ONLY)")
     parser.add_argument("--registry", default=str(DEFAULT_REGISTRY),
                         help="append-only module registry JSONL (default build/registry/modules.jsonl)")
     parser.add_argument("--out", default=None,

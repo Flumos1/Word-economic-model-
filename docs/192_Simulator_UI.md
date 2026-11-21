@@ -1,6 +1,7 @@
 # 192. Simulator UI MVP: локальное веб-демо сценариев AMFE
 
-Дата: 2026-11-19. Роль: `dense-vintages` (G5). Кейс: UC-48 «Simulator UI» из
+Дата: 2026-11-19 (обновлено 2026-11-21: сценарии блоков 15/17, 60 тестов). Роль: `dense-vintages`
+(G5). Кейс: UC-48 «Simulator UI» из
 [docs/174](174_50_кейсов_использования.md), оркестрация — [docs/175](175_Агентная_оркестрация_и_обучение.md).
 Код — [tools/simulator_ui.py](../tools/simulator_ui.py), тесты —
 [tests/test_simulator_ui.py](../tests/test_simulator_ui.py). Спецификация агентного слоя —
@@ -50,12 +51,19 @@ Invoke-WebRequest http://127.0.0.1:8090/api/run -Method Post -ContentType "appli
 | `hormuz_stress` | то же + стресс-надбавки `hormuz_us_impact` | то же плюс сланцевый слэт, потеря венесуэльской тяжёлой нефти, фрахт/страховка, обход, крек дизеля и авиакеросина | те же |
 | `gas_shock` | `amfe.markets.gas` (`gas.lng_eu`, сценарий `hard_winter_pipeline_shock_6m`) | TTF/JKM по месяцам, ПХГ, диверсия СПГ, арбитражный режим; проверки балансов | TTF (EUR/MWh), потеря трубопроводов (bcm/год), страна |
 | `geopolitics` | `tools/geopolitics_scenarios.py` (FIGARO MRIO) | изменение выпуска по странам и отраслям (сравнительная статика), асимметрия выгоды/ущерб | геополитический сценарий (15 из протокола), страна |
+| `institutions` | `amfe.world.institutions` (блок 15, docs/203) | композит 0–100 по шести измерениям, премия за риск (уровень + разброс), Δ инвестиций и Δ роста; профиль `EXAMPLE-*` — иллюстративный, страновой таблицы нет | профиль `EXAMPLE-LOW/MID/HIGH/POLARIZED`, сценарий `STATUS-QUO/REFORM/DETERIORATION/POLARIZATION`, масштаб сдвига, горизонт |
+| `technology` | `amfe.world.technology` (блок 17, docs/204) | логистическая диффузия по пяти отраслям → TFP → выпуск и энергия; разложение роста, энергоёмкость, отраслевая таблица | сценарий `baseline/ai_acceleration/ai_slowdown/energy_transition`, горизонт 10–15 лет |
 
 Параметры — это **параметры моделей**, а не «наши оценки»:
 
 - нефть: `base_price` (Brent) и `closure_share` (доля потерянного потока пролива);
 - газ: `ttf_price_eur_per_mwh` и `pipeline_loss_bcm_y`;
-- геополитика: id сценария из `protocols/geopolitics_scenarios.json`.
+- геополитика: id сценария из `protocols/geopolitics_scenarios.json`;
+- институты (блок 15): `profile` и `inst_scenario` — объявленные списки, `magnitude` (×0,25–3) и
+  `horizon` (1–10 лет); `country` к блоку неприменим (в нём нет страновых значений) и
+  игнорируется с пометкой в `parameters.notes`;
+- технологии (блок 17): `tech_scenario` из четырёх объявленных и `horizon` 10–15 лет (модуль
+  допускает 1–50, демо ограничено окном 10–15; путь прореживается до 12 точек).
 
 Геополитический сценарий по умолчанию читается из предрасчитанного отчёта
 `build/geopolitics/report.json` (FIGARO, 50 стран × 64 отрасли, SHA-256 артефакта попадает в
@@ -73,6 +81,12 @@ Invoke-WebRequest http://127.0.0.1:8090/api/run -Method Post -ContentType "appli
 | `shock` (газ) | 0…150 bcm/год | 400 `PARAM_OUT_OF_RANGE` |
 | `country` | 2–3 латинские буквы (`US`, `DE`, `UK`, `ROW`) | 400 `INVALID_COUNTRY` |
 | `geo_scenario` | id из протокола/артефакта | 400 `UNKNOWN_SCENARIO` / `INVALID_SCENARIO_ID` |
+| `profile` (институты) | `EXAMPLE-LOW/MID/HIGH/POLARIZED` | 400 `INVALID_CHOICE` + список `allowed` |
+| `inst_scenario` | `STATUS-QUO/REFORM/DETERIORATION/POLARIZATION` | 400 `INVALID_CHOICE` |
+| `tech_scenario` | `baseline/ai_acceleration/ai_slowdown/energy_transition` | 400 `INVALID_CHOICE` |
+| `magnitude` (институты) | 0,25…3,0 | 400 `PARAM_OUT_OF_RANGE` |
+| `horizon` (институты) | 1…10, целое | 400 `PARAM_OUT_OF_RANGE` / `INVALID_PARAM` |
+| `horizon` (технологии) | 10…15, целое | 400 `PARAM_OUT_OF_RANGE` / `INVALID_PARAM` |
 
 Также отказывают: неизвестный сценарий (400 `UNKNOWN_SCENARIO`), нечисловое/`null`/`NaN`
 значение (400 `INVALID_PARAM`), пустое или битое тело (400 `EMPTY_BODY` / `INVALID_JSON` /
@@ -135,7 +149,9 @@ Invoke-WebRequest http://127.0.0.1:8090/api/run -Method Post -ContentType "appli
 
 - **Карточки**: пик Brent, пик бензина и дизеля, вклад в CPI (п.п.), расходы домохозяйства
   (USD/мес), иллюстративный соцриск; для газа — TTF/JKM, ПХГ, диверсия; для геополитики —
-  Δвыпуска, страна, крупнейший эффект.
+  Δвыпуска, страна, крупнейший эффект; для институтов — композит, Δ композита, премия и её
+  Δ, Δ инвестиций и Δ роста; для технологий — внедрение, TFP, выпуск, энергия, энергоёмкость и
+  вклад TFP.
 - **График**: инлайновый SVG, строится в браузере (`createElementNS`), без библиотек: линии по
   месяцам, для геополитики — горизонтальные бары топ-10 стран.
 - **Таблица**: месяцы × (Brent, бензин, дизель, CPI, домохозяйство) или TTF/JKM/спред; для
@@ -315,17 +331,28 @@ curl.exe -s http://127.0.0.1:8090/api/health          # без ключа
 ## 10. Тесты
 
 ```powershell
-python tests/test_simulator_ui.py     # 48 тестов, ~2.0 с
+python tests/test_simulator_ui.py     # 60 тестов, ~3 с
 ```
 
-Покрыто: контракт `/api/health` и `/api/scenarios`; четыре сценария (карточки, пути, таблицы,
-отраслевые эффекты, страна); статус `RESEARCH_ONLY` / `admission=false` / `causal_claim=false`;
-детерминизм и digest (в т.ч. смена digest при смене параметра); чувствительность (Brent ↑ → бензин
-↑, шок ↓ → пик Brent ↓); отказы (неизвестный сценарий/страна/сценарий геополитики, диапазоны,
-`NaN`, `null`, `bool`, битый и пустой JSON, тело > 64 КБ, неверный метод/путь); «no raw» и
-отсутствие путей/URL; HTML-страница (кнопка «Рассчитать», «не прогноз», нет `<script src=` и CDN,
-только namespace SVG); живой `http.server` (200/400/404/204/HEAD, `Allow`, CSP, `no-store`);
-поведение без артефакта (синтетический пересчёт и строгий режим 503).
+Покрыто: контракт `/api/health` и `/api/scenarios`; шесть сценариев (карточки, пути, таблицы,
+отраслевые эффекты, страна, выбор профиля/сценария у блоков 15/17); статус `RESEARCH_ONLY` /
+`admission=false` / `causal_claim=false`; детерминизм и digest (в т.ч. смена digest при смене
+параметра); чувствительность (Brent ↑ → бензин ↑, шок ↓ → пик Brent ↓); отказы (неизвестный
+сценарий/страна/сценарий геополитики, диапазоны, `NaN`, `null`, `bool`, битый и пустой JSON, тело
+> 64 КБ, неверный метод/путь); «no raw» и отсутствие путей/URL; HTML-страница (кнопка
+«Рассчитать», «не прогноз», нет `<script src=` и CDN, только namespace SVG); живой `http.server`
+(200/400/404/204/HEAD, `Allow`, CSP, `no-store`); поведение без артефакта (синтетический пересчёт
+и строгий режим 503).
+
+Блоки 15/17 (12 тестов): контракт `institutions` (композит EXAMPLE-MID 51,5, шесть карточек, путь
+по годам, бар-чарт индикаторов, `modifier.gating=false`), знаки REFORM/DETERIORATION/POLARIZATION
+(поляризация теряет меньше композита, но премия положительна), контракт `technology` (пять
+отраслей, горизонт 15, прореженный путь ≤ 12 точек, `NOT_CALIBRATED`), порядок сценариев
+(ускорение > база > замедление; энергопереход даёт меньше энергии), диапазон горизонта 10–15 и
+отказы 9/16/0/дробных, `INVALID_CHOICE` для профиля/сценария, `no raw`/`RESEARCH_ONLY`/
+`admission=false`, детерминизм digest, choices в health/`/api/scenarios`, пометка об
+игнорировании `country`, сохранение auth (401/403/200 `X-Plan`/`X-RateLimit-*`), валидация
+`magnitude`/`horizon` (bool/null/NaN/дробное/вне диапазона).
 
 Аутентификация/квоты (21 тест): 401 без ключа/неверный ключ/неверная схема + `WWW-Authenticate`;
 `X-API-Key` и `Bearer` дают один и тот же digest; 403 `PLAN_FORBIDDEN` для `free`-тарифа на
@@ -349,3 +376,34 @@ python tests/test_simulator_ui.py     # 48 тестов, ~2.0 с
   роли и Definition of Done;
 - [183](183_Forecast_API_шлюз.md) — живой шлюз (продолжение демо для пилота);
 - `tools/simulator_ui.py`, `tests/test_simulator_ui.py` — первоисточники этого документа.
+
+## 12. Блоки 15/17 в демо (2026-11-21)
+
+Добавлены два сценария, которые вызывают **существующие** прототипы блоков и показывают их в том
+же окне, что и рыночные сценарии: `institutions` (`amfe.world.institutions`, docs/203) и
+`technology` (`amfe.world.technology`, docs/204). `TOOL_VERSION` — `1.2.0`; схема `amfe.simulator.ui.v1`
+не менялась (новые поля аддитивны).
+
+| Что | `institutions` | `technology` |
+|---|---|---|
+| Вход | `profile` (EXAMPLE-*), `inst_scenario` (4), `magnitude` 0,25–3, `horizon` 1–10 | `tech_scenario` (4), `horizon` 10–15 |
+| Выход | 6 карточек (композит, Δ композита, премия и Δ, Δ инвестиций, Δ роста), линия премии по годам, бар-чарт шести измерений, таблица оверлея, `details.modifier` | 6 карточек (внедрение, TFP, выпуск, энергия, энергоёмкость, вклад TFP), два линейных графика, таблица агрегата, отраслевая таблица (5 отраслей) |
+| Чего нет (честно) | `prices/cpi.available=false`, `sectors.available=false`, `country.available=false` — страновой таблицы в блоке нет | `prices/cpi/risk.available=false`, `country.available=false` — блок отраслевой, не страновой |
+| Статус | `RESEARCH_ONLY`, `admission=false`, `causal_claim=false`, `not_calibrated=true` | то же |
+
+Контракт ответа не менялся: `assumptions` (A1–A10 / 42 допущения), `checks` (все `true`,
+включая `aggregate_only`, `path_years`, `horizon_in_ui_range`), `limitations`, `digest`.
+Fail-closed: неизвестный профиль/сценарий — 400 `INVALID_CHOICE` со списком `allowed`; значение
+вне диапазона — 400 `PARAM_OUT_OF_RANGE`; дробный/`NaN`/`bool` горизонт — 400 `INVALID_PARAM`;
+недоступный модуль — 503 `MODULE_UNAVAILABLE`. `country` для этих блоков игнорируется с пометкой,
+а не подставляется молча. Auth/quota/health не менялись: `health.checks` получил
+`institutions_module`/`technology_module`, а `/api/run` для новых id проходит те же 401/403/429.
+
+Короткая проверка демо:
+
+```powershell
+python tools/simulator_ui.py --check        # institutions_module / technology_module = true
+python tools/simulator_ui.py                # в форме — 6 сценариев, у блоков свои селекты
+Invoke-RestMethod http://127.0.0.1:8090/api/run -Method Post -ContentType "application/json" `
+  -Body '{"scenario":"institutions","inst_scenario":"polarization","profile":"EXAMPLE-MID"}'
+```

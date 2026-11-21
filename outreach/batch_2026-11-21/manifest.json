@@ -1,0 +1,66 @@
+{
+  "schema": "amfe.outreach.batch.v1",
+  "batch_id": "batch_2026-11-21",
+  "created": "2026-11-21",
+  "status": {
+    "sent": false,
+    "stage": "DRAFT",
+    "channel": "none",
+    "verified_contacts": 0,
+    "reason": "No mailbox/channel and no verified addresses: sending is human-only."
+  },
+  "model_status": "RESEARCH_ONLY",
+  "admission": false,
+  "files": [
+    {
+      "path": "crm_update.md",
+      "sha256": "d9a4c512bebac854b6ba94308b38edac582cb3fa32a907d74ebf38aff9121765",
+      "bytes": 7314
+    },
+    {
+      "path": "followup_legat_2026-11-27.eml",
+      "sha256": "b8a5c5d3fce930bdad0764b389512ff0d9801aafc1bc54b6cfd62406b31908d9",
+      "bytes": 1412
+    },
+    {
+      "path": "followup_legat_2026-11-27.md",
+      "sha256": "46b1a3bdc74cc8359c265e2987354b1145f7fe19989532418716c282d9a8b167",
+      "bytes": 3404
+    },
+    {
+      "path": "pilot_offer_gazpromneft.docx",
+      "sha256": "60696289d9c5ea47e4f5e8bb4ab6808baf02342367918fe7cb5bb59d45f56587",
+      "bytes": 40277
+    },
+    {
+      "path": "pilot_offer_gazpromneft.pdf",
+      "sha256": "af9df4f77b5de06e0123a8a0a29d481184dc03af65d17dcd00b67321200afaf5",
+      "bytes": 157246
+    },
+    {
+      "path": "pilot_offer_taneco.docx",
+      "sha256": "829fc722765b83e7059eaf1d17eceeb1763fbcb2624f037c6133a5a23a78d14b",
+      "bytes": 40344
+    },
+    {
+      "path": "pilot_offer_taneco.pdf",
+      "sha256": "e3d7eb937de48351090539a1de37a802189c076499245edb2534001eb43ddd36",
+      "bytes": 153213
+    },
+    {
+      "path": "pilot_offer_tatneft.docx",
+      "sha256": "5410170dc049fa83991658db42655f4b3fef380ddda415193d595f9a98852736",
+      "bytes": 40373
+    },
+    {
+      "path": "pilot_offer_tatneft.pdf",
+      "sha256": "7e2e2df418c93774237d371a9f0c8c9a7271a10060ef39b92e6c314b5783c295",
+      "bytes": 157866
+    },
+    {
+      "path": "send_plan.md",
+      "sha256": "02d59f19d0d7ec2bb63be2a17bd046443eca6f3ee42e60f1414c605bbe1f045a",
+      "bytes": 9331
+    }
+  ]
+}

@@ -14,7 +14,17 @@ and returns **aggregates only**:
 * ``gas_shock`` — ``amfe.markets.gas`` (``gas.lng_eu``): TTF/JKM paths, storage, LNG diversion;
 * ``geopolitics`` — the MRIO geopolitics scenario report (``tools/geopolitics_scenarios.py``), read
   from ``build/geopolitics/report.json`` when it exists, otherwise recomputed on the declared
-  synthetic fixture (``--geopolitics synthetic``).
+  synthetic fixture (``--geopolitics synthetic``);
+* ``institutions`` — block 15 (``amfe.world.institutions``): the declared
+  STATUS-QUO/REFORM/DETERIORATION/POLARIZATION overlay of six governance dimensions on an
+  illustrative ``EXAMPLE-*`` profile, giving a 0-100 composite, a risk premium in bps and the
+  investment/growth channels.  There is no country table: a profile is a geometric example;
+* ``technology`` — block 17 (``amfe.world.technology``): logistic adoption → growth accounting
+  (TFP, capital, labour) → output and energy over five aggregate sectors, with the declared
+  baseline/ai_acceleration/ai_slowdown/energy_transition scenarios and a 10-15 year horizon.
+
+Both block scenarios compute **only** arithmetic on declared assumptions: they are scenario
+deformations, not forecasts, probabilities or causal estimates.
 
 Design rules (the same ones the rest of the project uses)
 ---------------------------------------------------------
@@ -51,6 +61,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import hmac
+import importlib
 import json
 import logging
 import math
@@ -77,7 +88,7 @@ from amfe.markets.gas import build_report as build_gas_report  # noqa: E402
 import hormuz_us_impact as hormuz_impact  # noqa: E402
 
 SCHEMA = "amfe.simulator.ui.v1"
-TOOL_VERSION = "1.1.0"
+TOOL_VERSION = "1.2.0"
 STATUS = "RESEARCH_ONLY"
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8090
@@ -415,6 +426,31 @@ SCENARIOS: tuple[dict, ...] = (
                    "объявленном направлении и пересчёт выпуска по странам и отраслям.",
         "params": ("country", "geo_scenario"),
     },
+    {
+        "id": "institutions",
+        "title": "Институты (блок 15): реформа, ухудшение, поляризация",
+        "family": "institutions",
+        "model": "amfe.world.institutions (M15, RESEARCH_ONLY)",
+        "model_scenario": "REFORM",
+        "stress": False,
+        "summary": "Оверлей объявленного сдвига шести измерений качества управления на "
+                   "иллюстративный профиль EXAMPLE-*: композит 0–100, премия за риск в б.п. "
+                   "(уровень и разброс), Δ инвестиций и Δ потенциального роста. Профили — "
+                   "геометрические примеры, а не страновые значения.",
+        "params": (),
+    },
+    {
+        "id": "technology",
+        "title": "Технологии и ИИ (блок 17): диффузия → TFP → выпуск и энергия",
+        "family": "technology",
+        "model": "amfe.world.technology (block 17, RESEARCH_ONLY)",
+        "model_scenario": "ai_acceleration",
+        "stress": False,
+        "summary": "Логистическая диффузия внедрения по пяти агрегированным отраслям, growth "
+                   "accounting (TFP, капитал, труд) и энергия; сценарии — объявленные деформации "
+                   "скорости, потолка, передачи в TFP и энергоэффективности, а не вероятности.",
+        "params": (),
+    },
 )
 SCENARIO_BY_ID = {spec["id"]: spec for spec in SCENARIOS}
 
@@ -435,6 +471,42 @@ PARAM_SPECS: dict[str, dict[str, dict]] = {
         "shock": {"label": "Потеря трубопроводов", "unit": "bcm/год", "min": 0.0, "max": 150.0,
                   "step": 5.0, "default": 45.0,
                   "help": "потеря трубопроводных поставок в ЕС (pipeline_loss_bcm_y)"},
+    },
+    "institutions": {
+        "magnitude": {"label": "Масштаб сдвига", "unit": "×", "min": 0.25, "max": 3.0,
+                      "step": 0.25, "default": 1.0,
+                      "help": "множитель объявленных сдвигов сценария (magnitude модуля 15)"},
+        "horizon": {"label": "Горизонт", "unit": "лет", "min": 1, "max": 10, "step": 1,
+                    "default": 5, "integer": True,
+                    "help": "годы оверлея: рампа сценария разворачивает эффект по годам"},
+    },
+    "technology": {
+        "horizon": {"label": "Горизонт", "unit": "лет", "min": 10, "max": 15, "step": 1,
+                    "default": 15, "integer": True,
+                    "help": "годы диффузии и growth accounting (модуль допускает 1–50 лет)"},
+    },
+}
+
+#: Illustrative institution profiles and the four declared institution scenarios (block 15).
+INSTITUTION_PROFILES = ("EXAMPLE-LOW", "EXAMPLE-MID", "EXAMPLE-HIGH", "EXAMPLE-POLARIZED")
+INSTITUTION_SCENARIOS = ("STATUS-QUO", "REFORM", "DETERIORATION", "POLARIZATION")
+#: The four declared technology scenarios (block 17).
+TECHNOLOGY_SCENARIOS = ("baseline", "ai_acceleration", "ai_slowdown", "energy_transition")
+
+#: Enumerated parameters per family: fixed option lists validated fail-closed.
+CHOICE_SPECS: dict[str, dict[str, dict]] = {
+    "institutions": {
+        "profile": {"label": "Профиль институтов", "options": INSTITUTION_PROFILES,
+                    "default": "EXAMPLE-MID",
+                    "help": "EXAMPLE-* — иллюстративные профили, не страны и не измерения"},
+        "inst_scenario": {"label": "Сценарий институтов", "options": INSTITUTION_SCENARIOS,
+                          "default": "REFORM",
+                          "help": "объявленный сдвиг шести измерений; не прогноз и не вероятность"},
+    },
+    "technology": {
+        "tech_scenario": {"label": "Технологический сценарий",
+                          "options": TECHNOLOGY_SCENARIOS, "default": "ai_acceleration",
+                          "help": "объявленные деформации параметров диффузии, а не вероятности"},
     },
 }
 COUNTRY_DEFAULT = {"oil": "US", "gas": "DE", "geopolitics": "US"}
@@ -466,6 +538,29 @@ GEOPOLITICS_LIMITATIONS = (
     "барьерные каналы реализованы как сокращение межстрановых коэффициентов; физические мощности, "
     "фрахт и запасы не моделируются",
     "направление — знак агрегированного изменения выпуска, а не оценка благосостояния",
+)
+INSTITUTIONS_LIMITATIONS = (
+    "блок 15 — RESEARCH_ONLY и не калиброван: шесть индикаторов, веса, сдвиги и эластичности — "
+    "объявленные допущения (A1–A10), а не данные",
+    "страновой таблицы нет: профили EXAMPLE-* иллюстративны; число не является рейтингом страны",
+    "композит — взвешенная сумма с равными весами; смена весов или эластичностей меняет уровень, "
+    "но не знаки (устойчивость не проверялась)",
+    "премия за риск — условная величина в б.п., а не суверенный спред и не доходность; "
+    "разброс между индикаторами — гипотеза A7, а не измеренная несогласованность правил",
+    "сценарий — «что если», а не прогноз: вероятности не оцениваются, причинность не "
+    "утверждается (gating=false, causal_claim=false)",
+)
+TECHNOLOGY_LIMITATIONS = (
+    "блок 17 — RESEARCH_ONLY и не калиброван: потолок, скорость, эластичность TFP и "
+    "энергопараметры — объявленные допущения, а не оценки",
+    "передача во TFP — гипотеза H-005 с постоянной эластичностью; числа не являются «вкладом ИИ» "
+    "и не переносятся на реальную экономику",
+    "рост капитала и труда экзогенны; инвестиционного решения, износа, рынка труда и обратной "
+    "связи спроса нет",
+    "агрегат — взвешенное геометрическое среднее по пяти отраслям с фиксированными весами; "
+    "отраслевой точности и отраслевого моста в MRIO нет",
+    "энергия — арифметика поверх выпуска: нет энергобаланса, структуры топлива, цен и физических "
+    "пределов; сценарий не прогноз и не вероятность",
 )
 
 
@@ -537,7 +632,30 @@ def _coerce_number(name: str, raw: Any, spec: Mapping) -> float:
             "PARAM_OUT_OF_RANGE",
             f"параметр {name!r} вне диапазона {spec['min']}..{spec['max']} {spec['unit']}",
             {"param": name, "min": spec["min"], "max": spec["max"], "unit": spec["unit"]})
+    if spec.get("integer"):
+        rounded = int(round(value))
+        if abs(rounded - value) > 1e-9:
+            raise BadRequest("INVALID_PARAM", f"параметр {name!r} должен быть целым числом")
+        return rounded
     return _round(value, 6)
+
+
+def _coerce_choice(name: str, raw: Any, spec: Mapping) -> str:
+    """Validate an enumerated parameter against its declared option list (fail-closed)."""
+    options = tuple(spec["options"])
+    if raw is None or (isinstance(raw, str) and not raw.strip()):
+        return str(spec["default"])
+    if not isinstance(raw, str):
+        raise BadRequest("INVALID_CHOICE",
+                         f"параметр {name!r} должен быть строкой из {list(options)}",
+                         {"param": name, "allowed": list(options)})
+    value = raw.strip()
+    for option in options:
+        if option.lower() == value.lower():
+            return option
+    raise BadRequest("INVALID_CHOICE",
+                     f"неизвестное значение {raw!r} для параметра {name!r}",
+                     {"param": name, "allowed": list(options)})
 
 
 def _coerce_country(raw: Any, default: str) -> str:
@@ -571,6 +689,32 @@ def _card(key: str, label: str, value: Any, unit: str = "", note: str = "",
 
 def _series(values: list, digits: int = 2) -> list:
     return [_json_number(value, digits) for value in values]
+
+
+def _thin_indices(length: int, limit: int = MAX_PATH_POINTS) -> list[int]:
+    """Evenly spaced indices (first and last kept) so a path never exceeds ``limit`` points."""
+    if length <= limit:
+        return list(range(length))
+    step = (length - 1) / float(limit - 1)
+    return sorted({int(round(index * step)) for index in range(limit)})
+
+
+def _module_present(name: str) -> bool:
+    """Import a block module without raising: health must stay readable when it is absent."""
+    try:
+        importlib.import_module(name)
+        return True
+    except Exception:  # pragma: no cover - environmental failure only
+        return False
+
+
+def _require_module(name: str, label: str):
+    """Import a block module fail-closed: a missing module is a 503, never a silent empty block."""
+    try:
+        return importlib.import_module(name)
+    except Exception as error:  # pragma: no cover - environmental failure only
+        raise Unavailable("MODULE_UNAVAILABLE",
+                          f"{label}: модуль недоступен ({type(error).__name__})") from None
 
 
 @dataclass(frozen=True)
@@ -629,6 +773,8 @@ class SimulatorApp:
             "checks": {
                 "oil_module": True,
                 "gas_module": True,
+                "institutions_module": _module_present("amfe.world.institutions"),
+                "technology_module": _module_present("amfe.world.technology"),
                 "geopolitics_artifact": bool(artifact),
                 "aggregate_only": True,
                 "deterministic": True,
@@ -663,6 +809,10 @@ class SimulatorApp:
             body = self._run_oil(spec, params)
         elif family == "gas":
             body = self._run_gas(spec, params)
+        elif family == "institutions":
+            body = self._run_institutions(spec, params)
+        elif family == "technology":
+            body = self._run_technology(spec, params)
         else:
             body = self._run_geopolitics(spec, params)
         return self._finalize(spec, params, body)
@@ -700,8 +850,13 @@ class SimulatorApp:
     def _scenario_description(self, spec: Mapping) -> dict:
         family = spec["family"]
         numeric = PARAM_SPECS.get(family, {})
+        choices = CHOICE_SPECS.get(family, {})
         defaults = {name: float(item["default"]) for name, item in numeric.items()}
-        defaults.setdefault("country", COUNTRY_DEFAULT[family])
+        for name, item in choices.items():
+            defaults[name] = item["default"]
+        country_default = COUNTRY_DEFAULT.get(family)
+        if country_default:
+            defaults.setdefault("country", country_default)
         if family == "geopolitics":
             defaults.setdefault("geo_scenario", spec["model_scenario"])
         return {
@@ -712,24 +867,46 @@ class SimulatorApp:
             "model_scenario": spec["model_scenario"],
             "summary": spec["summary"],
             "params": {name: dict(value) for name, value in numeric.items()},
+            "choices": {name: {"label": item["label"], "options": list(item["options"]),
+                               "default": item["default"], "help": item["help"]}
+                        for name, item in choices.items()},
             "defaults": defaults,
-            "country_default": COUNTRY_DEFAULT[family],
+            "country_default": country_default,
         }
 
     def _validated_params(self, spec: Mapping, payload: Mapping) -> dict:
         family = spec["family"]
         numeric = PARAM_SPECS.get(family, {})
+        choices = CHOICE_SPECS.get(family, {})
         params: dict[str, Any] = {"applied": {}, "notes": []}
         for name, param_spec in numeric.items():
             raw = payload.get(name, param_spec["default"])
             params[name] = _coerce_number(name, raw, param_spec)
+        for name, choice_spec in choices.items():
+            params[name] = _coerce_choice(name, payload.get(name), choice_spec)
         if family == "oil":
             params["applied"] = {"base_price": params["price"],
                                  "closure_share": _round(params["shock"] / 100.0, 6)}
         elif family == "gas":
             params["applied"] = {"ttf_price_eur_per_mwh": params["price"],
                                  "pipeline_loss_bcm_y": params["shock"]}
-        params["country"] = _coerce_country(payload.get("country"), COUNTRY_DEFAULT[family])
+        elif family == "institutions":
+            params["applied"] = {"magnitude": float(params["magnitude"]),
+                                 "horizon_years": int(params["horizon"]),
+                                 "profile": params["profile"],
+                                 "scenario_id": params["inst_scenario"]}
+        elif family == "technology":
+            params["applied"] = {"horizon_years": int(params["horizon"]),
+                                 "scenario_id": params["tech_scenario"]}
+        country_default = COUNTRY_DEFAULT.get(family)
+        if country_default:
+            params["country"] = _coerce_country(payload.get("country"), country_default)
+        else:
+            ignored_country = payload.get("country")
+            if ignored_country not in (None, ""):
+                params["notes"].append(
+                    "параметр country неприменим к этому блоку и проигнорирован: страновых "
+                    "значений в нём нет")
         if family == "geopolitics":
             params["geo_scenario"] = _coerce_scenario_id(payload.get("geo_scenario"),
                                                          spec["model_scenario"])
@@ -759,7 +936,7 @@ class SimulatorApp:
             },
             "parameters": {
                 "scenario": spec["id"],
-                "country": params["country"],
+                "country": params.get("country"),
                 "geo_scenario": params.get("geo_scenario"),
                 "values": {name: params[name] for name in PARAM_SPECS.get(spec["family"], {})},
                 "applied": params.get("applied", {}),
@@ -1171,6 +1348,378 @@ class SimulatorApp:
                 "models": ["amfe.markets.gas (gas.lng_eu)"],
                 "module_id": report.get("module", {}).get("module_id", "gas.lng_eu"),
                 "identity": "TTF/JKM/ПХГ — выход модуля газа на объявленных допущениях",
+                "dataset": "declared assumptions only (no third-party data is read)",
+            },
+        }
+
+    # -- institutions family (block 15) -----------------------------------------------------
+    def _run_institutions(self, spec: Mapping, params: Mapping) -> dict:
+        module = _require_module("amfe.world.institutions", "блок 15")
+        horizon = int(params["horizon"])
+        magnitude = float(params["magnitude"])
+        try:
+            profile = module.find_example_profile(params["profile"])
+            declared = {item.scenario_id: item for item in module.default_scenarios()}
+            base_scenario = declared[params["inst_scenario"]]
+            scenario = module.InstitutionScenario(
+                scenario_id=base_scenario.scenario_id,
+                title_ru=base_scenario.title_ru,
+                kind=base_scenario.kind,
+                deltas=dict(base_scenario.deltas),
+                magnitude=magnitude,
+                ramp_years=base_scenario.ramp_years,
+                notes=base_scenario.notes)
+            parameters = module.OverlayParameters(horizon_years=horizon)
+            report = module.scenario_overlay(profile, scenario, parameters)
+            modifier = module.as_scenario_modifier(report)
+        except module.InstitutionError as error:
+            raise BadRequest("MODEL_INPUT", f"блок 15 отклонил вход: {error}") from None
+        except Exception as error:  # pragma: no cover - defensive
+            raise Unavailable("MODEL_FAILED",
+                              f"блок 15 отказал: {type(error).__name__}") from None
+
+        profile_block = report["profile"]
+        overlay = report["overlay"]
+        base = overlay["base"]
+        full = overlay["full_effect"]
+        path = list(overlay["path"])
+        premium = full["risk_premium"]
+        indicator_labels = [item["key"] for item in profile_block["indicator_metadata"]]
+        indicator_values = [profile_block["indicators"][key] for key in indicator_labels]
+        labels = [f"Г{row['year']}" for row in path]
+        cards = [
+            _card("score_base", "Композит, база", _round(profile_block["score"], 2), "из 100",
+                  f"разброс {profile_block['dispersion']:.2f}; профиль "
+                  f"{profile_block['name']}", emphasis=True),
+            _card("delta_score", "Δ композита", _round(full["delta_score_points"], 2), "пункты",
+                  f"запрошено {full['requested_delta_points']:.2f}; рампа "
+                  f"{overlay['ramp_years']} лет", emphasis=True),
+            _card("premium_delta", "Δ премии за риск", _round(premium["delta_bps"], 1), "б.п.",
+                  f"уровень {premium['score_component_bps']:.1f} + разброс "
+                  f"{premium['dispersion_component_bps']:.1f}", emphasis=True),
+            _card("premium_level", "Премия, уровень", _round(premium["level_bps"], 1), "б.п.",
+                  f"база {premium['base_bps']:.0f}; потолок {premium['cap_bps']:.0f}"),
+            _card("investment_delta", "Δ инвестиций", _round(full["investment"]["delta_pp"], 3),
+                  "п.п. ВВП", f"эластичность {full['investment']['elasticity_pp_per_point']:.2f} "
+                             "п.п. на пункт", emphasis=True),
+            _card("growth_delta", "Δ роста", _round(full["growth"]["delta_pp"], 3), "п.п.",
+                  "потенциального роста, а не факта"),
+        ]
+        charts = [
+            {"kind": "line", "title": "Премия за риск по годам", "unit": "б.п.",
+             "labels": labels,
+             "lines": [{"label": "Премия",
+                        "values": _series([row["risk_premium_bps"] for row in path], 2)}]},
+            {"kind": "bar", "title": "Шесть измерений профиля", "unit": "0–100",
+             "labels": indicator_labels,
+             "lines": [{"label": "Профиль", "values": _series(indicator_values, 2)}]},
+        ]
+        table = {
+            "title": "Оверлей по годам (профиль × сценарий)",
+            "columns": [
+                {"key": "year", "label": "Год", "unit": "", "digits": 0},
+                {"key": "ramp", "label": "Рампа", "unit": "", "digits": 2},
+                {"key": "score", "label": "Композит", "unit": "0–100", "digits": 2},
+                {"key": "premium", "label": "Премия", "unit": "б.п.", "digits": 1},
+                {"key": "investment", "label": "Инвестиции", "unit": "доля ВВП", "digits": 4},
+                {"key": "growth", "label": "Δ роста", "unit": "п.п.", "digits": 3},
+            ],
+            "rows": [
+                {"year": row["year"], "ramp": _round(row["ramp"], 2),
+                 "score": _round(row["score"], 2),
+                 "premium": _round(row["risk_premium_bps"], 1),
+                 "investment": _round(row["investment_ratio"], 4),
+                 "growth": _round(row["delta_growth_pp"], 3)}
+                for row in path
+            ],
+            "note": ("рампа — r_t=min(1,t/ramp_years); полный эффект — последняя строка; "
+                     "числа — арифметика на объявленных допущениях"),
+        }
+        details = {
+            "institutions_module": {
+                "module": "amfe.world.institutions",
+                "profile": profile_block["name"],
+                "profile_source": profile_block["source"],
+                "profile_note": profile_block["note"],
+                "score": _round(profile_block["score"], 4),
+                "dispersion": _round(profile_block["dispersion"], 4),
+                "dimensions": {name: _round(value, 4)
+                               for name, value in profile_block["dimensions"].items()},
+                "parameters": {
+                    "base_risk_premium_bps": _round(report["parameters"]["base_risk_premium_bps"], 2),
+                    "beta_bps_per_point": _round(report["parameters"]["beta_bps_per_point"], 2),
+                    "gamma_bps_per_point_dispersion":
+                        _round(report["parameters"]["gamma_bps_per_point_dispersion"], 2),
+                    "premium_cap_bps": _round(report["parameters"]["premium_cap_bps"], 2),
+                    "base_investment_ratio":
+                        _round(report["parameters"]["base_investment_ratio"], 4),
+                    "elasticity_investment_pp_per_point":
+                        _round(report["parameters"]["elasticity_investment_pp_per_point"], 4),
+                    "elasticity_growth_pp_per_point":
+                        _round(report["parameters"]["elasticity_growth_pp_per_point"], 4),
+                    "horizon_years": report["parameters"]["horizon_years"],
+                },
+                "modifier": {
+                    "risk_premium_bps": _round(modifier["risk_premium_bps"], 2),
+                    "investment_delta_pp": _round(modifier["investment_delta_pp"], 4),
+                    "growth_delta_pp": _round(modifier["growth_delta_pp"], 4),
+                    "applies_to": list(modifier["applies_to"]),
+                    "gating": modifier["gating"],
+                },
+                "data_status": report["data_status"],
+                "not_calibrated": report["not_calibrated"],
+                "ramp_years": overlay["ramp_years"],
+                "converged": overlay["converged"],
+            },
+            "overlay_note": ("институты — модификатор сценариев, а не модель страны: три канала "
+                             "(премия, инвестиции, рост) при допущениях A1–A10"),
+        }
+        checks = {
+            "score_bounds": bool(report["checks"]["score_bounds"]),
+            "indicator_bounds": bool(report["checks"]["indicator_bounds"]),
+            "weights_normalised": bool(report["checks"]["weights_normalised"]),
+            "premium_non_negative": bool(report["checks"]["premium_non_negative"]),
+            "investment_bounds": bool(report["checks"]["investment_bounds"]),
+            "path_monotone_ramp": bool(report["checks"]["path_monotone_ramp"]),
+            "no_raw_data": bool(report["checks"]["no_raw_data"]),
+            "path_years": len(path) <= MAX_PATH_POINTS,
+            "aggregate_only": True,
+        }
+        return {
+            "model_scenario": report["scenario"]["scenario_id"],
+            "model_digest": report["digest"],
+            "cards": cards,
+            "prices": {
+                "available": False,
+                "note": "блок 15 не считает цены: только композит, премия и макро-каналы",
+            },
+            "cpi": {
+                "available": False,
+                "note": "CPI в блоке 15 не считается; премия — не инфляция",
+            },
+            "risk": {
+                "available": True,
+                "score_0_100": _round(min(100.0, max(0.0, premium["level_bps"] / 20.0)), 2),
+                "band": ("low" if premium["level_bps"] < 200.0 else
+                         "elevated" if premium["level_bps"] < 600.0 else
+                         "high" if premium["level_bps"] < 1200.0 else "severe"),
+                "reasons": [f"Δ премии {premium['delta_bps']:+.1f} б.п.",
+                            f"Δ разброса {full['delta_dispersion']:+.2f} пункта"],
+                "note": ("условная шкала для отображения: премия/20, а не вероятность и не "
+                         "суверенный спред"),
+                "source": "amfe.world.institutions (масштабирование для UI)",
+            },
+            "charts": charts,
+            "table": table,
+            "sectors": {
+                "available": False,
+                "rows": [],
+                "note": "отраслевого разреза в блоке 15 нет: три макро-канала, а не отрасли",
+            },
+            "country": {
+                "available": False,
+                "code": None,
+                "name": "—",
+                "note": ("страновой таблицы в блоке 15 нет: профили EXAMPLE-* иллюстративны; "
+                         "блок не отвечает «какие институты в стране X»"),
+                "rows": [],
+            },
+            "details": details,
+            "checks": checks,
+            "assumptions": {
+                "count": len(report["assumptions"]),
+                "items": [{"name": item["id"], "value": item["statement"],
+                           "unit": item["kind"], "source_class": item["kind"]}
+                          for item in report["assumptions"][:20]],
+            },
+            "limitations": list(INSTITUTIONS_LIMITATIONS),
+            "provenance": {
+                "models": ["amfe.world.institutions (block 15, M15)"],
+                "module_id": "world.institutions",
+                "identity": ("профиль EXAMPLE-* + объявленный сдвиг шести измерений; "
+                             "не страновые значения и не результат измерения"),
+                "dataset": "declared assumptions only (no third-party data is read)",
+            },
+        }
+
+    # -- technology family (block 17) -------------------------------------------------------
+    def _run_technology(self, spec: Mapping, params: Mapping) -> dict:
+        module = _require_module("amfe.world.technology", "блок 17")
+        horizon = int(params["horizon"])
+        scenario_id = params["tech_scenario"]
+        try:
+            report = module.build_report([scenario_id], None, horizon_years=horizon)
+        except module.TechnologyError as error:
+            raise BadRequest("MODEL_INPUT", f"блок 17 отклонил вход: {error}") from None
+        except Exception as error:  # pragma: no cover - defensive
+            raise Unavailable("MODEL_FAILED",
+                              f"блок 17 отказал: {type(error).__name__}") from None
+        scenario = (report.get("scenarios") or [None])[0]
+        if not scenario or not scenario.get("aggregate"):
+            raise Unavailable("MODEL_FAILED", "блок 17 вернул пустой агрегат")
+        aggregate = scenario["aggregate"]
+        horizon_block = aggregate["horizon"]
+        contributions = horizon_block["contributions_log"]
+        paths = aggregate["paths"]
+        indices = _thin_indices(len(paths["adoption"]))
+        labels = [f"Г{index}" for index in indices]
+        thinned = {name: [paths[name][index] for index in indices] for name in paths}
+        sector_order = [sector for sector in report.get("sectors") or []]
+        sectors = scenario.get("sectors") or {}
+        row_order = [sector for sector in sector_order if sector in sectors]
+        cards = [
+            _card("adoption", "Внедрение, конец", _round(horizon_block["adoption"], 3), "доля",
+                  f"{scenario['title_ru']}; горизонт {horizon} лет", emphasis=True),
+            _card("tfp", "TFP, прирост", _round(horizon_block["tfp_gain_pct"], 2), "%",
+                  "логарифмическое приближение, не оценка"),
+            _card("output", "Выпуск, прирост", _round(horizon_block["output_gain_pct"], 2), "%",
+                  "при постоянной отдаче и экзогенных K, L", emphasis=True),
+            _card("energy", "Энергия, изменение",
+                  _round(horizon_block["energy_change_pct"], 2), "%",
+                  "арифметика поверх выпуска"),
+            _card("energy_intensity", "Энергоёмкость",
+                  _round(horizon_block["energy_intensity_change_pct"], 2), "%",
+                  "энергия / выпуск", emphasis=True),
+            _card("tfp_share", "Вклад TFP", _round(contributions["tfp"], 4), "лог-п.",
+                  f"капитал {contributions['capital']:.4f} · труд "
+                  f"{contributions['labour']:.4f}"),
+        ]
+        charts = [
+            {"kind": "line", "title": "Внедрение, TFP, выпуск, энергия (× к базе)",
+             "unit": "× к базе", "labels": labels,
+             "lines": [
+                 {"label": "Внедрение",
+                  "values": _series(thinned["adoption"], 3)},
+                 {"label": "TFP", "values": _series(thinned["tfp_ratio"], 3)},
+                 {"label": "Выпуск", "values": _series(thinned["output_ratio"], 3)},
+                 {"label": "Энергия", "values": _series(thinned["energy_ratio"], 3)},
+             ]},
+            {"kind": "line", "title": "Энергоёмкость (× к базе)", "unit": "× к базе",
+             "labels": labels,
+             "lines": [{"label": "Энергоёмкость",
+                        "values": _series(thinned["energy_intensity_ratio"], 3)}]},
+        ]
+        table = {
+            "title": "Агрегат по годам (× к базе)",
+            "columns": [
+                {"key": "year", "label": "Год", "unit": "", "digits": 0},
+                {"key": "adoption", "label": "Внедрение", "unit": "доля", "digits": 3},
+                {"key": "tfp", "label": "TFP", "unit": "×", "digits": 3},
+                {"key": "output", "label": "Выпуск", "unit": "×", "digits": 3},
+                {"key": "energy", "label": "Энергия", "unit": "×", "digits": 3},
+            ],
+            "rows": [
+                {"year": index,
+                 "adoption": _round(paths["adoption"][index], 3),
+                 "tfp": _round(paths["tfp_ratio"][index], 3),
+                 "output": _round(paths["output_ratio"][index], 3),
+                 "energy": _round(paths["energy_ratio"][index], 3)}
+                for index in indices
+            ],
+            "note": ("путь прорежен до 12 точек (первый и последний сохранены); полный путь — "
+                     "в отчёте модуля, а не в демо"),
+        }
+        sector_rows = []
+        for sector in row_order:
+            item = sectors[sector]
+            block = item["horizon"]
+            sector_rows.append({
+                "sector": item["title_ru"],
+                "adoption": _round(block["adoption"], 3),
+                "tfp": _round(block["tfp_gain_pct"], 2),
+                "output": _round(block["output_gain_pct"], 2),
+                "energy": _round(block["energy_change_pct"], 2),
+            })
+        details = {
+            "technology_module": {
+                "module": report["module"]["module_id"],
+                "version": report["module"]["version"],
+                "block": report["block"],
+                "data_class": report["data_class"],
+                "calibration": report["calibration"],
+                "horizon_years": report["horizon_years"],
+                "growth": report["growth"],
+                "sectors": list(report.get("sectors") or []),
+                "scenario_parameters": scenario["parameters"],
+                "aggregate": {
+                    "adoption": _round(horizon_block["adoption"], 4),
+                    "delta_adoption": _round(horizon_block["delta_adoption"], 4),
+                    "tfp_gain_pct": _round(horizon_block["tfp_gain_pct"], 3),
+                    "output_gain_pct": _round(horizon_block["output_gain_pct"], 3),
+                    "energy_change_pct": _round(horizon_block["energy_change_pct"], 3),
+                    "energy_intensity_change_pct":
+                        _round(horizon_block["energy_intensity_change_pct"], 3),
+                    "contributions_log": {key: _round(value, 6)
+                                          for key, value in contributions.items()},
+                    "identity_residual": horizon_block["identity_residual"],
+                    "weights_renormalised": aggregate["weights_renormalised"],
+                },
+                "module_note": "логистика → growth accounting; сценарий — деформация, не вероятность",
+            },
+            "aggregate_note": aggregate["note"],
+        }
+        checks = {key: bool(value) for key, value in report["checks"].items()
+                  if isinstance(value, bool)}
+        checks.update({
+            "path_points": len(labels) <= MAX_PATH_POINTS,
+            "horizon_in_ui_range": 10 <= horizon <= 15,
+            "no_raw_series": bool(report["checks"].get("no_raw_series", True)),
+            "aggregate_only": True,
+        })
+        return {
+            "model_scenario": scenario_id,
+            "model_digest": report["digest"],
+            "cards": cards,
+            "prices": {
+                "available": False,
+                "note": "блок 17 не считает цены: диффузия → TFP → выпуск/энергия",
+            },
+            "cpi": {
+                "available": False,
+                "note": "CPI в блоке 17 не считается; это не прогноз инфляции",
+            },
+            "risk": {
+                "available": False,
+                "note": ("индекса риска в блоке 17 нет; смотрите тождество growth accounting "
+                         "и разложение вкладов"),
+            },
+            "charts": charts,
+            "table": table,
+            "sectors": {
+                "available": bool(sector_rows),
+                "basis": "пять агрегированных отраслей; рост внедрения → TFP → выпуск/энергия",
+                "columns": [
+                    {"key": "sector", "label": "Отрасль", "unit": ""},
+                    {"key": "adoption", "label": "Внедрение", "unit": "доля", "digits": 3},
+                    {"key": "tfp", "label": "TFP", "unit": "%", "digits": 2},
+                    {"key": "output", "label": "Выпуск", "unit": "%", "digits": 2},
+                    {"key": "energy", "label": "Энергия", "unit": "%", "digits": 2},
+                ],
+                "rows": sector_rows,
+                "note": ("отраслевые числа — те же допущения, что и агрегат; отраслевого моста "
+                         "в MRIO нет"),
+            },
+            "country": {
+                "available": False,
+                "code": None,
+                "name": "—",
+                "note": "странового разреза в блоке 17 нет: агрегированные отрасли, не страны",
+                "rows": [],
+            },
+            "details": details,
+            "checks": checks,
+            "assumptions": {
+                "count": len(report["assumptions"]),
+                "items": [{"name": item.get("name"), "value": item.get("value"),
+                           "unit": item.get("unit"), "source_class": item.get("source_class")}
+                          for item in report["assumptions"][:20]],
+            },
+            "limitations": list(TECHNOLOGY_LIMITATIONS),
+            "provenance": {
+                "models": ["amfe.world.technology (block 17)"],
+                "module_id": report["module"]["module_id"],
+                "identity": ("логистическая диффузия → growth accounting → выпуск/энергия на "
+                             "объявленных допущениях; не оценка эффекта ИИ"),
                 "dataset": "declared assumptions only (no third-party data is read)",
             },
         }
@@ -1758,17 +2307,7 @@ font-size:12px}
           <select id="scenario"></select>
           <div class="help" id="scenario-help"></div>
         </div>
-        <div id="price-wrap">
-          <label for="price" id="price-label">Цена</label>
-          <input id="price" type="number" step="any" inputmode="decimal">
-          <div class="help" id="price-help"></div>
-        </div>
-        <div id="shock-wrap">
-          <label for="shock" id="shock-label">Шок</label>
-          <input id="shock" type="number" step="any" inputmode="decimal">
-          <div class="help" id="shock-help"></div>
-        </div>
-        <div>
+        <div id="country-wrap">
           <label for="country">Страна</label>
           <select id="country"></select>
           <div class="help">для страновых эффектов; где модель их не считает — честная пометка</div>
@@ -1784,6 +2323,8 @@ font-size:12px}
           <div class="help">сценарии протокола protocols/geopolitics_scenarios.json</div>
         </div>
       </div>
+      <div class="grid" id="numbers" style="margin-top:12px"></div>
+      <div class="grid" id="choices" style="margin-top:12px"></div>
       <div class="row" style="margin-top:14px">
         <button id="run" type="submit">Рассчитать</button>
         <button id="download" class="ghost" type="button" disabled>Скачать JSON</button>
@@ -1903,35 +2444,74 @@ function applyScenario() {
   const spec = state.specs[$("scenario").value];
   if (!spec) return;
   $("scenario-help").textContent = spec.model + " · " + spec.summary;
-  const priceSpec = (spec.params || {}).price;
-  const shockSpec = (spec.params || {}).shock;
-  $("price-wrap").hidden = !priceSpec;
-  $("shock-wrap").hidden = !shockSpec;
-  if (priceSpec) {
-    $("price").min = priceSpec.min; $("price").max = priceSpec.max;
-    $("price").step = priceSpec.step; $("price").value = priceSpec.default;
-    $("price-label").textContent = priceSpec.label + ", " + priceSpec.unit;
-    $("price-help").textContent = priceSpec.help + " (" + priceSpec.min + "…" + priceSpec.max + ")";
-  }
-  if (shockSpec) {
-    $("shock").min = shockSpec.min; $("shock").max = shockSpec.max;
-    $("shock").step = shockSpec.step; $("shock").value = shockSpec.default;
-    $("shock-label").textContent = shockSpec.label + ", " + shockSpec.unit;
-    $("shock-help").textContent = shockSpec.help + " (" + shockSpec.min + "…" + shockSpec.max + ")";
-  }
-  $("geo-wrap").hidden = spec.family !== "geopolitics";
+  const numbers = $("numbers");
+  numbers.innerHTML = "";
+  Object.keys(spec.params || {}).forEach((name) => {
+    const param = spec.params[name];
+    const wrap = el("div");
+    const label = el("label", null, param.label + (param.unit ? ", " + param.unit : ""));
+    label.setAttribute("for", "num-" + name);
+    const input = document.createElement("input");
+    input.type = "number";
+    input.id = "num-" + name;
+    input.dataset.name = name;
+    input.step = (param.integer ? 1 : "any");
+    input.min = param.min;
+    input.max = param.max;
+    input.value = param.default;
+    wrap.appendChild(label);
+    wrap.appendChild(input);
+    wrap.appendChild(el("div", "help",
+      (param.help || "") + " (" + param.min + "…" + param.max + ")"));
+    numbers.appendChild(wrap);
+  });
+  const choices = $("choices");
+  choices.innerHTML = "";
+  Object.keys(spec.choices || {}).forEach((name) => {
+    const item = spec.choices[name];
+    const wrap = el("div");
+    const label = el("label", null, item.label);
+    label.setAttribute("for", "choice-" + name);
+    const select = document.createElement("select");
+    select.id = "choice-" + name;
+    select.dataset.name = name;
+    (item.options || []).forEach((option) => {
+      const node = el("option", null, option);
+      node.value = option;
+      select.appendChild(node);
+    });
+    select.value = (spec.defaults || {})[name] || item.default;
+    wrap.appendChild(label);
+    wrap.appendChild(select);
+    wrap.appendChild(el("div", "help", item.help || ""));
+    choices.appendChild(wrap);
+  });
   const defaults = spec.defaults || {};
+  $("country-wrap").hidden = !spec.country_default;
+  $("geo-wrap").hidden = spec.family !== "geopolitics";
   if (defaults.country) $("country").value = defaults.country;
   if (defaults.geo_scenario) $("geo_scenario").value = defaults.geo_scenario;
 }
 
+function buildPayload() {
+  const spec = state.specs[$("scenario").value];
+  const payload = {scenario: spec.id};
+  if (spec.country_default) payload.country = $("country").value;
+  Object.keys(spec.params || {}).forEach((name) => {
+    const node = $("num-" + name);
+    if (node && node.value !== "") payload[name] = Number(node.value);
+  });
+  Object.keys(spec.choices || {}).forEach((name) => {
+    const node = $("choice-" + name);
+    if (node) payload[name] = node.value;
+  });
+  if (spec.family === "geopolitics") payload.geo_scenario = $("geo_scenario").value;
+  return payload;
+}
+
 async function runScenario(event) {
   if (event) event.preventDefault();
-  const spec = state.specs[$("scenario").value];
-  const payload = {scenario: spec.id, country: $("country").value};
-  if ((spec.params || {}).price) payload.price = Number($("price").value);
-  if ((spec.params || {}).shock) payload.shock = Number($("shock").value);
-  if (spec.family === "geopolitics") payload.geo_scenario = $("geo_scenario").value;
+  const payload = buildPayload();
   const headers = {"Content-Type": "application/json"};
   const apiKey = ($("api-key").value || "").trim();
   if (apiKey) headers["X-API-Key"] = apiKey;

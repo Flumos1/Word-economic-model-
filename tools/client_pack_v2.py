@@ -112,6 +112,43 @@ BRIDGE_NOTE = (
     "не моделируется, ошибка растёт с шагом шока."
 )
 
+# Optional blocks 15/17 (docs/203, docs/204).  The pack aggregates the artefacts of
+# tools/institutions_scenarios.py and tools/technology_scenarios.py; absence is fail-open (the
+# block is marked available=false), a present but invalid artefact fails the build closed.
+BLOCKS_SCHEMA = "amfe.client_pack.blocks.v1"
+BLOCKS_STATUSES = ("OK", "PARTIAL", "NOT_AVAILABLE", "NOT_REQUESTED")
+BLOCK_ARTEFACT_STATUS = "RESEARCH_ONLY"
+BLOCK_SPECS = (
+    {
+        "id": "block_15_institutions",
+        "block": 15,
+        "module_id": "world.institutions",
+        "title": "Блок 15 · Институты (модификатор сценариев)",
+        "artifact": "institutions/report.json",
+        "fallbacks": (),
+        "schema": "amfe.world.institutions.report.v1",
+        "command": "python tools/institutions_scenarios.py --out build/institutions",
+        "docs": "docs/203_Блок_15_институты.md",
+    },
+    {
+        "id": "block_17_technology",
+        "block": 17,
+        "module_id": "world.technology_diffusion",
+        "title": "Блок 17 · Наука, технологии, ИИ",
+        "artifact": "technology_scenarios/report.json",
+        "fallbacks": ("technology_scenarios/demo/demo.json",),
+        "schema": "amfe.world.technology_report.v1",
+        "command": "python tools/technology_scenarios.py --out build/technology_scenarios",
+        "docs": "docs/204_Блок_17_технологии_ИИ.md",
+    },
+)
+BLOCKS_NOTE = (
+    "Блоки 15/17 — сценарные модификаторы на объявленных допущениях, не прогноз и не "
+    "forecast-контракты: числа показывают механику («что если правила/внедрение сдвинутся»), а не "
+    "ожидаемый эффект; калибровки нет (NOT_CALIBRATED), admission=false, страновых значений в "
+    "блоке 15 нет. В forecast-контракты и в точечный прогноз пакета они не входят."
+)
+
 
 class ClientPackError(RuntimeError):
     """Fail-closed aggregation error (missing/corrupt/unsafe input artefact)."""
@@ -460,6 +497,225 @@ def _bridge_section(bridge: dict, root: Path) -> dict:
     }
 
 
+# ------------------------------------------------------------- optional blocks (15/17, docs/203-204)
+def _block_candidates(inputs_root: Path, spec: dict) -> list[Path]:
+    names = [spec["artifact"], *spec.get("fallbacks", ())]
+    return [Path(inputs_root) / name for name in names]
+
+
+def _block_unavailable(spec: dict, searched: list[str], reason: str) -> dict:
+    return {
+        "id": spec["id"], "block": spec["block"], "module_id": spec["module_id"],
+        "title": spec["title"], "available": False, "status": "NOT_AVAILABLE",
+        "reason": reason, "searched": searched, "source": None, "sha256": None,
+        "schema": spec["schema"], "scenarios": [], "assumptions": [],
+        "assumptions_count": 0, "limitations": [], "docs": spec["docs"],
+        "note": BLOCKS_NOTE,
+    }
+
+
+def _block_common(spec: dict, document: dict, path: Path, digest: str, root: Path) -> dict:
+    return {
+        "id": spec["id"], "block": spec["block"], "module_id": spec["module_id"],
+        "title": spec["title"], "available": True, "status": BLOCK_ARTEFACT_STATUS,
+        "admission": False, "source": _repo_path(root, path), "sha256": digest,
+        "schema": document.get("schema"), "data_status": document.get("data_status"),
+        "not_calibrated": document.get("not_calibrated"),
+        "scenarios": [], "assumptions": [], "assumptions_count": 0,
+        "limitations": [str(item) for item in (document.get("limitations") or [])[:5]],
+        "docs": spec["docs"], "note": BLOCKS_NOTE,
+    }
+
+
+def _validate_institutions_block(document: dict, path: Path) -> None:
+    name = Path(path).name
+    spec_schema = BLOCK_SPECS[0]["schema"]
+    if document.get("schema") != spec_schema:
+        raise ClientPackError(
+            f"block 15: {name} is a foreign artefact (schema {document.get('schema')!r}, "
+            f"expected {spec_schema!r})")
+    if document.get("status") != BLOCK_ARTEFACT_STATUS:
+        raise ClientPackError(
+            f"block 15: {name} has status {document.get('status')!r}, "
+            f"expected {BLOCK_ARTEFACT_STATUS!r}")
+    if document.get("admission") is not False or document.get("gating") is not False:
+        raise ClientPackError(f"block 15: {name} does not declare admission=false/gating=false")
+    index = document.get("index")
+    if not isinstance(index, dict):
+        raise ClientPackError(f"block 15: {name} has no index block")
+    profile = index.get("profile")
+    if not isinstance(profile, dict) or not profile.get("name"):
+        raise ClientPackError(f"block 15: {name} has no declared profile")
+    scenarios = index.get("scenarios")
+    if not isinstance(scenarios, list) or not scenarios:
+        raise ClientPackError(f"block 15: {name} has an empty index.scenarios[]")
+    for entry in scenarios:
+        if not isinstance(entry, dict) or not entry.get("id"):
+            raise ClientPackError(f"block 15: {name}: an index scenario has no id")
+        headline = entry.get("headline") or {}
+        for key in ("delta_score_points", "delta_risk_premium_bps", "delta_investment_pp",
+                    "delta_growth_pp"):
+            if _finite(headline.get(key)) is None:
+                raise ClientPackError(
+                    f"block 15: {name}: scenario {entry['id']!r} has a non-numeric {key}")
+
+
+def _validate_technology_block(document: dict, path: Path) -> None:
+    name = Path(path).name
+    spec_schema = BLOCK_SPECS[1]["schema"]
+    if document.get("schema") != spec_schema:
+        raise ClientPackError(
+            f"block 17: {name} is a foreign artefact (schema {document.get('schema')!r}, "
+            f"expected {spec_schema!r})")
+    if document.get("status") != BLOCK_ARTEFACT_STATUS:
+        raise ClientPackError(
+            f"block 17: {name} has status {document.get('status')!r}, "
+            f"expected {BLOCK_ARTEFACT_STATUS!r}")
+    if document.get("admission") is not False:
+        raise ClientPackError(f"block 17: {name} does not declare admission=false")
+    scenarios = document.get("scenarios")
+    if not isinstance(scenarios, list) or not scenarios:
+        raise ClientPackError(f"block 17: {name} has an empty scenarios[]")
+    for item in scenarios:
+        if not isinstance(item, dict) or not item.get("scenario_id"):
+            raise ClientPackError(f"block 17: {name}: a scenario has no scenario_id")
+        aggregate = item.get("aggregate") or {}
+        horizon = aggregate.get("horizon") or {}
+        if _finite(horizon.get("output_gain_pct")) is None:
+            raise ClientPackError(
+                f"block 17: {name}: scenario {item['scenario_id']!r} has a non-numeric "
+                "aggregate.horizon.output_gain_pct")
+
+
+def _institutions_block_entry(spec: dict, document: dict, path: Path, digest: str,
+                              root: Path) -> dict:
+    index = document["index"]
+    profile = index["profile"]
+    parameters = index.get("parameters") or {}
+    scenarios = []
+    for item in index["scenarios"]:
+        headline = item.get("headline") or {}
+        scenarios.append({
+            "id": item.get("id"),
+            "title_ru": item.get("title_ru"),
+            "kind": item.get("kind"),
+            "ramp_years": item.get("ramp_years"),
+            "delta_score_points": _finite(headline.get("delta_score_points")),
+            "delta_risk_premium_bps": _finite(headline.get("delta_risk_premium_bps")),
+            "delta_investment_pp": _finite(headline.get("delta_investment_pp")),
+            "delta_growth_pp": _finite(headline.get("delta_growth_pp")),
+            "digest": item.get("digest"),
+        })
+    assumptions = index.get("assumptions") or []
+    entry = _block_common(spec, document, path, digest, root)
+    entry.update({
+        "profile": profile.get("name"),
+        "profile_source": profile.get("source"),
+        "score": _finite(profile.get("score")),
+        "dispersion": _finite(profile.get("dispersion")),
+        "horizon_years": parameters.get("horizon_years"),
+        "scenarios": scenarios,
+        "assumptions": [{"id": item.get("id"), "kind": item.get("kind"),
+                         "statement": str(item.get("statement") or "")[:400]}
+                        for item in assumptions[:10]],
+        "assumptions_count": len(assumptions),
+        "checks": {"scenario_count": len(scenarios),
+                   "all_no_raw_data": bool((index.get("checks") or {}).get("all_no_raw_data"))},
+    })
+    return entry
+
+
+def _technology_block_entry(spec: dict, document: dict, path: Path, digest: str,
+                            root: Path) -> dict:
+    scenarios = []
+    for item in document["scenarios"]:
+        aggregate = item.get("aggregate") or {}
+        horizon = aggregate.get("horizon") or {}
+        scenarios.append({
+            "id": item.get("scenario_id"),
+            "title_ru": item.get("title_ru"),
+            "adoption": _finite(horizon.get("adoption")),
+            "tfp_gain_pct": _finite(horizon.get("tfp_gain_pct")),
+            "output_gain_pct": _finite(horizon.get("output_gain_pct")),
+            "energy_change_pct": _finite(horizon.get("energy_change_pct")),
+            "energy_intensity_change_pct": _finite(horizon.get("energy_intensity_change_pct")),
+            "contributions_log": {key: _finite(value) for key, value in
+                                  (horizon.get("contributions_log") or {}).items()},
+        })
+    assumptions = document.get("assumptions") or []
+    entry = _block_common(spec, document, path, digest, root)
+    entry.update({
+        "horizon_years": document.get("horizon_years"),
+        "sectors": list(document.get("sectors") or []),
+        "growth": document.get("growth") or {},
+        "scenarios": scenarios,
+        "assumptions": [{"name": item.get("name"), "value": item.get("value"),
+                         "unit": item.get("unit"), "source_class": item.get("source_class")}
+                        for item in assumptions[:10]],
+        "assumptions_count": len(assumptions),
+        "checks": {"scenario_count": len(scenarios),
+                   "all_no_raw_series": bool((document.get("checks") or {}).get("no_raw_series"))},
+    })
+    return entry
+
+
+def _load_one_block(inputs_root: Path, spec: dict, root: Path) -> tuple[dict, Path | None]:
+    candidates = _block_candidates(inputs_root, spec)
+    searched = [_repo_path(root, item) for item in candidates]
+    path = next((item for item in candidates if item.is_file()), None)
+    if path is None:
+        reason = ("артефакт не найден: " + " / ".join(searched) +
+                  f" (запустите {spec['command']})")
+        return _block_unavailable(spec, searched, reason), None
+    document = _read_json(path, f"block {spec['block']}")
+    digest = _sha256(path)
+    if spec["block"] == 15:
+        _validate_institutions_block(document, path)
+        entry = _institutions_block_entry(spec, document, path, digest, root)
+    else:
+        _validate_technology_block(document, path)
+        entry = _technology_block_entry(spec, document, path, digest, root)
+    return entry, path
+
+
+def load_blocks(inputs_root: Path, include: bool, root: Path) -> dict:
+    """Load the optional blocks 15/17 section: fail-open on absence, fail-closed on a bad artefact."""
+    root = Path(root)
+    section = {
+        "schema": BLOCKS_SCHEMA, "kind": "blocks_15_17", "included": bool(include),
+        "admission": False, "blocks": [], "note": BLOCKS_NOTE,
+        "documents": [spec["docs"] for spec in BLOCK_SPECS],
+    }
+    if not include:
+        section.update({
+            "available": False,
+            "status": "NOT_REQUESTED",
+            "reason": ("блоки 15/17 не запрошены: передайте --include-blocks, чтобы добавить "
+                       "компактные сценарные разделы (нужны артефакты tools/"
+                       "institutions_scenarios.py и tools/technology_scenarios.py)"),
+        })
+        return {"included": False, "available": False, "status": "NOT_REQUESTED",
+                "section": section, "artifacts": []}
+    blocks: list[dict] = []
+    artifacts: list[dict] = []
+    for spec in BLOCK_SPECS:
+        entry, path = _load_one_block(Path(inputs_root), spec, root)
+        blocks.append(entry)
+        if path is not None:
+            artifacts.append({"id": spec["id"], "path": path, "sha256": entry["sha256"]})
+    available = [entry for entry in blocks if entry["available"]]
+    status = ("OK" if len(available) == len(blocks)
+              else ("PARTIAL" if available else "NOT_AVAILABLE"))
+    section.update({
+        "available": bool(available),
+        "status": status,
+        "blocks": blocks,
+        "scenarios_total": sum(len(entry["scenarios"]) for entry in blocks),
+    })
+    return {"included": True, "available": bool(available), "status": status,
+            "section": section, "artifacts": artifacts}
+
+
 def _read_json(path: Path, label: str) -> dict:
     if not Path(path).is_file():
         raise ClientPackError(f"{label}: required artefact is missing: {path}")
@@ -592,7 +848,7 @@ def _validate_forecast(document: dict, spec: dict) -> None:
 
 
 def load_inputs(inputs_root: Path, scenario_id: str, root: Path,
-                bridge_path=None) -> dict:
+                bridge_path=None, include_blocks: bool = False) -> dict:
     """Load and validate every artefact; raises ClientPackError (fail-closed) on any problem."""
     inputs_root = Path(inputs_root)
     paths = {key: inputs_root / relative for key, relative in INPUT_PATHS.items()}
@@ -602,6 +858,7 @@ def load_inputs(inputs_root: Path, scenario_id: str, root: Path,
         documents[key] = _read_json(paths[key], key)
     documents["registry"] = _read_jsonl(paths["registry"], "registry")
     documents["bridge"] = load_bridge(inputs_root, bridge_path, root)
+    documents["blocks"] = load_blocks(inputs_root, include_blocks, root)
 
     feed = documents["product_feed"]
     _validate_product_feed(feed)
@@ -778,6 +1035,8 @@ def build_document(inputs: dict, client: str, generated_at: str) -> dict:
     summary = result.get("summary") or {}
     quantiles = [float(value) for value in feed["quantiles_5_to_95_step_5"]]
     bridge = _bridge_section(inputs["bridge"], inputs["root"])
+    blocks = inputs["blocks"]["section"]
+    blocks_available = [entry for entry in blocks.get("blocks") or [] if entry.get("available")]
     by_status, by_kind = {}, {}
     for entry in registry:
         by_status[entry["status"]] = by_status.get(entry["status"], 0) + 1
@@ -830,8 +1089,17 @@ def build_document(inputs: dict, client: str, generated_at: str) -> dict:
             "bridge_sha256": bridge.get("sha256"),
             "bridge_scenarios": len(bridge.get("scenarios") or []),
             "bridge_effects": len(bridge.get("effects") or []),
+            "blocks_included": bool(blocks.get("included")),
+            "blocks_available": bool(blocks.get("available")),
+            "blocks_status": blocks.get("status"),
+            "blocks_count": len(blocks_available),
+            "blocks_scenarios": sum(len(entry.get("scenarios") or [])
+                                    for entry in blocks_available),
+            "blocks_sha256": {entry["id"]: entry.get("sha256")
+                              for entry in blocks_available},
             "sources": (len(inputs["paths"]) + len(inputs["forecasts"])
-                        + (1 if bridge["available"] else 0)),
+                        + (1 if bridge["available"] else 0)
+                        + len(inputs["blocks"]["artifacts"])),
         },
         "product_feed": {
             "source": _repo_path(inputs["root"], inputs["paths"]["product_feed"]),
@@ -948,6 +1216,7 @@ def build_document(inputs: dict, client: str, generated_at: str) -> dict:
             "generated_at": index.get("generated_at"),
         },
         "bridge": bridge,
+        "blocks": blocks,
         "licence": dict(LICENCE),
         "sources": [],
     }
@@ -957,6 +1226,8 @@ def build_document(inputs: dict, client: str, generated_at: str) -> dict:
                      for target in sorted(inputs["forecast_paths"])]
     if bridge["available"]:
         source_paths.append(("bridge", inputs["bridge"]["path"]))
+    for artifact in inputs["blocks"]["artifacts"]:
+        source_paths.append((f"block:{artifact['id']}", artifact["path"]))
     for kind, path in source_paths:
         document["sources"].append({"kind": kind, "path": _repo_path(inputs["root"], path),
                                     "bytes": path.stat().st_size, "sha256": _sha256(path)})
@@ -970,6 +1241,9 @@ def build_document(inputs: dict, client: str, generated_at: str) -> dict:
         source_meta[f"forecast:{target}"] = (item.get("schema"), item.get("generated_at"))
     if bridge["available"]:
         source_meta["bridge"] = (bridge.get("schema"), bridge.get("generated_at"))
+    for entry in inputs["blocks"]["section"].get("blocks") or []:
+        if entry.get("available"):
+            source_meta[f"block:{entry['id']}"] = (entry.get("schema"), None)
     for item in document["sources"]:
         schema, generated = source_meta[item["kind"]]
         item["schema"] = schema
@@ -1047,6 +1321,53 @@ def _bridge_docx(document, bridge: dict) -> None:
     document.add_paragraph(bridge["note"])
 
 
+def _blocks_docx(document, blocks: dict) -> None:
+    """Optional section: blocks 15/17 compact scenario tables, or an explicit absence note."""
+    document.add_heading("Блоки 15/17: институты и технологии (сценарные модификаторы)", level=1)
+    if not blocks.get("included"):
+        document.add_paragraph("Раздел не включён: " + str(blocks.get("reason")))
+        return
+    document.add_paragraph(blocks.get("note"))
+    for entry in blocks.get("blocks") or []:
+        document.add_heading(str(entry.get("title")), level=2)
+        if not entry.get("available"):
+            document.add_paragraph("Раздел недоступен: " + str(entry.get("reason")))
+            document.add_paragraph(
+                "Это не ошибка сборки: блок опциональный. Чтобы включить раздел, соберите "
+                f"артефакт ({entry.get('schema')}) и передайте --include-blocks.")
+            continue
+        document.add_paragraph(
+            f"Источник: {entry.get('source')} · SHA-256 {entry.get('sha256')} · статус "
+            f"{entry.get('status')} · допущений {entry.get('assumptions_count')} · горизонт "
+            f"{entry.get('horizon_years')} лет.")
+        if entry.get("block") == 15:
+            document.add_paragraph(
+                f"Профиль {entry.get('profile')} ({entry.get('profile_source')}): композит "
+                f"{_fmt(entry.get('score'), 2)}, разброс {_fmt(entry.get('dispersion'), 2)}. "
+                "Профили EXAMPLE-* иллюстративны, страновых значений в блоке нет.")
+            _table(document, ["Сценарий", "Тип", "Δ композита, п.", "Δ премии, б.п.",
+                              "Δ инвестиций, п.п.", "Δ роста, п.п."],
+                   [[item["id"], item.get("kind"), _fmt(item.get("delta_score_points"), 2),
+                     _fmt(item.get("delta_risk_premium_bps"), 1),
+                     _fmt(item.get("delta_investment_pp"), 3),
+                     _fmt(item.get("delta_growth_pp"), 3)]
+                    for item in entry.get("scenarios") or []])
+        elif entry.get("block") == 17:
+            _table(document, ["Сценарий", "Внедрение", "TFP, %", "Выпуск, %", "Энергия, %",
+                              "Энергоёмкость, %"],
+                   [[item["id"], _fmt(item.get("adoption"), 3),
+                     _fmt(item.get("tfp_gain_pct"), 2), _fmt(item.get("output_gain_pct"), 2),
+                     _fmt(item.get("energy_change_pct"), 2),
+                     _fmt(item.get("energy_intensity_change_pct"), 2)]
+                    for item in entry.get("scenarios") or []])
+            document.add_paragraph(
+                "Пять агрегированных отраслей: " + ", ".join(entry.get("sectors") or []) +
+                ". Это сценарная арифметика, а не оценка эффекта ИИ.")
+        limitations = entry.get("limitations") or []
+        if limitations:
+            document.add_paragraph("Ограничения: " + "; ".join(str(item) for item in limitations))
+
+
 def build_executive(path: Path, data: dict, generated: datetime) -> None:
     document = _new_document("AMFE — клиентский пакет v2 (executive summary)", data["client"],
                              data["generated_at"])
@@ -1077,6 +1398,7 @@ def build_executive(path: Path, data: dict, generated: datetime) -> None:
         "product feed и forecast API; пакет ничего не пересчитывает. Это не прогноз и не "
         "инвестиционная рекомендация.")
     _bridge_docx(document, data["bridge"])
+    _blocks_docx(document, data["blocks"])
     document.add_heading("Что внутри", level=1)
     document.add_paragraph(
         "02_Numbers.xlsx — числа по кандидату, паспортам модулей, рыночному сценарию и API "
@@ -1326,6 +1648,44 @@ def build_xlsx(path: Path, data: dict, generated: datetime) -> None:
         for column, key in enumerate(bridge_effect_headers, start=1):
             bridge_effects.cell(row=row_index, column=column, value=item.get(key))
 
+    blocks = data["blocks"]
+    blocks_sheet = workbook.create_sheet("Blocks")
+    block_headers = ("block", "block_id", "module_id", "available", "status", "source", "sha256",
+                     "horizon_years", "profile", "scenarios", "assumptions", "note")
+    for column, header in enumerate(block_headers, start=1):
+        blocks_sheet.cell(row=1, column=column, value=header)
+    for row_index, entry in enumerate(blocks.get("blocks") or [], start=2):
+        values = (entry.get("block"), entry.get("id"), entry.get("module_id"),
+                  entry.get("available"), entry.get("status"), entry.get("source"),
+                  entry.get("sha256"), entry.get("horizon_years"), entry.get("profile"),
+                  len(entry.get("scenarios") or []), entry.get("assumptions_count"),
+                  entry.get("reason") if not entry.get("available") else blocks.get("note"))
+        for column, value in enumerate(values, start=1):
+            blocks_sheet.cell(row=row_index, column=column, value=value)
+    blocks_scenarios = workbook.create_sheet("Blocks_Scenarios")
+    block_scenario_headers = ("block", "module_id", "scenario_id", "title_ru", "horizon_years",
+                              "delta_score_points", "delta_risk_premium_bps",
+                              "delta_investment_pp", "delta_growth_pp", "adoption",
+                              "tfp_gain_pct", "output_gain_pct", "energy_change_pct",
+                              "energy_intensity_change_pct")
+    for column, header in enumerate(block_scenario_headers, start=1):
+        blocks_scenarios.cell(row=1, column=column, value=header)
+    row_index = 2
+    for entry in blocks.get("blocks") or []:
+        if not entry.get("available"):
+            continue
+        for item in entry.get("scenarios") or []:
+            values = (entry.get("block"), entry.get("module_id"), item.get("id"),
+                      item.get("title_ru"), entry.get("horizon_years"),
+                      item.get("delta_score_points"), item.get("delta_risk_premium_bps"),
+                      item.get("delta_investment_pp"), item.get("delta_growth_pp"),
+                      item.get("adoption"), item.get("tfp_gain_pct"),
+                      item.get("output_gain_pct"), item.get("energy_change_pct"),
+                      item.get("energy_intensity_change_pct"))
+            for column, value in enumerate(values, start=1):
+                blocks_scenarios.cell(row=row_index, column=column, value=value)
+            row_index += 1
+
     sources = workbook.create_sheet("Sources")
     for column, header in enumerate(("kind", "path", "schema", "generated_at", "bytes", "sha256"),
                                     start=1):
@@ -1401,6 +1761,64 @@ def _bridge_html(bridge: dict) -> str:
   <p class="meta">{_escape(bridge.get('note'))}</p>"""
 
 
+def _blocks_html(blocks: dict) -> str:
+    """Optional blocks 15/17 for the static dashboard (escaped, aggregate-only)."""
+    if not blocks.get("included"):
+        return ("  <h2>Блоки 15/17: институты и технологии</h2>\n"
+                f"  <div class=\"banner\">Раздел не включён: "
+                f"{_escape(str(blocks.get('reason')))}</div>")
+    parts = ["  <h2>Блоки 15/17: институты и технологии (сценарные модификаторы)</h2>",
+             f"  <p class=\"meta\">{_escape(str(blocks.get('note')))}</p>"]
+    for entry in blocks.get("blocks") or []:
+        parts.append(f"  <h3>{_escape(str(entry.get('title')))}</h3>")
+        if not entry.get("available"):
+            parts.append(f"  <div class=\"banner\">Раздел недоступен: "
+                         f"{_escape(str(entry.get('reason')))}</div>")
+            continue
+        meta = (f"Источник: {entry.get('source')} · SHA-256 {entry.get('sha256')} · "
+                f"статус {entry.get('status')} · допущений {entry.get('assumptions_count')} · "
+                f"горизонт {entry.get('horizon_years')} лет")
+        parts.append(f"  <p class=\"meta\">{_escape(meta)}</p>")
+        if entry.get("block") == 15:
+            rows = "".join(
+                f"<tr><td>{_escape(str(item.get('id')))}</td>"
+                f"<td>{_escape(str(item.get('kind')))}</td>"
+                f"<td class=\"num\">{_fmt(item.get('delta_score_points'), 2)}</td>"
+                f"<td class=\"num\">{_fmt(item.get('delta_risk_premium_bps'), 1)}</td>"
+                f"<td class=\"num\">{_fmt(item.get('delta_investment_pp'), 3)}</td>"
+                f"<td class=\"num\">{_fmt(item.get('delta_growth_pp'), 3)}</td></tr>"
+                for item in entry.get("scenarios") or [])
+            parts.append("  <table><tr><th>сценарий</th><th>тип</th><th>Δ композита, п.</th>"
+                         "<th>Δ премии, б.п.</th><th>Δ инвестиций, п.п.</th>"
+                         "<th>Δ роста, п.п.</th></tr>" + rows + "</table>")
+            parts.append(f"  <p class=\"meta\">Профиль: {_escape(str(entry.get('profile')))}, "
+                         f"композит {_fmt(entry.get('score'), 2)}, разброс "
+                         f"{_fmt(entry.get('dispersion'), 2)}. Страновых значений в блоке нет: "
+                         "профили EXAMPLE-* иллюстративны.</p>")
+        elif entry.get("block") == 17:
+            rows = "".join(
+                f"<tr><td>{_escape(str(item.get('id')))}</td>"
+                f"<td class=\"num\">{_fmt(item.get('adoption'), 3)}</td>"
+                f"<td class=\"num\">{_fmt(item.get('tfp_gain_pct'), 2)}</td>"
+                f"<td class=\"num\">{_fmt(item.get('output_gain_pct'), 2)}</td>"
+                f"<td class=\"num\">{_fmt(item.get('energy_change_pct'), 2)}</td>"
+                f"<td class=\"num\">{_fmt(item.get('energy_intensity_change_pct'), 2)}</td></tr>"
+                for item in entry.get("scenarios") or [])
+            parts.append("  <table><tr><th>сценарий</th><th>внедрение</th><th>TFP, %</th>"
+                         "<th>выпуск, %</th><th>энергия, %</th><th>энергоёмкость, %</th></tr>"
+                         + rows + "</table>")
+            parts.append("  <p class=\"meta\">Пять агрегированных отраслей: "
+                         f"{_escape(', '.join(entry.get('sectors') or []))}. Отраслевого моста в "
+                         "MRIO нет.</p>")
+        limitations = entry.get("limitations") or []
+        if limitations:
+            parts.append("  <ul>" + "".join(f"<li>{_escape(str(item))}</li>"
+                                            for item in limitations) + "</ul>")
+    parts.append("  <p class=\"meta\">Блоки 15/17 не входят в forecast-контракты, точечный прогноз "
+                 "и не являются допуском (admission=false).</p>")
+    return "\n".join(parts)
+
+
 def build_dashboard(path: Path, data: dict) -> None:
     summary = data["summary"]
     module_rows = "".join(
@@ -1466,6 +1884,7 @@ def build_dashboard(path: Path, data: dict) -> None:
   <h2>Forecast API</h2>
   <table><tr><th>метод</th><th>путь</th><th>описание</th></tr>{endpoint_rows}</table>
 {_bridge_html(data['bridge'])}
+{_blocks_html(data['blocks'])}
   <h2>Источники</h2>
   <ul>{''.join(f"<li>{item['path']} — sha256 {_short(item['sha256'])}</li>" for item in data['sources'])}</ul>
   <footer>Research only; not a forecast, not an admission decision, not investment advice.
@@ -1561,6 +1980,40 @@ def build_readme(path: Path, data: dict, files: list) -> None:
                   "- Отсутствие необязательного артефакта не ошибка: пакет собран без раздела. "
                   "Чтобы включить, запустите `tools/forecast_world_bridge.py` или укажите "
                   "`--bridge <path>`."]
+    blocks = data["blocks"]
+    lines += ["", "## Блоки 15/17: институты и технологии (опционально)", ""]
+    if not blocks.get("included"):
+        lines += [f"- Раздел не включён: {blocks.get('reason')}."]
+    else:
+        lines += [
+            f"- Статус: `{blocks.get('status')}`; доступно блоков: "
+            f"{len([item for item in blocks.get('blocks') or [] if item.get('available')])} "
+            f"из {len(blocks.get('blocks') or [])}.",
+            "- Это сценарные модификаторы на объявленных допущениях, **не прогноз** и не "
+            "forecast-контракты; `admission=false`, калибровки нет (`NOT_CALIBRATED`).",
+        ]
+        for entry in blocks.get("blocks") or []:
+            if not entry.get("available"):
+                lines += [f"- `{entry.get('title')}` — недоступен: {entry.get('reason')}."]
+                continue
+            lines += [f"- `{entry.get('title')}`: источник `{entry.get('source')}`, SHA-256 "
+                      f"`{entry.get('sha256')}`, горизонт {entry.get('horizon_years')} лет, "
+                      f"допущений {entry.get('assumptions_count')}."]
+        lines += ["", "| блок | сценарий | числа |", "|---|---|---|"]
+        for entry in blocks.get("blocks") or []:
+            if not entry.get("available"):
+                continue
+            for item in entry.get("scenarios") or []:
+                if entry.get("block") == 15:
+                    numbers = (f"Δ композита {_fmt(item.get('delta_score_points'), 2)} п., "
+                               f"Δ премии {_fmt(item.get('delta_risk_premium_bps'), 1)} б.п., "
+                               f"Δ инвестиций {_fmt(item.get('delta_investment_pp'), 3)} п.п.")
+                else:
+                    numbers = (f"внедрение {_fmt(item.get('adoption'), 3)}, "
+                               f"выпуск {_fmt(item.get('output_gain_pct'), 2)} %, "
+                               f"энергоёмкость "
+                               f"{_fmt(item.get('energy_intensity_change_pct'), 2)} %")
+                lines.append(f"| {entry.get('block')} | `{item.get('id')}` | {numbers} |")
     lines += ["", "## Источники", ""]
     for item in data["sources"]:
         lines.append(f"- `{item['path']}` — `{_short(item['sha256'], 16)}` "
@@ -1572,13 +2025,15 @@ def build_readme(path: Path, data: dict, files: list) -> None:
         "",
         "```",
         f"python tools/client_pack_v2.py --generated-at {data['generated_at']} "
-        f"--out <OUT_DIR>",
+        f"--out <OUT_DIR>"
+        + (" --include-blocks" if data["blocks"].get("included") else ""),
         "```",
         "",
         "<OUT_DIR> — каталог этого пакета (например, `build/client_pack/v2_7`). "
         "Пакет детерминирован при том же `--generated-at`: DOCX/XLSX нормализуются (zip-времена и "
         "docProps/core.xml), JSON пишется с сортировкой ключей. Сборка fail-closed: при "
-        "отсутствующем/битом артефакте или недопустимом статусе выход не создаётся.",
+        "отсутствующем/битом артефакте или недопустимом статусе выход не создаётся. "
+        "`--include-blocks` добавляет опциональные разделы блоков 15/17 (институты, технологии).",
         "",
         "## Ограничения",
         "",
@@ -1620,7 +2075,7 @@ def build_reproducibility(path: Path, data: dict, files: list, command: str) -> 
 # --------------------------------------------------------------------------------------- build pack
 def build_pack(out_dir: Path, *, inputs_root: Path | None = None, scenario_id: str = DEFAULT_SCENARIO,
                client: str = DEFAULT_CLIENT, generated_at: str | None = None,
-               root: Path | None = None, bridge_path=None) -> dict:
+               root: Path | None = None, bridge_path=None, include_blocks: bool = False) -> dict:
     """Build the whole client pack; raises ClientPackError (fail-closed) before any output."""
     root = Path(root) if root is not None else ROOT
     inputs_root = Path(inputs_root) if inputs_root is not None else root / "build"
@@ -1629,7 +2084,8 @@ def build_pack(out_dir: Path, *, inputs_root: Path | None = None, scenario_id: s
         raise ClientPackError("client name must not be empty")
     if not re.fullmatch(r"[a-z0-9_]+", scenario_id or ""):
         raise ClientPackError(f"invalid scenario id {scenario_id!r}")
-    inputs = load_inputs(inputs_root, scenario_id, root, bridge_path=bridge_path)
+    inputs = load_inputs(inputs_root, scenario_id, root, bridge_path=bridge_path,
+                         include_blocks=include_blocks)
     generated_at = generated_at or _default_generated_at(inputs)
     _parse_timestamp(generated_at, "generated_at")
     generated = _parse_timestamp(generated_at, "generated_at")
@@ -1682,6 +2138,8 @@ def build_pack(out_dir: Path, *, inputs_root: Path | None = None, scenario_id: s
                    f"{out_display}")
         if data["bridge"].get("available"):
             command += f" --bridge {data['bridge']['source']}"
+        if data["blocks"].get("included"):
+            command += " --include-blocks"
         build_reproducibility(staging / "07_Reproducibility.json", data, files, command)
         record(staging / "07_Reproducibility.json")
 
@@ -1722,6 +2180,16 @@ def build_pack(out_dir: Path, *, inputs_root: Path | None = None, scenario_id: s
                 "sha256": data["bridge"].get("sha256"),
                 "source": data["bridge"].get("source"),
             },
+            "blocks": {
+                "included": data["blocks"].get("included"),
+                "available": data["blocks"].get("available"),
+                "status": data["blocks"].get("status"),
+                "count": len([item for item in data["blocks"].get("blocks") or []
+                              if item.get("available")]),
+                "sha256": {item["id"]: item.get("sha256")
+                           for item in data["blocks"].get("blocks") or []
+                           if item.get("available")},
+            },
         },
     }
 
@@ -1743,6 +2211,10 @@ def build_parser() -> argparse.ArgumentParser:
                         help=("optional forecast→world bridge artefact: JSON file or an output "
                               "directory of tools/forecast_world_bridge.py (default "
                               "<inputs-root>/forecast_world_bridge/report.json)"))
+    parser.add_argument("--include-blocks", action="store_true",
+                        help=("include the optional blocks 15/17 section (institutions, technology) "
+                              "from <inputs-root>/institutions/report.json and "
+                              "<inputs-root>/technology_scenarios/report.json"))
     parser.add_argument("--json", action="store_true", help="print the build summary as JSON")
     return parser
 
@@ -1755,7 +2227,7 @@ def main(argv=None) -> int:
     try:
         summary = build_pack(out_dir, inputs_root=inputs_root, scenario_id=args.scenario,
                              client=args.client, generated_at=args.generated_at, root=root,
-                             bridge_path=args.bridge)
+                             bridge_path=args.bridge, include_blocks=args.include_blocks)
     except ClientPackError as error:
         print(json.dumps({"status": "BLOCKED_DATA", "error": str(error)}, ensure_ascii=False),
               file=sys.stderr)

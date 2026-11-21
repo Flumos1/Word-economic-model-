@@ -157,7 +157,90 @@ def build_fixture(base: Path) -> Path:
         "module_ref": {"module_id": "gas.lng_eu", "version": "0.1.0",
                        "status": "RESEARCH_ONLY"},
     })
+    write_blocks(build)
     return root
+
+
+def write_blocks(build: Path) -> dict:
+    """Fixture artefacts of blocks 15/17 (same schemas as tools/institutions_* and technology_*)."""
+    institutions = {
+        "schema": "amfe.world.institutions.report.v1",
+        "status": "RESEARCH_ONLY",
+        "status_note": "fixture institutions: research only",
+        "admission": False, "gating": False, "causal_claim": False,
+        "data_status": "ASSUMPTION_BASED", "not_calibrated": True,
+        "index": {
+            "schema": "amfe.world.institutions.index.v1",
+            "status": "RESEARCH_ONLY", "admission": False, "gating": False,
+            "causal_claim": False, "data_status": "ASSUMPTION_BASED",
+            "not_calibrated": True, "tool_version": "1.0.0",
+            "profile": {"name": "EXAMPLE-MID", "source": "ILLUSTRATIVE",
+                        "score": 51.5, "dispersion": 2.4324,
+                        "note": "geometric example, not a country"},
+            "parameters": {"horizon_years": 5, "beta_bps_per_point": 4.0,
+                           "gamma_bps_per_point_dispersion": 2.0},
+            "scenarios": [
+                {"id": "STATUS-QUO", "title_ru": "Статус-кво", "kind": "status_quo",
+                 "magnitude": 1.0, "ramp_years": 1, "digest": "1" * 64,
+                 "headline": {"delta_score_points": 0.0, "delta_risk_premium_bps": 0.0,
+                              "delta_investment_pp": 0.0, "delta_growth_pp": 0.0}},
+                {"id": "REFORM", "title_ru": "Реформа", "kind": "reform",
+                 "magnitude": 1.0, "ramp_years": 4, "digest": "2" * 64,
+                 "headline": {"delta_score_points": 6.0, "delta_risk_premium_bps": -23.48,
+                              "delta_investment_pp": 0.24, "delta_growth_pp": 0.12}},
+                {"id": "POLARIZATION", "title_ru": "Поляризация", "kind": "polarization",
+                 "magnitude": 1.0, "ramp_years": 2, "digest": "3" * 64,
+                 "headline": {"delta_score_points": -4.17, "delta_risk_premium_bps": 25.6,
+                              "delta_investment_pp": -0.167, "delta_growth_pp": -0.083}},
+            ],
+            "checks": {"scenario_count": 3, "all_score_bounds": True,
+                       "all_no_raw_data": True},
+            "assumptions": [
+                {"id": "A1", "kind": "ASSUMPTION_BASED", "statement": "six 0-100 indicators"},
+                {"id": "A4", "kind": "ASSUMPTION_BASED", "statement": "beta and gamma"},
+            ],
+            "limitations": ["no data, no calibration", "no country table"],
+        },
+        "scenarios": [],
+    }
+    technology = {
+        "schema": "amfe.world.technology_report.v1",
+        "status": "RESEARCH_ONLY", "admission": False, "research_only": True,
+        "data_class": "ASSUMPTION_BASED", "calibration": "NOT_CALIBRATED", "block": 17,
+        "module": {"module_id": "world.technology_diffusion", "version": "0.1.0",
+                   "status": "RESEARCH_ONLY"},
+        "horizon_years": 15,
+        "scenario_ids": ["baseline", "ai_acceleration"],
+        "sectors": ["manufacturing", "services", "agriculture", "energy", "construction"],
+        "growth": {"capital_growth": 0.02, "labour_growth": 0.004},
+        "scenarios": [
+            {"scenario_id": "baseline", "title_ru": "Базовая диффузия",
+             "aggregate": {"horizon": {
+                 "years": 15, "adoption": 0.613, "tfp_gain_pct": 15.32,
+                 "output_gain_pct": 32.2, "energy_change_pct": 9.83,
+                 "energy_intensity_change_pct": -16.92,
+                 "contributions_log": {"tfp": 0.1425, "capital": 0.0961,
+                                       "labour": 0.0405, "total": 0.2791}}}},
+            {"scenario_id": "ai_acceleration", "title_ru": "Ускорение ИИ-внедрения",
+             "aggregate": {"horizon": {
+                 "years": 15, "adoption": 0.683, "tfp_gain_pct": 23.0,
+                 "output_gain_pct": 41.0, "energy_change_pct": 10.87,
+                 "energy_intensity_change_pct": -21.37,
+                 "contributions_log": {"tfp": 0.207, "capital": 0.0961,
+                                       "labour": 0.0405, "total": 0.3436}}}},
+        ],
+        "assumptions": [
+            {"name": "ceiling.services", "value": 0.8, "unit": "доля",
+             "source_class": "assumption"},
+            {"name": "tfp_elasticity.services", "value": 0.3, "unit": "ln TFP",
+             "source_class": "assumption"},
+        ],
+        "checks": {"no_raw_series": True, "all_scenario_checks_pass": True},
+        "limitations": ["declared assumptions only", "no MRIO bridge"],
+    }
+    write_json(Path(build) / "institutions" / "report.json", institutions)
+    write_json(Path(build) / "technology_scenarios" / "report.json", technology)
+    return {"institutions": institutions, "technology": technology}
 
 
 def read_json(path: Path) -> dict:
@@ -854,6 +937,169 @@ class BridgeSection(FixtureCase):
 
 
 
+class BlocksSection(FixtureCase):
+    """Optional blocks 15/17: absent by default, numbers from artefacts, SHA, no forecast claim."""
+
+    def test_blocks_are_not_included_by_default(self):
+        summary = self.make_pack()
+        document = self.machine()
+        section = document["blocks"]
+        self.assertFalse(section["included"])
+        self.assertFalse(section["available"])
+        self.assertEqual(section["status"], "NOT_REQUESTED")
+        self.assertIn("--include-blocks", section["reason"])
+        self.assertEqual(section["blocks"], [])
+        self.assertFalse(document["summary"]["blocks_included"])
+        self.assertEqual(document["summary"]["blocks_count"], 0)
+        self.assertEqual(len(document["sources"]), 6)
+        self.assertNotIn("block:block_15_institutions",
+                         [item["kind"] for item in document["sources"]])
+        self.assertEqual(len(summary["files"]), 8)
+        # XLSX always carries the (empty) block sheets, so the layout is stable across builds
+        from openpyxl import load_workbook
+
+        workbook = load_workbook(self.out / "02_Numbers.xlsx", data_only=True)
+        self.assertIn("Blocks", workbook.sheetnames)
+        self.assertIn("Blocks_Scenarios", workbook.sheetnames)
+        self.assertEqual(list(workbook["Blocks_Scenarios"]
+                              .iter_rows(min_row=2, values_only=True)), [])
+
+    def test_blocks_with_flag_carry_numbers_and_sha(self):
+        summary = self.make_pack(include_blocks=True)
+        document = self.machine()
+        section = document["blocks"]
+        self.assertTrue(section["included"])
+        self.assertTrue(section["available"])
+        self.assertEqual(section["status"], "OK")
+        blocks = {entry["id"]: entry for entry in section["blocks"]}
+        self.assertEqual(sorted(blocks), ["block_15_institutions", "block_17_technology"])
+        institutions = blocks["block_15_institutions"]
+        self.assertEqual(institutions["sha256"],
+                         sha(self.build / "institutions" / "report.json"))
+        self.assertEqual(institutions["source"], "build/institutions/report.json")
+        self.assertEqual(institutions["profile"], "EXAMPLE-MID")
+        self.assertEqual(institutions["status"], "RESEARCH_ONLY")
+        self.assertFalse(institutions["admission"])
+        self.assertEqual(institutions["assumptions_count"], 2)
+        reform = next(item for item in institutions["scenarios"] if item["id"] == "REFORM")
+        self.assertAlmostEqual(reform["delta_score_points"], 6.0)
+        self.assertAlmostEqual(reform["delta_risk_premium_bps"], -23.48)
+        self.assertAlmostEqual(reform["delta_investment_pp"], 0.24)
+        technology = blocks["block_17_technology"]
+        self.assertEqual(technology["sha256"],
+                         sha(self.build / "technology_scenarios" / "report.json"))
+        self.assertEqual(technology["horizon_years"], 15)
+        self.assertEqual(len(technology["scenarios"]), 2)
+        self.assertAlmostEqual(technology["scenarios"][1]["output_gain_pct"], 41.0)
+        self.assertAlmostEqual(technology["scenarios"][1]["energy_intensity_change_pct"], -21.37)
+        self.assertEqual(document["summary"]["blocks_status"], "OK")
+        self.assertEqual(document["summary"]["blocks_count"], 2)
+        self.assertEqual(document["summary"]["blocks_scenarios"], 5)
+        self.assertEqual(document["summary"]["sources"], 8)
+        kinds = [item["kind"] for item in document["sources"]]
+        self.assertIn("block:block_15_institutions", kinds)
+        self.assertIn("block:block_17_technology", kinds)
+        manifest = read_json(self.out / "07_Reproducibility.json")
+        self.assertEqual(len(manifest["inputs"]), 8)
+        self.assertIn("--include-blocks", manifest["command"])
+        self.assertEqual(summary["numbers"]["blocks"]["count"], 2)
+        # the CLI flag produces the same block numbers
+        import contextlib
+        import io
+
+        buffer = io.StringIO()
+        with contextlib.redirect_stdout(buffer):
+            code = pack.main(["--root", str(self.root), "--inputs-root", str(self.build),
+                              "--out", str(self.base / "cli_blocks"), "--generated-at", FIXED,
+                              "--include-blocks", "--json"])
+        self.assertEqual(code, 0)
+        printed = json.loads(buffer.getvalue())
+        self.assertTrue(printed["numbers"]["blocks"]["available"])
+        self.assertEqual(printed["numbers"]["blocks"]["count"], 2)
+
+    def test_blocks_missing_artefacts_are_unavailable(self):
+        (self.build / "institutions" / "report.json").unlink()
+        (self.build / "technology_scenarios" / "report.json").unlink()
+        summary = self.make_pack(include_blocks=True)
+        document = self.machine()
+        section = document["blocks"]
+        self.assertTrue(section["included"])
+        self.assertFalse(section["available"])
+        self.assertEqual(section["status"], "NOT_AVAILABLE")
+        for entry in section["blocks"]:
+            self.assertFalse(entry["available"])
+            self.assertEqual(entry["status"], "NOT_AVAILABLE")
+            self.assertIn("не найден", entry["reason"])
+            self.assertTrue(entry["searched"])
+        self.assertEqual(len(summary["files"]), 8)
+        self.assertEqual(document["summary"]["blocks_count"], 0)
+        self.assertEqual(len(document["sources"]), 6)
+        self.assertIn("Раздел недоступен",
+                      docx_text(self.out / "01_Executive_Summary.docx"))
+        self.assertIn("Раздел недоступен",
+                      (self.out / "03_Dashboard.html").read_text(encoding="utf-8"))
+        self.assertIn("недоступен", (self.out / "README.md").read_text(encoding="utf-8"))
+
+    def test_blocks_in_xlsx_docx_html_readme(self):
+        from openpyxl import load_workbook
+
+        self.make_pack(include_blocks=True)
+        document = self.machine()
+        workbook = load_workbook(self.out / "02_Numbers.xlsx", data_only=True)
+        rows = list(workbook["Blocks_Scenarios"].iter_rows(min_row=2, values_only=True))
+        expected = [item["id"] for entry in document["blocks"]["blocks"]
+                    for item in entry["scenarios"]]
+        self.assertEqual([row[2] for row in rows], expected)
+        self.assertEqual([row[0] for row in rows], [15, 15, 15, 17, 17])
+        blocks_rows = {row[1]: row for row in
+                       workbook["Blocks"].iter_rows(min_row=2, values_only=True) if row[1]}
+        self.assertEqual(blocks_rows["block_15_institutions"][6],
+                         document["blocks"]["blocks"][0]["sha256"])
+        self.assertEqual(int(blocks_rows["block_17_technology"][9]), 2)  # scenarios per block
+        text = docx_text(self.out / "01_Executive_Summary.docx")
+        for token in ("Блоки 15/17", "REFORM", "EXAMPLE-MID", "ai_acceleration",
+                      "Пять агрегированных отраслей"):
+            self.assertIn(token, text, token)
+        html = (self.out / "03_Dashboard.html").read_text(encoding="utf-8")
+        for token in ("Блоки 15/17", "REFORM", "ai_acceleration",
+                      document["blocks"]["blocks"][0]["sha256"]):
+            self.assertIn(token, html, token)
+        self.assertNotIn("http://", html)
+        self.assertNotIn("https://", html)
+        readme = (self.out / "README.md").read_text(encoding="utf-8")
+        self.assertIn("Блоки 15/17", readme)
+        self.assertIn("--include-blocks", readme)
+        self.assertEqual(numeric_lists(document), [])
+
+    def test_blocks_bad_artefacts_fail_closed_and_never_claim_a_forecast(self):
+        path = self.build / "institutions" / "report.json"
+        path.write_text("{not json", encoding="utf-8")
+        with self.assertRaises(pack.ClientPackError):
+            self.make_pack(include_blocks=True)
+        self.assertFalse(self.out.exists())
+        write_json(path, {"schema": "amfe.something_else.v9", "status": "OK"})
+        with self.assertRaises(pack.ClientPackError):
+            self.make_pack(include_blocks=True)
+        self.assertFalse(self.out.exists())
+        write_blocks(self.build)
+        report = read_json(self.build / "technology_scenarios" / "report.json")
+        report["admission"] = True
+        write_json(self.build / "technology_scenarios" / "report.json", report)
+        with self.assertRaises(pack.ClientPackError):
+            self.make_pack(include_blocks=True)
+        self.assertFalse(self.out.exists())
+        write_blocks(self.build)
+        self.make_pack(include_blocks=True)
+        section = self.machine()["blocks"]
+        self.assertEqual(section["schema"], pack.BLOCKS_SCHEMA)
+        self.assertFalse(section["admission"])
+        self.assertIn("не прогноз", section["note"])
+        self.assertNotIn("прогноз:", json.dumps(section, ensure_ascii=False))
+        for entry in section["blocks"]:
+            self.assertEqual(entry["status"], "RESEARCH_ONLY")
+            self.assertFalse(entry["admission"])
+
+
 class CommandLine(FixtureCase):
     def test_cli_success_prints_summary(self):
         import contextlib
@@ -914,8 +1160,8 @@ class RealArtifacts(unittest.TestCase):
             self.assertIn("oil.brent", latest)
             self.assertEqual(document["market_scenario"]["scenario_id"], "hormuz_closed_6m")
             self.assertTrue(document["sources"])
-            # The published G5 slice: 7 passports, 2 market modules, oil + gas contracts.
-            self.assertEqual(document["summary"]["modules_total"], 7)
+            # The published G5 slice: one passport per registry module (9), 2 market modules.
+            self.assertEqual(document["summary"]["modules_total"], len(latest))
             self.assertEqual(document["summary"]["market_modules"], 2)
             self.assertEqual(document["summary"]["market_module_ids"], ["gas.lng_eu", "oil.brent"])
             self.assertEqual(document["summary"]["forecast_targets"], ["gas_ttf", "oil_brent"])

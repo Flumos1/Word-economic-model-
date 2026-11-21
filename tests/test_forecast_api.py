@@ -1,4 +1,4 @@
-"""Forecast API contract v2 (tools/forecast_api.py): oil + gas envelopes, 7 passports, fail-closed."""
+"""Forecast API contract v2 (tools/forecast_api.py): oil + gas envelopes, 9 passports, fail-closed."""
 import json
 import shutil
 import subprocess
@@ -112,11 +112,11 @@ class ForecastApiV2(unittest.TestCase):
         self.assertEqual(index["backward_compatible_with"], "amfe.forecast_api.v1")
         self.assertEqual(index["status"], "RESEARCH_ONLY")
         passports = self.registry_export["export"]["modules"]
-        self.assertEqual(len(passports), 7)
+        self.assertEqual(len(passports), 9)
         self.assertEqual(index["counts"], {
             "modules": len(passports), "market_modules": 2,
             "scenarios": len(OIL_SCENARIOS) + len(GAS_SCENARIOS), "forecasts": 2})
-        self.assertEqual(index["registry"]["counts"]["modules"], 7)
+        self.assertEqual(index["registry"]["counts"]["modules"], 9)
         self.assertEqual(index["registry"]["counts"]["by_kind"]["market"], 3)
         self.assertTrue(index["policy"]["module_passports"])
         self.assertTrue(index["policy"]["no_admission"])
@@ -126,7 +126,7 @@ class ForecastApiV2(unittest.TestCase):
 
     def test_modules_have_required_passport_fields(self):
         modules = self.index["modules"]
-        self.assertEqual(len(modules), 7)
+        self.assertEqual(len(modules), 9)
         for passport in modules:
             self.assertTrue(REGISTRY_REQUIRED.issubset(passport), passport.get("module_id"))
             self.assertTrue(passport["limitations"], passport.get("module_id"))
@@ -148,14 +148,18 @@ class ForecastApiV2(unittest.TestCase):
         self.assertEqual(document["kind"], "modules")
         self.assertEqual(document["status"], "RESEARCH_ONLY")
         self.assertEqual(document["registry"]["sha256"], forecast_api._sha256(self.registry))
-        self.assertEqual(len(document["modules"]), 7)
-        self.assertEqual(document["counts"]["modules"], 7)
+        self.assertEqual(len(document["modules"]), 9)
+        self.assertEqual(document["counts"]["modules"], 9)
         self.assertIn("RESEARCH_ONLY", document["counts"]["by_status"])
-        for module_id in ("oil.brent", "gas.lng_eu", "oil.storage_curve"):
+        for module_id in ("oil.brent", "gas.lng_eu", "oil.storage_curve",
+                          "world.institutions", "world.technology"):
             single = read_json(self.out / "modules" / f"{module_id}.json")
             self.assertEqual(single["kind"], "module")
             self.assertEqual(single["module"]["module_id"], module_id)
             self.assertEqual(single["status"], "RESEARCH_ONLY")
+        by_id = {item["module_id"]: item for item in document["modules"]}
+        self.assertEqual(by_id["world.institutions"]["kind"], "world")
+        self.assertEqual(by_id["world.technology"]["kind"], "world")
 
     def test_scenarios_link_to_registered_module_versions(self):
         for module, passport, scenario_ids in (

@@ -13,11 +13,12 @@ sys.path.insert(0, str(ROOT / "tools"))
 from amfe.learning import module_registry as mr  # noqa: E402
 import register_modules  # noqa: E402
 
-#: every passport the tool registers (G2 core + G5 gas/storage), module_id -> kind
+#: every passport the tool registers (G2 core + G5 gas/storage + world blocks 15/17),
+#: module_id -> kind
 EXPECTED = {
     "oil.brent": "market", "gas.lng_eu": "market", "oil.storage_curve": "market",
     "AGRI_SOY": "agri", "markets.finance": "finance", "agentic.sim": "agentic",
-    "world.p2": "world",
+    "world.p2": "world", "world.institutions": "world", "world.technology": "world",
 }
 
 
@@ -290,6 +291,35 @@ def build_registered_module(module_id: str) -> dict:
         from amfe.world import io_core, sfc_core, sfc_io  # noqa: F401  (import is the build gate)
         return {"module_id": "world.p2", "status": "RESEARCH_ONLY", "components": None,
                 "checks": {}}
+    if module_id == "world.institutions":
+        from amfe.world import institutions
+        profile = institutions.find_example_profile("EXAMPLE-MID")
+        scenarios = institutions.default_scenarios()
+        report = institutions.scenario_overlay(profile, scenarios[1])  # REFORM
+        modifier = institutions.as_scenario_modifier(report)
+        checks = {name: bool(value) for name, value in report["checks"].items()
+                  if name not in ("gating", "causal_claim")}
+        checks["gating_is_false"] = report["checks"]["gating"] is False
+        checks["causal_claim_is_false"] = report["checks"]["causal_claim"] is False
+        checks["modifier_gating_is_false"] = modifier["gating"] is False
+        checks["score_matches_profile"] = (
+            institutions.institutional_score(profile.indicators) == profile.score())
+        return {"module_id": "world.institutions", "status": report["status"],
+                "components": [scenario.scenario_id for scenario in scenarios],
+                "checks": checks}
+    if module_id == "world.technology":
+        from amfe.world import technology
+        described = technology.describe()
+        report = technology.build_report(["baseline"], horizon_years=5)
+        outcome = technology.run_scenario(technology.SCENARIOS["baseline"],
+                                          technology.DEFAULT_PROFILES,
+                                          technology.GrowthAssumptions(), 5)
+        checks = {name: bool(value) for name, value in report["checks"].items()}
+        checks["run_scenario_checks_pass"] = all(outcome["checks"].values())
+        checks["code_module_id"] = described["module_id"] == "world.technology_diffusion"
+        checks["admission_is_false"] = report["admission"] is False
+        return {"module_id": "world.technology", "status": report["status"],
+                "components": list(described["scenarios"]), "checks": checks}
     raise AssertionError(f"no build check for {module_id!r}")
 
 
@@ -306,7 +336,7 @@ class Tool(unittest.TestCase):
             self.assertEqual(report["export_counts"]["by_status"],
                              {"RESEARCH_ONLY": len(self.EXPECTED)})
             self.assertEqual(report["export_counts"]["by_kind"],
-                             {"agentic": 1, "agri": 1, "finance": 1, "market": 3, "world": 1})
+                             {"agentic": 1, "agri": 1, "finance": 1, "market": 3, "world": 3})
             found = {item["module_id"]: item for item in report["registered"]}
             self.assertEqual(set(found), set(self.EXPECTED))
             for module_id, kind in self.EXPECTED.items():
@@ -353,7 +383,9 @@ class Tool(unittest.TestCase):
             ids = [entry["module_id"] for entry in mr.load_entries(registry)]
             self.assertEqual(ids[:5], ["oil.brent", "AGRI_SOY", "markets.finance",
                                        "agentic.sim", "world.p2"])
-            self.assertEqual(sorted(ids[5:]), ["gas.lng_eu", "oil.storage_curve"])
+            self.assertEqual(ids[5:7], ["gas.lng_eu", "oil.storage_curve"])
+            self.assertEqual(sorted(ids[7:]),
+                             ["world.institutions", "world.technology"])
 
     def test_cli_fails_closed_on_bad_date(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -429,9 +461,11 @@ class BuildsAndPassports(unittest.TestCase):
                 self.assertTrue(passport["limitations"])
 
     def test_g5_passports_are_dated_when_they_were_registered(self):
-        """The G2 records keep 2026-11-16; gas/storage are dated 2026-11-18 (docs/180, docs/188)."""
+        """G2 records keep 2026-11-16; gas/storage are dated 2026-11-18, blocks 15/17 2026-11-21."""
         self.assertEqual(self.passport("gas.lng_eu")["created_at"], "2026-11-18")
         self.assertEqual(self.passport("oil.storage_curve")["created_at"], "2026-11-18")
+        self.assertEqual(self.passport("world.institutions")["created_at"], "2026-11-21")
+        self.assertEqual(self.passport("world.technology")["created_at"], "2026-11-21")
         for module_id in ("oil.brent", "AGRI_SOY", "markets.finance", "agentic.sim", "world.p2"):
             with self.subTest(module=module_id):
                 self.assertEqual(self.passport(module_id)["created_at"],
@@ -448,6 +482,27 @@ class BuildsAndPassports(unittest.TestCase):
         if manifest.is_file():
             self.assertEqual(world["data_sha256"], mr.sha256_file(manifest))
             self.assertEqual(world["data_status"], "LOCAL_ONLY")
+
+    def test_world_blocks_are_not_market_modules_and_have_no_forecast_target(self):
+        """Blocks 15/17 are ``kind=world`` scenario blocks: no MarketModule, no forecast contract."""
+        from amfe.markets.contract import MarketError, get_module
+        import forecast_api
+
+        for module_id in ("world.institutions", "world.technology"):
+            with self.subTest(module=module_id):
+                pass_ = self.passport(module_id)
+                self.assertEqual(pass_["kind"], "world")
+                self.assertEqual(pass_["version"], "0.1.0")
+                self.assertEqual(pass_["owner"], "track-b")
+                self.assertEqual(pass_["data_status"], "ASSUMPTION_BASED")
+                self.assertIsNone(pass_["data_sha256"])
+                with self.assertRaises(MarketError):
+                    get_module(module_id)
+                for entry in pass_["entrypoints"]:
+                    resolve_entrypoint(entry)
+        market_ids = {str(module.module_id) for module in forecast_api.get_modules()}
+        self.assertNotIn("world.institutions", market_ids)
+        self.assertNotIn("world.technology", market_ids)
 
     def test_every_passport_is_research_only_without_promotion_events(self):
         """admission=false: no passport has a status event, criteria or an independent review."""
