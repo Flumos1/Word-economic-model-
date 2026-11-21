@@ -1,7 +1,7 @@
 {
  "schema": "amfe.agent_library.v1",
- "updated_at": "2026-11-20T12:12:29Z",
- "entries": 74,
+ "updated_at": "2026-11-21T06:20:23Z",
+ "entries": 77,
  "open_questions": [
   {
    "id": "mem-lead-0003",
@@ -13,22 +13,22 @@
  "by_role": {
   "accounting-core": 8,
   "baseline-models": 5,
-  "dense-vintages": 18,
+  "dense-vintages": 20,
   "evaluation-harness": 10,
   "lead": 8,
-  "licence-auditor": 3,
+  "licence-auditor": 4,
   "multiplicity-rw": 8,
   "protocol-reviewer": 7,
   "r2-completion": 7
  },
  "by_kind": {
-  "artifact": 32,
+  "artifact": 34,
   "decision": 1,
   "lesson": 15,
   "open_question": 1,
   "role": 9,
   "status": 8,
-  "task": 8
+  "task": 9
  },
  "by_tag": {
   "P-003": 1,
@@ -39,6 +39,8 @@
   "anonymization": 1,
   "api": 1,
   "auth": 1,
+  "block-15": 1,
+  "block17": 1,
   "blocks": 2,
   "bridge": 4,
   "bug": 1,
@@ -55,7 +57,10 @@
   "decision": 1,
   "demo": 1,
   "determinism": 1,
+  "diffusion": 1,
+  "docket": 1,
   "docs-201": 1,
+  "docs-203": 1,
   "docx": 2,
   "evaluation-harness": 1,
   "exposure": 1,
@@ -75,10 +80,12 @@
   "horizons": 7,
   "hormuz": 1,
   "independence": 1,
+  "institutions": 1,
   "intake": 1,
   "lesson": 2,
   "librarian": 2,
   "licence": 3,
+  "licences": 1,
   "manifest": 1,
   "marketing": 1,
   "memory": 1,
@@ -96,10 +103,12 @@
   "process": 2,
   "procurement": 1,
   "products": 2,
+  "prototype": 1,
   "provenance": 2,
   "quality": 1,
   "quotas": 1,
   "registry": 2,
+  "research_only": 1,
   "review": 1,
   "science": 1,
   "scorecard": 2,
@@ -108,12 +117,14 @@
   "sfc": 1,
   "signoff": 2,
   "simulator": 3,
+  "sources": 1,
   "stats": 2,
   "status": 6,
   "stdlib": 1,
   "storage": 2,
   "task": 8,
   "task-69": 1,
+  "technology": 1,
   "tests": 5,
   "time-box": 1,
   "ui": 1,
@@ -219,6 +230,15 @@
   "docs/201_Внешние_прогнозы_20.md": [
    "mem-dense-vintages-0017"
   ],
+  "docs/203_Блок_15_институты.md": [
+   "mem-dense-vintages-0020"
+  ],
+  "docs/204_Блок_17_технологии_ИИ.md": [
+   "mem-dense-vintages-0019"
+  ],
+  "docs/205_Верификация_источников.md": [
+   "mem-licence-auditor-0004"
+  ],
   "docs/97_Лицензии_ряды_и_terms.md": [
    "mem-licence-auditor-0002"
   ],
@@ -294,6 +314,12 @@
   "src/amfe/markets/storage.py": [
    "mem-accounting-core-0007"
   ],
+  "src/amfe/world/institutions.py": [
+   "mem-dense-vintages-0020"
+  ],
+  "src/amfe/world/technology.py": [
+   "mem-dense-vintages-0019"
+  ],
   "tests/test_client_pack_v2.py": [
    "mem-dense-vintages-0008",
    "mem-dense-vintages-0015",
@@ -328,6 +354,9 @@
   "tests/test_hormuz_us_client_pack.py": [
    "mem-dense-vintages-0009"
   ],
+  "tests/test_institutions_scenarios.py": [
+   "mem-dense-vintages-0020"
+  ],
   "tests/test_market_client_pack.py": [
    "mem-dense-vintages-0008"
   ],
@@ -342,8 +371,14 @@
    "mem-dense-vintages-0015",
    "mem-dense-vintages-0016"
   ],
+  "tests/test_source_verification.py": [
+   "mem-licence-auditor-0004"
+  ],
   "tests/test_storage_futures.py": [
    "mem-accounting-core-0007"
+  ],
+  "tests/test_technology_scenarios.py": [
+   "mem-dense-vintages-0019"
   ],
   "tools/c6_calendar.py": [
    "mem-evaluation-harness-0005",
@@ -400,6 +435,9 @@
   "tools/hormuz_us_client_pack.py": [
    "mem-dense-vintages-0009"
   ],
+  "tools/institutions_scenarios.py": [
+   "mem-dense-vintages-0020"
+  ],
   "tools/market_bridge.py": [
    "mem-dense-vintages-0007"
   ],
@@ -423,8 +461,14 @@
    "mem-dense-vintages-0012",
    "mem-dense-vintages-0015"
   ],
+  "tools/source_verification.py": [
+   "mem-licence-auditor-0004"
+  ],
   "tools/storage_futures.py": [
    "mem-accounting-core-0007"
+  ],
+  "tools/technology_scenarios.py": [
+   "mem-dense-vintages-0019"
   ]
  }
 }

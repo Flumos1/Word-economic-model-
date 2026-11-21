@@ -142,7 +142,7 @@ ASSUMPTIONS = (
      "replace_with": "оценённые уравнения инвестиций и роста с институциональными регрессорами"},
     {"id": "A6", "kind": "ASSUMPTION_BASED",
      "statement": ("Сценарии задаются явными сдвигами по каждому индикатору и magnitude; "
-                   "рамп r_t=min(1,t/ramp_years) — линейный и одинаковый для всех индикаторов."),
+                   "рампа r_t=min(1,t/ramp_years) — линейная и одинаковая для всех индикаторов."),
      "replace_with": "датированные институциональные события (реформы/откаты) как PIT-сценарии"},
     {"id": "A7", "kind": "ASSUMPTION_BASED",
      "statement": ("Разброс (стандартное отклонение шести индикаторов) трактуется как мера "
@@ -154,7 +154,7 @@ ASSUMPTIONS = (
      "replace_with": "слой вероятностей (блок 14) и датированные события (блок 16)"},
     {"id": "A9", "kind": "ASSUMPTION_BASED",
      "statement": ("Период — год, горизонт 5 лет по умолчанию; лагов между качеством и каналами, "
-                   "кроме рамп-профиля, нет; обратной связи от инвестиций к качеству нет."),
+                   "кроме рампы, нет; обратной связи от инвестиций к качеству нет."),
      "replace_with": "квартальная частота и лаговая структура, оценённая на данных"},
     {"id": "A10", "kind": "ASSUMPTION_BASED",
      "statement": ("Блок не читает данные: нет WGI/ICRG/BTI/V-Dem, нет сети и часов; "
@@ -813,7 +813,7 @@ def scenario_overlay(profile: InstitutionProfile, scenario: InstitutionScenario,
         investment = _investment(parameters, score - base_score)
         growth = _growth(parameters, score - base_score)
         if ramp + TOLERANCE < previous_ramp:  # pragma: no cover - min() guarantees monotonicity
-            raise InstitutionError("рамп-профиль немонотонен (fail-closed)")
+            raise InstitutionError("рампа немонотонна (fail-closed)")
         previous_ramp = ramp
         path.append({
             "year": year,
