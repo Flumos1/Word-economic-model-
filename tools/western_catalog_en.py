@@ -305,7 +305,7 @@ def convert(html_text: str, pdf_path: Path) -> int:
     pdf_path.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory() as tmp:
         source = Path(tmp) / "catalog_en.html"
-        source.write_text(html_text, encoding="utf-8")
+        source.write_text(html_text, encoding="utf-8", newline="\n")
         if pdf_path.exists():
             pdf_path.unlink()
         completed = subprocess.run(
