@@ -324,6 +324,51 @@ class BusinessSite(unittest.TestCase):
                 self.assertNotIn(token, page, f"{name} contains {token}")
             self.assertIsNone(re.search(r"(?:-?\d+(?:\.\d+)?,\s*){12,}", page), name)
 
+class Cases100Page(unittest.TestCase):
+    """The published 100-case catalog page must stay honest and self-contained."""
+
+    def test_pages_exist_and_counts(self):
+        ru = read("cases-100.html")
+        en = read("en/cases-100.html")
+        for page, lang in ((ru, "ru"), (en, "en")):
+            plain = text_of(page)
+            self.assertIn("100", plain)
+            self.assertIn("50", plain)
+            self.assertIn("not client", plain)
+            self.assertIn("HYPOTHESIS", plain)
+            self.assertIn("NOT_FETCHED", plain)
+            self.assertIn("RESEARCH_ONLY", plain)
+            self.assertIn("admission=false", plain)
+            self.assertIn(CONTACT, page)
+            self.assertNotIn("50 из 100", plain)
+            self.assertNotIn("50 of the 100", plain)
+
+    def test_pdf_links_and_assets(self):
+        for page in (read("cases-100.html"), read("en/cases-100.html")):
+            self.assertIn("assets/cases/catalog.pdf", page)
+            self.assertIn("assets/cases/catalog_en.pdf", page)
+        for name in ("catalog.pdf", "catalog_en.pdf"):
+            path = BUSINESS / "assets" / "cases" / name
+            self.assertTrue(path.is_file(), name)
+            self.assertGreater(path.stat().st_size, 50_000, name)
+
+    def test_no_forms_scripts_or_external_resources(self):
+        for page in (read("cases-100.html"), read("en/cases-100.html")):
+            for token in FORBIDDEN_RESOURCE_TOKENS + FORBIDDEN_DATA_TOKENS:
+                self.assertNotIn(token, page.lower(), token)
+
+    def test_sitemap_includes_catalog_pages(self):
+        sitemap = (RESEARCH / "sitemap.xml").read_text(encoding="utf-8")
+        self.assertIn("/business/cases-100.html</loc>", sitemap)
+        self.assertIn("/business/en/cases-100.html</loc>", sitemap)
+
+    def test_named_companies_are_hypotheses_not_clients(self):
+        for page in (read("cases-100.html"), read("en/cases-100.html")):
+            plain = text_of(page).lower()
+            self.assertIn("гипотез", plain) if "гипотез" in plain else self.assertIn("hypothes", plain)
+            for claim in ("наш клиент", "our client", "we worked with"):
+                self.assertNotIn(claim, plain)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
