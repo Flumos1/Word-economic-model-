@@ -1,12 +1,12 @@
 # Библиотека памяти AMFE
 
-Обновлено: 2026-11-21T10:59:38Z · записей: 85
+Обновлено: 2026-11-21T11:46:59Z · записей: 89
 
 ## По ролям
 
 - `accounting-core` — 8 записей (`agents/memory/accounting-core.jsonl`)
 - `baseline-models` — 5 записей (`agents/memory/baseline-models.jsonl`)
-- `dense-vintages` — 27 записей (`agents/memory/dense-vintages.jsonl`)
+- `dense-vintages` — 31 записей (`agents/memory/dense-vintages.jsonl`)
 - `evaluation-harness` — 10 записей (`agents/memory/evaluation-harness.jsonl`)
 - `lead` — 9 записей (`agents/memory/lead.jsonl`)
 - `licence-auditor` — 4 записей (`agents/memory/licence-auditor.jsonl`)
@@ -18,6 +18,8 @@
 
 - mem-dense-vintages-0023 (dense-vintages): Кто владелец почтового канала и проверенных контактов по 5 аккаунтам?
 - mem-dense-vintages-0027 (dense-vintages): Коммерческий слой: подтвердить USD-цены и судьбу черновиков кейсов
+- mem-dense-vintages-0029 (dense-vintages): Мост 15/17: база блока 17, двойной счёт TFP в индексе, энергоканал институтов
+- mem-dense-vintages-0031 (dense-vintages): Куда прикладывать кейсы и кто отвечает за их отправку?
 - mem-lead-0003 (lead): Активация prereg 0.3 и потолок T1 C4
 
 ## Артефакты
@@ -50,9 +52,18 @@
 - `docs/204_Блок_17_технологии_ИИ.md` ← mem-dense-vintages-0019
 - `docs/205_Верификация_источников.md` ← mem-licence-auditor-0004
 - `docs/207_План_до_конечного_продукта.md` ← mem-lead-0009
+- `docs/208_Коммерческие_кейсы.md` ← mem-dense-vintages-0030
 - `docs/209_Исследование_заказчиков.md` ← mem-dense-vintages-0025
+- `docs/210_Мост_блоков_15_17.md` ← mem-dense-vintages-0028
 - `docs/211_Сайт_коммерческий.md` ← mem-dense-vintages-0026
 - `docs/97_Лицензии_ряды_и_terms.md` ← mem-licence-auditor-0002
+- `marketing/cases/case_flaks_procurement.md` ← mem-dense-vintages-0030
+- `marketing/cases/case_flaks_procurement.pdf` ← mem-dense-vintages-0030
+- `marketing/cases/case_taneco_refining.md` ← mem-dense-vintages-0030
+- `marketing/cases/case_taneco_refining.pdf` ← mem-dense-vintages-0030
+- `marketing/cases/case_tatneft_budget.md` ← mem-dense-vintages-0030
+- `marketing/cases/case_tatneft_budget.pdf` ← mem-dense-vintages-0030
+- `marketing/cases/manifest.json` ← mem-dense-vintages-0030
 - `marketing/crm_pipeline.csv` ← mem-dense-vintages-0014
 - `marketing/letters/gazpromneft.md` ← mem-dense-vintages-0014
 - `marketing/letters/irk.md` ← mem-dense-vintages-0014
@@ -95,8 +106,10 @@
 - `src/amfe/forecast/country.py` ← mem-r2-completion-0006
 - `src/amfe/markets/storage.py` ← mem-accounting-core-0007
 - `src/amfe/world/institutions.py` ← mem-dense-vintages-0020
+- `src/amfe/world/scenario_bridge.py` ← mem-dense-vintages-0028
 - `src/amfe/world/technology.py` ← mem-dense-vintages-0019
 - `tests/test_account_research.py` ← mem-dense-vintages-0025
+- `tests/test_cases.py` ← mem-dense-vintages-0030
 - `tests/test_client_pack_v2.py` ← mem-dense-vintages-0008, mem-dense-vintages-0015, mem-dense-vintages-0018, mem-dense-vintages-0021, mem-dense-vintages-0024
 - `tests/test_country_forecast.py` ← mem-r2-completion-0006
 - `tests/test_external_scorecard_v2.py` ← mem-dense-vintages-0017
@@ -112,12 +125,14 @@
 - `tests/test_marketing_crm.py` ← mem-dense-vintages-0014
 - `tests/test_module_registry.py` ← mem-dense-vintages-0008, mem-dense-vintages-0021
 - `tests/test_outreach_batch.py` ← mem-dense-vintages-0022
+- `tests/test_scenario_bridge.py` ← mem-dense-vintages-0028
 - `tests/test_simulator_ui.py` ← mem-dense-vintages-0012, mem-dense-vintages-0015, mem-dense-vintages-0016, mem-dense-vintages-0024
 - `tests/test_site_business.py` ← mem-dense-vintages-0026
 - `tests/test_source_verification.py` ← mem-licence-auditor-0004
 - `tests/test_storage_futures.py` ← mem-accounting-core-0007
 - `tests/test_technology_scenarios.py` ← mem-dense-vintages-0019
 - `tools/account_research.py` ← mem-dense-vintages-0025
+- `tools/build_cases.py` ← mem-dense-vintages-0030
 - `tools/build_outreach_batch.py` ← mem-dense-vintages-0022
 - `tools/c6_calendar.py` ← mem-evaluation-harness-0005, mem-evaluation-harness-0006
 - `tools/c6_runbook.py` ← mem-evaluation-harness-0010
@@ -141,6 +156,7 @@
 - `tools/policy_scenarios.py` ← mem-baseline-models-0004
 - `tools/quantity_bridge.py` ← mem-dense-vintages-0007
 - `tools/register_modules.py` ← mem-dense-vintages-0008, mem-dense-vintages-0021
+- `tools/scenario_bridge.py` ← mem-dense-vintages-0028
 - `tools/sector_exposure.py` ← mem-accounting-core-0006, mem-dense-vintages-0007
 - `tools/simulator_ui.py` ← mem-dense-vintages-0012, mem-dense-vintages-0015, mem-dense-vintages-0024
 - `tools/source_verification.py` ← mem-licence-auditor-0004

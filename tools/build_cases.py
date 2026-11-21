@@ -263,34 +263,46 @@ def build_docx(spec: dict) -> Path:
 
 
 def convert_pdf(docx_path: Path) -> Path:
+    """Convert one DOCX to PDF, always rebuilding so the PDF cannot lag behind the Markdown."""
     if not SOFFICE.exists():
         raise FileNotFoundError(f"LibreOffice not found: {SOFFICE}")
     pdf_path = CASES / f"{docx_path.stem}.pdf"
-    # Reuse a valid PDF produced by this builder or by the same manual conversion; the manifest
-    # hashes the actual files, and a PDF is a derived deliverable, not a source of numbers.
-    if pdf_path.exists() and pdf_path.stat().st_size > 0:
-        return pdf_path
-    done = subprocess.run(
-        [
-            str(SOFFICE),
-            "--headless",
-            "--nolockcheck",
-            "--norestore",
-            "--convert-to",
-            "pdf",
-            "--outdir",
-            str(CASES),
-            str(docx_path),
-        ],
-        capture_output=True,
-        text=True,
-        timeout=240,
-    )
-    if done.returncode != 0 or not pdf_path.exists():
-        raise RuntimeError(
-            f"PDF conversion failed for {docx_path.name}: {done.stderr or done.stdout}"
-        )
-    return pdf_path
+    source = CASES / f"{docx_path.stem}.md"
+    if pdf_path.exists():
+        pdf_path.unlink()
+    last_error = ""
+    for attempt in range(3):
+        try:
+            done = subprocess.run(
+                [
+                    str(SOFFICE),
+                    "--headless",
+                    "--nolockcheck",
+                    "--norestore",
+                    "--convert-to",
+                    "pdf",
+                    "--outdir",
+                    str(CASES),
+                    str(docx_path),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=180,
+            )
+            last_error = (done.stderr or done.stdout or "").strip() or f"exit {done.returncode}"
+        except subprocess.TimeoutExpired:
+            last_error = "timeout"
+        # LibreOffice may hand the job to an already running instance and return immediately,
+        # so wait for the file instead of trusting the exit code alone.
+        deadline = time.time() + 120
+        while time.time() < deadline:
+            if pdf_path.exists() and pdf_path.stat().st_size > 0:
+                if pdf_path.stat().st_mtime + 2 < source.stat().st_mtime:
+                    raise RuntimeError(f"PDF older than its Markdown: {pdf_path.name}")
+                return pdf_path
+            time.sleep(2)
+        time.sleep(2.0 * (attempt + 1))
+    raise RuntimeError(f"PDF conversion failed for {docx_path.name}: {last_error}")
 
 
 def page_count(path: Path) -> int | None:

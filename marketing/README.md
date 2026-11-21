@@ -13,6 +13,7 @@
 | [outreach.md](outreach.md) | 3 последовательности писем + LinkedIn + скрипт звонка |
 | [outreach_5.md](outreach_5.md) | первые 5 персонализированных касаний: персона, боли, use cases, письма, вложения, критерий успеха |
 | [research/](research/README.md) | 10 досье аккаунтов: боли, buying center, триггеры, use cases, discovery-вопросы (валидируется `tools/account_research.py`) |
+| [cases/](cases/manifest.json) | три двухстраничных кейса (бюджет/CAPEX, переработка, TCO/закупки) + PDF и SHA-256-манифест (собирается `tools/build_cases.py`, описание — [docs/208](../docs/208_Коммерческие_кейсы.md)) |
 | [letters/](letters/) | готовые тексты писем по 5 аккаунтам (только плейсхолдеры, не отправлены) |
 | [crm_pipeline.csv.tmpl](crm_pipeline.csv.tmpl) | 20 аккаунтов, стадии, next_action/next_date (валидируется `tools/marketing_crm.py`) |
 | [discovery_questions.md](discovery_questions.md) | 20 вопросов для квалификации |
@@ -42,6 +43,16 @@ python -m unittest tests.test_account_research
 
 Валидатор fail-closed: дубли id/компаний, неизвестная стадия, битая дата, tier не из пересчёта,
 недостача аккаунтов, адрес или телефон в любом поле → exit 2. Файлы не пишет.
+
+## Собрать и проверить кейсы
+
+```powershell
+python tools/build_cases.py            # Markdown -> DOCX -> PDF + marketing/cases/manifest.json
+python tools/build_cases.py --check    # сверка SHA-256, размеров и числа страниц, ничего не пишет
+python -m unittest tests.test_cases    # 17 тестов: файлы, PDF, числа против источников, no-client, no-raw
+```
+
+Правило: сначала правится Markdown, потом пересобирается PDF; руками хеши в манифесте не правятся.
 
 ## Правила использования
 

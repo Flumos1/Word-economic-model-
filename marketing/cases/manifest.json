@@ -70,7 +70,7 @@
     {
       "path": "case_flaks_procurement.pdf",
       "kind": "pdf",
-      "sha256": "ade01dab2248e19c9a422e16d3b4208203282c9bb21e8aec8976cebfd7c9cfb1",
+      "sha256": "5d2f6e5bbbcc39ef132ea49bc404426e7dec4a86f21adc30dc80643edf3c1082",
       "bytes": 189373,
       "pages": 2
     },
@@ -83,7 +83,7 @@
     {
       "path": "case_taneco_refining.pdf",
       "kind": "pdf",
-      "sha256": "762c8df9697f00e9313f0ffe908ee6df17a2c57492ec928ed6f7a90aaab22a88",
+      "sha256": "4ad5a82a2ececa388ca47f4190f8c80c48054cf8eacf656190e01faa7d2efb9e",
       "bytes": 204916,
       "pages": 2
     },
@@ -96,7 +96,7 @@
     {
       "path": "case_tatneft_budget.pdf",
       "kind": "pdf",
-      "sha256": "e86a7e95cfdf47bd9d07582a1e0cffa2256dfad20a4fb8b1a5daac2eea06e137",
+      "sha256": "a5eae85f4d15ac25719cd92298012b610807fdfb0e82f1a029590cfa0b7cf0a1",
       "bytes": 208725,
       "pages": 2
     }

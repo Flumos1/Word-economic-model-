@@ -1,7 +1,7 @@
 {
  "schema": "amfe.agent_library.v1",
- "updated_at": "2026-11-21T10:59:38Z",
- "entries": 85,
+ "updated_at": "2026-11-21T11:46:59Z",
+ "entries": 89,
  "open_questions": [
   {
    "id": "mem-dense-vintages-0023",
@@ -16,6 +16,18 @@
    "task": ""
   },
   {
+   "id": "mem-dense-vintages-0029",
+   "title": "Мост 15/17: база блока 17, двойной счёт TFP в индексе, энергоканал институтов",
+   "role": "dense-vintages",
+   "task": ""
+  },
+  {
+   "id": "mem-dense-vintages-0031",
+   "title": "Куда прикладывать кейсы и кто отвечает за их отправку?",
+   "role": "dense-vintages",
+   "task": ""
+  },
+  {
    "id": "mem-lead-0003",
    "title": "Активация prereg 0.3 и потолок T1 C4",
    "role": "lead",
@@ -25,7 +37,7 @@
  "by_role": {
   "accounting-core": 8,
   "baseline-models": 5,
-  "dense-vintages": 27,
+  "dense-vintages": 31,
   "evaluation-harness": 10,
   "lead": 9,
   "licence-auditor": 4,
@@ -34,10 +46,10 @@
   "r2-completion": 7
  },
  "by_kind": {
-  "artifact": 39,
+  "artifact": 41,
   "decision": 1,
   "lesson": 15,
-  "open_question": 3,
+  "open_question": 5,
   "role": 9,
   "status": 9,
   "task": 9
@@ -55,9 +67,9 @@
   "block-15": 1,
   "block15": 1,
   "block17": 2,
-  "blockers": 2,
-  "blocks": 2,
-  "bridge": 4,
+  "blockers": 3,
+  "blocks": 3,
+  "bridge": 6,
   "bug": 1,
   "business": 2,
   "c4": 1,
@@ -65,7 +77,7 @@
   "cache": 3,
   "candidates": 1,
   "canonical-write": 1,
-  "cases": 1,
+  "cases": 3,
   "client-pack": 3,
   "client_pack": 1,
   "commercial": 1,
@@ -80,6 +92,7 @@
   "docket": 1,
   "docs-201": 1,
   "docs-203": 1,
+  "docs-210": 1,
   "docx": 2,
   "evaluation-harness": 1,
   "evidence": 1,
@@ -108,16 +121,18 @@
   "licence": 3,
   "licences": 1,
   "manifest": 1,
-  "marketing": 2,
+  "marketing": 3,
   "memory": 1,
   "models": 1,
   "modules": 1,
   "oil": 1,
   "oil-gas": 1,
+  "open-question": 1,
   "orchestrator": 1,
-  "outreach": 3,
+  "outreach": 4,
   "p2": 1,
-  "pilot": 1,
+  "pdf": 1,
+  "pilot": 2,
   "pilot-offer": 1,
   "pit": 5,
   "policy": 1,
@@ -132,8 +147,10 @@
   "quotas": 1,
   "registry": 3,
   "research": 1,
-  "research_only": 2,
+  "research-only": 1,
+  "research_only": 3,
   "review": 1,
+  "scenario": 1,
   "science": 1,
   "scorecard": 2,
   "sector": 1,
@@ -272,14 +289,41 @@
   "docs/207_План_до_конечного_продукта.md": [
    "mem-lead-0009"
   ],
+  "docs/208_Коммерческие_кейсы.md": [
+   "mem-dense-vintages-0030"
+  ],
   "docs/209_Исследование_заказчиков.md": [
    "mem-dense-vintages-0025"
+  ],
+  "docs/210_Мост_блоков_15_17.md": [
+   "mem-dense-vintages-0028"
   ],
   "docs/211_Сайт_коммерческий.md": [
    "mem-dense-vintages-0026"
   ],
   "docs/97_Лицензии_ряды_и_terms.md": [
    "mem-licence-auditor-0002"
+  ],
+  "marketing/cases/case_flaks_procurement.md": [
+   "mem-dense-vintages-0030"
+  ],
+  "marketing/cases/case_flaks_procurement.pdf": [
+   "mem-dense-vintages-0030"
+  ],
+  "marketing/cases/case_taneco_refining.md": [
+   "mem-dense-vintages-0030"
+  ],
+  "marketing/cases/case_taneco_refining.pdf": [
+   "mem-dense-vintages-0030"
+  ],
+  "marketing/cases/case_tatneft_budget.md": [
+   "mem-dense-vintages-0030"
+  ],
+  "marketing/cases/case_tatneft_budget.pdf": [
+   "mem-dense-vintages-0030"
+  ],
+  "marketing/cases/manifest.json": [
+   "mem-dense-vintages-0030"
   ],
   "marketing/crm_pipeline.csv": [
    "mem-dense-vintages-0014"
@@ -410,11 +454,17 @@
   "src/amfe/world/institutions.py": [
    "mem-dense-vintages-0020"
   ],
+  "src/amfe/world/scenario_bridge.py": [
+   "mem-dense-vintages-0028"
+  ],
   "src/amfe/world/technology.py": [
    "mem-dense-vintages-0019"
   ],
   "tests/test_account_research.py": [
    "mem-dense-vintages-0025"
+  ],
+  "tests/test_cases.py": [
+   "mem-dense-vintages-0030"
   ],
   "tests/test_client_pack_v2.py": [
    "mem-dense-vintages-0008",
@@ -469,6 +519,9 @@
   "tests/test_outreach_batch.py": [
    "mem-dense-vintages-0022"
   ],
+  "tests/test_scenario_bridge.py": [
+   "mem-dense-vintages-0028"
+  ],
   "tests/test_simulator_ui.py": [
    "mem-dense-vintages-0012",
    "mem-dense-vintages-0015",
@@ -489,6 +542,9 @@
   ],
   "tools/account_research.py": [
    "mem-dense-vintages-0025"
+  ],
+  "tools/build_cases.py": [
+   "mem-dense-vintages-0030"
   ],
   "tools/build_outreach_batch.py": [
    "mem-dense-vintages-0022"
@@ -567,6 +623,9 @@
   "tools/register_modules.py": [
    "mem-dense-vintages-0008",
    "mem-dense-vintages-0021"
+  ],
+  "tools/scenario_bridge.py": [
+   "mem-dense-vintages-0028"
   ],
   "tools/sector_exposure.py": [
    "mem-accounting-core-0006",
