@@ -1,7 +1,7 @@
 {
  "schema": "amfe.agent_library.v1",
- "updated_at": "2026-11-21T12:37:22Z",
- "entries": 95,
+ "updated_at": "2026-11-21T12:41:25Z",
+ "entries": 96,
  "open_questions": [
   {
    "id": "mem-dense-vintages-0023",
@@ -49,7 +49,7 @@
  "by_role": {
   "accounting-core": 8,
   "baseline-models": 5,
-  "dense-vintages": 37,
+  "dense-vintages": 38,
   "evaluation-harness": 10,
   "lead": 9,
   "licence-auditor": 4,
@@ -58,7 +58,7 @@
   "r2-completion": 7
  },
  "by_kind": {
-  "artifact": 44,
+  "artifact": 45,
   "decision": 1,
   "lesson": 16,
   "open_question": 7,
@@ -90,7 +90,8 @@
   "cache": 3,
   "candidates": 1,
   "canonical-write": 1,
-  "cases": 3,
+  "cases": 4,
+  "catalog": 1,
   "client-pack": 3,
   "client_pack": 1,
   "commercial": 1,
@@ -150,7 +151,7 @@
   "osint": 1,
   "outreach": 4,
   "p2": 1,
-  "pdf": 1,
+  "pdf": 2,
   "pilot": 2,
   "pilot-offer": 1,
   "pit": 5,
@@ -167,7 +168,7 @@
   "registry": 3,
   "research": 1,
   "research-only": 1,
-  "research_only": 4,
+  "research_only": 5,
   "review": 1,
   "scenario": 1,
   "science": 1,
@@ -191,7 +192,7 @@
   "ui": 1,
   "v1-compat": 1,
   "v2": 6,
-  "western": 2,
+  "western": 3,
   "windows-crlf": 1,
   "world": 2,
   "world-blocks": 1,
@@ -339,6 +340,9 @@
   "docs/211_Сайт_коммерческий.md": [
    "mem-dense-vintages-0026"
   ],
+  "docs/214_50_западных_кейсов.md": [
+   "mem-dense-vintages-0038"
+  ],
   "docs/215_Западные_заказчики.md": [
    "mem-dense-vintages-0032"
   ],
@@ -401,6 +405,18 @@
   ],
   "marketing/research/README.md": [
    "mem-dense-vintages-0025"
+  ],
+  "marketing/western_cases/cases.json": [
+   "mem-dense-vintages-0038"
+  ],
+  "marketing/western_cases/catalog.md": [
+   "mem-dense-vintages-0038"
+  ],
+  "marketing/western_cases/catalog.pdf": [
+   "mem-dense-vintages-0038"
+  ],
+  "marketing/western_cases/manifest.json": [
+   "mem-dense-vintages-0038"
   ],
   "marketing/western_research/accounts.json": [
    "mem-dense-vintages-0032"
@@ -602,6 +618,9 @@
   "tests/test_technology_scenarios.py": [
    "mem-dense-vintages-0019"
   ],
+  "tests/test_western_cases.py": [
+   "mem-dense-vintages-0038"
+  ],
   "tests/test_western_research.py": [
    "mem-dense-vintages-0032"
   ],
@@ -620,6 +639,9 @@
   ],
   "tools/c6_runbook.py": [
    "mem-evaluation-harness-0010"
+  ],
+  "tools/case_catalog.py": [
+   "mem-dense-vintages-0038"
   ],
   "tools/client_pack_v2.py": [
    "mem-dense-vintages-0015",

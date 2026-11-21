@@ -389,8 +389,11 @@ def _short(text: str, limit: int) -> str:
     text = " ".join(text.split())
     if len(text) <= limit:
         return text
-    cut = text[: limit - 1].rstrip(" ,;:-")
-    return cut + "…"
+    head = text[: limit - 1]
+    space = head.rfind(" ")
+    if space >= limit - 25:  # cut on a word boundary instead of mid-word
+        head = head[:space]
+    return head.rstrip(" ,;:-") + "…"
 
 
 def render_markdown(catalog: dict, source_sha: str) -> str:
@@ -485,7 +488,7 @@ def render_markdown(catalog: dict, source_sha: str) -> str:
                 num=case["id"].replace("wc-", ""),
                 company=case["company"],
                 segment=case["segment"],
-                question=_short(case["question"], 150).replace("|", "/"),
+                question=case["question"].replace("|", "/"),
                 modules=", ".join(case["modules"]),
                 weeks=case["duration_weeks"],
                 price=fmt_usd(case["price_usd"]),
@@ -499,7 +502,7 @@ def render_markdown(catalog: dict, source_sha: str) -> str:
         group = by_company[company]
         head = group[0]
         items = "; ".join(
-            f"`{case['id']}` — {_short(case['question'], 100)} ({', '.join(case['modules'])})"
+            f"`{case['id']}` — {case['question']} ({', '.join(case['modules'])})"
             for case in group
         )
         lines.append(f"- **{company}** (`{head['segment']}`, {head['hq_region']}): {items}")

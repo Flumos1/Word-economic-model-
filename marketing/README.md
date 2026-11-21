@@ -61,7 +61,7 @@ python -m unittest tests.test_cases    # 17 тестов: файлы, PDF, чи�
 python tools/case_catalog.py            # cases.json -> catalog.md + catalog.pdf (3 стр.) + manifest.json
 python tools/case_catalog.py --check    # сверка SHA-256, размеров и числа страниц, ничего не пишет
 python tools/case_catalog.py --json     # сводка покрытия в stdout, файлы не пишутся
-python -m unittest tests.test_western_cases   # 25 тестов: 50 кейсов, цены/сроки, покрытие, PDF, CLI
+python -m unittest tests.test_western_cases   # 26 тестов: 50 кейсов, цены/сроки, покрытие, PDF, CLI
 ```
 
 Валидатор fail-closed: не 50 кейсов, дубль id или вопроса, цена вне полосы, срок не по полосе,

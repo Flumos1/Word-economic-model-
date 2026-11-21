@@ -1,12 +1,12 @@
 # Библиотека памяти AMFE
 
-Обновлено: 2026-11-21T12:37:22Z · записей: 95
+Обновлено: 2026-11-21T12:41:25Z · записей: 96
 
 ## По ролям
 
 - `accounting-core` — 8 записей (`agents/memory/accounting-core.jsonl`)
 - `baseline-models` — 5 записей (`agents/memory/baseline-models.jsonl`)
-- `dense-vintages` — 37 записей (`agents/memory/dense-vintages.jsonl`)
+- `dense-vintages` — 38 записей (`agents/memory/dense-vintages.jsonl`)
 - `evaluation-harness` — 10 записей (`agents/memory/evaluation-harness.jsonl`)
 - `lead` — 9 записей (`agents/memory/lead.jsonl`)
 - `licence-auditor` — 4 записей (`agents/memory/licence-auditor.jsonl`)
@@ -64,6 +64,7 @@
 - `docs/209_Исследование_заказчиков.md` ← mem-dense-vintages-0025
 - `docs/210_Мост_блоков_15_17.md` ← mem-dense-vintages-0028
 - `docs/211_Сайт_коммерческий.md` ← mem-dense-vintages-0026
+- `docs/214_50_западных_кейсов.md` ← mem-dense-vintages-0038
 - `docs/215_Западные_заказчики.md` ← mem-dense-vintages-0032
 - `docs/97_Лицензии_ряды_и_terms.md` ← mem-licence-auditor-0002
 - `knowledge_base/README.md` ← mem-dense-vintages-0035
@@ -85,6 +86,10 @@
 - `marketing/letters/tatneft.md` ← mem-dense-vintages-0014
 - `marketing/outreach_5.md` ← mem-dense-vintages-0014
 - `marketing/research/README.md` ← mem-dense-vintages-0025
+- `marketing/western_cases/cases.json` ← mem-dense-vintages-0038
+- `marketing/western_cases/catalog.md` ← mem-dense-vintages-0038
+- `marketing/western_cases/catalog.pdf` ← mem-dense-vintages-0038
+- `marketing/western_cases/manifest.json` ← mem-dense-vintages-0038
 - `marketing/western_research/accounts.json` ← mem-dense-vintages-0032
 - `outreach/batch_2026-11-21/crm_update.md` ← mem-dense-vintages-0022
 - `outreach/batch_2026-11-21/followup_legat_2026-11-27.md` ← mem-dense-vintages-0022
@@ -147,12 +152,14 @@
 - `tests/test_source_verification.py` ← mem-licence-auditor-0004
 - `tests/test_storage_futures.py` ← mem-accounting-core-0007
 - `tests/test_technology_scenarios.py` ← mem-dense-vintages-0019
+- `tests/test_western_cases.py` ← mem-dense-vintages-0038
 - `tests/test_western_research.py` ← mem-dense-vintages-0032
 - `tools/account_research.py` ← mem-dense-vintages-0025
 - `tools/build_cases.py` ← mem-dense-vintages-0030
 - `tools/build_outreach_batch.py` ← mem-dense-vintages-0022
 - `tools/c6_calendar.py` ← mem-evaluation-harness-0005, mem-evaluation-harness-0006
 - `tools/c6_runbook.py` ← mem-evaluation-harness-0010
+- `tools/case_catalog.py` ← mem-dense-vintages-0038
 - `tools/client_pack_v2.py` ← mem-dense-vintages-0015, mem-dense-vintages-0018, mem-dense-vintages-0024
 - `tools/country_forecast.py` ← mem-baseline-models-0005, mem-r2-completion-0006
 - `tools/eval_cache.py` ← mem-r2-completion-0005
