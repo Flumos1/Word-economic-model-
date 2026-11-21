@@ -318,7 +318,7 @@ def check_frozen(facts: dict) -> list:
 def git_tracked_files(root: Path) -> tuple:
     """Return ``(files, error)`` from ``git ls-files``; error means the index is not available."""
     try:
-        completed = subprocess.run(["git", "-C", str(root), "ls-files"], capture_output=True,
+        completed = subprocess.run(["git", "-C", str(root), "ls-files"], capture_output=True, encoding="utf-8", errors="replace",
                                    text=True, timeout=120)
     except (OSError, subprocess.TimeoutExpired) as exc:
         return [], f"git недоступен: {exc!r}"

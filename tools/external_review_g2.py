@@ -943,7 +943,7 @@ def _public_domain_aggregates(repo: Path) -> dict:
 def _tracked_raw_data(repo: Path) -> dict:
     try:
         done = subprocess.run(["git", "-C", str(repo), "ls-files"],
-                              capture_output=True, text=True, timeout=120, check=False)
+                              capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=120, check=False)
         if done.returncode != 0:
             return {"available": False, "files": []}
     except (OSError, subprocess.SubprocessError):

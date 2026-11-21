@@ -193,7 +193,7 @@ def _numbers(text: str, pattern: str) -> list[int]:
 def _git_tracked(repo: Path) -> dict:
     try:
         done = subprocess.run(["git", "-C", str(repo), "ls-files"], capture_output=True,
-                              text=True, timeout=120, check=False)
+                              text=True, encoding="utf-8", errors="replace", timeout=120, check=False)
         if done.returncode != 0:
             return {"available": False, "files": []}
         return {"available": True, "files": [line.strip() for line in done.stdout.splitlines()
