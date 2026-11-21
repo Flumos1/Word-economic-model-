@@ -387,6 +387,25 @@ class TestCatalogArtifacts(unittest.TestCase):
 
 
 class TestDocumentationAndPricing(unittest.TestCase):
+    def test_26_numbers_trace_to_source_documents(self):
+        sources = {
+            "186": ROOT / "docs" / "186_Ормуз_нефть_США_последствия.md",
+            "188": ROOT / "docs" / "188_Газ_LNG.md",
+            "190": ROOT / "docs" / "190_Клиентский_пакет_Ормуз_США.md",
+        }
+        texts = {key: path.read_text(encoding="utf-8") for key, path in sources.items()}
+        joined = "\n".join(texts.values())
+        anchors = {"168,9": "186", "139,04": "190", "268,52": "190", "112": "190", "177": "190",
+                   "129,36": "190", "8,04": "190", "24,0": "188", "45 bcm": "188"}
+        for token, document in anchors.items():
+            self.assertIn(token, texts[document], f"{token} is not in docs/{document}")
+        # every decimal figure used in a case must exist in one of the source documents
+        decimals = set()
+        for case in load_cases()["cases"]:
+            decimals |= set(re.findall(r"\d+[.,]\d+", case["question"] + " " + case["pain"]))
+        self.assertTrue(decimals)
+        for token in sorted(decimals):
+            self.assertIn(token, joined, f"figure {token} has no source document")
     def test_24_docs214_sections(self):
         self.assertTrue(DOCS214.is_file())
         text = DOCS214.read_text(encoding="utf-8")
