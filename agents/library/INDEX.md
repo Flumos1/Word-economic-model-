@@ -1,6 +1,6 @@
 # Библиотека памяти AMFE
 
-Обновлено: 2026-11-21T07:05:36Z · записей: 81
+Обновлено: 2026-11-21T09:14:16Z · записей: 82
 
 ## По ролям
 
@@ -8,7 +8,7 @@
 - `baseline-models` — 5 записей (`agents/memory/baseline-models.jsonl`)
 - `dense-vintages` — 24 записей (`agents/memory/dense-vintages.jsonl`)
 - `evaluation-harness` — 10 записей (`agents/memory/evaluation-harness.jsonl`)
-- `lead` — 8 записей (`agents/memory/lead.jsonl`)
+- `lead` — 9 записей (`agents/memory/lead.jsonl`)
 - `licence-auditor` — 4 записей (`agents/memory/licence-auditor.jsonl`)
 - `multiplicity-rw` — 8 записей (`agents/memory/multiplicity-rw.jsonl`)
 - `protocol-reviewer` — 7 записей (`agents/memory/protocol-reviewer.jsonl`)
@@ -48,6 +48,7 @@
 - `docs/203_Блок_15_институты.md` ← mem-dense-vintages-0020
 - `docs/204_Блок_17_технологии_ИИ.md` ← mem-dense-vintages-0019
 - `docs/205_Верификация_источников.md` ← mem-licence-auditor-0004
+- `docs/207_План_до_конечного_продукта.md` ← mem-lead-0009
 - `docs/97_Лицензии_ряды_и_terms.md` ← mem-licence-auditor-0002
 - `marketing/crm_pipeline.csv` ← mem-dense-vintages-0014
 - `marketing/letters/gazpromneft.md` ← mem-dense-vintages-0014
