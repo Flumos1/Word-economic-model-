@@ -1,0 +1,802 @@
+{
+  "schema": "amfe.market_intelligence.org.v1",
+  "version": "1.0.0",
+  "created": "2026-11-21",
+  "author_role": "dense-vintages",
+  "status": "RESEARCH_ONLY",
+  "admission": false,
+  "purpose": "Законная сеть market intelligence: вопрос -> source plan -> collect -> grade -> analysis -> case -> QA -> KB. Сеть собирает только открытые публикации, отчётность и лицензированные БД с доступом; данных в среде нет, поэтому адаптеры строятся, а факты не выдумываются.",
+  "owner": "lead",
+  "team_limit": 11,
+  "lead": "director",
+  "external_reviewers": [
+    {
+      "id": "lead",
+      "source": "protocols/agent_roles.json",
+      "reason": "верхний уровень сети MI не может проверять себя сам: решение по Director принимает оркестратор AMFE, а не роль внутри сети"
+    }
+  ],
+  "process": {
+    "order": [
+      "question",
+      "source_plan",
+      "collect",
+      "grade",
+      "analysis",
+      "case",
+      "qa",
+      "kb"
+    ],
+    "states": [
+      "QUESTION",
+      "SOURCE_PLAN",
+      "COLLECT",
+      "GRADE",
+      "ANALYSIS",
+      "CASE",
+      "QA",
+      "KB"
+    ],
+    "owners": {
+      "question": "director",
+      "source_plan": "director",
+      "collect": "osint-scout",
+      "grade": "evidence-qa",
+      "analysis": "segment-role",
+      "case": "case-writer",
+      "qa": "evidence-qa",
+      "kb": "kb-librarian"
+    },
+    "exit_rule": "стадия закрыта только когда артефакт имеет evidence-статус и ссылку на источник; иначе NOT_FETCHED и явный блокер"
+  },
+  "evidence": {
+    "grades": [
+      "A",
+      "B",
+      "C"
+    ],
+    "grade_titles": {
+      "A": "первоисточник получен: отчётность, регуляторный документ, лицензированный датасет",
+      "B": "надёжный вторичный источник: отраслевое издание, агрегатор, пересказ первоисточника",
+      "C": "открытый комментарий, презентация, слух, неполный след"
+    },
+    "statuses": [
+      "VERIFIED",
+      "PARTIAL",
+      "HYPOTHESIS",
+      "NOT_FETCHED"
+    ],
+    "status_titles": {
+      "VERIFIED": "факт получен из первоисточника, есть retrieved_at, дата и цитата",
+      "PARTIAL": "часть факта подтверждена, часть остаётся гипотезой; цитировать с оговоркой",
+      "HYPOTHESIS": "рабочая гипотеза из внутренней карточки или экспертного суждения; не факт",
+      "NOT_FETCHED": "источник допустим, но данные не получены (нет доступа/сети); значение не подставляется"
+    },
+    "rank": {
+      "NOT_FETCHED": 0,
+      "HYPOTHESIS": 1,
+      "PARTIAL": 2,
+      "VERIFIED": 3
+    },
+    "verified_requires": [
+      "grade A",
+      "source_id из knowledge_base/sources.json",
+      "retrieved_at (дата получения)",
+      "подпись роли evidence-qa"
+    ]
+  },
+  "boundaries": {
+    "lawful_sources_only": true,
+    "allowed_sources": [
+      "открытые публикации и пресс-релизы",
+      "публичная отчётность и раскрытие (годовые отчёты, проспекты, ESG)",
+      "регуляторные и статистические публикации",
+      "лицензированные БД и подписки, к которым есть законный доступ",
+      "OSINT по открытым страницам без обхода авторизации"
+    ],
+    "licensed_databases": "только по подписке или письменному разрешению; ключи и доступы не хранятся в репозитории",
+    "osint": "открытые страницы и публичные реестры; без взлома, без обхода авторизации, без обхода robots/terms, без обхода лимитов",
+    "personal_data": "персональные данные не собираются и не хранятся; только роли и корпоративные контакты через законный канал и человека",
+    "integrity": "без подкупа, без оплаты за конфиденциальную информацию, без недобросовестной конкуренции, без выдачи гипотезы за факт",
+    "sanctions": "санкционный комплаенс: проверка юрисдикций и сторон до касания; ограничения фиксируются, а не обходятся",
+    "network_in_env": "сети в среде нет: адаптеры описываются, вызовы не выполняются, данные не выдумываются",
+    "code": "код не обходит авторизацию, платный доступ и технические ограничения источников",
+    "publication": "ничего не публикуется и не отправляется агентом; внешние действия — только человек",
+    "no_fabrication": "нет данных -> NOT_FETCHED; оценка помечается HYPOTHESIS и не несёт выдуманных цифр"
+  },
+  "non_goals": [
+    "прогноз цен и допущенная модель (это научный трек AMFE, admission=false)",
+    "персональные досье и деанонимизация",
+    "покупка контактов, спам, холодные рассылки от имени агента",
+    "работа с инсайдом, закрытыми базами без подписки, чужими аккаунтами",
+    "оценка компаний как инвестиционная рекомендация"
+  ],
+  "segments": [
+    {
+      "id": "integrated_oil_gas",
+      "title_ru": "Интегрированные нефтегазовые",
+      "in_portfolio": true,
+      "covered_by": [
+        "upstream"
+      ],
+      "contributors": [
+        "downstream-chemicals",
+        "trading-shipping"
+      ]
+    },
+    {
+      "id": "upstream",
+      "title_ru": "Независимый upstream",
+      "in_portfolio": true,
+      "covered_by": [
+        "upstream"
+      ]
+    },
+    {
+      "id": "upstream_gas",
+      "title_ru": "Upstream с газовым профилем",
+      "in_portfolio": true,
+      "covered_by": [
+        "upstream",
+        "gas-lng"
+      ]
+    },
+    {
+      "id": "upstream_international",
+      "title_ru": "Зарубежный upstream",
+      "in_portfolio": true,
+      "covered_by": [
+        "upstream"
+      ]
+    },
+    {
+      "id": "gas_lng",
+      "title_ru": "Газ и СПГ",
+      "in_portfolio": true,
+      "covered_by": [
+        "gas-lng"
+      ]
+    },
+    {
+      "id": "gas",
+      "title_ru": "Газовый бизнес (добыча/поставка)",
+      "in_portfolio": true,
+      "covered_by": [
+        "gas-lng"
+      ]
+    },
+    {
+      "id": "gas_upstream",
+      "title_ru": "Газодобыча",
+      "in_portfolio": true,
+      "covered_by": [
+        "gas-lng"
+      ]
+    },
+    {
+      "id": "refining",
+      "title_ru": "Переработка",
+      "in_portfolio": true,
+      "covered_by": [
+        "downstream-chemicals"
+      ]
+    },
+    {
+      "id": "refining_petrochem",
+      "title_ru": "Переработка и нефтехимия",
+      "in_portfolio": true,
+      "covered_by": [
+        "downstream-chemicals"
+      ]
+    },
+    {
+      "id": "petrochem",
+      "title_ru": "Нефтехимия",
+      "in_portfolio": true,
+      "covered_by": [
+        "downstream-chemicals"
+      ]
+    },
+    {
+      "id": "petrochem_gas_processing",
+      "title_ru": "Газопереработка и нефтехимия",
+      "in_portfolio": true,
+      "covered_by": [
+        "downstream-chemicals"
+      ]
+    },
+    {
+      "id": "trading",
+      "title_ru": "Трейдинг",
+      "in_portfolio": true,
+      "covered_by": [
+        "trading-shipping"
+      ]
+    },
+    {
+      "id": "shipping",
+      "title_ru": "Судоходство и фрахт",
+      "in_portfolio": true,
+      "covered_by": [
+        "trading-shipping"
+      ]
+    },
+    {
+      "id": "oilfield_services",
+      "title_ru": "Сервис и бурение",
+      "in_portfolio": false,
+      "covered_by": [
+        "services-equipment"
+      ]
+    },
+    {
+      "id": "equipment",
+      "title_ru": "Оборудование и подряд",
+      "in_portfolio": false,
+      "covered_by": [
+        "services-equipment"
+      ]
+    },
+    {
+      "id": "utilities_power",
+      "title_ru": "Энергетика и промышленные потребители",
+      "in_portfolio": false,
+      "covered_by": []
+    }
+  ],
+  "review_gates": [
+    "gate-1 source plan: каждый вопрос имеет допустимый класс источника и владельца",
+    "gate-2 evidence: каждая строка имеет grade A/B/C и статус, иначе NOT_FETCHED",
+    "gate-3 independence: QA не проверяет собственную работу (review_role != author)",
+    "gate-4 lawful: нет обхода авторизации, нет персональных данных, есть санкционная проверка",
+    "gate-5 KB: запись валидна, лицензия и свежесть указаны, ссылки существуют"
+  ],
+  "roles": [
+    {
+      "id": "director",
+      "title": "Director, Market Intelligence",
+      "title_ru": "Директор направления market intelligence",
+      "layer": "lead",
+      "mandate": "Принимает вопрос от Lead/клиента, режет его на проверяемые подвопросы, назначает владельца, утверждает source plan и evidence ceiling, разрешает конфликты между ролями, передаёт кейс в QA и KB; не собирает данные сам и не подписывает VERIFIED.",
+      "segments": [],
+      "accounts": [],
+      "questions": [
+        "какой решение-релевантный вопрос задан и кто владелец бюджета решения",
+        "какие 3-5 проверяемых подвопросов закрывают вопрос",
+        "какой минимальный evidence-статус допустим для ответа"
+      ],
+      "inputs": [
+        "docs/191_Маркетинг_нефтегаз.md",
+        "docs/207_План_до_конечного_продукта.md",
+        "docs/209_Исследование_заказчиков.md",
+        "marketing/target_accounts.json"
+      ],
+      "allowed": [
+        "формулировать вопрос и source plan",
+        "назначать роль и write scopes",
+        "останавливать сбор при нарушении red lines"
+      ],
+      "forbidden": [
+        "собирать данные вместо исполнителя",
+        "подписывать VERIFIED",
+        "обещать прогноз/допуск клиенту"
+      ],
+      "outputs": [
+        "task brief",
+        "source plan",
+        "решение по evidence ceiling",
+        "передача в QA"
+      ],
+      "evidence_ceiling": "PARTIAL",
+      "review_role": "lead",
+      "handoff_to": [
+        "evidence-qa",
+        "kb-librarian"
+      ],
+      "prompt": "roles/00_director.md",
+      "memory": "agents/memory/mi-director.jsonl"
+    },
+    {
+      "id": "upstream",
+      "title": "Upstream & Integrated E&P Analyst",
+      "title_ru": "Аналитик upstream и интегрированных E&P",
+      "layer": "segment",
+      "mandate": "Ведёт upstream-экономику и интегрированные аккаунты как владелец evidence-континуитета: добыча, CAPEX, бюджет при шоке цены, налоги, страновой риск; для интегрированных компаний собирает upstream-часть и заказывает downstream/трейдинг-факты у смежных ролей.",
+      "segments": [
+        "integrated_oil_gas",
+        "upstream",
+        "upstream_gas",
+        "upstream_international"
+      ],
+      "accounts": [
+        "TATNEFT",
+        "GAZPROMNEFT",
+        "ROSNEFT",
+        "LUKOIL",
+        "SURGUTNEFTEGAS",
+        "IRKUTSK_OIL",
+        "BASHNEFT",
+        "SLAVNEFT",
+        "RUSSNEFT",
+        "ZARUBEZHNEFT"
+      ],
+      "questions": [
+        "как шок цены меняет бюджет и CAPEX аккаунта",
+        "какие публичные проекты и периметры подтверждены отчётностью",
+        "где заканчивается факт и начинается допущение"
+      ],
+      "inputs": [
+        "marketing/target_accounts.json",
+        "docs/191_Маркетинг_нефтегаз.md",
+        "docs/209_Исследование_заказчиков.md",
+        "knowledge_base/sources.json"
+      ],
+      "allowed": [
+        "открытая отчётность и раскрытие",
+        "регуляторные публикации",
+        "лицензированные отраслевые БД с доступом"
+      ],
+      "forbidden": [
+        "персональные данные и контакты",
+        "цифры без источника",
+        "выдача внутренней оценки за факт"
+      ],
+      "outputs": [
+        "source plan",
+        "evidence table",
+        "analysis memo",
+        "case draft"
+      ],
+      "evidence_ceiling": "PARTIAL",
+      "review_role": "evidence-qa",
+      "handoff_to": [
+        "case-writer",
+        "kb-librarian"
+      ],
+      "prompt": "roles/01_upstream.md",
+      "memory": "agents/memory/mi-upstream.jsonl"
+    },
+    {
+      "id": "gas-lng",
+      "title": "Gas & LNG Analyst",
+      "title_ru": "Аналитик газа и СПГ",
+      "layer": "segment",
+      "mandate": "Ведёт газовые и СПГ-аккаунты: спреды хабов, контрактные формулы, фрахт СПГ, санкционная и логистическая экспозиция; отделяет публичные контрактные факты от гипотез о переговорной позиции.",
+      "segments": [
+        "gas_lng",
+        "gas",
+        "gas_upstream",
+        "upstream_gas"
+      ],
+      "accounts": [
+        "NOVATEK",
+        "GAZPROM",
+        "RUSGAZDOBYCHA",
+        "YATEK"
+      ],
+      "questions": [
+        "какие газовые/СПГ-спреды и маршруты релевантны решению аккаунта",
+        "какие санкционные ограничения меняют логистику",
+        "что подтверждено контрактом/отчётностью, а что гипотеза"
+      ],
+      "inputs": [
+        "marketing/target_accounts.json",
+        "docs/188_Газ_LNG.md",
+        "protocols/licence_register.json",
+        "knowledge_base/sources.json"
+      ],
+      "allowed": [
+        "публичные контракты и раскрытие",
+        "регуляторные газовые публикации",
+        "лицензированные ценовые БД с доступом"
+      ],
+      "forbidden": [
+        "выдуманные цены и объёмы",
+        "обход санкционных ограничений",
+        "персональные данные"
+      ],
+      "outputs": [
+        "source plan",
+        "evidence table",
+        "gas/LNG memo",
+        "case draft"
+      ],
+      "evidence_ceiling": "PARTIAL",
+      "review_role": "evidence-qa",
+      "handoff_to": [
+        "case-writer",
+        "kb-librarian"
+      ],
+      "prompt": "roles/02_gas_lng.md",
+      "memory": "agents/memory/mi-gas-lng.jsonl"
+    },
+    {
+      "id": "downstream-chemicals",
+      "title": "Downstream & Chemicals Analyst",
+      "title_ru": "Аналитик переработки и нефтехимии",
+      "layer": "segment",
+      "mandate": "Ведёт переработку и нефтехимию: маржа при шоке сырья, загрузка, TCO сырья и логистики, CAPEX; прямо фиксирует, что отдельного модуля маржи НПЗ в AMFE нет и маржинальные числа не выдумываются.",
+      "segments": [
+        "refining",
+        "refining_petrochem",
+        "petrochem",
+        "petrochem_gas_processing"
+      ],
+      "accounts": [
+        "TANECO",
+        "SIBUR",
+        "NIZHNEKAMSKNEFTEKHIM",
+        "GAZPROM_NEFTEKHIM_SALAVAT"
+      ],
+      "questions": [
+        "какая публичная экономика переработки подтверждена",
+        "какие категории закупок дают TCO-эффект",
+        "какие допущения нужны при отсутствии модуля маржи"
+      ],
+      "inputs": [
+        "marketing/target_accounts.json",
+        "docs/184_FLAKS_Procurement_MVP.md",
+        "docs/208_Коммерческие_кейсы.md",
+        "knowledge_base/sources.json"
+      ],
+      "allowed": [
+        "отчётность и раскрытие",
+        "публичные данные о мощностях и проектах",
+        "лицензированные отраслевые БД"
+      ],
+      "forbidden": [
+        "маржинальные цифры без модели и источника",
+        "персональные данные",
+        "обещание модуля, которого нет"
+      ],
+      "outputs": [
+        "source plan",
+        "evidence table",
+        "downstream memo",
+        "case draft"
+      ],
+      "evidence_ceiling": "PARTIAL",
+      "review_role": "evidence-qa",
+      "handoff_to": [
+        "case-writer",
+        "kb-librarian"
+      ],
+      "prompt": "roles/03_downstream_chemicals.md",
+      "memory": "agents/memory/mi-downstream-chemicals.jsonl"
+    },
+    {
+      "id": "services-equipment",
+      "title": "Services & Equipment Analyst",
+      "title_ru": "Аналитик сервиса и оборудования",
+      "layer": "segment",
+      "mandate": "Ведёт сервисный и оборудованный рынок как watch-list и как поставщицкую базу для TCO-кейсов: бурение, ГРП, насосы, трубы, подряд; в текущем портфеле аккаунтов этого сегмента нет, поэтому роль работает по запросу и не выдумывает аккаунты.",
+      "segments": [
+        "oilfield_services",
+        "equipment"
+      ],
+      "accounts": [],
+      "questions": [
+        "какие категории поставщиков влияют на TCO пилота",
+        "какие публичные ограничения (санкции, импортозамещение) меняют базу",
+        "где нет данных и нужен NOT_FETCHED"
+      ],
+      "inputs": [
+        "marketing/target_accounts.json",
+        "docs/184_FLAKS_Procurement_MVP.md",
+        "protocols/licence_register.json"
+      ],
+      "allowed": [
+        "публичные каталоги и отчётность поставщиков",
+        "лицензированные БД по оборудованию",
+        "открытые тендерные публикации"
+      ],
+      "forbidden": [
+        "выдумывать аккаунты сегмента",
+        "персональные данные",
+        "оценка поставщика без источника"
+      ],
+      "outputs": [
+        "watch-list",
+        "supplier evidence table",
+        "TCO input memo"
+      ],
+      "evidence_ceiling": "PARTIAL",
+      "review_role": "evidence-qa",
+      "handoff_to": [
+        "downstream-chemicals",
+        "kb-librarian"
+      ],
+      "prompt": "roles/04_services_equipment.md",
+      "memory": "agents/memory/mi-services-equipment.jsonl"
+    },
+    {
+      "id": "trading-shipping",
+      "title": "Trading & Shipping Analyst",
+      "title_ru": "Аналитик трейдинга и фрахта",
+      "layer": "segment",
+      "mandate": "Ведёт трейдинг и судоходство: маршруты, фрахт, страхование, санкционная логистика, страновой риск сделки; отделяет публичные тарифы и раскрытие от гипотез о контрактной структуре.",
+      "segments": [
+        "trading",
+        "shipping"
+      ],
+      "accounts": [
+        "LITASCO",
+        "SOVCOMFLOT"
+      ],
+      "questions": [
+        "какие маршруты и фрахтовые издержки релевантны решению",
+        "какие санкционные ограничения затрагивают рейс/сделку",
+        "что подтверждено публичным тарифом/отчётом"
+      ],
+      "inputs": [
+        "marketing/target_accounts.json",
+        "docs/186_Ормуз_нефть_США_последствия.md",
+        "knowledge_base/sources.json"
+      ],
+      "allowed": [
+        "публичные тарифы и раскрытие",
+        "регуляторные публикации по перевозкам",
+        "лицензированные фрахтовые БД с доступом"
+      ],
+      "forbidden": [
+        "обход санкций и запрещённых маршрутов",
+        "выдуманные ставки фрахта",
+        "персональные данные"
+      ],
+      "outputs": [
+        "source plan",
+        "evidence table",
+        "logistics memo",
+        "case draft"
+      ],
+      "evidence_ceiling": "PARTIAL",
+      "review_role": "evidence-qa",
+      "handoff_to": [
+        "case-writer",
+        "kb-librarian"
+      ],
+      "prompt": "roles/05_trading_shipping.md",
+      "memory": "agents/memory/mi-trading-shipping.jsonl"
+    },
+    {
+      "id": "osint-scout",
+      "title": "OSINT Scout",
+      "title_ru": "OSINT-разведчик открытых источников",
+      "layer": "collection",
+      "mandate": "Ведёт сбор по открытым страницам и публичным реестрам строго в рамках playbooks/lawful_osint.md: фиксирует URL, дату, цитату и класс источника; при отсутствии сети возвращает NOT_FETCHED, а не пересказ по памяти.",
+      "segments": [],
+      "accounts": [],
+      "questions": [
+        "какой публичный документ отвечает на подвопрос",
+        "какой класс источника это (A/B/C)",
+        "что именно не удалось получить и почему"
+      ],
+      "inputs": [
+        "agents/market_intelligence/playbooks/lawful_osint.md",
+        "agents/market_intelligence/playbooks/source_hierarchy.md",
+        "knowledge_base/sources.json",
+        "task brief от director"
+      ],
+      "allowed": [
+        "открытые сайты компаний и регуляторов",
+        "публичные реестры и пресс-релизы",
+        "архивные копии открытых страниц"
+      ],
+      "forbidden": [
+        "взлом, подбор паролей, обход авторизации и paywall",
+        "использование чужих аккаунтов и утёкших баз",
+        "обход robots/terms и лимитов",
+        "персональные данные и деанонимизация"
+      ],
+      "outputs": [
+        "collection log",
+        "цитаты с URL и датой",
+        "список NOT_FETCHED"
+      ],
+      "evidence_ceiling": "PARTIAL",
+      "review_role": "evidence-qa",
+      "handoff_to": [
+        "evidence-qa",
+        "kb-librarian"
+      ],
+      "prompt": "roles/06_osint_scout.md",
+      "memory": "agents/memory/mi-osint-scout.jsonl"
+    },
+    {
+      "id": "licensed-data",
+      "title": "Licensed-Data Analyst",
+      "title_ru": "Аналитик лицензированных данных",
+      "layer": "collection",
+      "mandate": "Работает только с БД, к которым есть подписка или письменное разрешение: проверяет условия, срок, разрешённые способы использования и запрет перепродажи; без доступа фиксирует NOT_FETCHED и не подставляет похожие числа.",
+      "segments": [],
+      "accounts": [],
+      "questions": [
+        "какая лицензия покрывает нужный датасет и до какой даты",
+        "разрешена ли производная аналитика для клиента",
+        "что делать, если подписки нет"
+      ],
+      "inputs": [
+        "protocols/licence_register.json",
+        "knowledge_base/sources.json",
+        "docs/205_Верификация_источников.md"
+      ],
+      "allowed": [
+        "лицензированные выгрузки в рамках договора",
+        "метаданные и коды источников",
+        "расчёт производных агрегатов, если это разрешено"
+      ],
+      "forbidden": [
+        "обход платного доступа и шаринг ключей",
+        "перепродажа сырых данных",
+        "хранение сырых выгрузок в git",
+        "выдача оценки за наблюдение"
+      ],
+      "outputs": [
+        "licence check",
+        "dataset evidence",
+        "NOT_FETCHED список"
+      ],
+      "evidence_ceiling": "VERIFIED",
+      "review_role": "evidence-qa",
+      "handoff_to": [
+        "evidence-qa",
+        "kb-librarian"
+      ],
+      "prompt": "roles/07_licensed_data.md",
+      "memory": "agents/memory/mi-licensed-data.jsonl"
+    },
+    {
+      "id": "evidence-qa",
+      "title": "Evidence QA",
+      "title_ru": "Контроль доказательств",
+      "layer": "control",
+      "mandate": "Независимо проверяет каждую строку: источник существует, цитата совпадает, grade и статус не завышены, цифры не выдуманы; единственная роль, которая подписывает VERIFIED и возвращает материал на доработку.",
+      "segments": [],
+      "accounts": [],
+      "questions": [
+        "совпадает ли цитата с источником дословно",
+        "не завышен ли статус (HYPOTHESIS выдан за PARTIAL)",
+        "есть ли цифра без источника"
+      ],
+      "inputs": [
+        "agents/market_intelligence/playbooks/evidence_grading.md",
+        "agents/market_intelligence/playbooks/red_lines.md",
+        "knowledge_base/schema.json",
+        "проверяемый артефакт"
+      ],
+      "allowed": [
+        "запрашивать первоисточник",
+        "понижать статус",
+        "возвращать материал с перечнем дефектов"
+      ],
+      "forbidden": [
+        "проверять собственную работу",
+        "повышать статус без первоисточника",
+        "править проверяемый артефакт вместо возврата"
+      ],
+      "outputs": [
+        "QA verdict CONFIRMED/WITH_NOTES/NOT_CONFIRMED",
+        "реестр дефектов",
+        "подпись VERIFIED"
+      ],
+      "evidence_ceiling": "VERIFIED",
+      "review_role": "director",
+      "handoff_to": [
+        "director",
+        "kb-librarian"
+      ],
+      "prompt": "roles/08_evidence_qa.md",
+      "memory": "agents/memory/mi-evidence-qa.jsonl"
+    },
+    {
+      "id": "case-writer",
+      "title": "Case Writer",
+      "title_ru": "Автор кейсов",
+      "layer": "output",
+      "mandate": "Собирает проверенный материал в кейс/one-pager по шаблону: вопрос, допущения, сценарии, диапазоны, что не проверено; не добавляет цифры, которых нет в evidence-таблице, и не обещает прогноз.",
+      "segments": [],
+      "accounts": [],
+      "questions": [
+        "какое решение клиента поддерживает кейс",
+        "какие допущения и диапазоны нужно показать",
+        "что явно вынести в «не проверено»"
+      ],
+      "inputs": [
+        "knowledge_base/entries/seed.jsonl",
+        "docs/208_Коммерческие_кейсы.md",
+        "docs/211_Сайт_коммерческий.md",
+        "evidence-таблица от сегментной роли"
+      ],
+      "allowed": [
+        "переписывать проверенные факты в кейс",
+        "помечать HYPOTHESIS и границы",
+        "готовить черновик для человека"
+      ],
+      "forbidden": [
+        "добавлять числа вне evidence",
+        "убирать оговорки RESEARCH_ONLY",
+        "публиковать или отправлять кейс"
+      ],
+      "outputs": [
+        "case draft",
+        "one-pager",
+        "список непроверенного"
+      ],
+      "evidence_ceiling": "PARTIAL",
+      "review_role": "evidence-qa",
+      "handoff_to": [
+        "evidence-qa",
+        "kb-librarian"
+      ],
+      "prompt": "roles/09_case_writer.md",
+      "memory": "agents/memory/mi-case-writer.jsonl"
+    },
+    {
+      "id": "kb-librarian",
+      "title": "KB Librarian",
+      "title_ru": "Библиотекарь базы знаний",
+      "layer": "control",
+      "mandate": "Ведёт knowledge_base: принимает записи из inbox, валидирует схему, лицензию, свежесть и evidence, сливает без дублей, пересобирает индекс, следит за тем, чтобы в базу не попадали сырые данные, персональные данные и цифры без источника.",
+      "segments": [],
+      "accounts": [],
+      "questions": [
+        "валидна ли запись по schema.json",
+        "истекла ли свежесть и что делать",
+        "нет ли дубля и совместима ли лицензия"
+      ],
+      "inputs": [
+        "knowledge_base/schema.json",
+        "knowledge_base/sources.json",
+        "knowledge_base/inbox/",
+        "agents/market_intelligence/kb_workflow.md"
+      ],
+      "allowed": [
+        "валидировать и отклонять записи",
+        "сливать inbox в entries",
+        "пересобирать index.json/index.md"
+      ],
+      "forbidden": [
+        "править чужие артефакты",
+        "повышать evidence-статус",
+        "удалять прошлые записи (только архивировать)"
+      ],
+      "outputs": [
+        "validated entry",
+        "index.json/index.md",
+        "отчёт о покрытии и свежести"
+      ],
+      "evidence_ceiling": "PARTIAL",
+      "review_role": "evidence-qa",
+      "handoff_to": [
+        "director"
+      ],
+      "prompt": "roles/10_kb_librarian.md",
+      "memory": "agents/memory/mi-kb-librarian.jsonl"
+    }
+  ],
+  "deferred_roles": [
+    {
+      "id": "utilities-industrials",
+      "title_ru": "Аналитик энергетики и промышленных потребителей",
+      "reason": "в портфеле marketing/target_accounts.json нет аккаунтов этого сегмента; роль включается решением Lead, когда появится сегмент или запрос, с правкой org.json и тестов",
+      "activation_checklist": [
+        "добавить сегмент utilities_power в портфель",
+        "добавить роль в org.json с промптом и review_role",
+        "покрыть тестом покрытие сегментов"
+      ]
+    }
+  ],
+  "accounts_source": {
+    "path": "marketing/target_accounts.json",
+    "schema": "массив объектов с id/name/segment/tier-производными",
+    "rule": "факты об аккаунте берутся только из первоисточника; поля из этого файла — внутренняя оценка (HYPOTHESIS), не факт",
+    "count": 20
+  },
+  "kpi": [
+    "доля строк с источником и датой",
+    "доля NOT_FETCHED с явным блокером",
+    "доля кейсов, прошедших QA с первого раза",
+    "свежесть записей KB (доля просроченных)",
+    "0 нарушений red lines"
+  ]
+}

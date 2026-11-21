@@ -1,0 +1,270 @@
+{
+  "counts": {
+    "by_grade": {
+      "A": 0,
+      "B": 0,
+      "C": 14,
+      "NONE": 5
+    },
+    "by_kind": {
+      "case_template": 4,
+      "method": 1,
+      "playbook": 0,
+      "segment": 6,
+      "source": 4,
+      "target_account": 4
+    },
+    "by_licence": {
+      "ATTRIBUTION": 0,
+      "INTERNAL": 13,
+      "LICENCE_REQUIRED": 0,
+      "NONE": 1,
+      "OPEN": 0,
+      "PUBLIC_DOMAIN": 2,
+      "SUBSCRIPTION": 3
+    },
+    "by_status": {
+      "HYPOTHESIS": 14,
+      "NOT_FETCHED": 5,
+      "PARTIAL": 0,
+      "VERIFIED": 0
+    },
+    "total": 19
+  },
+  "entries": [
+    {
+      "author_role": "upstream",
+      "evidence_grade": "C",
+      "evidence_status": "HYPOTHESIS",
+      "freshness": "fresh",
+      "id": "KB-0001",
+      "kind": "segment",
+      "licence": "INTERNAL",
+      "review_due": "2027-05-20",
+      "title": "Интегрированные нефтегазовые: рамка сегмента"
+    },
+    {
+      "author_role": "upstream",
+      "evidence_grade": "C",
+      "evidence_status": "HYPOTHESIS",
+      "freshness": "fresh",
+      "id": "KB-0002",
+      "kind": "segment",
+      "licence": "INTERNAL",
+      "review_due": "2027-05-20",
+      "title": "Независимый upstream: рамка сегмента"
+    },
+    {
+      "author_role": "gas-lng",
+      "evidence_grade": "C",
+      "evidence_status": "HYPOTHESIS",
+      "freshness": "fresh",
+      "id": "KB-0003",
+      "kind": "segment",
+      "licence": "INTERNAL",
+      "review_due": "2027-05-20",
+      "title": "Газ и СПГ: рамка сегмента"
+    },
+    {
+      "author_role": "downstream-chemicals",
+      "evidence_grade": "C",
+      "evidence_status": "HYPOTHESIS",
+      "freshness": "fresh",
+      "id": "KB-0004",
+      "kind": "segment",
+      "licence": "INTERNAL",
+      "review_due": "2027-05-20",
+      "title": "Переработка и нефтехимия: рамка сегмента"
+    },
+    {
+      "author_role": "trading-shipping",
+      "evidence_grade": "C",
+      "evidence_status": "HYPOTHESIS",
+      "freshness": "fresh",
+      "id": "KB-0005",
+      "kind": "segment",
+      "licence": "INTERNAL",
+      "review_due": "2027-05-20",
+      "title": "Трейдинг и фрахт: рамка сегмента"
+    },
+    {
+      "author_role": "services-equipment",
+      "evidence_grade": null,
+      "evidence_status": "NOT_FETCHED",
+      "freshness": "fresh",
+      "id": "KB-0006",
+      "kind": "segment",
+      "licence": "NONE",
+      "review_due": "2027-05-20",
+      "title": "Сервис и оборудование: watch-list без аккаунтов"
+    },
+    {
+      "author_role": "osint-scout",
+      "evidence_grade": null,
+      "evidence_status": "NOT_FETCHED",
+      "freshness": "fresh",
+      "id": "KB-0007",
+      "kind": "source",
+      "licence": "PUBLIC_DOMAIN",
+      "review_due": "2027-11-21",
+      "title": "SEC EDGAR: как использовать первоисточник раскрытия"
+    },
+    {
+      "author_role": "osint-scout",
+      "evidence_grade": null,
+      "evidence_status": "NOT_FETCHED",
+      "freshness": "fresh",
+      "id": "KB-0008",
+      "kind": "source",
+      "licence": "PUBLIC_DOMAIN",
+      "review_due": "2027-11-21",
+      "title": "EIA: открытая энергетическая статистика"
+    },
+    {
+      "author_role": "licensed-data",
+      "evidence_grade": null,
+      "evidence_status": "NOT_FETCHED",
+      "freshness": "fresh",
+      "id": "KB-0009",
+      "kind": "source",
+      "licence": "SUBSCRIPTION",
+      "review_due": "2027-11-21",
+      "title": "IEA: данные только по подписке"
+    },
+    {
+      "author_role": "licensed-data",
+      "evidence_grade": null,
+      "evidence_status": "NOT_FETCHED",
+      "freshness": "fresh",
+      "id": "KB-0010",
+      "kind": "source",
+      "licence": "SUBSCRIPTION",
+      "review_due": "2027-11-21",
+      "title": "Kpler: танкерные потоки по подписке"
+    },
+    {
+      "author_role": "case-writer",
+      "evidence_grade": "C",
+      "evidence_status": "HYPOTHESIS",
+      "freshness": "fresh",
+      "id": "KB-0011",
+      "kind": "case_template",
+      "licence": "INTERNAL",
+      "review_due": "2027-05-20",
+      "title": "Шаблон кейса: бюджет и CAPEX при шоке цены"
+    },
+    {
+      "author_role": "case-writer",
+      "evidence_grade": "C",
+      "evidence_status": "HYPOTHESIS",
+      "freshness": "fresh",
+      "id": "KB-0012",
+      "kind": "case_template",
+      "licence": "INTERNAL",
+      "review_due": "2027-05-20",
+      "title": "Шаблон кейса: TCO закупок (FLAKS)"
+    },
+    {
+      "author_role": "case-writer",
+      "evidence_grade": "C",
+      "evidence_status": "HYPOTHESIS",
+      "freshness": "fresh",
+      "id": "KB-0013",
+      "kind": "case_template",
+      "licence": "SUBSCRIPTION",
+      "review_due": "2027-05-20",
+      "title": "Шаблон кейса: газ/СПГ спреды и фрахт"
+    },
+    {
+      "author_role": "case-writer",
+      "evidence_grade": "C",
+      "evidence_status": "HYPOTHESIS",
+      "freshness": "fresh",
+      "id": "KB-0014",
+      "kind": "case_template",
+      "licence": "INTERNAL",
+      "review_due": "2027-05-20",
+      "title": "Шаблон кейса: маржа переработки и граница метода"
+    },
+    {
+      "author_role": "upstream",
+      "evidence_grade": "C",
+      "evidence_status": "HYPOTHESIS",
+      "freshness": "fresh",
+      "id": "KB-0015",
+      "kind": "target_account",
+      "licence": "INTERNAL",
+      "review_due": "2027-02-19",
+      "title": "Татнефть: гипотеза входа через бюджет и закупки"
+    },
+    {
+      "author_role": "downstream-chemicals",
+      "evidence_grade": "C",
+      "evidence_status": "HYPOTHESIS",
+      "freshness": "fresh",
+      "id": "KB-0016",
+      "kind": "target_account",
+      "licence": "INTERNAL",
+      "review_due": "2027-02-19",
+      "title": "ТАНЕКО: гипотеза технического входа"
+    },
+    {
+      "author_role": "upstream",
+      "evidence_grade": "C",
+      "evidence_status": "HYPOTHESIS",
+      "freshness": "fresh",
+      "id": "KB-0017",
+      "kind": "target_account",
+      "licence": "INTERNAL",
+      "review_due": "2027-02-19",
+      "title": "Газпром нефть: гипотеза enterprise-входа"
+    },
+    {
+      "author_role": "gas-lng",
+      "evidence_grade": "C",
+      "evidence_status": "HYPOTHESIS",
+      "freshness": "fresh",
+      "id": "KB-0018",
+      "kind": "target_account",
+      "licence": "INTERNAL",
+      "review_due": "2027-02-19",
+      "title": "НОВАТЭК: гипотеза газ/СПГ-трека"
+    },
+    {
+      "author_role": "evidence-qa",
+      "evidence_grade": "C",
+      "evidence_status": "HYPOTHESIS",
+      "freshness": "fresh",
+      "id": "KB-0019",
+      "kind": "method",
+      "licence": "INTERNAL",
+      "review_due": "2027-11-21",
+      "title": "Метод: оценка доказательств A/B/C и четыре статуса"
+    }
+  ],
+  "errors": 0,
+  "freshness": {
+    "UNKNOWN": 0,
+    "due_soon": 0,
+    "fresh": 19,
+    "stale": 0
+  },
+  "generated_for": "2026-11-21",
+  "issues": [],
+  "kb": "G:\\Мировая экономика модель\\knowledge_base",
+  "schema": "amfe.kb.index.v1",
+  "sources": {
+    "by_class": {
+      "COMPANY_FILING": 1,
+      "COMPANY_SITE": 1,
+      "INTERNAL_CARD": 1,
+      "MARKET_DATA_LICENSED": 5,
+      "OFFICIAL_STATISTICS": 8
+    },
+    "total": 16,
+    "unchecked_terms": 16,
+    "unchecked_urls": 16
+  },
+  "totals": 19,
+  "valid": true
+}

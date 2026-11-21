@@ -14,6 +14,7 @@
 | [outreach_5.md](outreach_5.md) | первые 5 персонализированных касаний: персона, боли, use cases, письма, вложения, критерий успеха |
 | [research/](research/README.md) | 10 досье аккаунтов: боли, buying center, триггеры, use cases, discovery-вопросы (валидируется `tools/account_research.py`) |
 | [cases/](cases/manifest.json) | три двухстраничных кейса (бюджет/CAPEX, переработка, TCO/закупки) + PDF и SHA-256-манифест (собирается `tools/build_cases.py`, описание — [docs/208](../docs/208_Коммерческие_кейсы.md)) |
+| [western_cases/](western_cases/manifest.json) | 50 кейсов на 25 западных компаний (гипотезы, `not_client=true`) + `catalog.md`, PDF на 3 страницы и SHA-256-манифест (собирается `tools/case_catalog.py`, описание — [docs/214](../docs/214_50_западных_кейсов.md)) |
 | [letters/](letters/) | готовые тексты писем по 5 аккаунтам (только плейсхолдеры, не отправлены) |
 | [crm_pipeline.csv.tmpl](crm_pipeline.csv.tmpl) | 20 аккаунтов, стадии, next_action/next_date (валидируется `tools/marketing_crm.py`) |
 | [discovery_questions.md](discovery_questions.md) | 20 вопросов для квалификации |

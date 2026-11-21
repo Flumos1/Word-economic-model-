@@ -1,0 +1,111 @@
+{
+  "schema": "amfe.marketing.western_case_catalog.v1",
+  "created": "2026-11-21",
+  "status": "DRAFT",
+  "model_status": "RESEARCH_ONLY",
+  "admission": false,
+  "causal_claim": false,
+  "sent": false,
+  "source": {
+    "path": "marketing/western_cases/cases.json",
+    "sha256": "c7a8ff1970ee4efe5e5d74fa258156284ecd72b4e2d5a5b39f778185f7258351",
+    "cases": 50,
+    "companies": 25
+  },
+  "coverage": {
+    "segments": {
+      "major": {
+        "cases": 10,
+        "companies": 5
+      },
+      "upstream": {
+        "cases": 6,
+        "companies": 3
+      },
+      "lng": {
+        "cases": 8,
+        "companies": 4
+      },
+      "services": {
+        "cases": 8,
+        "companies": 4
+      },
+      "trading": {
+        "cases": 6,
+        "companies": 3
+      },
+      "chemicals": {
+        "cases": 6,
+        "companies": 3
+      },
+      "utilities": {
+        "cases": 6,
+        "companies": 3
+      }
+    },
+    "modules": {
+      "Ормуз/бюджет": 12,
+      "FLAKS TCO": 12,
+      "газ/СПГ": 13,
+      "геополитика": 8,
+      "API/Client Pack": 6
+    },
+    "price_bands": {
+      "0 — диагностика": 2,
+      "7 500-10 000 — пилот": 13,
+      "15 000-25 000 — полный сценарий, узкий": 16,
+      "20 000-30 000 — полный сценарий": 13,
+      "25 000-80 000 — API и подписка": 6
+    },
+    "evidence_status": {
+      "HYPOTHESIS": 41,
+      "NOT_FETCHED": 9
+    },
+    "price_usd": {
+      "min": 0,
+      "max": 60000,
+      "free": 2
+    },
+    "duration_weeks": {
+      "min": 1,
+      "max": 12
+    }
+  },
+  "rules": {
+    "not_client": true,
+    "hypotheses_only": true,
+    "no_contacts": true,
+    "no_revenue_or_headcount": true,
+    "no_admission_claim": true,
+    "nothing_sent": true,
+    "price_in_usd_only": true,
+    "markdown_deterministic": true,
+    "pdf_deterministic": false,
+    "manifest_excludes_itself": true,
+    "invalid_catalog_writes_nothing": true
+  },
+  "files": [
+    {
+      "path": "cases.json",
+      "kind": "json",
+      "sha256": "c7a8ff1970ee4efe5e5d74fa258156284ecd72b4e2d5a5b39f778185f7258351",
+      "bytes": 72288,
+      "deterministic": true
+    },
+    {
+      "path": "catalog.md",
+      "kind": "markdown",
+      "sha256": "8979caff0459d606ac95c3e9ea95fa5c2732d7a509899b58919bc2b97afda24c",
+      "bytes": 26138,
+      "deterministic": true
+    },
+    {
+      "path": "catalog.pdf",
+      "kind": "pdf",
+      "sha256": "d43b9a6f53e1f0035b4636bc65aef3204aa233ce85897db91fdf97dc3b5eb271",
+      "bytes": 325054,
+      "deterministic": false,
+      "pages": 3
+    }
+  ]
+}

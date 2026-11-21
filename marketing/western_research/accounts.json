@@ -1,0 +1,87 @@
+{
+  "schema": "amfe.western_research.accounts.v1",
+  "updated": "2026-11-21",
+  "note": "Реестр западных аккаунтов для досье. Только публичные общие факты: название, сегмент, штаб-квартира, регион. Без контактов, финансовых и кадровых показателей.",
+  "accounts": [
+    {
+      "id": "EXXONMOBIL",
+      "company": "ExxonMobil",
+      "segment": "integrated_oil_gas",
+      "segment_ru": "Интегрированная нефтегазовая компания",
+      "hq": "Спринг, Техас, США",
+      "region": "Северная Америка"
+    },
+    {
+      "id": "CHEVRON",
+      "company": "Chevron",
+      "segment": "integrated_oil_gas",
+      "segment_ru": "Интегрированная нефтегазовая компания",
+      "hq": "Хьюстон, Техас, США",
+      "region": "Северная Америка"
+    },
+    {
+      "id": "SHELL",
+      "company": "Shell",
+      "segment": "integrated_oil_gas",
+      "segment_ru": "Интегрированная нефтегазовая компания",
+      "hq": "Лондон, Великобритания",
+      "region": "Европа"
+    },
+    {
+      "id": "BP",
+      "company": "BP",
+      "segment": "integrated_oil_gas",
+      "segment_ru": "Интегрированная нефтегазовая компания",
+      "hq": "Лондон, Великобритания",
+      "region": "Европа"
+    },
+    {
+      "id": "TOTALENERGIES",
+      "company": "TotalEnergies",
+      "segment": "integrated_oil_gas",
+      "segment_ru": "Интегрированная нефтегазовая компания",
+      "hq": "Курбевуа, Франция",
+      "region": "Европа"
+    },
+    {
+      "id": "EQUINOR",
+      "company": "Equinor",
+      "segment": "integrated_energy_noc",
+      "segment_ru": "Интегрированная энергокомпания (NOC)",
+      "hq": "Ставангер, Норвегия",
+      "region": "Европа"
+    },
+    {
+      "id": "CONOCOPHILLIPS",
+      "company": "ConocoPhillips",
+      "segment": "upstream",
+      "segment_ru": "Независимая добыча (E&P)",
+      "hq": "Хьюстон, Техас, США",
+      "region": "Северная Америка"
+    },
+    {
+      "id": "ENI",
+      "company": "Eni",
+      "segment": "integrated_oil_gas",
+      "segment_ru": "Интегрированная нефтегазовая компания",
+      "hq": "Рим, Италия",
+      "region": "Европа"
+    },
+    {
+      "id": "SLB",
+      "company": "SLB",
+      "segment": "oilfield_services",
+      "segment_ru": "Нефтесервис и цифровые технологии",
+      "hq": "Хьюстон, Техас, США",
+      "region": "Северная Америка"
+    },
+    {
+      "id": "BAKERHUGHES",
+      "company": "Baker Hughes",
+      "segment": "oilfield_services",
+      "segment_ru": "Нефтесервис и энерготехнологии",
+      "hq": "Хьюстон, Техас, США",
+      "region": "Северная Америка"
+    }
+  ]
+}

@@ -1,12 +1,12 @@
 # Библиотека памяти AMFE
 
-Обновлено: 2026-11-21T11:46:59Z · записей: 89
+Обновлено: 2026-11-21T12:37:22Z · записей: 95
 
 ## По ролям
 
 - `accounting-core` — 8 записей (`agents/memory/accounting-core.jsonl`)
 - `baseline-models` — 5 записей (`agents/memory/baseline-models.jsonl`)
-- `dense-vintages` — 31 записей (`agents/memory/dense-vintages.jsonl`)
+- `dense-vintages` — 37 записей (`agents/memory/dense-vintages.jsonl`)
 - `evaluation-harness` — 10 записей (`agents/memory/evaluation-harness.jsonl`)
 - `lead` — 9 записей (`agents/memory/lead.jsonl`)
 - `licence-auditor` — 4 записей (`agents/memory/licence-auditor.jsonl`)
@@ -20,10 +20,18 @@
 - mem-dense-vintages-0027 (dense-vintages): Коммерческий слой: подтвердить USD-цены и судьбу черновиков кейсов
 - mem-dense-vintages-0029 (dense-vintages): Мост 15/17: база блока 17, двойной счёт TFP в индексе, энергоканал институтов
 - mem-dense-vintages-0031 (dense-vintages): Куда прикладывать кейсы и кто отвечает за их отправку?
+- mem-dense-vintages-0033 (dense-vintages): Западный пакет: что должен сделать человек до первого касания
+- mem-dense-vintages-0036 (dense-vintages): Сеть MI и KB: коммит, внешняя проверка источников, отложенный сегмент
 - mem-lead-0003 (lead): Активация prereg 0.3 и потолок T1 C4
 
 ## Артефакты
 
+- `agents/market_intelligence/README.md` ← mem-dense-vintages-0034
+- `agents/market_intelligence/kb_workflow.md` ← mem-dense-vintages-0034
+- `agents/market_intelligence/org.json` ← mem-dense-vintages-0034
+- `agents/market_intelligence/playbooks/evidence_grading.md` ← mem-dense-vintages-0034
+- `agents/market_intelligence/playbooks/lawful_osint.md` ← mem-dense-vintages-0034
+- `agents/market_intelligence/playbooks/red_lines.md` ← mem-dense-vintages-0034
 - `docs/101_Кэш_прогонов.md` ← mem-dense-vintages-0007
 - `docs/102_Горизонты_ансамблей.md` ← mem-multiplicity-rw-0002
 - `docs/139_C6_календарь.md` ← mem-evaluation-harness-0003
@@ -56,7 +64,12 @@
 - `docs/209_Исследование_заказчиков.md` ← mem-dense-vintages-0025
 - `docs/210_Мост_блоков_15_17.md` ← mem-dense-vintages-0028
 - `docs/211_Сайт_коммерческий.md` ← mem-dense-vintages-0026
+- `docs/215_Западные_заказчики.md` ← mem-dense-vintages-0032
 - `docs/97_Лицензии_ряды_и_terms.md` ← mem-licence-auditor-0002
+- `knowledge_base/README.md` ← mem-dense-vintages-0035
+- `knowledge_base/entries/seed.jsonl` ← mem-dense-vintages-0035
+- `knowledge_base/schema.json` ← mem-dense-vintages-0035
+- `knowledge_base/sources.json` ← mem-dense-vintages-0035
 - `marketing/cases/case_flaks_procurement.md` ← mem-dense-vintages-0030
 - `marketing/cases/case_flaks_procurement.pdf` ← mem-dense-vintages-0030
 - `marketing/cases/case_taneco_refining.md` ← mem-dense-vintages-0030
@@ -72,6 +85,7 @@
 - `marketing/letters/tatneft.md` ← mem-dense-vintages-0014
 - `marketing/outreach_5.md` ← mem-dense-vintages-0014
 - `marketing/research/README.md` ← mem-dense-vintages-0025
+- `marketing/western_research/accounts.json` ← mem-dense-vintages-0032
 - `outreach/batch_2026-11-21/crm_update.md` ← mem-dense-vintages-0022
 - `outreach/batch_2026-11-21/followup_legat_2026-11-27.md` ← mem-dense-vintages-0022
 - `outreach/batch_2026-11-21/manifest.json` ← mem-dense-vintages-0022
@@ -121,7 +135,9 @@
 - `tests/test_hash_canonicalization.py` ← mem-dense-vintages-0007
 - `tests/test_hormuz_us_client_pack.py` ← mem-dense-vintages-0009
 - `tests/test_institutions_scenarios.py` ← mem-dense-vintages-0020
+- `tests/test_kb.py` ← mem-dense-vintages-0035
 - `tests/test_market_client_pack.py` ← mem-dense-vintages-0008
+- `tests/test_market_intel.py` ← mem-dense-vintages-0034
 - `tests/test_marketing_crm.py` ← mem-dense-vintages-0014
 - `tests/test_module_registry.py` ← mem-dense-vintages-0008, mem-dense-vintages-0021
 - `tests/test_outreach_batch.py` ← mem-dense-vintages-0022
@@ -131,6 +147,7 @@
 - `tests/test_source_verification.py` ← mem-licence-auditor-0004
 - `tests/test_storage_futures.py` ← mem-accounting-core-0007
 - `tests/test_technology_scenarios.py` ← mem-dense-vintages-0019
+- `tests/test_western_research.py` ← mem-dense-vintages-0032
 - `tools/account_research.py` ← mem-dense-vintages-0025
 - `tools/build_cases.py` ← mem-dense-vintages-0030
 - `tools/build_outreach_batch.py` ← mem-dense-vintages-0022
@@ -151,7 +168,9 @@
 - `tools/geopolitics_scenarios.py` ← mem-protocol-reviewer-0006
 - `tools/hormuz_us_client_pack.py` ← mem-dense-vintages-0009
 - `tools/institutions_scenarios.py` ← mem-dense-vintages-0020
+- `tools/kb.py` ← mem-dense-vintages-0035
 - `tools/market_bridge.py` ← mem-dense-vintages-0007
+- `tools/market_intel.py` ← mem-dense-vintages-0034
 - `tools/marketing_crm.py` ← mem-dense-vintages-0014
 - `tools/policy_scenarios.py` ← mem-baseline-models-0004
 - `tools/quantity_bridge.py` ← mem-dense-vintages-0007
@@ -162,6 +181,7 @@
 - `tools/source_verification.py` ← mem-licence-auditor-0004
 - `tools/storage_futures.py` ← mem-accounting-core-0007
 - `tools/technology_scenarios.py` ← mem-dense-vintages-0019
+- `tools/western_research.py` ← mem-dense-vintages-0032
 
 ## Как читать любому агенту/модели
 

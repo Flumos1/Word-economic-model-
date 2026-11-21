@@ -1,7 +1,7 @@
 {
  "schema": "amfe.agent_library.v1",
- "updated_at": "2026-11-21T11:46:59Z",
- "entries": 89,
+ "updated_at": "2026-11-21T12:37:22Z",
+ "entries": 95,
  "open_questions": [
   {
    "id": "mem-dense-vintages-0023",
@@ -28,6 +28,18 @@
    "task": ""
   },
   {
+   "id": "mem-dense-vintages-0033",
+   "title": "Западный пакет: что должен сделать человек до первого касания",
+   "role": "dense-vintages",
+   "task": ""
+  },
+  {
+   "id": "mem-dense-vintages-0036",
+   "title": "Сеть MI и KB: коммит, внешняя проверка источников, отложенный сегмент",
+   "role": "dense-vintages",
+   "task": "mi-net-2026-11-21"
+  },
+  {
    "id": "mem-lead-0003",
    "title": "Активация prereg 0.3 и потолок T1 C4",
    "role": "lead",
@@ -37,7 +49,7 @@
  "by_role": {
   "accounting-core": 8,
   "baseline-models": 5,
-  "dense-vintages": 31,
+  "dense-vintages": 37,
   "evaluation-harness": 10,
   "lead": 9,
   "licence-auditor": 4,
@@ -46,10 +58,10 @@
   "r2-completion": 7
  },
  "by_kind": {
-  "artifact": 41,
+  "artifact": 44,
   "decision": 1,
-  "lesson": 15,
-  "open_question": 5,
+  "lesson": 16,
+  "open_question": 7,
   "role": 9,
   "status": 9,
   "task": 9
@@ -61,13 +73,14 @@
   "T3": 2,
   "abm": 1,
   "accounts": 1,
+  "agents": 1,
   "anonymization": 1,
   "api": 2,
   "auth": 1,
   "block-15": 1,
   "block15": 1,
   "block17": 2,
-  "blockers": 3,
+  "blockers": 5,
   "blocks": 3,
   "bridge": 6,
   "bug": 1,
@@ -95,13 +108,14 @@
   "docs-210": 1,
   "docx": 2,
   "evaluation-harness": 1,
-  "evidence": 1,
+  "evidence": 3,
   "exposure": 1,
   "external": 3,
   "external-forecasts": 1,
   "flaks": 2,
   "forecast": 1,
   "forecast-api": 2,
+  "freshness": 1,
   "g4": 1,
   "g5": 8,
   "gas": 4,
@@ -115,20 +129,25 @@
   "independence": 1,
   "institutions": 1,
   "intake": 1,
+  "knowledge-base": 1,
+  "lead-decision": 1,
   "legat": 1,
-  "lesson": 2,
+  "lesson": 3,
   "librarian": 2,
-  "licence": 3,
+  "licence": 4,
   "licences": 1,
   "manifest": 1,
-  "marketing": 3,
+  "market-intelligence": 1,
+  "marketing": 5,
   "memory": 1,
   "models": 1,
   "modules": 1,
   "oil": 1,
   "oil-gas": 1,
-  "open-question": 1,
+  "open-question": 2,
   "orchestrator": 1,
+  "org": 1,
+  "osint": 1,
   "outreach": 4,
   "p2": 1,
   "pdf": 1,
@@ -138,7 +157,7 @@
   "policy": 1,
   "prereg": 4,
   "prices": 1,
-  "process": 2,
+  "process": 3,
   "procurement": 1,
   "products": 2,
   "prototype": 1,
@@ -148,7 +167,7 @@
   "registry": 3,
   "research": 1,
   "research-only": 1,
-  "research_only": 3,
+  "research_only": 4,
   "review": 1,
   "scenario": 1,
   "science": 1,
@@ -167,17 +186,36 @@
   "task": 8,
   "task-69": 1,
   "technology": 1,
-  "tests": 7,
+  "tests": 8,
   "time-box": 1,
   "ui": 1,
   "v1-compat": 1,
   "v2": 6,
+  "western": 2,
   "windows-crlf": 1,
   "world": 2,
   "world-blocks": 1,
   "xlsx": 1
  },
  "artifacts": {
+  "agents/market_intelligence/README.md": [
+   "mem-dense-vintages-0034"
+  ],
+  "agents/market_intelligence/kb_workflow.md": [
+   "mem-dense-vintages-0034"
+  ],
+  "agents/market_intelligence/org.json": [
+   "mem-dense-vintages-0034"
+  ],
+  "agents/market_intelligence/playbooks/evidence_grading.md": [
+   "mem-dense-vintages-0034"
+  ],
+  "agents/market_intelligence/playbooks/lawful_osint.md": [
+   "mem-dense-vintages-0034"
+  ],
+  "agents/market_intelligence/playbooks/red_lines.md": [
+   "mem-dense-vintages-0034"
+  ],
   "docs/101_Кэш_прогонов.md": [
    "mem-dense-vintages-0007"
   ],
@@ -301,8 +339,23 @@
   "docs/211_Сайт_коммерческий.md": [
    "mem-dense-vintages-0026"
   ],
+  "docs/215_Западные_заказчики.md": [
+   "mem-dense-vintages-0032"
+  ],
   "docs/97_Лицензии_ряды_и_terms.md": [
    "mem-licence-auditor-0002"
+  ],
+  "knowledge_base/README.md": [
+   "mem-dense-vintages-0035"
+  ],
+  "knowledge_base/entries/seed.jsonl": [
+   "mem-dense-vintages-0035"
+  ],
+  "knowledge_base/schema.json": [
+   "mem-dense-vintages-0035"
+  ],
+  "knowledge_base/sources.json": [
+   "mem-dense-vintages-0035"
   ],
   "marketing/cases/case_flaks_procurement.md": [
    "mem-dense-vintages-0030"
@@ -348,6 +401,9 @@
   ],
   "marketing/research/README.md": [
    "mem-dense-vintages-0025"
+  ],
+  "marketing/western_research/accounts.json": [
+   "mem-dense-vintages-0032"
   ],
   "outreach/batch_2026-11-21/crm_update.md": [
    "mem-dense-vintages-0022"
@@ -506,8 +562,14 @@
   "tests/test_institutions_scenarios.py": [
    "mem-dense-vintages-0020"
   ],
+  "tests/test_kb.py": [
+   "mem-dense-vintages-0035"
+  ],
   "tests/test_market_client_pack.py": [
    "mem-dense-vintages-0008"
+  ],
+  "tests/test_market_intel.py": [
+   "mem-dense-vintages-0034"
   ],
   "tests/test_marketing_crm.py": [
    "mem-dense-vintages-0014"
@@ -539,6 +601,9 @@
   ],
   "tests/test_technology_scenarios.py": [
    "mem-dense-vintages-0019"
+  ],
+  "tests/test_western_research.py": [
+   "mem-dense-vintages-0032"
   ],
   "tools/account_research.py": [
    "mem-dense-vintages-0025"
@@ -608,8 +673,14 @@
   "tools/institutions_scenarios.py": [
    "mem-dense-vintages-0020"
   ],
+  "tools/kb.py": [
+   "mem-dense-vintages-0035"
+  ],
   "tools/market_bridge.py": [
    "mem-dense-vintages-0007"
+  ],
+  "tools/market_intel.py": [
+   "mem-dense-vintages-0034"
   ],
   "tools/marketing_crm.py": [
    "mem-dense-vintages-0014"
@@ -644,6 +715,9 @@
   ],
   "tools/technology_scenarios.py": [
    "mem-dense-vintages-0019"
+  ],
+  "tools/western_research.py": [
+   "mem-dense-vintages-0032"
   ]
  }
 }

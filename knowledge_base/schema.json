@@ -1,0 +1,172 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "amfe.kb.schema.v1",
+  "title": "AMFE knowledge base: entry and source schemas",
+  "description": "Схема записей knowledge_base/ и реестра источников. Валидатор tools/kb.py реализует как JSON-схему, так и семантические правила x-rules (детерминированно, без сети и без часов).",
+  "version": "1.0.0",
+  "created": "2026-11-21",
+  "x-rules": [
+    "id: ^KB-[0-9]{4}$, уникален, внутри файла по возрастанию",
+    "review_due = as_of + ttl_days (пересчитывается валидатором и обязан совпадать)",
+    "grade A только при evidence_status VERIFIED",
+    "evidence_status HYPOTHESIS/NOT_FETCHED допускает только grade C или null",
+    "VERIFIED требует: grade A, source_ids, retrieved_at, источник с terms_checked=true и доступом не NOT_AVAILABLE_IN_ENV",
+    "licence NONE допустима только при NOT_FETCHED",
+    "NOT_FETCHED обязан иметь непустой notes с причиной и блокером",
+    "в HYPOTHESIS/NOT_FETCHED запрещены цифры с валютой/процентами/масштабом (млн/млрд/тыс) — только формулировки",
+    "запрещены формулировки admitted/допущенная модель: сеть RESEARCH_ONLY",
+    "каждый links[] существует в репозитории (относительный путь)",
+    "каждый source_ids[] есть в sources.json",
+    "account_id обязателен ровно для kind=target_account и обязан быть в marketing/target_accounts.json",
+    "лицензия записи совместима с лицензиями цитируемых источников (открытая запись не подпирается подпиской без пометки)",
+    "повтор (kind,title) запрещён: расхождения оформляются новой записью с supersedes"
+  ],
+  "entry": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "id", "schema", "kind", "title", "summary", "tags", "evidence_status", "evidence_grade",
+      "source_ids", "licence", "as_of", "ttl_days", "review_due", "links", "created", "updated",
+      "author_role", "notes"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "pattern": "^KB-[0-9]{4}$",
+        "description": "Устойчивый идентификатор записи; не меняется при обновлении."
+      },
+      "schema": {
+        "const": "amfe.kb.entry.v1"
+      },
+      "kind": {
+        "type": "string",
+        "enum": ["segment", "source", "case_template", "target_account", "method", "playbook"]
+      },
+      "title": {
+        "type": "string",
+        "minLength": 3,
+        "maxLength": 160
+      },
+      "summary": {
+        "type": "string",
+        "minLength": 10,
+        "maxLength": 2000
+      },
+      "tags": {
+        "type": "array",
+        "minItems": 1,
+        "items": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_-]{1,30}$"},
+        "uniqueItems": true
+      },
+      "evidence_status": {
+        "type": "string",
+        "enum": ["VERIFIED", "PARTIAL", "HYPOTHESIS", "NOT_FETCHED"]
+      },
+      "evidence_grade": {
+        "type": ["string", "null"],
+        "enum": ["A", "B", "C", null]
+      },
+      "source_ids": {
+        "type": "array",
+        "items": {"type": "string", "pattern": "^SRC-[A-Z0-9][A-Z0-9_-]{1,40}$"},
+        "uniqueItems": true
+      },
+      "licence": {
+        "type": "string",
+        "enum": ["OPEN", "ATTRIBUTION", "PUBLIC_DOMAIN", "SUBSCRIPTION", "LICENCE_REQUIRED", "INTERNAL", "NONE"]
+      },
+      "as_of": {"type": "string", "format": "date"},
+      "ttl_days": {"type": "integer", "minimum": 1, "maximum": 3650},
+      "review_due": {"type": "string", "format": "date"},
+      "links": {
+        "type": "array",
+        "minItems": 1,
+        "items": {"type": "string"},
+        "uniqueItems": true
+      },
+      "created": {"type": "string", "format": "date"},
+      "updated": {"type": "string", "format": "date"},
+      "author_role": {"type": "string", "minLength": 2},
+      "notes": {"type": "string", "minLength": 1, "maxLength": 2000},
+      "retrieved_at": {"type": ["string", "null"], "format": "date"},
+      "account_id": {"type": ["string", "null"]},
+      "supersedes": {"type": ["string", "null"], "pattern": "^KB-[0-9]{4}$"},
+      "archived": {"type": "boolean"}
+    }
+  },
+  "source": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "id", "name", "class", "access", "licence", "homepage", "url_checked", "terms_checked",
+      "terms_hash", "retrieved_at", "jurisdiction", "allowed_use", "notes"
+    ],
+    "properties": {
+      "id": {"type": "string", "pattern": "^SRC-[A-Z0-9][A-Z0-9_-]{1,40}$"},
+      "name": {"type": "string", "minLength": 3},
+      "class": {
+        "type": "string",
+        "enum": [
+          "REGULATOR", "COMPANY_FILING", "OFFICIAL_STATISTICS", "MARKET_DATA_LICENSED",
+          "INDUSTRY_PRESS", "COMPANY_SITE", "REGISTRY", "INTERNAL_CARD"
+        ]
+      },
+      "access": {
+        "type": "string",
+        "enum": ["OPEN", "OPEN_REGISTRATION", "SUBSCRIPTION", "LICENCE_REQUIRED", "NOT_AVAILABLE_IN_ENV", "INTERNAL"]
+      },
+      "licence": {
+        "type": "string",
+        "enum": ["OPEN", "ATTRIBUTION", "PUBLIC_DOMAIN", "SUBSCRIPTION", "LICENCE_REQUIRED", "INTERNAL", "NONE"]
+      },
+      "homepage": {"type": ["string", "null"], "pattern": "^https://"},
+      "url_checked": {"type": "boolean"},
+      "terms_checked": {"type": "boolean"},
+      "terms_hash": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
+      "retrieved_at": {"type": ["string", "null"], "format": "date"},
+      "jurisdiction": {"type": "string", "minLength": 2},
+      "allowed_use": {"type": "string", "minLength": 5},
+      "notes": {"type": "string", "minLength": 1}
+    }
+  },
+  "sources_document": {
+    "type": "object",
+    "required": ["schema", "version", "sources"],
+    "properties": {
+      "schema": {"const": "amfe.kb.sources.v1"},
+      "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+      "created": {"type": "string", "format": "date"},
+      "policy": {"type": "object"},
+      "sources": {"type": "array", "minItems": 1, "items": {"$ref": "#/source"}}
+    }
+  },
+  "enums": {
+    "kind": ["segment", "source", "case_template", "target_account", "method", "playbook"],
+    "evidence_status": ["VERIFIED", "PARTIAL", "HYPOTHESIS", "NOT_FETCHED"],
+    "evidence_grade": ["A", "B", "C", null],
+    "licence": ["OPEN", "ATTRIBUTION", "PUBLIC_DOMAIN", "SUBSCRIPTION", "LICENCE_REQUIRED", "INTERNAL", "NONE"],
+    "source_class": [
+      "REGULATOR", "COMPANY_FILING", "OFFICIAL_STATISTICS", "MARKET_DATA_LICENSED",
+      "INDUSTRY_PRESS", "COMPANY_SITE", "REGISTRY", "INTERNAL_CARD"
+    ],
+    "access": ["OPEN", "OPEN_REGISTRATION", "SUBSCRIPTION", "LICENCE_REQUIRED", "NOT_AVAILABLE_IN_ENV", "INTERNAL"]
+  },
+  "defaults": {
+    "ttl_days": {
+      "segment": 180,
+      "source": 365,
+      "case_template": 180,
+      "target_account": 90,
+      "method": 365,
+      "playbook": 365
+    },
+    "licence_by_kind": {
+      "segment": "INTERNAL",
+      "source": "PUBLIC_DOMAIN",
+      "case_template": "INTERNAL",
+      "target_account": "INTERNAL",
+      "method": "INTERNAL",
+      "playbook": "INTERNAL"
+    }
+  }
+}
