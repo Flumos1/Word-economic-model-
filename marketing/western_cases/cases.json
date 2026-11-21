@@ -237,7 +237,49 @@
     "XLSX: stress parameters",
     "JSON with SHA-256"
    ],
-   "price_note_en": "Full scenario 8-12 weeks: 20 000-30 000 USD; 22 000 USD."
+   "price_note_en": "Full scenario 8-12 weeks: 20 000-30 000 USD; 22 000 USD.",
+   "facts": [
+    {
+     "label": "Добыча Shell за 2025",
+     "value": "2 800 kboe/d",
+     "source_id": "SRC-SHELL-AR-2025",
+     "source_date": "2026-11-21",
+     "evidence": "A",
+     "note": "oil and gas production available for sale"
+    },
+    {
+     "label": "СПГ-сжижение Shell за 2025",
+     "value": "28,4 Mt",
+     "source_id": "SRC-SHELL-AR-2025",
+     "source_date": "2026-11-21",
+     "evidence": "A",
+     "note": "LNG liquefaction volumes"
+    },
+    {
+     "label": "Продажи СПГ Shell за 2025",
+     "value": "72,9 Mt",
+     "source_id": "SRC-SHELL-AR-2025",
+     "source_date": "2026-11-21",
+     "evidence": "A",
+     "note": "LNG sales volumes"
+    },
+    {
+     "label": "Доказанные запасы Shell на конец 2025",
+     "value": "8 123 MBOE",
+     "source_id": "SRC-SHELL-AR-2025",
+     "source_date": "2026-11-21",
+     "evidence": "A",
+     "note": "proved oil and gas reserves"
+    },
+    {
+     "label": "Стран присутствия Shell",
+     "value": ">70",
+     "source_id": "SRC-SHELL-AR-2025",
+     "source_date": "2026-11-21",
+     "evidence": "A",
+     "note": "more than 70 countries"
+    }
+   ]
   },
   {
    "id": "wc-006",
@@ -271,7 +313,49 @@
     "Client Pack: PDF, XLSX, JSON, HTML",
     "Smoke set and an integration runbook"
    ],
-   "price_note_en": "API integration 6-8 weeks: 25 000-80 000 USD plus subscription; 36 000 USD."
+   "price_note_en": "API integration 6-8 weeks: 25 000-80 000 USD plus subscription; 36 000 USD.",
+   "facts": [
+    {
+     "label": "Добыча Shell за 2025",
+     "value": "2 800 kboe/d",
+     "source_id": "SRC-SHELL-AR-2025",
+     "source_date": "2026-11-21",
+     "evidence": "A",
+     "note": "oil and gas production available for sale"
+    },
+    {
+     "label": "СПГ-сжижение Shell за 2025",
+     "value": "28,4 Mt",
+     "source_id": "SRC-SHELL-AR-2025",
+     "source_date": "2026-11-21",
+     "evidence": "A",
+     "note": "LNG liquefaction volumes"
+    },
+    {
+     "label": "Продажи СПГ Shell за 2025",
+     "value": "72,9 Mt",
+     "source_id": "SRC-SHELL-AR-2025",
+     "source_date": "2026-11-21",
+     "evidence": "A",
+     "note": "LNG sales volumes"
+    },
+    {
+     "label": "Доказанные запасы Shell на конец 2025",
+     "value": "8 123 MBOE",
+     "source_id": "SRC-SHELL-AR-2025",
+     "source_date": "2026-11-21",
+     "evidence": "A",
+     "note": "proved oil and gas reserves"
+    },
+    {
+     "label": "Стран присутствия Shell",
+     "value": ">70",
+     "source_id": "SRC-SHELL-AR-2025",
+     "source_date": "2026-11-21",
+     "evidence": "A",
+     "note": "more than 70 countries"
+    }
+   ]
   },
   {
    "id": "wc-007",

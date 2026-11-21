@@ -423,6 +423,31 @@ class TestConocoFactPack(unittest.TestCase):
         self.assertIn("HYPOTHESIS", text)
 
 
+
+class TestShellEquinorFactPack(unittest.TestCase):
+    """Shell cases and docs/220 carry open-source numbers with sources."""
+
+    def test_shell_facts(self):
+        cases = {case["id"]: case for case in load_cases()["cases"]}
+        for case_id in ("wc-005", "wc-006"):
+            facts = cases[case_id].get("facts")
+            self.assertIsInstance(facts, list, case_id)
+            self.assertGreaterEqual(len(facts), 4, case_id)
+            values = " ".join(fact["value"] for fact in facts)
+            for token in ("2 800 kboe/d", "28,4 Mt", "72,9 Mt", "8 123 MBOE", ">70"):
+                self.assertIn(token, values, case_id)
+            for fact in facts:
+                self.assertRegex(fact["source_id"], r"^SRC-SHELL-AR-2025$")
+                self.assertEqual(fact["evidence"], "A")
+                self.assertNotRegex(fact["value"], r"(https?://|@)")
+
+    def test_docs_220_sources_and_limits(self):
+        text = (ROOT / "docs" / "220_Shell_Equinor_факты.md").read_text(encoding="utf-8")
+        for token in ("shell-integrated-annual", "2 800 kboe/d", "72,9 Mt", "5 183 million BOE",
+                      "not_client=true", "equity production"):
+            self.assertIn(token, text)
+
+
 class TestDocumentationAndPricing(unittest.TestCase):
     def test_26_numbers_trace_to_source_documents(self):
         sources = {
