@@ -69,6 +69,15 @@ DEFAULT_API_VERSION = "v1"
 SCHEMA = "amfe.forecast_api.live.v1"
 GATEWAY_VERSION = "1.0.0"
 OPENAPI_VERSION = "3.0.3"
+METRICS_SCHEMA = "amfe.forecast_gateway.metrics.v1"
+SLA_SCHEMA = "amfe.forecast_gateway.sla.v1"
+SLA_TARGETS = {
+    "availability": 0.995,
+    "latency_p95_ms": 500,
+    "error_rate": 0.01,
+    "window": "process_lifetime",
+    "contractual": False,
+}
 SERVED_STATUSES = ("RESEARCH_ONLY", "CANDIDATE")
 STATUS_ORDER = {name: rank for rank, name in enumerate(SERVED_STATUSES)}
 MAX_REQUEST_TARGET = 2048
@@ -659,6 +668,62 @@ def _parse_query(query: str) -> dict[str, str]:
     return {name: values[0] for name, values in params.items()}
 
 
+class GatewayMetrics:
+    """In-process request metrics for health/SLA endpoints (no secrets, no wall clock)."""
+
+    def __init__(self, clock: Callable[[], float] = time.monotonic) -> None:
+        self._clock = clock
+        self._started = float(clock())
+        self._lock = threading.Lock()
+        self._total = 0
+        self._errors = 0
+        self._by_path: dict[str, int] = {}
+        self._status_counts: dict[str, int] = {}
+        self._latencies: list[float] = []
+
+    def observe(self, path: str, status: int, duration: float) -> None:
+        with self._lock:
+            self._total += 1
+            if int(status) >= 400:
+                self._errors += 1
+            self._by_path[path] = self._by_path.get(path, 0) + 1
+            key = str(int(status))
+            self._status_counts[key] = self._status_counts.get(key, 0) + 1
+            self._latencies.append(max(0.0, float(duration)))
+            if len(self._latencies) > 4096:
+                del self._latencies[:1024]
+
+    def snapshot(self) -> dict:
+        with self._lock:
+            total = self._total
+            errors = self._errors
+            latencies = sorted(self._latencies)
+            by_path = dict(sorted(self._by_path.items()))
+            status_counts = dict(sorted(self._status_counts.items()))
+        count = len(latencies)
+        p50 = latencies[int(0.50 * (count - 1))] if count else 0.0
+        p95 = latencies[int(0.95 * (count - 1))] if count else 0.0
+        maximum = latencies[-1] if count else 0.0
+        return {
+            "schema": METRICS_SCHEMA,
+            "kind": "metrics",
+            "gateway_version": GATEWAY_VERSION,
+            "api_version": DEFAULT_API_VERSION,
+            "uptime_seconds": round(max(0.0, float(self._clock()) - self._started), 3),
+            "requests_total": total,
+            "errors_total": errors,
+            "error_rate": round(errors / total, 6) if total else 0.0,
+            "latency_ms": {
+                "count": count,
+                "p50": round(p50 * 1000.0, 3),
+                "p95": round(p95 * 1000.0, 3),
+                "max": round(maximum * 1000.0, 3),
+            },
+            "by_path": by_path,
+            "status_counts": status_counts,
+        }
+
+
 class ForecastGateway:
     """Pure request/response logic; the HTTP layer is a thin adapter around :meth:`handle`."""
 
@@ -674,6 +739,7 @@ class ForecastGateway:
         self.quota = quota or QuotaTracker(clock=clock)
         self.allow_point = bool(allow_point)
         self.cors_origin = cors_origin or "*"
+        self.metrics = GatewayMetrics()
         self.policy = {
             "read_only": True,
             "research_only": True,
@@ -688,6 +754,7 @@ class ForecastGateway:
     def handle(self, method: str, request_target: str,
                headers: Mapping[str, str] | None = None) -> Response:
         request_id = uuid.uuid4().hex[:12]
+        started = time.monotonic()
         try:
             response = self._route(method, request_target, headers)
         except GatewayError as error:
@@ -713,7 +780,16 @@ class ForecastGateway:
         response.headers.setdefault("Access-Control-Max-Age", "600")
         if origin != "*":
             response.headers.setdefault("Vary", "Origin")
+        self._record(method, request_target, response, started)
         return response
+
+    def _record(self, method: str, request_target: str, response: Response,
+                started: float) -> None:
+        try:
+            path = _redact(request_target).split("?", 1)[0] or "/"
+            self.metrics.observe(path, response.status, time.monotonic() - started)
+        except Exception:  # noqa: BLE001 - metrics must never break a response
+            LOGGER.debug("metrics observation failed", exc_info=True)
 
     def diagnostics(self) -> dict:
         """Configuration/feed summary for ``--check`` (no request handling, no secrets)."""
@@ -777,6 +853,12 @@ class ForecastGateway:
             return Response(200, self.openapi(), {})
         if path == "/v1/status":
             return Response(200, self._status(), {})
+        if path == "/v1/health":
+            return self._health()
+        if path == "/v1/metrics":
+            return Response(200, self.metrics.snapshot(), {})
+        if path == "/v1/sla":
+            return self._sla()
         if path != "/v1" and not path.startswith("/v1/"):
             raise NotFound("NOT_FOUND", "unknown path", {"paths": self._public_paths()})
         client = self._authenticate(headers)
@@ -820,8 +902,9 @@ class ForecastGateway:
         return response
 
     def _public_paths(self) -> list[str]:
-        return ["/openapi.json", "/v1/status", "/v1/modules", "/v1/scenarios",
-                "/v1/scenarios/{scenario_id}", "/v1/forecast?target=&horizon="]
+        return ["/openapi.json", "/v1/status", "/v1/health", "/v1/metrics", "/v1/sla",
+                "/v1/modules", "/v1/scenarios", "/v1/scenarios/{scenario_id}",
+                "/v1/forecast?target=&horizon="]
 
     def _authenticate(self, headers: Mapping[str, str] | None) -> Client:
         if not self.keys:
@@ -946,6 +1029,12 @@ class ForecastGateway:
                  "description": "OpenAPI description of this gateway"},
                 {"method": "GET", "path": "/v1/status", "auth": False,
                  "description": "gateway status, feeds, versions and limits"},
+                {"method": "GET", "path": "/v1/health", "auth": False,
+                 "description": "liveness/readiness checks (no key)"},
+                {"method": "GET", "path": "/v1/metrics", "auth": False,
+                 "description": "in-process request/latency/error metrics (no key)"},
+                {"method": "GET", "path": "/v1/sla", "auth": False,
+                 "description": "declared SLA targets and observed process metrics (no key)"},
                 {"method": "GET", "path": "/v1/modules", "auth": True,
                  "description": "module passports (versions, statuses, limitations, hashes)"},
                 {"method": "GET", "path": "/v1/scenarios", "auth": True,
@@ -960,6 +1049,48 @@ class ForecastGateway:
     def _require_feed(self) -> None:
         if self.feed.error:
             raise Unavailable(*self.feed.error)
+
+    def _health(self) -> Response:
+        checks = {
+            "feed": "FAIL" if self.feed.error else "OK",
+            "api_keys": "OK" if self.keys else "FAIL",
+            "product_feed": self.feed.product_state,
+        }
+        if self.feed.error or not self.keys:
+            status = "BLOCKED"
+            code = 503
+        elif self.feed.product_state != "OK":
+            status = "DEGRADED"
+            code = 200
+        else:
+            status = "OK"
+            code = 200
+        document = self._envelope(
+            "health", status,
+            checks=checks,
+            uptime_seconds=self.metrics.snapshot()["uptime_seconds"],
+            counts={"modules": len(self.feed.modules), "scenarios": len(self.feed.scenarios),
+                    "keys_configured": len(self.keys)},
+            links={"status": "/v1/status", "metrics": "/v1/metrics", "sla": "/v1/sla"},
+        )
+        return Response(code, document, {})
+
+    def _sla(self) -> Response:
+        observed = self.metrics.snapshot()
+        document = self._envelope(
+            "sla", "OK",
+            declared=dict(SLA_TARGETS),
+            observed=observed,
+            meets={
+                "availability": observed["uptime_seconds"] > 0,
+                "latency_p95_ms": observed["latency_ms"]["p95"] <= SLA_TARGETS["latency_p95_ms"],
+                "error_rate": observed["error_rate"] <= SLA_TARGETS["error_rate"],
+            },
+            note=("Наблюдаемые значения за время жизни процесса; это не договорной SLA. "
+                  "Договорной SLA фиксируется отдельно с клиентом."),
+            links={"health": "/v1/health", "metrics": "/v1/metrics", "status": "/v1/status"},
+        )
+        return Response(200, document, {})
 
     def _modules(self, client: Client) -> Response:
         self._require_feed()
@@ -1152,7 +1283,32 @@ class ForecastGateway:
                         },
                     }
                 },
-                "/v1/modules": {
+                "/v1/health": {
+                "get": {
+                    "tags": ["meta"], "operationId": "getHealth",
+                    "summary": "Liveness/readiness checks (public, no key)",
+                    "security": [],
+                    "responses": {"200": {"description": "health document"},
+                                  "503": {"description": "blocked: feed or keys unavailable"}},
+                }
+            },
+            "/v1/metrics": {
+                "get": {
+                    "tags": ["meta"], "operationId": "getMetrics",
+                    "summary": "In-process request/latency/error metrics (public, no key)",
+                    "security": [],
+                    "responses": {"200": {"description": "metrics document"}},
+                }
+            },
+            "/v1/sla": {
+                "get": {
+                    "tags": ["meta"], "operationId": "getSla",
+                    "summary": "Declared SLA targets and observed process metrics (public, no key)",
+                    "security": [],
+                    "responses": {"200": {"description": "SLA document; contractual=false"}},
+                }
+            },
+            "/v1/modules": {
                     "get": {
                         "tags": ["modules"], "operationId": "listModules",
                         "summary": "Module passports (registry metadata, not an admission)",
