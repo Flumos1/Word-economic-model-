@@ -1,0 +1,32 @@
+{
+ "schema": "amfe.legal.human_counsel.panel.v1",
+ "version": "1.0.0",
+ "created": "2026-11-22",
+ "note": "Реестр реальных лицензированных юристов. Пустой по умолчанию: ни одного выдуманного профиля. Персональные данные (email/телефон/адрес) хранятся вне git, в защищённом реестре; здесь только ID, юрисдикции, лицензия (маскированная), статус и дата проверки.",
+ "requirements": {
+  "license_verified": true,
+  "good_standing": true,
+  "malpractice_insurance": true,
+  "conflict_check": true,
+  "sanctions_check": true,
+  "engagement_letter": true,
+  "nda": true,
+  "human_verified_by": "human:*",
+  "pii_location": "external_secure_store"
+ },
+ "counsel": [],
+ "slots": [
+  {"jurisdiction": "US", "status": "OPEN", "priority": 1},
+  {"jurisdiction": "GB", "status": "OPEN", "priority": 1},
+  {"jurisdiction": "DE", "status": "OPEN", "priority": 1},
+  {"jurisdiction": "FR", "status": "OPEN", "priority": 1},
+  {"jurisdiction": "NL", "status": "OPEN", "priority": 2},
+  {"jurisdiction": "CH", "status": "OPEN", "priority": 2},
+  {"jurisdiction": "AE", "status": "OPEN", "priority": 2},
+  {"jurisdiction": "KZ", "status": "OPEN", "priority": 2},
+  {"jurisdiction": "UA", "status": "OPEN", "priority": 2},
+  {"jurisdiction": "PL", "status": "OPEN", "priority": 3},
+  {"jurisdiction": "TR", "status": "OPEN", "priority": 3},
+  {"jurisdiction": "SG", "status": "OPEN", "priority": 3}
+ ]
+}

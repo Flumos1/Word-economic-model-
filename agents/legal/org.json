@@ -78,7 +78,10 @@
       "id": "treaties",
       "group": "public",
       "title": "Право международных договоров",
-      "forums": ["un-treaty", "ilc"],
+      "forums": [
+        "un-treaty",
+        "ilc"
+      ],
       "questions": [
         "является ли государство/организация участником договора и с какой даты",
         "есть ли оговорки, заявления и возражения против них",
@@ -90,7 +93,10 @@
       "id": "custom",
       "group": "public",
       "title": "Международный обычай и общие принципы",
-      "forums": ["icj", "ilc"],
+      "forums": [
+        "icj",
+        "ilc"
+      ],
       "questions": [
         "есть ли практика государств (usus) и opinio juris, а не только декларации",
         "не является ли норма договорной, а не обычной",
@@ -102,7 +108,10 @@
       "id": "un-charter",
       "group": "public",
       "title": "Устав ООН и применение силы",
-      "forums": ["icj", "un-treaty"],
+      "forums": [
+        "icj",
+        "un-treaty"
+      ],
       "questions": [
         "какое основание применения силы заявлено (ст. 51, гл. VII, согласие)",
         "есть ли решение СБ ООН и какова его юридическая сила",
@@ -114,7 +123,10 @@
       "id": "state-responsibility",
       "group": "public",
       "title": "Ответственность государств",
-      "forums": ["icj", "ilc"],
+      "forums": [
+        "icj",
+        "ilc"
+      ],
       "questions": [
         "кто действовал и присваивается ли поведение государству",
         "есть ли нарушение обязательства и обстоятельства, исключающие противоправность",
@@ -126,7 +138,12 @@
       "id": "sanctions-export-control",
       "group": "public",
       "title": "Санкции и экспортный контроль",
-      "forums": ["eur-lex", "us-ecfr", "uk-legislation", "un-treaty"],
+      "forums": [
+        "eur-lex",
+        "us-ecfr",
+        "uk-legislation",
+        "un-treaty"
+      ],
       "questions": [
         "кто именно в периметре ограничений (лица, сектора, товары, услуги)",
         "какая юрисдикция и какое основание ограничения",
@@ -138,7 +155,12 @@
       "id": "investment-protection",
       "group": "public",
       "title": "Защита инвестиций",
-      "forums": ["icsid", "uncitral", "pca", "un-treaty"],
+      "forums": [
+        "icsid",
+        "uncitral",
+        "pca",
+        "un-treaty"
+      ],
       "questions": [
         "есть ли согласие государства на арбитраж и в каком договоре",
         "подпадает ли инвестор/инвестиция под определение и ratione temporis",
@@ -150,7 +172,10 @@
       "id": "wto-trade",
       "group": "public",
       "title": "ВТО и торговое право",
-      "forums": ["wto-ds", "un-treaty"],
+      "forums": [
+        "wto-ds",
+        "un-treaty"
+      ],
       "questions": [
         "какое охваченное соглашение применяется",
         "какой режим/исключение заявлен (GATT XX, TBT, SPS, субсидии)",
@@ -162,7 +187,10 @@
       "id": "human-rights",
       "group": "public",
       "title": "Права человека",
-      "forums": ["ecthr", "un-treaty"],
+      "forums": [
+        "ecthr",
+        "un-treaty"
+      ],
       "questions": [
         "какое право затронуто и допускает ли оно ограничение",
         "пройдены ли законность, легитимная цель, необходимость и пропорциональность",
@@ -174,7 +202,10 @@
       "id": "law-of-the-sea",
       "group": "public",
       "title": "Морское право (обзор)",
-      "forums": ["itlos", "un-treaty"],
+      "forums": [
+        "itlos",
+        "un-treaty"
+      ],
       "questions": [
         "в какой морской зоне происходит деятельность",
         "какие права и обязанности у прибрежного и иных государств",
@@ -186,7 +217,12 @@
       "id": "jurisdiction",
       "group": "private",
       "title": "Юрисдикция",
-      "forums": ["cjeu", "eur-lex", "uk-caselaw", "us-scotus"],
+      "forums": [
+        "cjeu",
+        "eur-lex",
+        "uk-caselaw",
+        "us-scotus"
+      ],
       "questions": [
         "какие суды компетентны по регламенту/национальному праву",
         "есть ли пророгационное или арбитражное соглашение",
@@ -198,7 +234,10 @@
       "id": "choice-of-law",
       "group": "private",
       "title": "Коллизионное право и применимое право",
-      "forums": ["eur-lex", "uk-legislation"],
+      "forums": [
+        "eur-lex",
+        "uk-legislation"
+      ],
       "questions": [
         "какое право выбрано сторонами и допустим ли выбор",
         "какое право применяется при отсутствии выбора",
@@ -210,7 +249,10 @@
       "id": "rome-i-ii",
       "group": "private",
       "title": "Rome I / Rome II",
-      "forums": ["eur-lex", "cjeu"],
+      "forums": [
+        "eur-lex",
+        "cjeu"
+      ],
       "questions": [
         "подпадает ли договор/деликт в сферу действия Rome I или Rome II",
         "какие специальные коллизионные привязки применяются (потребитель, работник, деликт)",
@@ -222,7 +264,9 @@
       "id": "hague-conventions",
       "group": "private",
       "title": "Гаагские конвенции",
-      "forums": ["un-treaty"],
+      "forums": [
+        "un-treaty"
+      ],
       "questions": [
         "участвуют ли обе страны в конвенции (service, evidence, apostille, choice of court)",
         "соблюдена ли процедура и есть ли оговорки",
@@ -234,7 +278,11 @@
       "id": "recognition-enforcement",
       "group": "private",
       "title": "Признание и исполнение решений",
-      "forums": ["un-treaty", "cjeu", "uk-caselaw"],
+      "forums": [
+        "un-treaty",
+        "cjeu",
+        "uk-caselaw"
+      ],
       "questions": [
         "по какому инструменту исполняется решение (New York 1958, Brussels Ia, национальное право)",
         "есть ли основания отказа (арт. V NY, ordre public, надлежащее уведомление)",
@@ -246,7 +294,12 @@
       "id": "arbitration",
       "group": "private",
       "title": "Арбитраж (ICC/LCIA/UNCITRAL)",
-      "forums": ["icc-arbitration", "pca", "uncitral", "icsid"],
+      "forums": [
+        "icc-arbitration",
+        "pca",
+        "uncitral",
+        "icsid"
+      ],
       "questions": [
         "есть ли действительное арбитражное соглашение и его сфера",
         "какой регламент, место и язык арбитража",
@@ -258,7 +311,11 @@
       "id": "contracts",
       "group": "private",
       "title": "Договоры",
-      "forums": ["uncitral", "unilex", "cisg-database"],
+      "forums": [
+        "uncitral",
+        "unilex",
+        "cisg-database"
+      ],
       "questions": [
         "применяется ли CISG и не исключена ли она",
         "как распределены риски, заверения, ответственность и лимиты",
@@ -270,7 +327,11 @@
       "id": "corporate",
       "group": "private",
       "title": "Корпоративное право",
-      "forums": ["uk-legislation", "de-legislation", "eur-lex"],
+      "forums": [
+        "uk-legislation",
+        "de-legislation",
+        "eur-lex"
+      ],
       "questions": [
         "какое право является lex societatis и что оно регулирует",
         "какие обязанности у директоров и как принимаются решения",
@@ -282,7 +343,11 @@
       "id": "ip",
       "group": "private",
       "title": "Интеллектуальная собственность",
-      "forums": ["eur-lex", "us-ecfr", "wto-ds"],
+      "forums": [
+        "eur-lex",
+        "us-ecfr",
+        "wto-ds"
+      ],
       "questions": [
         "какой объект и какое право (патент, товарный знак, авторское, ноу-хау)",
         "действует ли право территориально и где",
@@ -294,7 +359,10 @@
       "id": "data-protection",
       "group": "private",
       "title": "Защита данных (GDPR)",
-      "forums": ["eur-lex", "cjeu"],
+      "forums": [
+        "eur-lex",
+        "cjeu"
+      ],
       "questions": [
         "является ли обработка в сфере действия GDPR (арт. 3)",
         "какое правовое основание и какие права субъектов",
@@ -306,7 +374,10 @@
       "id": "employment",
       "group": "private",
       "title": "Трудовое право (основы)",
-      "forums": ["eur-lex", "uk-legislation"],
+      "forums": [
+        "eur-lex",
+        "uk-legislation"
+      ],
       "questions": [
         "какое право применяется к трудовому договору и какие нормы императивны",
         "есть ли трансграничная работа и социальное обеспечение",
@@ -393,45 +464,315 @@
   "citation": {
     "schema": "amfe.legal.citation.v1",
     "forums": {
-      "icj": {"title": "International Court of Justice", "kind": "court", "hosts": ["icj-cij.org"], "reports": "ICJ Reports"},
-      "pcij": {"title": "Permanent Court of International Justice", "kind": "court", "hosts": ["icj-cij.org"], "reports": "PCIJ Series A/B"},
-      "itlos": {"title": "International Tribunal for the Law of the Sea", "kind": "court", "hosts": ["itlos.org"], "reports": "ITLOS Reports"},
-      "wto-ds": {"title": "WTO Dispute Settlement (DSB, panels, AB)", "kind": "court", "hosts": ["wto.org"], "reports": "WT/DS documents"},
-      "icsid": {"title": "ICSID (World Bank)", "kind": "court", "hosts": ["icsid.worldbank.org", "*.worldbank.org"], "reports": "ICSID Reports"},
-      "icc-arbitration": {"title": "ICC International Court of Arbitration", "kind": "court", "hosts": ["iccwbo.org"], "reports": "ICC Awards"},
-      "pca": {"title": "Permanent Court of Arbitration", "kind": "court", "hosts": ["pca-cpa.org"], "reports": "PCA cases"},
-      "cjeu": {"title": "Court of Justice of the European Union", "kind": "court", "hosts": ["curia.europa.eu"], "reports": "ECLI"},
-      "ecthr": {"title": "European Court of Human Rights", "kind": "court", "hosts": ["hudoc.echr.coe.int"], "reports": "HUDOC / ECHR Reports"},
-      "uk-sc": {"title": "UK Supreme Court", "kind": "court", "hosts": ["supremecourt.uk"], "reports": "UKSC"},
-      "us-scotus": {"title": "Supreme Court of the United States", "kind": "court", "hosts": ["supremecourt.gov"], "reports": "U.S."},
-      "de-bgh": {"title": "Bundesgerichtshof", "kind": "court", "hosts": ["bundesgerichtshof.de"], "reports": "BGHZ"},
-      "de-bverfg": {"title": "Bundesverfassungsgericht", "kind": "court", "hosts": ["bundesverfassungsgericht.de"], "reports": "BVerfGE"},
-      "fr-cass": {"title": "Cour de cassation", "kind": "court", "hosts": ["courdecassation.fr"], "reports": "Bull. civ."},
-      "fr-conseil": {"title": "Conseil d'Etat", "kind": "court", "hosts": ["conseil-etat.fr"], "reports": "Rec. Lebon"},
-      "ch-bger": {"title": "Bundesgericht (Switzerland)", "kind": "court", "hosts": ["bger.ch"], "reports": "BGE"},
-      "ua-sc": {"title": "Supreme Court of Ukraine", "kind": "court", "hosts": ["supreme.court.gov.ua"], "reports": "ЄДРСР"},
-      "md-csj": {"title": "Curtea Supremă de Justiție (Moldova)", "kind": "court", "hosts": ["csj.md"], "reports": "CSJ"},
-      "un-treaty": {"title": "UN Treaty Collection", "kind": "database", "hosts": ["treaties.un.org"], "reports": "UNTS"},
-      "ilc": {"title": "International Law Commission", "kind": "database", "hosts": ["legal.un.org"], "reports": "ILC Yearbook"},
-      "uncitral": {"title": "UNCITRAL", "kind": "database", "hosts": ["uncitral.un.org"], "reports": "UNCITRAL texts"},
-      "unilex": {"title": "UNILEX (CISG / UNIDROIT case law)", "kind": "database", "hosts": ["unilex.info"], "reports": "UNILEX"},
-      "cisg-database": {"title": "CISG Database (Pace)", "kind": "database", "hosts": ["iicl.law.pace.edu"], "reports": "CISG Database"},
-      "uk-caselaw": {"title": "Find Case Law (UK National Archives)", "kind": "database", "hosts": ["caselaw.nationalarchives.gov.uk"], "reports": "EWHC/EWCA"},
-      "eur-lex": {"title": "EUR-Lex", "kind": "legislation", "hosts": ["eur-lex.europa.eu"], "reports": "OJ L/C"},
-      "uk-legislation": {"title": "legislation.gov.uk", "kind": "legislation", "hosts": ["legislation.gov.uk"], "reports": "UK statutes"},
-      "us-ecfr": {"title": "eCFR", "kind": "legislation", "hosts": ["ecfr.gov"], "reports": "CFR"},
-      "de-legislation": {"title": "gesetze-im-internet.de", "kind": "legislation", "hosts": ["gesetze-im-internet.de"], "reports": "BGBl."},
-      "fr-legislation": {"title": "Legifrance", "kind": "legislation", "hosts": ["legifrance.gouv.fr"], "reports": "JORF"},
-      "ch-legislation": {"title": "Fedlex", "kind": "legislation", "hosts": ["fedlex.admin.ch"], "reports": "AS/RO"},
-      "ua-legislation": {"title": "Законодавство України", "kind": "legislation", "hosts": ["zakon.rada.gov.ua"], "reports": "ВВР"},
-      "md-legislation": {"title": "Legislația Republicii Moldova", "kind": "legislation", "hosts": ["legis.md"], "reports": "MO"}
+      "icj": {
+        "title": "International Court of Justice",
+        "kind": "court",
+        "hosts": [
+          "icj-cij.org"
+        ],
+        "reports": "ICJ Reports"
+      },
+      "pcij": {
+        "title": "Permanent Court of International Justice",
+        "kind": "court",
+        "hosts": [
+          "icj-cij.org"
+        ],
+        "reports": "PCIJ Series A/B"
+      },
+      "itlos": {
+        "title": "International Tribunal for the Law of the Sea",
+        "kind": "court",
+        "hosts": [
+          "itlos.org"
+        ],
+        "reports": "ITLOS Reports"
+      },
+      "wto-ds": {
+        "title": "WTO Dispute Settlement (DSB, panels, AB)",
+        "kind": "court",
+        "hosts": [
+          "wto.org"
+        ],
+        "reports": "WT/DS documents"
+      },
+      "icsid": {
+        "title": "ICSID (World Bank)",
+        "kind": "court",
+        "hosts": [
+          "icsid.worldbank.org",
+          "*.worldbank.org"
+        ],
+        "reports": "ICSID Reports"
+      },
+      "icc-arbitration": {
+        "title": "ICC International Court of Arbitration",
+        "kind": "court",
+        "hosts": [
+          "iccwbo.org"
+        ],
+        "reports": "ICC Awards"
+      },
+      "pca": {
+        "title": "Permanent Court of Arbitration",
+        "kind": "court",
+        "hosts": [
+          "pca-cpa.org"
+        ],
+        "reports": "PCA cases"
+      },
+      "cjeu": {
+        "title": "Court of Justice of the European Union",
+        "kind": "court",
+        "hosts": [
+          "curia.europa.eu"
+        ],
+        "reports": "ECLI"
+      },
+      "ecthr": {
+        "title": "European Court of Human Rights",
+        "kind": "court",
+        "hosts": [
+          "hudoc.echr.coe.int"
+        ],
+        "reports": "HUDOC / ECHR Reports"
+      },
+      "uk-sc": {
+        "title": "UK Supreme Court",
+        "kind": "court",
+        "hosts": [
+          "supremecourt.uk"
+        ],
+        "reports": "UKSC"
+      },
+      "us-scotus": {
+        "title": "Supreme Court of the United States",
+        "kind": "court",
+        "hosts": [
+          "supremecourt.gov"
+        ],
+        "reports": "U.S."
+      },
+      "de-bgh": {
+        "title": "Bundesgerichtshof",
+        "kind": "court",
+        "hosts": [
+          "bundesgerichtshof.de"
+        ],
+        "reports": "BGHZ"
+      },
+      "de-bverfg": {
+        "title": "Bundesverfassungsgericht",
+        "kind": "court",
+        "hosts": [
+          "bundesverfassungsgericht.de"
+        ],
+        "reports": "BVerfGE"
+      },
+      "fr-cass": {
+        "title": "Cour de cassation",
+        "kind": "court",
+        "hosts": [
+          "courdecassation.fr"
+        ],
+        "reports": "Bull. civ."
+      },
+      "fr-conseil": {
+        "title": "Conseil d'Etat",
+        "kind": "court",
+        "hosts": [
+          "conseil-etat.fr"
+        ],
+        "reports": "Rec. Lebon"
+      },
+      "ch-bger": {
+        "title": "Bundesgericht (Switzerland)",
+        "kind": "court",
+        "hosts": [
+          "bger.ch"
+        ],
+        "reports": "BGE"
+      },
+      "ua-sc": {
+        "title": "Supreme Court of Ukraine",
+        "kind": "court",
+        "hosts": [
+          "supreme.court.gov.ua"
+        ],
+        "reports": "ЄДРСР"
+      },
+      "md-csj": {
+        "title": "Curtea Supremă de Justiție (Moldova)",
+        "kind": "court",
+        "hosts": [
+          "csj.md"
+        ],
+        "reports": "CSJ"
+      },
+      "un-treaty": {
+        "title": "UN Treaty Collection",
+        "kind": "database",
+        "hosts": [
+          "treaties.un.org"
+        ],
+        "reports": "UNTS"
+      },
+      "ilc": {
+        "title": "International Law Commission",
+        "kind": "database",
+        "hosts": [
+          "legal.un.org"
+        ],
+        "reports": "ILC Yearbook"
+      },
+      "uncitral": {
+        "title": "UNCITRAL",
+        "kind": "database",
+        "hosts": [
+          "uncitral.un.org"
+        ],
+        "reports": "UNCITRAL texts"
+      },
+      "unilex": {
+        "title": "UNILEX (CISG / UNIDROIT case law)",
+        "kind": "database",
+        "hosts": [
+          "unilex.info"
+        ],
+        "reports": "UNILEX"
+      },
+      "cisg-database": {
+        "title": "CISG Database (Pace)",
+        "kind": "database",
+        "hosts": [
+          "iicl.law.pace.edu"
+        ],
+        "reports": "CISG Database"
+      },
+      "uk-caselaw": {
+        "title": "Find Case Law (UK National Archives)",
+        "kind": "database",
+        "hosts": [
+          "caselaw.nationalarchives.gov.uk"
+        ],
+        "reports": "EWHC/EWCA"
+      },
+      "eur-lex": {
+        "title": "EUR-Lex",
+        "kind": "legislation",
+        "hosts": [
+          "eur-lex.europa.eu"
+        ],
+        "reports": "OJ L/C"
+      },
+      "uk-legislation": {
+        "title": "legislation.gov.uk",
+        "kind": "legislation",
+        "hosts": [
+          "legislation.gov.uk"
+        ],
+        "reports": "UK statutes"
+      },
+      "us-ecfr": {
+        "title": "eCFR",
+        "kind": "legislation",
+        "hosts": [
+          "ecfr.gov"
+        ],
+        "reports": "CFR"
+      },
+      "de-legislation": {
+        "title": "gesetze-im-internet.de",
+        "kind": "legislation",
+        "hosts": [
+          "gesetze-im-internet.de"
+        ],
+        "reports": "BGBl."
+      },
+      "fr-legislation": {
+        "title": "Legifrance",
+        "kind": "legislation",
+        "hosts": [
+          "legifrance.gouv.fr"
+        ],
+        "reports": "JORF"
+      },
+      "ch-legislation": {
+        "title": "Fedlex",
+        "kind": "legislation",
+        "hosts": [
+          "fedlex.admin.ch"
+        ],
+        "reports": "AS/RO"
+      },
+      "ua-legislation": {
+        "title": "Законодавство України",
+        "kind": "legislation",
+        "hosts": [
+          "zakon.rada.gov.ua"
+        ],
+        "reports": "ВВР"
+      },
+      "md-legislation": {
+        "title": "Legislația Republicii Moldova",
+        "kind": "legislation",
+        "hosts": [
+          "legis.md"
+        ],
+        "reports": "MO"
+      }
     },
-    "required_fields": ["id", "forum", "jurisdiction", "title", "date", "numbers", "pinpoint", "holding_type", "good_law", "status"],
-    "optional_fields": ["url", "retrieved_at", "verified_by", "database", "parallel_citation", "subsequent_history", "ratio", "obiter", "note"],
-    "statuses": ["VERIFIED", "PARTIAL", "HYPOTHESIS", "NOT_VERIFIED", "NOT_FETCHED"],
-    "status_rank": {"NOT_FETCHED": 0, "NOT_VERIFIED": 1, "HYPOTHESIS": 2, "PARTIAL": 3, "VERIFIED": 4},
-    "holding_types": ["ratio", "obiter", "dictum", "mixed", "not_applicable"],
-    "good_law": ["GOOD_LAW", "OVERRULED", "DISTINGUISHED", "PENDING", "UNKNOWN"],
+    "required_fields": [
+      "id",
+      "forum",
+      "jurisdiction",
+      "title",
+      "date",
+      "numbers",
+      "pinpoint",
+      "holding_type",
+      "good_law",
+      "status"
+    ],
+    "optional_fields": [
+      "url",
+      "retrieved_at",
+      "verified_by",
+      "database",
+      "parallel_citation",
+      "subsequent_history",
+      "ratio",
+      "obiter",
+      "note"
+    ],
+    "statuses": [
+      "VERIFIED",
+      "PARTIAL",
+      "HYPOTHESIS",
+      "NOT_VERIFIED",
+      "NOT_FETCHED"
+    ],
+    "status_rank": {
+      "NOT_FETCHED": 0,
+      "NOT_VERIFIED": 1,
+      "HYPOTHESIS": 2,
+      "PARTIAL": 3,
+      "VERIFIED": 4
+    },
+    "holding_types": [
+      "ratio",
+      "obiter",
+      "dictum",
+      "mixed",
+      "not_applicable"
+    ],
+    "good_law": [
+      "GOOD_LAW",
+      "OVERRULED",
+      "DISTINGUISHED",
+      "PENDING",
+      "UNKNOWN"
+    ],
     "verified_requires": [
       "forum из реестра citation.forums",
       "title, date (ISO), numbers (дело/документ) и pinpoint (пункт/страница)",
@@ -441,7 +782,10 @@
       "good_law != UNKNOWN и holding_type указан",
       "jurisdiction из реестра jurisdictions"
     ],
-    "verified_by_prefixes": ["human:", "official:"],
+    "verified_by_prefixes": [
+      "human:",
+      "official:"
+    ],
     "ai_verification_forbidden": true,
     "official_hosts": [
       "icj-cij.org",
@@ -501,13 +845,33 @@
       "gemini.google.com",
       "perplexity.ai"
     ],
-    "fake_markers": ["TODO", "TBD", "example.com", "lorem", "???", "XXX", "FIXME", "заполнить позже"],
+    "fake_markers": [
+      "TODO",
+      "TBD",
+      "example.com",
+      "lorem",
+      "???",
+      "XXX",
+      "FIXME",
+      "заполнить позже"
+    ],
     "no_fake_citation": "ни одна ссылка не вставляется по памяти: реквизиты берутся только с официального локатора и проверяются человеком; без проверки статус не выше NOT_VERIFIED, а в заключение такая ссылка не идёт как authority",
-    "date_range": ["1900-01-01", "as_of"],
+    "date_range": [
+      "1900-01-01",
+      "as_of"
+    ],
     "format": "Court/forum, Case name, numbers, date, pinpoint, ECLI/URL, holding_type, good_law — в одной строке таблицы источников"
   },
   "opinion": {
-    "sections": ["question", "facts", "sources", "analysis", "risks", "options", "caveats"],
+    "sections": [
+      "question",
+      "facts",
+      "sources",
+      "analysis",
+      "risks",
+      "options",
+      "caveats"
+    ],
     "titles": {
       "question": "Вопрос",
       "facts": "Факты",
@@ -536,66 +900,121 @@
     {
       "id": "intl",
       "title": "Международное публичное право (универсальный уровень)",
-      "forums": ["un-treaty", "icj", "pcij", "itlos", "wto-ds", "icsid", "icc-arbitration", "pca", "ilc", "uncitral", "unilex", "cisg-database"],
+      "forums": [
+        "un-treaty",
+        "icj",
+        "pcij",
+        "itlos",
+        "wto-ds",
+        "icsid",
+        "icc-arbitration",
+        "pca",
+        "ilc",
+        "uncitral",
+        "unilex",
+        "cisg-database"
+      ],
       "note": "нормы — договоры, обычай, общие принципы; проверять статус участников и редакцию"
     },
     {
       "id": "eu",
       "title": "Европейский союз",
-      "forums": ["eur-lex", "cjeu"],
+      "forums": [
+        "eur-lex",
+        "cjeu"
+      ],
       "note": "регламенты/директивы и практика Суда ЕС; ECLI обязателен для решений"
     },
     {
       "id": "echr",
       "title": "Совет Европы / ЕСПЧ",
-      "forums": ["ecthr", "un-treaty"],
+      "forums": [
+        "ecthr",
+        "un-treaty"
+      ],
       "note": "проверять admissibility, дату вступления решения в силу и статус исполнения"
     },
     {
       "id": "uk-ew",
       "title": "Англия и Уэльс",
-      "forums": ["uk-legislation", "uk-sc", "uk-caselaw"],
+      "forums": [
+        "uk-legislation",
+        "uk-sc",
+        "uk-caselaw"
+      ],
       "note": "common law: обязательность зависит от инстанции; проверять последующую историю"
     },
     {
       "id": "us-federal",
       "title": "США (федеральный уровень)",
-      "forums": ["us-scotus", "us-ecfr"],
+      "forums": [
+        "us-scotus",
+        "us-ecfr"
+      ],
       "note": "федеральное право и право штатов различаются; проверять, какой уровень применяется"
     },
     {
       "id": "de",
       "title": "Германия",
-      "forums": ["de-legislation", "de-bgh", "de-bverfg"],
+      "forums": [
+        "de-legislation",
+        "de-bgh",
+        "de-bverfg"
+      ],
       "note": "проверять редакцию закона (BGBl.) и дату решения"
     },
     {
       "id": "fr",
       "title": "Франция",
-      "forums": ["fr-legislation", "fr-cass", "fr-conseil"],
+      "forums": [
+        "fr-legislation",
+        "fr-cass",
+        "fr-conseil"
+      ],
       "note": "различать судебную и административную ветви"
     },
     {
       "id": "ch",
       "title": "Швейцария",
-      "forums": ["ch-legislation", "ch-bger"],
+      "forums": [
+        "ch-legislation",
+        "ch-bger"
+      ],
       "note": "проверять редакцию AS/RO и практику Bundesgericht"
     },
     {
       "id": "ua",
       "title": "Украина",
-      "forums": ["ua-legislation", "ua-sc"],
+      "forums": [
+        "ua-legislation",
+        "ua-sc"
+      ],
       "note": "законы и практика Верховного Суда; проверять чинну редакцію на дату"
     },
     {
       "id": "md",
       "title": "Молдова",
-      "forums": ["md-legislation", "md-csj"],
+      "forums": [
+        "md-legislation",
+        "md-csj"
+      ],
       "note": "проверять Monitorul Oficial и практику CSJ"
     }
   ],
   "process": {
-    "order": ["intake", "conflicts", "question", "facts", "sources", "research", "cite_check", "analysis", "risks_options", "human_review", "handoff"],
+    "order": [
+      "intake",
+      "conflicts",
+      "question",
+      "facts",
+      "sources",
+      "research",
+      "cite_check",
+      "analysis",
+      "risks_options",
+      "human_review",
+      "handoff"
+    ],
     "owners": {
       "intake": "lead",
       "conflicts": "international-counsel",
@@ -628,12 +1047,36 @@
     "confidentiality": "материалы дела и источники не покидают контур; в память пишутся только пути, SHA и выводы без персональных данных"
   },
   "handoffs": {
-    "lead": {"role": "lead", "what": "вопрос, приоритет, приёмка, коммит и передача клиенту", "note": "единственный, кто коммитит и отправляет результат"},
-    "osint": {"role": "osint-scout", "what": "сбор официальных публикаций: URL, дата, цитата", "note": "только открытые источники; закрытые БД и paywall не обходятся"},
-    "evidence_qa": {"role": "evidence-qa", "what": "grade/status фактов", "note": "правовая квалификация остаётся за юристом"},
-    "archivist": {"role": "kb-librarian", "what": "запись в базу знаний, индекс, память роли", "note": "в сети MI функцию архивиста выполняет kb-librarian; межпроектный архив ведёт отдельная роль archivist"},
-    "licence_auditor": {"role": "licence-auditor", "what": "права на источники, terms, допустимость цитирования", "note": "для платных БД и внешних прогнозов"},
-    "human_lawyer": {"role": "human-lawyer", "what": "проверка и подпись заключения", "note": "вне агентной сети; обязательный шаг перед клиентом"}
+    "lead": {
+      "role": "lead",
+      "what": "вопрос, приоритет, приёмка, коммит и передача клиенту",
+      "note": "единственный, кто коммитит и отправляет результат"
+    },
+    "osint": {
+      "role": "osint-scout",
+      "what": "сбор официальных публикаций: URL, дата, цитата",
+      "note": "только открытые источники; закрытые БД и paywall не обходятся"
+    },
+    "evidence_qa": {
+      "role": "evidence-qa",
+      "what": "grade/status фактов",
+      "note": "правовая квалификация остаётся за юристом"
+    },
+    "archivist": {
+      "role": "kb-librarian",
+      "what": "запись в базу знаний, индекс, память роли",
+      "note": "в сети MI функцию архивиста выполняет kb-librarian; межпроектный архив ведёт отдельная роль archivist"
+    },
+    "licence_auditor": {
+      "role": "licence-auditor",
+      "what": "права на источники, terms, допустимость цитирования",
+      "note": "для платных БД и внешних прогнозов"
+    },
+    "human_lawyer": {
+      "role": "human-lawyer",
+      "what": "проверка и подпись заключения",
+      "note": "вне агентной сети; обязательный шаг перед клиентом"
+    }
   },
   "non_goals": [
     "не заменять юриста и не давать клиентские консультации",
@@ -662,5 +1105,18 @@
     "нет доступа к платным БД (Kluwer, Westlaw, Beck-online) — только открытые официальные порталы",
     "агент не является практикующим юристом и не подтверждает квалификацию",
     "правовые системы меняются: любой вывод действителен на as_of и требует перепроверки"
-  ]
+  ],
+  "human_counsel": {
+    "role_id": "human-lawyer",
+    "status": "HUMAN_REQUIRED",
+    "human": true,
+    "coverage_model": "lead_counsel_plus_vetted_local_counsel_network",
+    "jurisdiction_matrix": "human_counsel/jurisdiction_matrix.json",
+    "panel_registry": "human_counsel/panel_registry.json",
+    "advice_ceiling": "SIGNED_LEGAL_OPINION_BY_LICENSED_HUMAN",
+    "signoff": "human_counsel/signoff.md",
+    "ai_cannot_sign": true,
+    "ai_cannot_verify": true,
+    "note": "Ни один AI не может подписать или выдать себя за human lawyer; матрица 217 юрисдикций, counsel_id=null до реального найма."
+  }
 }
