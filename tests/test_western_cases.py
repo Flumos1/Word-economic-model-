@@ -448,6 +448,46 @@ class TestShellEquinorFactPack(unittest.TestCase):
             self.assertIn(token, text)
 
 
+
+class TestAllFactPacks(unittest.TestCase):
+    """Every case with a fact pack is sourced and numeric; docs/221 lists the new packs."""
+
+    EXPECTED = {
+        "wc-003": "SRC-CVX-AR-2025", "wc-004": "SRC-CVX-AR-2025",
+        "wc-007": "SRC-BP-AR-2025", "wc-008": "SRC-BP-AR-2025",
+        "wc-009": "SRC-TTE-AR-2025", "wc-010": "SRC-TTE-AR-2025",
+        "wc-017": "SRC-LNG-AR-2025", "wc-018": "SRC-LNG-AR-2025",
+    }
+
+    def test_sources_and_values(self):
+        cases = {case["id"]: case for case in load_cases()["cases"]}
+        values = {
+            "wc-003": ("3 723 MBOED", "10 591 MMBOE"),
+            "wc-007": ("2 312 mboe/d", "26,8 Mtpa"),
+            "wc-009": ("2 529 kboe/d", "43,9 Mt"),
+            "wc-017": (">60 mtpa", "2 424 TBtu"),
+        }
+        for case_id, source in self.EXPECTED.items():
+            facts = cases[case_id].get("facts")
+            self.assertIsInstance(facts, list, case_id)
+            self.assertGreaterEqual(len(facts), 4, case_id)
+            for fact in facts:
+                self.assertEqual(fact["source_id"], source, case_id)
+                self.assertEqual(fact["evidence"], "A", case_id)
+                self.assertTrue(any(ch.isdigit() for ch in fact["value"]), fact)
+                self.assertNotRegex(fact["value"], r"(https?://|@)")
+        for case_id, tokens in values.items():
+            joined = " ".join(fact["value"] for fact in cases[case_id]["facts"])
+            for token in tokens:
+                self.assertIn(token, joined, case_id)
+
+    def test_docs221(self):
+        text = (ROOT / "docs" / "221_Факт_паки_Chevron_Total_BP_Cheniere.md").read_text(encoding="utf-8")
+        for token in ("3 723 MBOED", "2 312 mboe/d", "2 529 kboe/d", ">60 mtpa",
+                      "not_client=true", "SRC-CVX-AR-2025"):
+            self.assertIn(token, text)
+
+
 class TestDocumentationAndPricing(unittest.TestCase):
     def test_26_numbers_trace_to_source_documents(self):
         sources = {

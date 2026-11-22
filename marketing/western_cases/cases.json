@@ -167,7 +167,57 @@
     "XLSX with assumptions and ranges",
     "JSON report with balance checks"
    ],
-   "price_note_en": "Full scenario 4-6 weeks: 15 000-25 000 USD; 18 000 USD for 6 weeks."
+   "price_note_en": "Full scenario 4-6 weeks: 15 000-25 000 USD; 18 000 USD for 6 weeks.",
+   "facts": [
+    {
+     "label": "Добыча Chevron 2025",
+     "value": "3 723 MBOED",
+     "source_id": "SRC-CVX-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "net oil-equivalent production"
+    },
+    {
+     "label": "Доказанные запасы Chevron на 31.12.2025",
+     "value": "10 591 MMBOE",
+     "source_id": "SRC-CVX-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "net proved reserves"
+    },
+    {
+     "label": "Отчётных сегментов Chevron",
+     "value": "2",
+     "source_id": "SRC-CVX-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "Upstream and Downstream"
+    },
+    {
+     "label": "Юрисдикций существенной деятельности Chevron",
+     "value": "22",
+     "source_id": "SRC-CVX-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "substantial business activities"
+    },
+    {
+     "label": "Добыча газа Chevron 2025",
+     "value": "8 515 MMCFD",
+     "source_id": "SRC-CVX-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "net natural gas production"
+    },
+    {
+     "label": "Добыча Permian 2025",
+     "value": "1 MMBOED",
+     "source_id": "SRC-CVX-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "Permian Basin"
+    }
+   ]
   },
   {
    "id": "wc-004",
@@ -203,7 +253,57 @@
     "2-page memo for the risk committee",
     "JSON with SHA-256"
    ],
-   "price_note_en": "Full scenario 8-12 weeks: 20 000-30 000 USD; 28 000 USD."
+   "price_note_en": "Full scenario 8-12 weeks: 20 000-30 000 USD; 28 000 USD.",
+   "facts": [
+    {
+     "label": "Добыча Chevron 2025",
+     "value": "3 723 MBOED",
+     "source_id": "SRC-CVX-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "net oil-equivalent production"
+    },
+    {
+     "label": "Доказанные запасы Chevron на 31.12.2025",
+     "value": "10 591 MMBOE",
+     "source_id": "SRC-CVX-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "net proved reserves"
+    },
+    {
+     "label": "Отчётных сегментов Chevron",
+     "value": "2",
+     "source_id": "SRC-CVX-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "Upstream and Downstream"
+    },
+    {
+     "label": "Юрисдикций существенной деятельности Chevron",
+     "value": "22",
+     "source_id": "SRC-CVX-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "substantial business activities"
+    },
+    {
+     "label": "Добыча газа Chevron 2025",
+     "value": "8 515 MMCFD",
+     "source_id": "SRC-CVX-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "net natural gas production"
+    },
+    {
+     "label": "Добыча Permian 2025",
+     "value": "1 MMBOED",
+     "source_id": "SRC-CVX-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "Permian Basin"
+    }
+   ]
   },
   {
    "id": "wc-005",
@@ -389,7 +489,57 @@
     "XLSX: thresholds and sensitivity",
     "2-page memo"
    ],
-   "price_note_en": "Full scenario 4-6 weeks: 15 000-25 000 USD; 17 000 USD."
+   "price_note_en": "Full scenario 4-6 weeks: 15 000-25 000 USD; 17 000 USD.",
+   "facts": [
+    {
+     "label": "Добыча BP 2025",
+     "value": "2 312 mboe/d",
+     "source_id": "SRC-BP-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "group production"
+    },
+    {
+     "label": "Жидкие углеводороды BP 2025",
+     "value": "1 199 mb/d",
+     "source_id": "SRC-BP-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "liquids"
+    },
+    {
+     "label": "Газ BP 2025",
+     "value": "6 450 mmcf/d",
+     "source_id": "SRC-BP-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "natural gas"
+    },
+    {
+     "label": "Доказанные запасы BP на 31.12.2025",
+     "value": "6 191 mmboe",
+     "source_id": "SRC-BP-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "proved reserves"
+    },
+    {
+     "label": "Стран присутствия BP",
+     "value": "61",
+     "source_id": "SRC-BP-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "countries"
+    },
+    {
+     "label": "Долгосрочный портфель СПГ BP",
+     "value": "26,8 Mtpa",
+     "source_id": "SRC-BP-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "long-term LNG portfolio"
+    }
+   ]
   },
   {
    "id": "wc-008",
@@ -423,7 +573,57 @@
     "XLSX: weights and sensitivity",
     "CSV templates for 12 months of actuals"
    ],
-   "price_note_en": "Procurement pilot 2-4 weeks: 7 500-10 000 USD; 8 500 USD."
+   "price_note_en": "Procurement pilot 2-4 weeks: 7 500-10 000 USD; 8 500 USD.",
+   "facts": [
+    {
+     "label": "Добыча BP 2025",
+     "value": "2 312 mboe/d",
+     "source_id": "SRC-BP-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "group production"
+    },
+    {
+     "label": "Жидкие углеводороды BP 2025",
+     "value": "1 199 mb/d",
+     "source_id": "SRC-BP-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "liquids"
+    },
+    {
+     "label": "Газ BP 2025",
+     "value": "6 450 mmcf/d",
+     "source_id": "SRC-BP-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "natural gas"
+    },
+    {
+     "label": "Доказанные запасы BP на 31.12.2025",
+     "value": "6 191 mmboe",
+     "source_id": "SRC-BP-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "proved reserves"
+    },
+    {
+     "label": "Стран присутствия BP",
+     "value": "61",
+     "source_id": "SRC-BP-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "countries"
+    },
+    {
+     "label": "Долгосрочный портфель СПГ BP",
+     "value": "26,8 Mtpa",
+     "source_id": "SRC-BP-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "long-term LNG portfolio"
+    }
+   ]
   },
   {
    "id": "wc-009",
@@ -457,7 +657,57 @@
     "XLSX: arbitrage and sensitivity",
     "JSON with balance checks"
    ],
-   "price_note_en": "Full scenario 4-6 weeks: 15 000-25 000 USD; 17 500 USD."
+   "price_note_en": "Full scenario 4-6 weeks: 15 000-25 000 USD; 17 500 USD.",
+   "facts": [
+    {
+     "label": "Добыча TotalEnergies 2025",
+     "value": "2 529 kboe/d",
+     "source_id": "SRC-TTE-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "hydrocarbon production"
+    },
+    {
+     "label": "Доказанные запасы TotalEnergies на 31.12.2025",
+     "value": "11 218 MBOE",
+     "source_id": "SRC-TTE-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "combined proved reserves"
+    },
+    {
+     "label": "Продажи СПГ TotalEnergies 2025",
+     "value": "43,9 Mt",
+     "source_id": "SRC-TTE-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "total LNG sales"
+    },
+    {
+     "label": "Портфель СПГ TotalEnergies",
+     "value": "44 Mt",
+     "source_id": "SRC-TTE-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "global LNG portfolio"
+    },
+    {
+     "label": "Бизнес-сегментов TotalEnergies",
+     "value": "5",
+     "source_id": "SRC-TTE-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "five business segments"
+    },
+    {
+     "label": "Стран присутствия TotalEnergies",
+     "value": "~120",
+     "source_id": "SRC-TTE-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "about 120 countries"
+    }
+   ]
   },
   {
    "id": "wc-010",
@@ -491,7 +741,57 @@
     "XLSX: scenario protocol",
     "JSON with SHA-256"
    ],
-   "price_note_en": "Full scenario 8-12 weeks: 20 000-30 000 USD; 24 000 USD."
+   "price_note_en": "Full scenario 8-12 weeks: 20 000-30 000 USD; 24 000 USD.",
+   "facts": [
+    {
+     "label": "Добыча TotalEnergies 2025",
+     "value": "2 529 kboe/d",
+     "source_id": "SRC-TTE-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "hydrocarbon production"
+    },
+    {
+     "label": "Доказанные запасы TotalEnergies на 31.12.2025",
+     "value": "11 218 MBOE",
+     "source_id": "SRC-TTE-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "combined proved reserves"
+    },
+    {
+     "label": "Продажи СПГ TotalEnergies 2025",
+     "value": "43,9 Mt",
+     "source_id": "SRC-TTE-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "total LNG sales"
+    },
+    {
+     "label": "Портфель СПГ TotalEnergies",
+     "value": "44 Mt",
+     "source_id": "SRC-TTE-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "global LNG portfolio"
+    },
+    {
+     "label": "Бизнес-сегментов TotalEnergies",
+     "value": "5",
+     "source_id": "SRC-TTE-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "five business segments"
+    },
+    {
+     "label": "Стран присутствия TotalEnergies",
+     "value": "~120",
+     "source_id": "SRC-TTE-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "about 120 countries"
+    }
+   ]
   },
   {
    "id": "wc-011",
@@ -831,7 +1131,57 @@
     "XLSX: arbitrage and freight",
     "JSON with balance checks"
    ],
-   "price_note_en": "Full scenario 4-6 weeks: 15 000-25 000 USD; 16 500 USD."
+   "price_note_en": "Full scenario 4-6 weeks: 15 000-25 000 USD; 16 500 USD.",
+   "facts": [
+    {
+     "label": "Суммарная мощность Cheniere",
+     "value": ">60 mtpa",
+     "source_id": "SRC-LNG-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "including debottlenecking"
+    },
+    {
+     "label": "Мощность Sabine Pass",
+     "value": ">30 mtpa",
+     "source_id": "SRC-LNG-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "in operation"
+    },
+    {
+     "label": "Мощность Corpus Christi",
+     "value": ">30 mtpa",
+     "source_id": "SRC-LNG-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "expected"
+    },
+    {
+     "label": "Отгружено СПГ Cheniere 2025",
+     "value": "2 424 TBtu",
+     "source_id": "SRC-LNG-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "shipped volumes"
+    },
+    {
+     "label": "Стран получателей Cheniere",
+     "value": ">40",
+     "source_id": "SRC-LNG-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "countries"
+    },
+    {
+     "label": "Долгосрочных SPA-контрагентов Cheniere",
+     "value": "~30",
+     "source_id": "SRC-LNG-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "10+ year SPAs"
+    }
+   ]
   },
   {
    "id": "wc-018",
@@ -865,7 +1215,57 @@
     "XLSX: scoring, TCO, indexation",
     "CSV templates for actuals"
    ],
-   "price_note_en": "Procurement pilot 3-4 weeks: 7 500-10 000 USD; 9 500 USD."
+   "price_note_en": "Procurement pilot 3-4 weeks: 7 500-10 000 USD; 9 500 USD.",
+   "facts": [
+    {
+     "label": "Суммарная мощность Cheniere",
+     "value": ">60 mtpa",
+     "source_id": "SRC-LNG-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "including debottlenecking"
+    },
+    {
+     "label": "Мощность Sabine Pass",
+     "value": ">30 mtpa",
+     "source_id": "SRC-LNG-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "in operation"
+    },
+    {
+     "label": "Мощность Corpus Christi",
+     "value": ">30 mtpa",
+     "source_id": "SRC-LNG-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "expected"
+    },
+    {
+     "label": "Отгружено СПГ Cheniere 2025",
+     "value": "2 424 TBtu",
+     "source_id": "SRC-LNG-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "shipped volumes"
+    },
+    {
+     "label": "Стран получателей Cheniere",
+     "value": ">40",
+     "source_id": "SRC-LNG-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "countries"
+    },
+    {
+     "label": "Долгосрочных SPA-контрагентов Cheniere",
+     "value": "~30",
+     "source_id": "SRC-LNG-AR-2025",
+     "source_date": "2026-11-22",
+     "evidence": "A",
+     "note": "10+ year SPAs"
+    }
+   ]
   },
   {
    "id": "wc-019",

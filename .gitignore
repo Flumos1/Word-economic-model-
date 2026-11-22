@@ -33,3 +33,5 @@ build/shadow/*
 !build/shadow/shadow_status.json
 # MRIO datasets (third-party, never in git)
 /data/mrio/
+# Open annual-report PDFs downloaded for OSINT fact packs (source files stay local)
+/data/sources/

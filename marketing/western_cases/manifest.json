@@ -12,7 +12,7 @@
   ],
   "source": {
     "path": "marketing/western_cases/cases.json",
-    "sha256": "e19bcc1ffee973b83a9e6cd0fe37f8c9008a052c1beb8300440236929acad70b",
+    "sha256": "b67272d8b0d13eb83f7dd587d198ad594c8e70aa97ee593753ca48151ab58fa7",
     "cases": 102,
     "companies": 51
   },
@@ -114,32 +114,32 @@
       "path": "cases.json",
       "lang": "json",
       "kind": "json",
-      "sha256": "e19bcc1ffee973b83a9e6cd0fe37f8c9008a052c1beb8300440236929acad70b",
-      "bytes": 210467,
+      "sha256": "b67272d8b0d13eb83f7dd587d198ad594c8e70aa97ee593753ca48151ab58fa7",
+      "bytes": 221383,
       "deterministic": true
     },
     {
       "path": "catalog.md",
       "lang": "ru",
       "kind": "markdown",
-      "sha256": "70daadafe9aab1516e10ed910c5ca8f320628e464dcb0c9a541070b7cb82848f",
-      "bytes": 51729,
+      "sha256": "d6dc990be7d9067385da2a334fec89e42f99fdb064d214748a46cb800e0a18b4",
+      "bytes": 56241,
       "deterministic": true
     },
     {
       "path": "catalog_en.md",
       "lang": "en",
       "kind": "markdown",
-      "sha256": "dfb7b2b034ff22d893cc026c522f0e7f27eb9c6b761ab55f0a2a58ad69b8c8c2",
-      "bytes": 31798,
+      "sha256": "89b796859c12d0bdfd23de5bd3e55d3bce470db5e8bc16a7d7f44f7b7a3be8e6",
+      "bytes": 36310,
       "deterministic": true
     },
     {
       "path": "catalog.pdf",
       "lang": "ru",
       "kind": "pdf",
-      "sha256": "280897a97e3d6019c24dabb9f5f4e0e81c42888ace0387b318930830f448ec53",
-      "bytes": 550932,
+      "sha256": "2639e9ff31a403c7294cc7dd78f31d62105f4d3ca2107b0306348876987a1979",
+      "bytes": 639800,
       "deterministic": false,
       "pages": 5
     },
@@ -147,8 +147,8 @@
       "path": "catalog_en.pdf",
       "lang": "en",
       "kind": "pdf",
-      "sha256": "00774eaac07bf794d349f846220e15e43ac2ae2e8f4f24d4560ce0f1dd977ff6",
-      "bytes": 539810,
+      "sha256": "d5bacf1c2b1419d928b2fe090f5fda7084fb36fed68ea27b82f482a5cee069e1",
+      "bytes": 629462,
       "deterministic": false,
       "pages": 5
     }

@@ -2,7 +2,7 @@
 
 Собрано: 2026-11-21 · статус DRAFT · `RESEARCH_ONLY` · `admission=false` · `not_client=true` · ничего не отправлено
 
-Источник: `marketing/western_cases/cases.json` · SHA-256 `e19bcc1ffee973b83a9e6cd0fe37f8c9008a052c1beb8300440236929acad70b` · 102 кейсов, 51 компаний · русская и английская версии
+Источник: `marketing/western_cases/cases.json` · SHA-256 `b67272d8b0d13eb83f7dd587d198ad594c8e70aa97ee593753ca48151ab58fa7` · 102 кейсов, 51 компаний · русская и английская версии
 
 Каталог генерируется `tools/case_catalog.py` из `cases.json`; руками не правится.
 Английская версия тех же кейсов — `catalog_en.md` и `catalog_en.pdf`.
@@ -249,6 +249,18 @@
 
 | ID | Компания | Факт | Значение | Источник |
 |---|---|---|---|---|
+| wc-003 | Chevron | Добыча Chevron 2025 | 3 723 MBOED | SRC-CVX-AR-2025 |
+| wc-003 | Chevron | Доказанные запасы Chevron на 31.12.2025 | 10 591 MMBOE | SRC-CVX-AR-2025 |
+| wc-003 | Chevron | Отчётных сегментов Chevron | 2 | SRC-CVX-AR-2025 |
+| wc-003 | Chevron | Юрисдикций существенной деятельности Chevron | 22 | SRC-CVX-AR-2025 |
+| wc-003 | Chevron | Добыча газа Chevron 2025 | 8 515 MMCFD | SRC-CVX-AR-2025 |
+| wc-003 | Chevron | Добыча Permian 2025 | 1 MMBOED | SRC-CVX-AR-2025 |
+| wc-004 | Chevron | Добыча Chevron 2025 | 3 723 MBOED | SRC-CVX-AR-2025 |
+| wc-004 | Chevron | Доказанные запасы Chevron на 31.12.2025 | 10 591 MMBOE | SRC-CVX-AR-2025 |
+| wc-004 | Chevron | Отчётных сегментов Chevron | 2 | SRC-CVX-AR-2025 |
+| wc-004 | Chevron | Юрисдикций существенной деятельности Chevron | 22 | SRC-CVX-AR-2025 |
+| wc-004 | Chevron | Добыча газа Chevron 2025 | 8 515 MMCFD | SRC-CVX-AR-2025 |
+| wc-004 | Chevron | Добыча Permian 2025 | 1 MMBOED | SRC-CVX-AR-2025 |
 | wc-005 | Shell | Добыча Shell за 2025 | 2 800 kboe/d | SRC-SHELL-AR-2025 |
 | wc-005 | Shell | СПГ-сжижение Shell за 2025 | 28,4 Mt | SRC-SHELL-AR-2025 |
 | wc-005 | Shell | Продажи СПГ Shell за 2025 | 72,9 Mt | SRC-SHELL-AR-2025 |
@@ -259,6 +271,30 @@
 | wc-006 | Shell | Продажи СПГ Shell за 2025 | 72,9 Mt | SRC-SHELL-AR-2025 |
 | wc-006 | Shell | Доказанные запасы Shell на конец 2025 | 8 123 MBOE | SRC-SHELL-AR-2025 |
 | wc-006 | Shell | Стран присутствия Shell | >70 | SRC-SHELL-AR-2025 |
+| wc-007 | BP | Добыча BP 2025 | 2 312 mboe/d | SRC-BP-AR-2025 |
+| wc-007 | BP | Жидкие углеводороды BP 2025 | 1 199 mb/d | SRC-BP-AR-2025 |
+| wc-007 | BP | Газ BP 2025 | 6 450 mmcf/d | SRC-BP-AR-2025 |
+| wc-007 | BP | Доказанные запасы BP на 31.12.2025 | 6 191 mmboe | SRC-BP-AR-2025 |
+| wc-007 | BP | Стран присутствия BP | 61 | SRC-BP-AR-2025 |
+| wc-007 | BP | Долгосрочный портфель СПГ BP | 26,8 Mtpa | SRC-BP-AR-2025 |
+| wc-008 | BP | Добыча BP 2025 | 2 312 mboe/d | SRC-BP-AR-2025 |
+| wc-008 | BP | Жидкие углеводороды BP 2025 | 1 199 mb/d | SRC-BP-AR-2025 |
+| wc-008 | BP | Газ BP 2025 | 6 450 mmcf/d | SRC-BP-AR-2025 |
+| wc-008 | BP | Доказанные запасы BP на 31.12.2025 | 6 191 mmboe | SRC-BP-AR-2025 |
+| wc-008 | BP | Стран присутствия BP | 61 | SRC-BP-AR-2025 |
+| wc-008 | BP | Долгосрочный портфель СПГ BP | 26,8 Mtpa | SRC-BP-AR-2025 |
+| wc-009 | TotalEnergies | Добыча TotalEnergies 2025 | 2 529 kboe/d | SRC-TTE-AR-2025 |
+| wc-009 | TotalEnergies | Доказанные запасы TotalEnergies на 31.12.2025 | 11 218 MBOE | SRC-TTE-AR-2025 |
+| wc-009 | TotalEnergies | Продажи СПГ TotalEnergies 2025 | 43,9 Mt | SRC-TTE-AR-2025 |
+| wc-009 | TotalEnergies | Портфель СПГ TotalEnergies | 44 Mt | SRC-TTE-AR-2025 |
+| wc-009 | TotalEnergies | Бизнес-сегментов TotalEnergies | 5 | SRC-TTE-AR-2025 |
+| wc-009 | TotalEnergies | Стран присутствия TotalEnergies | ~120 | SRC-TTE-AR-2025 |
+| wc-010 | TotalEnergies | Добыча TotalEnergies 2025 | 2 529 kboe/d | SRC-TTE-AR-2025 |
+| wc-010 | TotalEnergies | Доказанные запасы TotalEnergies на 31.12.2025 | 11 218 MBOE | SRC-TTE-AR-2025 |
+| wc-010 | TotalEnergies | Продажи СПГ TotalEnergies 2025 | 43,9 Mt | SRC-TTE-AR-2025 |
+| wc-010 | TotalEnergies | Портфель СПГ TotalEnergies | 44 Mt | SRC-TTE-AR-2025 |
+| wc-010 | TotalEnergies | Бизнес-сегментов TotalEnergies | 5 | SRC-TTE-AR-2025 |
+| wc-010 | TotalEnergies | Стран присутствия TotalEnergies | ~120 | SRC-TTE-AR-2025 |
 | wc-011 | ConocoPhillips | Добыча 2025 | 2 375 MBOED | SRC-COP-AR-2025 |
 | wc-011 | ConocoPhillips | Добыча 2026 guidance | 2,33–2,36 MMBOED | SRC-COP-AR-2025 |
 | wc-011 | ConocoPhillips | CAPEX 2026 guidance | ~$12B | SRC-COP-AR-2025 |
@@ -271,6 +307,18 @@
 | wc-012 | ConocoPhillips | PALNG Phase 1 offtake | 5 MTPA | SRC-COP-AR-2025 |
 | wc-012 | ConocoPhillips | Стран с операциями на 30.06.2026 | 15 | SRC-COP-OPS-2026 |
 | wc-012 | ConocoPhillips | Операционных сегментов в 2026 | 6 | SRC-COP-OPS-2026 |
+| wc-017 | Cheniere | Суммарная мощность Cheniere | >60 mtpa | SRC-LNG-AR-2025 |
+| wc-017 | Cheniere | Мощность Sabine Pass | >30 mtpa | SRC-LNG-AR-2025 |
+| wc-017 | Cheniere | Мощность Corpus Christi | >30 mtpa | SRC-LNG-AR-2025 |
+| wc-017 | Cheniere | Отгружено СПГ Cheniere 2025 | 2 424 TBtu | SRC-LNG-AR-2025 |
+| wc-017 | Cheniere | Стран получателей Cheniere | >40 | SRC-LNG-AR-2025 |
+| wc-017 | Cheniere | Долгосрочных SPA-контрагентов Cheniere | ~30 | SRC-LNG-AR-2025 |
+| wc-018 | Cheniere | Суммарная мощность Cheniere | >60 mtpa | SRC-LNG-AR-2025 |
+| wc-018 | Cheniere | Мощность Sabine Pass | >30 mtpa | SRC-LNG-AR-2025 |
+| wc-018 | Cheniere | Мощность Corpus Christi | >30 mtpa | SRC-LNG-AR-2025 |
+| wc-018 | Cheniere | Отгружено СПГ Cheniere 2025 | 2 424 TBtu | SRC-LNG-AR-2025 |
+| wc-018 | Cheniere | Стран получателей Cheniere | >40 | SRC-LNG-AR-2025 |
+| wc-018 | Cheniere | Долгосрочных SPA-контрагентов Cheniere | ~30 | SRC-LNG-AR-2025 |
 | wc-101 | Equinor | Equity production 2025 | 2 137 mboe/d | SRC-EQNR-AR-2025 |
 | wc-101 | Equinor | Доказанные запасы на конец 2025 | 5 183 MBOE | SRC-EQNR-AR-2025 |
 | wc-101 | Equinor | Стран присутствия | >20 | SRC-EQNR-AR-2025 |
