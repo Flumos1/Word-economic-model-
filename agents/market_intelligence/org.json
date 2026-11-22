@@ -1,7 +1,8 @@
 {
   "schema": "amfe.market_intelligence.org.v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "created": "2026-11-21",
+  "updated": "2026-11-22",
   "author_role": "dense-vintages",
   "status": "RESEARCH_ONLY",
   "admission": false,
@@ -38,6 +39,151 @@
       "проверка условий: разрешённое использование, производные, передача клиенту, запрет перепродажи",
       "снять режим OSINT_ONLY правкой org.json (mode), тестов и docs/212",
       "ключи и доступы не попадают в репозиторий и в память агента"
+    ]
+  },
+  "gated_sources": {
+    "schema": "amfe.market_intelligence.gated.v1",
+    "playbook": "playbooks/gated_sources.md",
+    "access_request_template": "playbooks/access_request.md",
+    "mode_note": "Классификация G0–G4 нужна, чтобы распознать gated-источник и оформить законный запрос доступа. В режиме OSINT_ONLY доступ G2/G3 не открыт (REQUEST_PENDING или NOT_AUTHORIZED), G4 не открывается никогда: распознать источник и обойти его — разные вещи.",
+    "classes": [
+      {
+        "id": "G0",
+        "title": "Public",
+        "title_ru": "Открытый",
+        "access": "OPEN",
+        "source_classes": [
+          "S1",
+          "S2",
+          "S3"
+        ],
+        "requirements": [
+          "договор не нужен: страница или файл открыт",
+          "robots.txt и условия использования разрешают просмотр и цитирование"
+        ],
+        "collect_now": true,
+        "request_required": false,
+        "request_path": "не требуется",
+        "evidence_ceiling": "PARTIAL"
+      },
+      {
+        "id": "G1",
+        "title": "Registration",
+        "title_ru": "Регистрация",
+        "access": "OPEN_REGISTRATION",
+        "source_classes": [
+          "S1",
+          "S3"
+        ],
+        "requirements": [
+          "бесплатная регистрация организации по условиям источника",
+          "проверка ToS: цитирование и хранение цитат разрешены",
+          "логин хранится в секрет-сторе, не в репозитории"
+        ],
+        "collect_now": true,
+        "request_required": false,
+        "request_path": "регистрация по ToS; учётные данные — в секрет-сторе",
+        "evidence_ceiling": "PARTIAL"
+      },
+      {
+        "id": "G2",
+        "title": "Licensed",
+        "title_ru": "Лицензированный",
+        "access": "LICENCE_REQUIRED",
+        "source_classes": [
+          "S4"
+        ],
+        "requirements": [
+          "подписка или договор с датой и стороной",
+          "проверка права на производные и передачу клиенту",
+          "API key или логин — в секрет-сторе, не в git и не в памяти агента"
+        ],
+        "collect_now": false,
+        "request_required": true,
+        "request_path": "playbooks/access_request.md -> director -> человек/Lead",
+        "evidence_ceiling": "PARTIAL"
+      },
+      {
+        "id": "G3",
+        "title": "NDA data room",
+        "title_ru": "Data room по NDA",
+        "access": "NDA",
+        "source_classes": [
+          "S4"
+        ],
+        "requirements": [
+          "подписанный NDA с датой и стороной",
+          "правила data room: скачивание, цитирование, срок доступа",
+          "разрешение на цитату до включения в кейс"
+        ],
+        "collect_now": false,
+        "request_required": true,
+        "request_path": "playbooks/access_request.md -> director -> человек/Lead",
+        "evidence_ceiling": "PARTIAL"
+      },
+      {
+        "id": "G4",
+        "title": "Restricted / no access",
+        "title_ru": "Закрытый, доступа нет",
+        "access": "NO_ACCESS",
+        "source_classes": [
+          "S5"
+        ],
+        "requirements": [
+          "нет: утёкшие базы, чужие аккаунты, инсайд, чужие ключи",
+          "доступа не существует; запрос не оформляется"
+        ],
+        "collect_now": false,
+        "request_required": false,
+        "request_path": "нет; фиксируется NOT_AUTHORIZED и NOT_FETCHED",
+        "evidence_ceiling": "PARTIAL"
+      }
+    ],
+    "statuses": [
+      "AUTHORIZED",
+      "REQUEST_PENDING",
+      "NOT_AUTHORIZED"
+    ],
+    "status_titles": {
+      "AUTHORIZED": "доступ есть: договор/NDA/ToS проверены, срок и объём цитирования известны",
+      "REQUEST_PENDING": "запрос оформлен и передан человеку; до решения источник не используется",
+      "NOT_AUTHORIZED": "доступа нет или отказано: источник не используется, в отчёте NOT_FETCHED и причина"
+    },
+    "journal": {
+      "required_fields": [
+        "request_id",
+        "role",
+        "source",
+        "gated_class",
+        "legal_basis",
+        "purpose",
+        "requested_at",
+        "decision",
+        "decided_at",
+        "expires_at",
+        "owner"
+      ],
+      "rule": "каждое обращение к gated-источнику имеет строку в журнале; журнал хранится вне git (там, где это разрешено договором), в репозитории — только обезличенные status-записи без ключей и персональных данных"
+    },
+    "no_bypass": [
+      "обход paywall: кэш, архив, «текст в комментариях», копия платного отчёта — запрещены",
+      "обход авторизации, robots.txt, условий использования, лимитов и капчи — запрещён",
+      "утёкшие базы, «сливы», купленные базы и чужие аккаунты — не источник (G4)",
+      "персональные данные, деанонимизация и «карточки людей» — запрещены",
+      "ключи, токены и cookie не хранятся в репозитории, в отчёте и в памяти агента",
+      "NDA и правила data room не нарушаются: цитируем только разрешённое и в разрешённом объёме"
+    ],
+    "credentials": {
+      "in_repo": false,
+      "storage": "секрет-стор или переменные окружения; выдаёт человек, не агент",
+      "rule": "агент не создаёт, не запрашивает и не хранит учётные данные; в отчёте — только имя источника и статус доступа"
+    },
+    "rules": [
+      "сначала класс G0–G4, потом решение: собирать, запрашивать или отказаться",
+      "G2/G3: без договора/NDA — REQUEST_PENDING или NOT_AUTHORIZED, но не сбор",
+      "G4: всегда NOT_AUTHORIZED; запрос не оформляется, потому что законного пути нет",
+      "после договора режим OSINT_ONLY снимается только правкой org.json, тестов и docs/212 — решением человека/Lead",
+      "evidence ceiling остаётся PARTIAL: договор расширяет доступ, но не отменяет проверку evidence-qa"
     ]
   },
   "purpose": "Законная сеть market intelligence в режиме OSINT_ONLY: вопрос -> source plan -> collect -> grade -> analysis -> case -> QA -> KB. Сеть собирает только открытые источники S1–S3 (публикации, отчётность, регуляторная статистика); лицензированные БД (S4) и закрытые источники (S5) не используются, пока нет подписки/договора. Данных в среде нет, поэтому адаптеры строятся, а факты не выдумываются.",
@@ -134,6 +280,7 @@
     ],
     "licensed_databases": "S4 не используется: подписок и письменных разрешений нет (DEFERRED); при появлении договора — только по подписке или письменному разрешению с датой и стороной, ключи и доступы не хранятся в репозитории",
     "osint": "открытые страницы и публичные реестры; без взлома, без обхода авторизации, без обхода robots/terms, без обхода лимитов, без обхода paywall",
+    "gated_access": "G0 public / G1 registration / G2 licensed / G3 NDA data room / G4 restricted: класс определяется до сбора; G2/G3 — только по оформленному запросу и договору/NDA, G4 не открывается никогда; обход paywall/авторизации/NDA запрещён, ключи и доступы не попадают в репозиторий",
     "no_paywall_bypass": "платный контент не читается и не пересказывается в обход paywall: ни кэш/архив платной статьи, ни копия платного отчёта; платный источник без договора — только NOT_FETCHED",
     "no_closed_databases": "закрытые и чужие БД, «зеркала», «сливы» и купленные базы не используются ни при каких условиях, включая «только посмотреть»",
     "no_robots_terms_violations": "скраперы и массовые запросы допустимы только там, где robots.txt и условия использования это разрешают; обход капчи, авторизации и лимитов запрещён",
@@ -292,7 +439,8 @@
     "gate-3 independence: QA не проверяет собственную работу (review_role != author)",
     "gate-4 lawful: нет обхода авторизации и paywall, нет обхода robots/terms, нет закрытых БД, нет персональных данных, есть санкционная проверка",
     "gate-5 KB: запись валидна, лицензия и свежесть указаны, ссылки существуют",
-    "gate-6 osint-only: mode=OSINT_ONLY, subscriptions=0, licensed-data в статусе DEFERRED, в отчёте есть поле mode"
+    "gate-6 osint-only: mode=OSINT_ONLY, subscriptions=0, licensed-data в статусе DEFERRED, в отчёте есть поле mode",
+    "gate-7 gated: у каждого gated-источника есть класс G0–G4, статус AUTHORIZED/REQUEST_PENDING/NOT_AUTHORIZED и запись в журнале; G4 не используется, ключи вне репозитория"
   ],
   "roles": [
     {
@@ -608,37 +756,56 @@
       "layer": "collection",
       "status": "ACTIVE",
       "mode_note": "основной и единственный активный сборщик в режиме OSINT_ONLY: классы S1–S3, без обхода paywall/robots/terms, без персональных данных",
-      "mandate": "Полный цикл открытого исследования: первоисточники, числа и единицы, факт-пак (label/value/unit/period/source_id/source_date/evidence/quote), collection log. Работает только S1–S3 в OSINT_ONLY; без подписок и закрытых баз.",
+      "mandate": "Полный цикл открытого исследования: первоисточники, публичные реестры, числа и единицы, факт-пак (label/value/unit/period/source_id/source_date/evidence/quote), collection log. Работает S1–S3 в OSINT_ONLY. Gated-источники распознаёт по классам G0–G4: G0/G1 использует в пределах ToS, G2/G3 только оформляет access request (договор/NDA через человека), G4 фиксирует как NOT_AUTHORIZED и не трогает. Обход paywall, авторизации и NDA запрещён: доступ либо есть законно, либо его нет.",
       "segments": [],
       "accounts": [],
       "questions": [
         "какой публичный документ отвечает на подвопрос",
-        "какой класс источника это (A/B/C)",
+        "какой класс источника это (A/B/C) и какой gated-класс (G0–G4)",
+        "что нужно для законного доступа: ToS, договор, NDA, FOIA, API key",
+        "кому и на каком правовом основании оформляется access request",
         "что именно не удалось получить и почему"
       ],
       "inputs": [
         "agents/market_intelligence/playbooks/lawful_osint.md",
         "agents/market_intelligence/playbooks/source_hierarchy.md",
+        "agents/market_intelligence/playbooks/gated_sources.md",
+        "agents/market_intelligence/playbooks/access_request.md",
+        "agents/market_intelligence/playbooks/numeric_facts.md",
+        "docs/224_Gated_источники.md",
         "knowledge_base/sources.json",
         "task brief от director"
       ],
       "allowed": [
         "открытые сайты S1–S3: компании/регуляторы, отчётность, пресс-релизы",
-        "годовые отчёты, 10-K/20-F, investor presentations (открытые)",
+        "публичные реестры: регистрационные, разрешительные, судебные — в пределах публикации юрисдикции",
+        "закупочные порталы и публичные тендерные публикации",
+        "санкционные списки и публичные реестры бенефициаров — только публичные данные",
+        "FOIA/public records запросы через официальный канал источника",
+        "глубокое исследование: многошаговый поиск, source triangulation, quote extraction",
+        "оформлять access request для G2/G3 и вести журнал доступа",
+        "licensed API — только после договора и снятия OSINT_ONLY (сейчас DEFERRED)",
         "извлекать числа: добыча, запасы, CAPEX, MTPA, страны, сегменты, тракты",
         "строить факт-пак с unit/period/source_id/source_date/evidence/quote",
         "сохранять цитаты и даты в collection log"
       ],
       "forbidden": [
         "взлом, подбор паролей, обход авторизации и paywall",
-        "использование чужих аккаунтов и утёкших баз",
-        "обход robots/terms и лимитов",
-        "персональные данные и деанонимизация"
+        "обход NDA, правил data room, robots/terms и лимитов — в любом виде",
+        "использование чужих аккаунтов, утёкших баз и купленных баз",
+        "покупка и хранение персональных данных; деанонимизация",
+        "хранение и передача ключей, токенов, cookie и логинов",
+        "считать доступ полученным, пока договор/NDA не подписан человеком",
+        "выдавать REQUEST_PENDING или NOT_AUTHORIZED за AUTHORIZED"
       ],
       "outputs": [
         "collection log",
         "отчёт с URL и датой",
         "fact pack с числами и единицами",
+        "access request draft (запрос доступа G2/G3)",
+        "access journal (журнал доступа: статус, основание, срок)",
+        "triangulation matrix (минимум 2 независимых источника на ключевой факт)",
+        "quote extraction (цитата <= 300 символов + URL + дата)",
         "отчёт NOT_FETCHED"
       ],
       "evidence_ceiling": "PARTIAL",
@@ -649,18 +816,38 @@
       ],
       "prompt": "roles/06_osint_scout.md",
       "memory": "agents/memory/mi-osint-scout.jsonl",
+      "gated_policy": "RECOGNIZE_AND_REQUEST",
+      "gated_classes": [
+        "G0",
+        "G1",
+        "G2",
+        "G3",
+        "G4"
+      ],
       "skills": [
         "open_source_search",
+        "public_records",
+        "court_registries_public",
+        "procurement_portals",
+        "sanctions_screening",
+        "beneficial_ownership_public",
+        "foia_public_records_requests",
         "company_filings",
         "annual_reports",
         "sec_edgar_public",
         "investor_presentations",
+        "licensed_apis",
+        "data_rooms_nda",
+        "deep_research",
+        "source_triangulation",
+        "quote_extraction",
         "numeric_extraction",
         "unit_normalization",
         "facts_vs_guidance",
         "source_grading",
         "collection_log",
         "fact_pack",
+        "access_request",
         "no_paywall_bypass",
         "no_personal_data"
       ]
@@ -863,6 +1050,8 @@
     "доля кейсов, прошедших QA с первого раза",
     "свежесть записей KB (доля просроченных)",
     "0 нарушений red lines",
-    "0 обращений к S4–S5 и 0 обходов paywall в режиме OSINT_ONLY"
+    "0 обращений к S4–S5 и 0 обходов paywall в режиме OSINT_ONLY",
+    "0 секретов и учётных данных в репозитории и в памяти агента",
+    "доля gated-источников G2/G3 с оформленным access request и записью в журнале"
   ]
 }

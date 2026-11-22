@@ -1,0 +1,449 @@
+{
+  "archive": "G:\\Мировая экономика модель\\knowledge_archive",
+  "counts": {
+    "UNKNOWN": 0,
+    "due_soon": 0,
+    "excluded": 7,
+    "fresh": 7,
+    "selected": 7,
+    "stale": 0
+  },
+  "entries": [
+    {
+      "access": "PUBLIC",
+      "archived": false,
+      "as_of": "2026-11-22",
+      "audience": [
+        "archivist",
+        "osint-scout",
+        "licensed-data",
+        "kb-librarian"
+      ],
+      "created": "2026-11-22",
+      "evidence_grade": "C",
+      "evidence_status": "HYPOTHESIS",
+      "freshness": "fresh",
+      "id": "AR-0004",
+      "kind": "template",
+      "licence": "INTERNAL",
+      "links": [
+        "agents/archive/skills.md",
+        "knowledge_archive/README.md"
+      ],
+      "match": [
+        "сбор",
+        "источники"
+      ],
+      "namespace": "global",
+      "notes": "Шаблон заполняется до сбора данных, а не после: иначе доступ подгоняется под факт.",
+      "owner_role": "archivist",
+      "provenance": {
+        "collected_at": "2026-11-22",
+        "collected_by": "archivist",
+        "method": "MANUAL_READ",
+        "origin": "docs/223_Архивариус_и_межпроектная_база.md",
+        "origin_type": "INTERNAL_DOC",
+        "retrieved_at": "2026-11-22",
+        "sha256": null
+      },
+      "retention": "PERMANENT",
+      "review_due": "2028-11-21",
+      "schema": "amfe.archive.entry.v1",
+      "source_ids": [],
+      "summary": "Поля карточки: класс источника, доступ, лицензия, юрисдикция, что разрешено делать, где проверять условия, дата и хеш проверки. Карточка без проверки условий помечается как зарегистрированная, а не подтверждённая.",
+      "supersedes": null,
+      "tags": [
+        "template",
+        "source-card",
+        "archive"
+      ],
+      "title": "Шаблон карточки источника (source card)",
+      "ttl_days": 730,
+      "updated": "2026-11-22",
+      "version": 1,
+      "visibility": "global"
+    },
+    {
+      "access": "PUBLIC",
+      "archived": false,
+      "as_of": "2026-11-22",
+      "audience": [
+        "osint-scout",
+        "archivist",
+        "evidence-qa"
+      ],
+      "created": "2026-11-22",
+      "evidence_grade": "C",
+      "evidence_status": "HYPOTHESIS",
+      "freshness": "fresh",
+      "id": "AR-0006",
+      "kind": "method",
+      "licence": "INTERNAL",
+      "links": [
+        "agents/market_intelligence/playbooks/lawful_osint.md",
+        "agents/market_intelligence/playbooks/red_lines.md"
+      ],
+      "match": [
+        "законный",
+        "сбор"
+      ],
+      "namespace": "osint",
+      "notes": "Нарушение границы останавливает задачу: запись не «догоняется» обходом запрета.",
+      "owner_role": "archivist",
+      "provenance": {
+        "collected_at": "2026-11-22",
+        "collected_by": "archivist",
+        "method": "MANUAL_READ",
+        "origin": "agents/market_intelligence/playbooks/lawful_osint.md",
+        "origin_type": "INTERNAL_DOC",
+        "retrieved_at": "2026-11-22",
+        "sha256": null
+      },
+      "retention": "PERMANENT",
+      "review_due": "2027-11-22",
+      "schema": "amfe.archive.entry.v1",
+      "source_ids": [],
+      "summary": "Сбор только с открытых страниц и публичных реестров: без обхода авторизации, paywall, robots и лимитов; без персональных данных и контактов. Каждый шаг пишется в журнал коллекции: что искали, где, когда, что получили и что осталось NOT_FETCHED.",
+      "supersedes": null,
+      "tags": [
+        "osint",
+        "lawful",
+        "method"
+      ],
+      "title": "Законный OSINT: границы сбора и журнал коллекции",
+      "ttl_days": 365,
+      "updated": "2026-11-22",
+      "version": 1,
+      "visibility": "project"
+    },
+    {
+      "access": "PUBLIC",
+      "archived": false,
+      "as_of": "2026-11-22",
+      "audience": [
+        "all"
+      ],
+      "created": "2026-11-22",
+      "evidence_grade": "C",
+      "evidence_status": "HYPOTHESIS",
+      "freshness": "fresh",
+      "id": "AR-0001",
+      "kind": "method",
+      "licence": "INTERNAL",
+      "links": [
+        "agents/archive/skills.md",
+        "docs/223_Архивариус_и_межпроектная_база.md"
+      ],
+      "match": [
+        "источники"
+      ],
+      "namespace": "global",
+      "notes": "Правило действует для всех проектов: пакет без провенанса не передаётся дальше.",
+      "owner_role": "archivist",
+      "provenance": {
+        "collected_at": "2026-11-22",
+        "collected_by": "archivist",
+        "method": "MANUAL_READ",
+        "origin": "docs/223_Архивариус_и_межпроектная_база.md",
+        "origin_type": "INTERNAL_DOC",
+        "retrieved_at": "2026-11-22",
+        "sha256": null
+      },
+      "retention": "PERMANENT",
+      "review_due": "2027-11-22",
+      "schema": "amfe.archive.entry.v1",
+      "source_ids": [],
+      "summary": "Каждая запись архива обязана назвать происхождение (origin), тип происхождения, кто и когда собрал, каким методом и что именно получено (retrieved_at). Без провенанса запись не принимается: знание без источника — это мнение, а не знание.",
+      "supersedes": null,
+      "tags": [
+        "provenance",
+        "archive",
+        "method"
+      ],
+      "title": "Провенанс записи: шесть полей, без которых знание не принимается",
+      "ttl_days": 365,
+      "updated": "2026-11-22",
+      "version": 1,
+      "visibility": "global"
+    },
+    {
+      "access": "PUBLIC",
+      "archived": false,
+      "as_of": "2026-11-22",
+      "audience": [
+        "osint-scout",
+        "case-writer",
+        "legal-claim",
+        "lead"
+      ],
+      "created": "2026-11-22",
+      "evidence_grade": "C",
+      "evidence_status": "HYPOTHESIS",
+      "freshness": "fresh",
+      "id": "AR-0003",
+      "kind": "source",
+      "licence": "INTERNAL",
+      "links": [
+        "agents/market_intelligence/playbooks/source_hierarchy.md",
+        "agents/market_intelligence/playbooks/evidence_grading.md"
+      ],
+      "match": [
+        "источники"
+      ],
+      "namespace": "global",
+      "notes": "Иерархия переносится в архив без изменений: правила одни для всех проектов.",
+      "owner_role": "archivist",
+      "provenance": {
+        "collected_at": "2026-11-22",
+        "collected_by": "archivist",
+        "method": "MANUAL_READ",
+        "origin": "agents/market_intelligence/playbooks/source_hierarchy.md",
+        "origin_type": "INTERNAL_DOC",
+        "retrieved_at": "2026-11-22",
+        "sha256": null
+      },
+      "retention": "PERMANENT",
+      "review_due": "2027-11-22",
+      "schema": "amfe.archive.entry.v1",
+      "source_ids": [],
+      "summary": "Уровни источников и правило понижения: первоисточник (норма, раскрытие, официальная статистика) сильнее отраслевой прессы, пресса сильнее пересказа. Grade A допустим только для первоисточника, прочитанного в среде и зафиксированного в провенансе.",
+      "supersedes": null,
+      "tags": [
+        "sources",
+        "evidence",
+        "method"
+      ],
+      "title": "Иерархия источников: первоисточник, отчётность, пересказ",
+      "ttl_days": 365,
+      "updated": "2026-11-22",
+      "version": 1,
+      "visibility": "global"
+    },
+    {
+      "access": "PUBLIC",
+      "archived": false,
+      "as_of": "2026-11-22",
+      "audience": [
+        "archivist",
+        "case-writer",
+        "lead",
+        "osint-scout"
+      ],
+      "created": "2026-11-22",
+      "evidence_grade": "C",
+      "evidence_status": "HYPOTHESIS",
+      "freshness": "fresh",
+      "id": "AR-0005",
+      "kind": "template",
+      "licence": "INTERNAL",
+      "links": [
+        "agents/archive/skills.md",
+        "knowledge_archive/schema.json"
+      ],
+      "match": [
+        "источники"
+      ],
+      "namespace": "global",
+      "notes": "Шаблон задаёт и пробелы: «чего мы не знаем» — обязательный раздел факт-пака.",
+      "owner_role": "archivist",
+      "provenance": {
+        "collected_at": "2026-11-22",
+        "collected_by": "archivist",
+        "method": "MANUAL_READ",
+        "origin": "docs/223_Архивариус_и_межпроектная_база.md",
+        "origin_type": "INTERNAL_DOC",
+        "retrieved_at": "2026-11-22",
+        "sha256": null
+      },
+      "retention": "PERMANENT",
+      "review_due": "2028-11-21",
+      "schema": "amfe.archive.entry.v1",
+      "source_ids": [],
+      "summary": "Факт-пак фиксирует вопрос, что подтверждено с источником, что не подтверждено и почему, какие числа запрещены до первоисточника и что читать дальше. Числа без источника в факт-пак не попадают, а расхождения не сглаживаются.",
+      "supersedes": null,
+      "tags": [
+        "template",
+        "fact-pack",
+        "archive"
+      ],
+      "title": "Шаблон факт-пака проекта",
+      "ttl_days": 730,
+      "updated": "2026-11-22",
+      "version": 1,
+      "visibility": "global"
+    },
+    {
+      "access": "PROJECT",
+      "archived": false,
+      "as_of": "2026-11-22",
+      "audience": [
+        "osint-scout",
+        "archivist",
+        "licence-auditor"
+      ],
+      "created": "2026-11-22",
+      "evidence_grade": "C",
+      "evidence_status": "HYPOTHESIS",
+      "freshness": "fresh",
+      "id": "AR-0007",
+      "kind": "source",
+      "licence": "INTERNAL",
+      "links": [
+        "docs/205_Верификация_источников.md",
+        "agents/market_intelligence/playbooks/source_hierarchy.md"
+      ],
+      "match": [
+        "источники"
+      ],
+      "namespace": "osint",
+      "notes": "Реестр источников — это намерения: url_checked и terms_checked заполняет человек.",
+      "owner_role": "archivist",
+      "provenance": {
+        "collected_at": "2026-11-22",
+        "collected_by": "archivist",
+        "method": "MANUAL_READ",
+        "origin": "docs/205_Верификация_источников.md",
+        "origin_type": "INTERNAL_DOC",
+        "retrieved_at": "2026-11-22",
+        "sha256": null
+      },
+      "retention": "PERMANENT",
+      "review_due": "2027-11-22",
+      "schema": "amfe.archive.entry.v1",
+      "source_ids": [],
+      "summary": "Открытые реестры и публичная отчётность дают grade B при чтении в среде: документ доступен, но проверка условий и полноты остаётся за человеком. Доступ OPEN, лицензия PUBLIC_DOMAIN или ATTRIBUTION; перепродажа не предполагается.",
+      "supersedes": null,
+      "tags": [
+        "osint",
+        "sources",
+        "access"
+      ],
+      "title": "Публичные реестры и открытая отчётность как класс источника",
+      "ttl_days": 365,
+      "updated": "2026-11-22",
+      "version": 1,
+      "visibility": "project"
+    },
+    {
+      "access": "PROJECT",
+      "archived": false,
+      "as_of": "2026-11-22",
+      "audience": [
+        "osint-scout",
+        "case-writer",
+        "lead",
+        "director"
+      ],
+      "created": "2026-11-22",
+      "evidence_grade": "C",
+      "evidence_status": "HYPOTHESIS",
+      "freshness": "fresh",
+      "id": "AR-0008",
+      "kind": "fact_pack",
+      "licence": "INTERNAL",
+      "links": [
+        "docs/218_OSINT_отчёт_топ3.md",
+        "docs/221_Факт_паки_Chevron_Total_BP_Cheniere.md"
+      ],
+      "match": [
+        "источники"
+      ],
+      "namespace": "osint",
+      "notes": "Пакет пересобирается при появлении первоисточника; старые версии остаются в истории.",
+      "owner_role": "archivist",
+      "provenance": {
+        "collected_at": "2026-11-22",
+        "collected_by": "archivist",
+        "method": "MANUAL_READ",
+        "origin": "docs/218_OSINT_отчёт_топ3.md",
+        "origin_type": "INTERNAL_DOC",
+        "retrieved_at": "2026-11-22",
+        "sha256": null
+      },
+      "retention": "TTL",
+      "review_due": "2027-03-22",
+      "schema": "amfe.archive.entry.v1",
+      "source_ids": [
+        "AR-0007"
+      ],
+      "summary": "Сводка по трём западным заказчикам: что подтверждено публичными источниками, что остаётся гипотезой и какие документы нужны для PARTIAL. Факт-пак не содержит цифр без первоисточника; расхождения фиксируются, а не сглаживаются.",
+      "supersedes": null,
+      "tags": [
+        "osint",
+        "fact-pack",
+        "accounts"
+      ],
+      "title": "Факт-пак OSINT: западные заказчики, топ-3",
+      "ttl_days": 120,
+      "updated": "2026-11-22",
+      "version": 1,
+      "visibility": "project"
+    }
+  ],
+  "excluded": [
+    {
+      "id": "AR-0002",
+      "reason": "topic"
+    },
+    {
+      "id": "AR-0009",
+      "reason": "namespace:legal"
+    },
+    {
+      "id": "AR-0010",
+      "reason": "namespace:legal"
+    },
+    {
+      "id": "AR-0011",
+      "reason": "namespace:legal"
+    },
+    {
+      "id": "AR-0012",
+      "reason": "namespace:cases"
+    },
+    {
+      "id": "AR-0013",
+      "reason": "namespace:amfe"
+    },
+    {
+      "id": "AR-0014",
+      "reason": "audience:osint-scout"
+    }
+  ],
+  "gap_count": 1,
+  "gaps": [
+    "в пакете нет записей с подтверждённым evidence (VERIFIED/PARTIAL)"
+  ],
+  "generated_for": "2026-11-22",
+  "licence_notices": [
+    {
+      "ids": [
+        "AR-0001",
+        "AR-0003",
+        "AR-0004",
+        "AR-0005",
+        "AR-0006",
+        "AR-0007",
+        "AR-0008"
+      ],
+      "licence": "INTERNAL",
+      "note": "только внутреннее использование AMFE; наружу не передаётся"
+    }
+  ],
+  "limits": {
+    "allow_restricted": false,
+    "include_stale": false,
+    "limit": null
+  },
+  "policy": {
+    "admission": false,
+    "clock": "not read (pass --today explicitly)",
+    "evidence": "VERIFIED/PARTIAL/HYPOTHESIS/NOT_FETCHED; numbers require a source",
+    "model_status": "RESEARCH_ONLY",
+    "network": "disabled"
+  },
+  "project": "osint",
+  "role": "osint-scout",
+  "schema": "amfe.archive.pack.v1",
+  "topic": "законный сбор источники"
+}

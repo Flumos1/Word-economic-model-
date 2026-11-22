@@ -1,0 +1,200 @@
+{
+  "archive": "G:\\Мировая экономика модель\\knowledge_archive",
+  "counts": {
+    "UNKNOWN": 0,
+    "due_soon": 0,
+    "excluded": 12,
+    "fresh": 2,
+    "selected": 2,
+    "stale": 0
+  },
+  "entries": [
+    {
+      "access": "PUBLIC",
+      "archived": false,
+      "as_of": "2026-11-22",
+      "audience": [
+        "archivist",
+        "case-writer",
+        "lead",
+        "osint-scout"
+      ],
+      "created": "2026-11-22",
+      "evidence_grade": "C",
+      "evidence_status": "HYPOTHESIS",
+      "freshness": "fresh",
+      "id": "AR-0005",
+      "kind": "template",
+      "licence": "INTERNAL",
+      "links": [
+        "agents/archive/skills.md",
+        "knowledge_archive/schema.json"
+      ],
+      "match": [
+        "факт-пак"
+      ],
+      "namespace": "global",
+      "notes": "Шаблон задаёт и пробелы: «чего мы не знаем» — обязательный раздел факт-пака.",
+      "owner_role": "archivist",
+      "provenance": {
+        "collected_at": "2026-11-22",
+        "collected_by": "archivist",
+        "method": "MANUAL_READ",
+        "origin": "docs/223_Архивариус_и_межпроектная_база.md",
+        "origin_type": "INTERNAL_DOC",
+        "retrieved_at": "2026-11-22",
+        "sha256": null
+      },
+      "retention": "PERMANENT",
+      "review_due": "2028-11-21",
+      "schema": "amfe.archive.entry.v1",
+      "source_ids": [],
+      "summary": "Факт-пак фиксирует вопрос, что подтверждено с источником, что не подтверждено и почему, какие числа запрещены до первоисточника и что читать дальше. Числа без источника в факт-пак не попадают, а расхождения не сглаживаются.",
+      "supersedes": null,
+      "tags": [
+        "template",
+        "fact-pack",
+        "archive"
+      ],
+      "title": "Шаблон факт-пака проекта",
+      "ttl_days": 730,
+      "updated": "2026-11-22",
+      "version": 1,
+      "visibility": "global"
+    },
+    {
+      "access": "PROJECT",
+      "archived": false,
+      "as_of": "2026-11-22",
+      "audience": [
+        "case-writer",
+        "lead",
+        "director",
+        "archivist"
+      ],
+      "created": "2026-11-22",
+      "evidence_grade": "B",
+      "evidence_status": "PARTIAL",
+      "freshness": "fresh",
+      "id": "AR-0012",
+      "kind": "fact_pack",
+      "licence": "INTERNAL",
+      "links": [
+        "docs/219_Conoco_факты.md",
+        "docs/214_50_западных_кейсов.md"
+      ],
+      "match": [
+        "факт-пак"
+      ],
+      "namespace": "cases",
+      "notes": "PARTIAL: факты взяты из внутреннего документа, первоисточники не сверены повторно.",
+      "owner_role": "archivist",
+      "provenance": {
+        "collected_at": "2026-11-22",
+        "collected_by": "archivist",
+        "method": "MANUAL_READ",
+        "origin": "docs/219_Conoco_факты.md",
+        "origin_type": "INTERNAL_DOC",
+        "retrieved_at": "2026-11-22",
+        "sha256": null
+      },
+      "retention": "TTL",
+      "review_due": "2027-05-21",
+      "schema": "amfe.archive.entry.v1",
+      "source_ids": [
+        "AR-0007"
+      ],
+      "summary": "Сводка по публичным документам ConocoPhillips: подтверждённые факты, открытые вопросы и границы применимости к кейсу. Цифры не переносятся в кейс без первоисточника и даты получения.",
+      "supersedes": null,
+      "tags": [
+        "cases",
+        "fact-pack",
+        "conoco"
+      ],
+      "title": "Факт-пак Conoco: что подтверждено публичными документами",
+      "ttl_days": 180,
+      "updated": "2026-11-22",
+      "version": 1,
+      "visibility": "project"
+    }
+  ],
+  "excluded": [
+    {
+      "id": "AR-0001",
+      "reason": "topic"
+    },
+    {
+      "id": "AR-0002",
+      "reason": "topic"
+    },
+    {
+      "id": "AR-0003",
+      "reason": "topic"
+    },
+    {
+      "id": "AR-0004",
+      "reason": "audience:case-writer"
+    },
+    {
+      "id": "AR-0006",
+      "reason": "audience:case-writer"
+    },
+    {
+      "id": "AR-0007",
+      "reason": "namespace:osint"
+    },
+    {
+      "id": "AR-0008",
+      "reason": "namespace:osint"
+    },
+    {
+      "id": "AR-0009",
+      "reason": "namespace:legal"
+    },
+    {
+      "id": "AR-0010",
+      "reason": "namespace:legal"
+    },
+    {
+      "id": "AR-0011",
+      "reason": "namespace:legal"
+    },
+    {
+      "id": "AR-0013",
+      "reason": "namespace:amfe"
+    },
+    {
+      "id": "AR-0014",
+      "reason": "audience:case-writer"
+    }
+  ],
+  "gap_count": 0,
+  "gaps": [],
+  "generated_for": "2026-11-22",
+  "licence_notices": [
+    {
+      "ids": [
+        "AR-0005",
+        "AR-0012"
+      ],
+      "licence": "INTERNAL",
+      "note": "только внутреннее использование AMFE; наружу не передаётся"
+    }
+  ],
+  "limits": {
+    "allow_restricted": false,
+    "include_stale": false,
+    "limit": null
+  },
+  "policy": {
+    "admission": false,
+    "clock": "not read (pass --today explicitly)",
+    "evidence": "VERIFIED/PARTIAL/HYPOTHESIS/NOT_FETCHED; numbers require a source",
+    "model_status": "RESEARCH_ONLY",
+    "network": "disabled"
+  },
+  "project": "cases",
+  "role": "case-writer",
+  "schema": "amfe.archive.pack.v1",
+  "topic": "факт-пак"
+}

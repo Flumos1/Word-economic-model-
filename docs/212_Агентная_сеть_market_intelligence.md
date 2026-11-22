@@ -10,7 +10,7 @@
 
 Комплект: [`agents/market_intelligence/`](../agents/market_intelligence/README.md),
 инструмент [`tools/market_intel.py`](../tools/market_intel.py),
-тесты [`tests/test_market_intel.py`](../tests/test_market_intel.py) — 32 проверки.
+тесты [`tests/test_market_intel.py`](../tests/test_market_intel.py) — 48 проверок.
 База знаний — [docs/213](213_База_знаний.md).
 
 ## 0. Резюме
@@ -157,11 +157,11 @@ python tools/market_intel.py --org
 python -m unittest tests.test_market_intel
 ```
 
-32 теста: схема, версия, состав ролей, промпты, независимость ревью, процесс, границы, evidence,
+48 тестов: схема, версия, состав ролей, промпты, независимость ревью, процесс, границы, evidence,
 покрытие аккаунтов и сегментов, плейбуки, CLI-контракт (`--check`/`--org`/`--json`), brief для всех
 11 ролей, детерминизм, отсутствие контактов, негативные кейсы (неизвестная роль, короткий вопрос,
 неизвестный аккаунт, битые фикстуры, отсутствующий файл аккаунтов), «`--check` ничего не пишет»,
-отсутствие сетевых вызовов и часов.
+отсутствие сетевых вызовов и часов, gated-политика, access request и отсутствие секретов.
 
 ## 8. Связь с существующим контуром
 
@@ -179,7 +179,7 @@ python -m unittest tests.test_market_intel
 - [x] Покрытие 20/20 аккаунтов; сегменты каталога согласованы с ролями; отложенная роль обоснована.
 - [x] Границы в `org.json` и в red lines; ничего не обходится и не выдумывается.
 - [x] Brief не содержит контактов и обещаний допуска; негативные случаи — exit 2.
-- [x] `--check` зелёный, 32 теста зелёные.
+- [x] `--check` зелёный, 48 тестов зелёные.
 - [ ] Внешние адаптеры и факты — за человеком с доступом к сети/подпискам (открытый пункт).
 
 ## 10. Что дальше
@@ -198,3 +198,89 @@ python -m unittest tests.test_market_intel
 ## Senior OSINT Research Analyst (2026-11-21)
 
 Роль osint-scout усилена до Senior OSINT Research Analyst: помимо сбора источников она извлекает числа с единицами и периодом, ведёт fact pack (label/value/unit/period/source_id/source_date/evidence/quote) и передаёт его в кейсы. Правила — playbooks/numeric_facts.md; пример — [docs/219](219_Conoco_факты.md).
+
+## Gated sources: законный доступ (2026-11-22)
+
+Дата: 2026-11-22. Статус: **RESEARCH_ONLY, admission=false**, режим сети по-прежнему **`OSINT_ONLY`**
+(`subscriptions = 0`). Комплект: [`playbooks/gated_sources.md`](../agents/market_intelligence/playbooks/gated_sources.md),
+[`playbooks/access_request.md`](../agents/market_intelligence/playbooks/access_request.md),
+[docs/224](224_Gated_источники.md), обновлённые `org.json` (v1.1.0), `roles/06_osint_scout.md`,
+`tools/market_intel.py`, `tests/test_market_intel.py`.
+
+### Зачем это, если доступ и так только открытый
+
+Разница между **«источник закрыт»** и **«источник закрыт, но у организации есть законный путь
+доступа»** — решающая. Первый случай — `NOT_FETCHED`, второй — **access request**: подписка,
+institutional/academic license, FOIA/public records, судебный реестр, закупочный портал, data room
+по NDA, API с ключом. Агент обязан **распознать** такой источник и **оформить запрос**, а не искать
+обход. Обход paywall/авторизации/NDA/лимитов остаётся запрещённым без исключений.
+
+### Классификация G0–G4
+
+| Класс | Что это | Доступ | В `OSINT_ONLY` | Что нужно |
+|---|---|---|---|---|
+| **G0** | public: сайт, отчёт, пресс-релиз, публичный реестр | OPEN | собираем | ничего; проверить robots/ToS |
+| **G1** | registration: бесплатный аккаунт организации по ToS | OPEN_REGISTRATION | собираем | проверка ToS; логин — в секрет-сторе |
+| **G2** | licensed: подписка, academic/institutional license, платный API | LICENCE_REQUIRED | **только запрос** | договор с датой и стороной; ключ — у человека |
+| **G3** | NDA data room | NDA | **только запрос** | подписанный NDA, правила комнаты, разрешение на цитату |
+| **G4** | restricted: утёкшие базы, чужие аккаунты, инсайд | NO_ACCESS | **никогда** | законного пути нет: `NOT_AUTHORIZED` |
+
+Связь с классами источников: G0/G1 — S1–S3, G2/G3 — S4 (`DEFERRED`), G4 — S5 (запрещён).
+Класс G описывает **доступ**, класс S — **силу источника**; договор расширяет доступ, но не
+повышает grade автоматически.
+
+### Что теперь умеет `osint-scout`
+
+- skills: `public_records`, `court_registries_public`, `procurement_portals`, `sanctions_screening`,
+  `beneficial_ownership_public`, `foia_public_records_requests`, `licensed_apis`, `data_rooms_nda`,
+  `deep_research`, `source_triangulation`, `quote_extraction`, `access_request` (+ прежние filing и
+  numeric-навыки);
+- allowed: публичные реестры (регистрационные, разрешительные, судебные), закупочные порталы,
+  публичные санкционные списки и реестры бенефициаров, FOIA-запросы через официальный канал,
+  access request для G2/G3, журнал доступа, triangulation и quote extraction;
+- forbidden: обход paywall/авторизации/NDA/robots/лимитов, утёкшие базы и чужие аккаунты, покупка
+  персональных данных, хранение ключей и токенов, выдача `REQUEST_PENDING` за `AUTHORIZED`;
+- outputs: collection log, fact pack, access request draft, access journal, triangulation matrix,
+  quote extraction, `NOT_FETCHED`;
+- **evidence ceiling остаётся `PARTIAL`**; `VERIFIED` по-прежнему подписывает только `evidence-qa`.
+
+### Access request: маршрут
+
+```text
+osint-scout: черновик (кто, источник, G-класс, правовое основание, цель, срок, что не копируем)
+   -> director: проверка класса/основания/цели
+   -> lead / человек (юрист, закупки, подписант) -> поставщик данных
+   -> AUTHORIZED / NOT_AUTHORIZED / REQUEST_PENDING -> строка в access journal
+```
+
+Агент не подписывает договор, не принимает NDA, не отправляет запрос и не получает ключи. Отказ —
+нормальный результат: `NOT_AUTHORIZED` + `NOT_FETCHED` с блокером, без «примерной» замены.
+
+### Инструмент и проверки
+
+```powershell
+python tools/market_intel.py --check
+python tools/market_intel.py --json          # блок gated: classes, request_only, never
+python tools/market_intel.py --access-request --source "Price DB" --gated-class G2 `
+    --purpose "проверка CAPEX-бенчмарка" --legal-basis "NDA от 2026-11-20" --out .tmp/request.md
+```
+
+`--check` дополнительно проверяет: блок `gated_sources` (схема, ровно G0–G4, доступ, требования,
+`collect_now`, `request_required`, `source_classes`, потолок `PARTIAL`), статусы и журнал доступа,
+`no_bypass` по темам paywall/авторизация/утечки/персональные данные/NDA/ключи, требование
+`credentials.in_repo = false`, наличие обоих плейбуков с маркерами, **отсутствие
+credential-подобных значений** в `org.json` и плейбуках (значение не печатается) и отсутствие
+«рецептов обхода» в gated-документах.
+`--access-request` отказывает для G0 (запрос не нужен), G4 (нет законного пути) и неизвестного
+класса.
+
+### Что не изменилось (честно)
+
+- Режим `OSINT_ONLY`, `subscriptions = 0`, S4 `DEFERRED`, S5 запрещён; снятие режима — отдельное
+  решение человека/Lead с правкой `org.json`, тестов и этого документа.
+- Доступа к G2/G3 в среде нет: запрос можно **оформить**, но не «исполнить».
+- Правовую оценку (NDA, FOIA, санкции) даёт человек; агент готовит материал.
+- Ключи и токены не хранятся в репозитории; в отчёте — только имя источника и статус доступа.
+
+Проверка: 48 тестов `tests/test_market_intel.py` (16 новых — gated-классы, access request,
+no bypass, no credentials, role skills, docs), `--check` зелёный.

@@ -66,7 +66,7 @@
 | segment | `downstream-chemicals` | переработка, нефтехимия, TCO сырья, CAPEX | 4 |
 | segment | `services-equipment` | сервис/оборудование как watch-list и база для TCO | 0 (нет в портфеле) |
 | segment | `trading-shipping` | трейдинг, маршруты, фрахт, страхование | 2 |
-| collection | `osint-scout` | открытые страницы и реестры, collection log | — |
+| collection | `osint-scout` | открытые страницы и реестры, collection log, gated G0–G4 (запрос доступа, не обход) | — |
 | collection | `licensed-data` | подписки/лицензии, условия, запрет перепродажи | — |
 | control | `evidence-qa` | grade/статус, независимая проверка, подпись `VERIFIED` | — |
 | output | `case-writer` | кейс/one-pager из проверенного | — |
@@ -109,7 +109,9 @@ director    director+role  osint/    evidence  segment     case-    evidence  kb
 | [`playbooks/lawful_osint.md`](playbooks/lawful_osint.md) | законный OSINT, закрытые базы, код, санкции |
 | [`playbooks/source_hierarchy.md`](playbooks/source_hierarchy.md) | уровни источников, доступ, лицензия → grade |
 | [`playbooks/evidence_grading.md`](playbooks/evidence_grading.md) | A/B/C, `VERIFIED/PARTIAL/HYPOTHESIS/NOT_FETCHED`, таблица решений |
-| [`playbooks/red_lines.md`](playbooks/red_lines.md) | RL-01…RL-18, процедура остановки |
+| [`playbooks/red_lines.md`](playbooks/red_lines.md) | RL-01…RL-23, процедура остановки |
+| [`playbooks/gated_sources.md`](playbooks/gated_sources.md) | G0–G4: что можно, что нужно (договор/NDA/API key/FOIA), журнал доступа, `NOT_AUTHORIZED` |
+| [`playbooks/access_request.md`](playbooks/access_request.md) | шаблон запроса доступа и маршрут к человеку/Lead |
 | [`kb_workflow.md`](kb_workflow.md) | как пополняется база знаний |
 | [`../../tools/market_intel.py`](../../tools/market_intel.py) | валидатор сети и генератор task brief |
 | [`../../tools/kb.py`](../../tools/kb.py) | add/search/validate/merge/index/export базы знаний |
@@ -122,6 +124,8 @@ python tools/market_intel.py --org          # орг-схема и процес�
 python tools/market_intel.py --json         # машинная сводка (amfe.market_intel.check.v1)
 python tools/market_intel.py --role upstream --question "Как шок цены меняет бюджет?" --account TATNEFT
 python tools/market_intel.py --role osint-scout --question "..." --out .tmp/brief.md
+python tools/market_intel.py --access-request --source "Price DB" --gated-class G2 `
+    --purpose "..." --legal-basis "..." --out .tmp/access_request.md
 python -m unittest tests.test_market_intel
 ```
 

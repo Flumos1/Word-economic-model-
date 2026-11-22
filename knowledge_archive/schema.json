@@ -1,0 +1,271 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "amfe.archive.schema.v1",
+  "title": "AMFE cross-project knowledge archive: entry schema",
+  "description": "Схема межпроектной базы knowledge_archive/. Валидатор tools/archivist.py реализует и JSON-схему, и семантические правила x-rules; сеть не используется, часы не читаются (даты передаются явно), запись только внутри knowledge_archive/.",
+  "version": "1.0.0",
+  "created": "2026-11-22",
+  "x-rules": [
+    "id: ^AR-[0-9]{4}$, уникален, внутри файла по возрастанию",
+    "namespace обязан быть в x-namespaces; global читают все проекты, остальные — свой проект и явно PUBLIC-записи",
+    "review_due = as_of + ttl_days; расхождение — ошибка, а не предупреждение",
+    "provenance обязателен: origin, origin_type, collected_by, collected_at, method",
+    "origin_type INTERNAL_DOC: origin — существующий путь репозитория (провенанс проверяем)",
+    "origin_type OFFICIAL_LAW / OPEN_WEB: origin — https URL без учётных данных",
+    "VERIFIED требует grade A, retrieved_at и origin_type первоисточника (норма, раскрытие, официальная статистика, внутренний документ)",
+    "HYPOTHESIS / NOT_FETCHED допускают только grade C или null; NOT_FETCHED требует licence NONE, retrieved_at=null и notes с причиной и блокером",
+    "в HYPOTHESIS / NOT_FETCHED запрещены цифры с валютой, процентами и масштабом (млн/млрд/тыс) — только формулировки",
+    "запрещены формулировки admitted / «допущенная модель»: архив RESEARCH_ONLY, admission=false",
+    "запрещены секреты, ключи, пароли, телефоны, e-mail и платёжные реквизиты",
+    "access RESTRICTED несовместим с открытой лицензией; access PUBLIC несовместим с SUBSCRIPTION / LICENCE_REQUIRED",
+    "source_ids ссылаются только на живые записи kind=source; fact_pack и legal (кроме NOT_FETCHED) обязаны цитировать источник",
+    "kind=legal требует jurisdiction; объём и сроки нормы не выдумываются — только указатель и порядок проверки",
+    "повтор (namespace, kind, title) запрещён: изменение оформляется новой записью с supersedes и version+1",
+    "supersedes: тот же namespace и kind, ровно одна замена, version строго растёт, у цели archived=false",
+    "retention LEGAL_HOLD запрещает archived=true: запись под legal hold не выводится",
+    "links — существующие пути репозитория, без выхода за корень",
+    "archived-записи не попадают в context pack и в active-счётчики индекса, но остаются в истории",
+    "запись архива не является юридическим заключением, инвестиционной рекомендацией или допущенной моделью"
+  ],
+  "x-namespaces": {
+    "global": {
+      "title": "Общее ядро",
+      "owner_role": "archivist",
+      "visibility": "all",
+      "description": "Методы, шаблоны и стандарты, которые читают все проекты: провенанс, атомарность, свежесть, передача контекста."
+    },
+    "amfe": {
+      "title": "Научный и модельный контур AMFE",
+      "owner_role": "archivist",
+      "visibility": "namespace",
+      "description": "Знания о границах модели, данных и admission; ссылки на knowledge/, protocols/, docs/."
+    },
+    "osint": {
+      "title": "OSINT-направление",
+      "owner_role": "archivist",
+      "visibility": "namespace",
+      "description": "Законный сбор из открытых источников, журнал коллекции, классы доступных источников, факт-паки."
+    },
+    "legal": {
+      "title": "Правовые рамки и доказательства",
+      "owner_role": "archivist",
+      "visibility": "namespace",
+      "description": "Правовые рамки как указатели (не заключения), доказательственные карточки, порядок проверки норм."
+    },
+    "cases": {
+      "title": "Коммерческие кейсы и факт-паки",
+      "owner_role": "archivist",
+      "visibility": "namespace",
+      "description": "Факт-паки по заказчикам и кейсам, шаблоны one-pager, границы переноса фактов в кейс."
+    },
+    "lead": {
+      "title": "Управленческий контур",
+      "owner_role": "archivist",
+      "visibility": "namespace",
+      "description": "Правила передачи контекста, регламенты handoff, ограничения и открытые вопросы для Lead."
+    }
+  },
+  "x-roles": [
+    "archivist",
+    "lead",
+    "director",
+    "osint-scout",
+    "licensed-data",
+    "legal-claim",
+    "case-writer",
+    "evidence-qa",
+    "kb-librarian",
+    "licence-auditor",
+    "protocol-reviewer",
+    "dense-vintages",
+    "evaluation-harness",
+    "baseline-models",
+    "r2-completion",
+    "multiplicity-rw",
+    "accounting-core",
+    "upstream",
+    "gas-lng",
+    "downstream-chemicals",
+    "services-equipment",
+    "trading-shipping"
+  ],
+  "x-policy": {
+    "network": "disabled",
+    "clock": "not read (pass --today / --as-of / --collected-at explicitly)",
+    "writes": "inside knowledge_archive/ only",
+    "fail_closed": true,
+    "model_status": "RESEARCH_ONLY",
+    "admission": false,
+    "pii": "no personal data, contacts, secrets or raw third-party dumps"
+  },
+  "entry": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "id", "schema", "namespace", "kind", "title", "summary", "tags", "audience",
+      "evidence_status", "evidence_grade", "licence", "access", "provenance", "source_ids",
+      "as_of", "ttl_days", "review_due", "owner_role", "retention", "version",
+      "created", "updated", "notes", "links"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "pattern": "^AR-[0-9]{4}$",
+        "description": "Устойчивый идентификатор записи; не меняется при обновлении."
+      },
+      "schema": {
+        "const": "amfe.archive.entry.v1"
+      },
+      "namespace": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9_-]{2,23}$",
+        "description": "Проектное пространство имён из x-namespaces."
+      },
+      "kind": {
+        "type": "string",
+        "enum": ["method", "source", "legal", "fact_pack", "template"]
+      },
+      "title": {
+        "type": "string",
+        "minLength": 3,
+        "maxLength": 160
+      },
+      "summary": {
+        "type": "string",
+        "minLength": 10,
+        "maxLength": 2000
+      },
+      "tags": {
+        "type": "array",
+        "minItems": 1,
+        "items": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_-]{1,30}$"},
+        "uniqueItems": true
+      },
+      "audience": {
+        "type": "array",
+        "minItems": 1,
+        "items": {"type": "string"},
+        "uniqueItems": true,
+        "description": "Кому адресована запись: роли из x-roles или all."
+      },
+      "evidence_status": {
+        "type": "string",
+        "enum": ["VERIFIED", "PARTIAL", "HYPOTHESIS", "NOT_FETCHED"]
+      },
+      "evidence_grade": {
+        "type": ["string", "null"],
+        "enum": ["A", "B", "C", null]
+      },
+      "licence": {
+        "type": "string",
+        "enum": ["OPEN", "ATTRIBUTION", "PUBLIC_DOMAIN", "SUBSCRIPTION", "LICENCE_REQUIRED", "INTERNAL", "NONE"]
+      },
+      "access": {
+        "type": "string",
+        "enum": ["PUBLIC", "PROJECT", "RESTRICTED"],
+        "description": "PUBLIC — можно брать в пакеты любого проекта; PROJECT — только свой namespace и global; RESTRICTED — свой namespace и явное разрешение."
+      },
+      "provenance": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["origin", "origin_type", "collected_by", "collected_at", "method"],
+        "properties": {
+          "origin": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 300,
+            "description": "Откуда знание: https URL, путь репозитория или название документа."
+          },
+          "origin_type": {
+            "type": "string",
+            "enum": ["OFFICIAL_LAW", "OFFICIAL_STATISTICS", "COMPANY_FILING", "OPEN_WEB",
+                     "INTERNAL_DOC", "BOOK", "DATASET", "EXPERT_NOTE"]
+          },
+          "collected_by": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_-]{2,30}$"
+          },
+          "collected_at": {"type": "string", "format": "date"},
+          "method": {
+            "type": "string",
+            "enum": ["MANUAL_READ", "DOCUMENTED_API", "OFFICIAL_PORTAL", "DERIVED", "EXPERT_NOTE"]
+          },
+          "retrieved_at": {"type": ["string", "null"], "format": "date"},
+          "sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"}
+        }
+      },
+      "source_ids": {
+        "type": "array",
+        "items": {"type": "string", "pattern": "^AR-[0-9]{4}$"},
+        "uniqueItems": true,
+        "description": "Ссылки на записи kind=source этого же архива."
+      },
+      "jurisdiction": {
+        "type": "string",
+        "pattern": "^[A-Z]{2,3}(?:-[A-Z]{2})?$",
+        "description": "Обязательно для kind=legal: EU, UA, US, INTL и т.п."
+      },
+      "as_of": {"type": "string", "format": "date"},
+      "ttl_days": {"type": "integer", "minimum": 1, "maximum": 3650},
+      "review_due": {"type": "string", "format": "date"},
+      "owner_role": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9_-]{2,30}$"
+      },
+      "retention": {
+        "type": "string",
+        "enum": ["TTL", "PROJECT", "PERMANENT", "LEGAL_HOLD"],
+        "description": "TTL — живёт до review_due; PROJECT — до конца проекта; PERMANENT — постоянно; LEGAL_HOLD — хранить до закрытия дела, archived запрещён."
+      },
+      "version": {"type": "integer", "minimum": 1},
+      "created": {"type": "string", "format": "date"},
+      "updated": {"type": "string", "format": "date"},
+      "notes": {"type": "string", "minLength": 1, "maxLength": 2000},
+      "links": {
+        "type": "array",
+        "minItems": 1,
+        "items": {"type": "string"},
+        "uniqueItems": true
+      },
+      "supersedes": {
+        "type": ["string", "null"],
+        "pattern": "^AR-[0-9]{4}$"
+      },
+      "archived": {"type": "boolean"}
+    }
+  },
+  "enums": {
+    "kind": ["method", "source", "legal", "fact_pack", "template"],
+    "evidence_status": ["VERIFIED", "PARTIAL", "HYPOTHESIS", "NOT_FETCHED"],
+    "evidence_grade": ["A", "B", "C", null],
+    "licence": ["OPEN", "ATTRIBUTION", "PUBLIC_DOMAIN", "SUBSCRIPTION", "LICENCE_REQUIRED", "INTERNAL", "NONE"],
+    "access": ["PUBLIC", "PROJECT", "RESTRICTED"],
+    "origin_type": ["OFFICIAL_LAW", "OFFICIAL_STATISTICS", "COMPANY_FILING", "OPEN_WEB",
+                    "INTERNAL_DOC", "BOOK", "DATASET", "EXPERT_NOTE"],
+    "method": ["MANUAL_READ", "DOCUMENTED_API", "OFFICIAL_PORTAL", "DERIVED", "EXPERT_NOTE"],
+    "retention": ["TTL", "PROJECT", "PERMANENT", "LEGAL_HOLD"]
+  },
+  "defaults": {
+    "ttl_days": {
+      "method": 365,
+      "source": 365,
+      "legal": 365,
+      "fact_pack": 180,
+      "template": 730
+    },
+    "access_by_kind": {
+      "method": "PROJECT",
+      "source": "PROJECT",
+      "legal": "PROJECT",
+      "fact_pack": "PROJECT",
+      "template": "PROJECT"
+    },
+    "retention_by_kind": {
+      "method": "PERMANENT",
+      "source": "PERMANENT",
+      "legal": "LEGAL_HOLD",
+      "fact_pack": "TTL",
+      "template": "PERMANENT"
+    }
+  }
+}

@@ -1,0 +1,197 @@
+{
+  "archive": "G:\\Мировая экономика модель\\knowledge_archive",
+  "counts": {
+    "UNKNOWN": 0,
+    "due_soon": 0,
+    "excluded": 12,
+    "fresh": 2,
+    "selected": 2,
+    "stale": 0
+  },
+  "entries": [
+    {
+      "access": "PUBLIC",
+      "archived": false,
+      "as_of": "2026-11-22",
+      "audience": [
+        "lead",
+        "archivist"
+      ],
+      "created": "2026-11-22",
+      "evidence_grade": "C",
+      "evidence_status": "HYPOTHESIS",
+      "freshness": "fresh",
+      "id": "AR-0014",
+      "kind": "method",
+      "licence": "INTERNAL",
+      "links": [
+        "agents/archive/README.md",
+        "agents/README.md"
+      ],
+      "match": [
+        "передача",
+        "контекста"
+      ],
+      "namespace": "lead",
+      "notes": "Получатель видит не только записи, но и причину исключения: это часть контекста.",
+      "owner_role": "archivist",
+      "provenance": {
+        "collected_at": "2026-11-22",
+        "collected_by": "archivist",
+        "method": "MANUAL_READ",
+        "origin": "docs/223_Архивариус_и_межпроектная_база.md",
+        "origin_type": "INTERNAL_DOC",
+        "retrieved_at": "2026-11-22",
+        "sha256": null
+      },
+      "retention": "PERMANENT",
+      "review_due": "2027-11-22",
+      "schema": "amfe.archive.entry.v1",
+      "source_ids": [],
+      "summary": "Передача между ролями идёт готовым context pack: проект, тема, получатель, записи с evidence и лицензией, что исключено и почему, какие пробелы остались. Пересказ по памяти запрещён: он теряет провенанс и лицензию.",
+      "supersedes": null,
+      "tags": [
+        "handoff",
+        "context",
+        "lead"
+      ],
+      "title": "Передача контекста (handoff): пакет, а не пересказ",
+      "ttl_days": 365,
+      "updated": "2026-11-22",
+      "version": 1,
+      "visibility": "project"
+    },
+    {
+      "access": "PUBLIC",
+      "archived": false,
+      "as_of": "2026-11-22",
+      "audience": [
+        "all"
+      ],
+      "created": "2026-11-22",
+      "evidence_grade": "C",
+      "evidence_status": "HYPOTHESIS",
+      "freshness": "fresh",
+      "id": "AR-0001",
+      "kind": "method",
+      "licence": "INTERNAL",
+      "links": [
+        "agents/archive/skills.md",
+        "docs/223_Архивариус_и_межпроектная_база.md"
+      ],
+      "match": [
+        "передача"
+      ],
+      "namespace": "global",
+      "notes": "Правило действует для всех проектов: пакет без провенанса не передаётся дальше.",
+      "owner_role": "archivist",
+      "provenance": {
+        "collected_at": "2026-11-22",
+        "collected_by": "archivist",
+        "method": "MANUAL_READ",
+        "origin": "docs/223_Архивариус_и_межпроектная_база.md",
+        "origin_type": "INTERNAL_DOC",
+        "retrieved_at": "2026-11-22",
+        "sha256": null
+      },
+      "retention": "PERMANENT",
+      "review_due": "2027-11-22",
+      "schema": "amfe.archive.entry.v1",
+      "source_ids": [],
+      "summary": "Каждая запись архива обязана назвать происхождение (origin), тип происхождения, кто и когда собрал, каким методом и что именно получено (retrieved_at). Без провенанса запись не принимается: знание без источника — это мнение, а не знание.",
+      "supersedes": null,
+      "tags": [
+        "provenance",
+        "archive",
+        "method"
+      ],
+      "title": "Провенанс записи: шесть полей, без которых знание не принимается",
+      "ttl_days": 365,
+      "updated": "2026-11-22",
+      "version": 1,
+      "visibility": "global"
+    }
+  ],
+  "excluded": [
+    {
+      "id": "AR-0002",
+      "reason": "topic"
+    },
+    {
+      "id": "AR-0003",
+      "reason": "topic"
+    },
+    {
+      "id": "AR-0004",
+      "reason": "audience:lead"
+    },
+    {
+      "id": "AR-0005",
+      "reason": "topic"
+    },
+    {
+      "id": "AR-0006",
+      "reason": "audience:lead"
+    },
+    {
+      "id": "AR-0007",
+      "reason": "namespace:osint"
+    },
+    {
+      "id": "AR-0008",
+      "reason": "namespace:osint"
+    },
+    {
+      "id": "AR-0009",
+      "reason": "namespace:legal"
+    },
+    {
+      "id": "AR-0010",
+      "reason": "namespace:legal"
+    },
+    {
+      "id": "AR-0011",
+      "reason": "namespace:legal"
+    },
+    {
+      "id": "AR-0012",
+      "reason": "namespace:cases"
+    },
+    {
+      "id": "AR-0013",
+      "reason": "namespace:amfe"
+    }
+  ],
+  "gap_count": 2,
+  "gaps": [
+    "нет видимых записей по токену «ограничения»",
+    "в пакете нет записей с подтверждённым evidence (VERIFIED/PARTIAL)"
+  ],
+  "generated_for": "2026-11-22",
+  "licence_notices": [
+    {
+      "ids": [
+        "AR-0001",
+        "AR-0014"
+      ],
+      "licence": "INTERNAL",
+      "note": "только внутреннее использование AMFE; наружу не передаётся"
+    }
+  ],
+  "limits": {
+    "allow_restricted": false,
+    "include_stale": false,
+    "limit": null
+  },
+  "policy": {
+    "admission": false,
+    "clock": "not read (pass --today explicitly)",
+    "evidence": "VERIFIED/PARTIAL/HYPOTHESIS/NOT_FETCHED; numbers require a source",
+    "model_status": "RESEARCH_ONLY",
+    "network": "disabled"
+  },
+  "project": "lead",
+  "role": "lead",
+  "schema": "amfe.archive.pack.v1",
+  "topic": "передача контекста ограничения"
+}

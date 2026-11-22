@@ -10,6 +10,11 @@ The network runs in **OSINT_ONLY** mode: there are no subscriptions, only open s
 ``S1``-``S3`` are allowed, ``S4`` (licensed dataset) is ``DEFERRED`` and ``S5`` (closed source) is
 forbidden. ``--check`` enforces that mode and refuses an active licensed-data role.
 
+Gated sources (``G0`` public, ``G1`` registration, ``G2`` licensed, ``G3`` NDA data room, ``G4``
+restricted) are recognised, never bypassed: ``--check`` validates the gated policy, the access-request
+template, the access journal and the absence of credentials; ``--access-request`` drafts a lawful
+request for a person/Lead to approve. Nothing here obtains access.
+
 Commands::
 
     python tools/market_intel.py --check                 # exit 0 / 2, prints the issues
@@ -18,6 +23,8 @@ Commands::
     python tools/market_intel.py --mode osint --check    # explicit mode (osint is the default)
     python tools/market_intel.py --role upstream --question "..." --account TATNEFT
     python tools/market_intel.py --role upstream --question "..." --out .tmp/brief.md
+    python tools/market_intel.py --access-request --source "Price DB" --gated-class G2 \
+        --purpose "..." --legal-basis "..." --out .tmp/access_request.md
 
 Exit codes: 0 = ok, 2 = invalid input/failed check (fail-closed).
 """
@@ -36,6 +43,7 @@ DEFAULT_ACCOUNTS = ROOT / "marketing" / "target_accounts.json"
 
 ORG_SCHEMA = "amfe.market_intelligence.org.v1"
 CHECK_SCHEMA = "amfe.market_intel.check.v1"
+ACCESS_REQUEST_SCHEMA = "amfe.market_intel.access_request.v1"
 
 MODES = ("osint",)
 DEFAULT_MODE = "osint"
@@ -76,6 +84,7 @@ REQUIRED_BOUNDARIES = (
     "allowed_sources",
     "licensed_databases",
     "osint",
+    "gated_access",
     "no_paywall_bypass",
     "no_closed_databases",
     "no_robots_terms_violations",
@@ -89,10 +98,68 @@ REQUIRED_BOUNDARIES = (
     "no_fabrication",
 )
 PLAYBOOKS = ("lawful_osint.md", "source_hierarchy.md", "evidence_grading.md", "red_lines.md",
-             "numeric_facts.md")
+             "numeric_facts.md", "gated_sources.md", "access_request.md")
 SOURCE_HIERARCHY_MARKERS = ("S1", "S2", "S3", "S4", "S5", "OSINT_ONLY", "paywall", "DEFERRED")
 LAWFUL_OSINT_MARKERS = ("paywall", "robots", "S1–S3", "OSINT_ONLY", "персональные данные")
 RED_LINES_MARKERS = ("RL-19", "RL-20", "RL-21", "RL-22", "OSINT_ONLY", "paywall", "robots")
+
+# --- gated sources (lawful access, never bypass) ------------------------------------------------
+GATED_SCHEMA = "amfe.market_intelligence.gated.v1"
+GATED_PLAYBOOK = "gated_sources.md"
+ACCESS_REQUEST_PLAYBOOK = "access_request.md"
+GATED_CLASSES = ("G0", "G1", "G2", "G3", "G4")
+GATED_ACCESS = ("OPEN", "OPEN_REGISTRATION", "LICENCE_REQUIRED", "NDA", "NO_ACCESS")
+GATED_STATUSES = ("AUTHORIZED", "REQUEST_PENDING", "NOT_AUTHORIZED")
+GATED_POLICY = "RECOGNIZE_AND_REQUEST"
+GATED_COLLECT_NOW = {"G0": True, "G1": True, "G2": False, "G3": False, "G4": False}
+GATED_REQUEST_REQUIRED = {"G0": False, "G1": False, "G2": True, "G3": True, "G4": False}
+GATED_SOURCE_CLASSES = {
+    "G0": ("S1", "S2", "S3"),
+    "G1": ("S1", "S2", "S3"),
+    "G2": ("S4",),
+    "G3": ("S4",),
+    "G4": ("S5",),
+}
+GATED_JOURNAL_FIELDS = ("request_id", "role", "source", "gated_class", "legal_basis", "purpose",
+                        "requested_at", "decision", "decided_at", "expires_at", "owner")
+GATED_NO_BYPASS_TOPICS = ("paywall", "авторизац", "утёкш", "персональн", "nda", "ключ")
+GATED_SKILLS = (
+    "public_records",
+    "court_registries_public",
+    "procurement_portals",
+    "sanctions_screening",
+    "beneficial_ownership_public",
+    "foia_public_records_requests",
+    "licensed_apis",
+    "data_rooms_nda",
+    "deep_research",
+    "source_triangulation",
+    "quote_extraction",
+    "access_request",
+)
+FORBIDDEN_SKILLS = ("paywall_bypass", "captcha_bypass", "credential_sharing", "leaked_database",
+                    "scraping_limits_bypass")
+GATED_MARKERS = {
+    GATED_PLAYBOOK: ("G0", "G1", "G2", "G3", "G4", "NDA", "FOIA", "API key", "NOT_AUTHORIZED",
+                     "журнал", "обход"),
+    ACCESS_REQUEST_PLAYBOOK: ("правовое основание", "цель", "срок", "не копиру", "Lead",
+                              "NOT_AUTHORIZED", "кто"),
+}
+#: Imperative recipes for obtaining access without a right; never allowed in the gated docs.
+BYPASS_RECIPE_MARKERS = ("как обойти", "how to bypass", "bypass the paywall", "обойти защиту",
+                         "обход через кэш", "кэш платной статьи", "подобрать пароль",
+                         "украсть ключ", "зеркало платной", "купить базу", "слить базу")
+#: Credential shapes; matched values are never echoed back into logs.
+CREDENTIAL_PATTERNS = (
+    ("private_key", re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH |PGP )?PRIVATE KEY-----")),
+    ("aws_access_key", re.compile(r"\bAKIA[0-9A-Z]{16}\b")),
+    ("github_token", re.compile(r"\bgh[pousr]_[A-Za-z0-9]{20,}\b")),
+    ("api_key_literal", re.compile(r"\bsk-[A-Za-z0-9]{20,}\b")),
+    ("slack_token", re.compile(r"\bxox[baprs]-[A-Za-z0-9-]{10,}\b")),
+    ("generic_secret", re.compile(
+        r"(?i)\b(api[_-]?key|apikey|access[_-]?token|auth[_-]?token|secret|password|passwd|bearer)"
+        r"\b\s*[:=]\s*[\"']?([A-Za-z0-9][A-Za-z0-9_\-\.]{11,})")),
+)
 
 ROLE_ID_RE = re.compile(r"^[a-z][a-z0-9-]{1,40}$")
 VERSION_RE = re.compile(r"^\d+\.\d+\.\d+$")
@@ -143,6 +210,17 @@ def load_accounts(path: Path = DEFAULT_ACCOUNTS) -> dict[str, dict]:
 
 def _text(value) -> str:
     return value.strip() if isinstance(value, str) else ""
+
+
+def find_credentials(text: str) -> list[str]:
+    """Return credential *kinds* found in ``text``; the values are never returned or logged."""
+    return sorted({kind for kind, pattern in CREDENTIAL_PATTERNS if pattern.search(text)})
+
+
+def find_bypass_recipes(text: str) -> list[str]:
+    """Return imperative bypass recipes found in ``text`` (lowercased markers, fail-closed)."""
+    low = text.lower()
+    return [marker for marker in BYPASS_RECIPE_MARKERS if marker in low]
 
 
 def _require_list(role: dict, field: str, issues: list[dict]) -> list:
@@ -234,6 +312,10 @@ def check_roles(org: dict, org_dir: Path, accounts: dict[str, dict],
                 if len(text) < 400:
                     issues.append(_issue("prompt_short", "prompt",
                                          f"{prompt}: too short to be a role charter", label))
+                for kind in find_credentials(text):
+                    issues.append(_issue("credential", "prompt",
+                                         f"{prompt}: credential-like value ({kind}); "
+                                         "keep secrets out of the repository", label))
 
         memory = _text(role.get("memory"))
         if not memory:
@@ -323,6 +405,51 @@ def check_roles(org: dict, org_dir: Path, accounts: dict[str, dict],
                 issues.append(_issue("review_cycle", "review_role",
                                      f"review chain too long from {role_id}", role_id))
                 break
+
+    # Gated sources: the OSINT collector recognises G0-G4 and requests access, it never bypasses.
+    osint_role = by_id.get(OSINT_ROLE)
+    if isinstance(osint_role, dict):
+        skills = osint_role.get("skills")
+        if not isinstance(skills, list) or not skills:
+            issues.append(_issue("gated_skills", "skills",
+                                 f"{OSINT_ROLE} must declare gated skills", OSINT_ROLE))
+        else:
+            missing = [skill for skill in GATED_SKILLS if skill not in skills]
+            if missing:
+                issues.append(_issue("gated_skills", "skills",
+                                     f"{OSINT_ROLE} misses gated skills {missing}", OSINT_ROLE))
+            banned = sorted(skill for skill in skills if skill in FORBIDDEN_SKILLS)
+            if banned:
+                issues.append(_issue("gated_forbidden_skill", "skills",
+                                     f"{OSINT_ROLE} declares bypass skills {banned}", OSINT_ROLE))
+        if tuple(osint_role.get("gated_classes") or ()) != GATED_CLASSES:
+            issues.append(_issue("gated_class_decl", "gated_classes",
+                                 f"{OSINT_ROLE} gated_classes must be {list(GATED_CLASSES)}",
+                                 OSINT_ROLE))
+        if _text(osint_role.get("gated_policy")) != GATED_POLICY:
+            issues.append(_issue("gated_policy", "gated_policy",
+                                 f"{OSINT_ROLE} gated_policy must be {GATED_POLICY!r}", OSINT_ROLE))
+        if _text(osint_role.get("evidence_ceiling")) != "PARTIAL":
+            issues.append(_issue("gated_ceiling_role", "evidence_ceiling",
+                                 f"{OSINT_ROLE} evidence_ceiling must stay PARTIAL: gated access "
+                                 "does not certify VERIFIED", OSINT_ROLE))
+        allowed_text = " ".join(item for item in (osint_role.get("allowed") or [])
+                                if isinstance(item, str)).lower()
+        if "access request" not in allowed_text and "запрос доступа" not in allowed_text:
+            issues.append(_issue("gated_allowed", "allowed",
+                                 f"{OSINT_ROLE} must be allowed to draft an access request",
+                                 OSINT_ROLE))
+        forbidden_text = " ".join(item for item in (osint_role.get("forbidden") or [])
+                                  if isinstance(item, str)).lower()
+        if "обход" not in forbidden_text:
+            issues.append(_issue("gated_forbidden", "forbidden",
+                                 f"{OSINT_ROLE} must explicitly forbid bypass", OSINT_ROLE))
+        outputs_text = " ".join(item for item in (osint_role.get("outputs") or [])
+                                if isinstance(item, str)).lower()
+        for marker in ("access request", "журнал"):
+            if marker not in outputs_text:
+                issues.append(_issue("gated_output", "outputs",
+                                     f"{OSINT_ROLE} outputs must include {marker!r}", OSINT_ROLE))
 
     # Who may certify VERIFIED: a control role, at least evidence-qa; lead stays at <= PARTIAL.
     signers = sorted(_text(r.get("id")) for r in roles
@@ -435,6 +562,168 @@ def check_roles(org: dict, org_dir: Path, accounts: dict[str, dict],
                 issues.append(_issue("segment_missing", "segments",
                                      f"account {account} has segment {segment!r} not in the catalogue",
                                      role_id))
+    return issues
+
+
+def check_gated(org: dict, org_dir: Path) -> list[dict]:
+    """Validate the G0-G4 policy, the access-request playbook and the no-credential rule."""
+    issues: list[dict] = []
+    block = org.get("gated_sources")
+    if not isinstance(block, dict):
+        return [_issue("gated_block", "gated_sources",
+                       "gated_sources block is required: G0-G4 classification")]
+    if _text(block.get("schema")) != GATED_SCHEMA:
+        issues.append(_issue("gated_schema", "gated_sources.schema", f"schema must be {GATED_SCHEMA!r}"))
+    for key in ("playbook", "access_request_template"):
+        relative = _text(block.get(key))
+        if not relative or not (org_dir / relative).is_file():
+            issues.append(_issue("gated_playbook", f"gated_sources.{key}",
+                                 f"{key} must point at an existing playbook, got {relative!r}"))
+    if not _text(block.get("mode_note")):
+        issues.append(_issue("gated_note", "gated_sources.mode_note", "mode_note is required"))
+
+    classes = block.get("classes")
+    if not isinstance(classes, list) or not classes:
+        issues.append(_issue("gated_classes", "gated_sources.classes",
+                             "classes must be a non-empty list"))
+        classes = []
+    ids = [_text(entry.get("id")) for entry in classes if isinstance(entry, dict)]
+    if tuple(ids) != GATED_CLASSES:
+        issues.append(_issue("gated_class_order", "gated_sources.classes",
+                             f"classes must be exactly {list(GATED_CLASSES)}, got {ids}"))
+    by_id = {entry.get("id"): entry for entry in classes if isinstance(entry, dict)}
+    for class_id in GATED_CLASSES:
+        entry = by_id.get(class_id)
+        if not isinstance(entry, dict):
+            issues.append(_issue("gated_class_missing", "gated_sources.classes",
+                                 f"missing gated class {class_id}"))
+            continue
+        if not _text(entry.get("title")) or not _text(entry.get("title_ru")):
+            issues.append(_issue("gated_class_title", f"gated_sources.{class_id}",
+                                 "title and title_ru are required"))
+        access = _text(entry.get("access"))
+        if access not in GATED_ACCESS:
+            issues.append(_issue("gated_access", f"gated_sources.{class_id}.access",
+                                 f"access must be one of {list(GATED_ACCESS)}"))
+        requirements = entry.get("requirements")
+        if not isinstance(requirements, list) or not requirements or \
+                any(not isinstance(item, str) or not item.strip() for item in requirements):
+            issues.append(_issue("gated_requirements", f"gated_sources.{class_id}.requirements",
+                                 "requirements must be a non-empty list of strings"))
+        if not isinstance(entry.get("collect_now"), bool):
+            issues.append(_issue("gated_collect", f"gated_sources.{class_id}.collect_now",
+                                 "collect_now must be a boolean"))
+        elif entry["collect_now"] is not GATED_COLLECT_NOW[class_id]:
+            issues.append(_issue("gated_collect_policy", f"gated_sources.{class_id}.collect_now",
+                                 f"{class_id} collect_now must be {GATED_COLLECT_NOW[class_id]} "
+                                 f"in {ORG_MODE}"))
+        if not isinstance(entry.get("request_required"), bool):
+            issues.append(_issue("gated_request_flag", f"gated_sources.{class_id}.request_required",
+                                 "request_required must be a boolean"))
+        elif entry["request_required"] is not GATED_REQUEST_REQUIRED[class_id]:
+            issues.append(_issue("gated_request_policy", f"gated_sources.{class_id}.request_required",
+                                 f"{class_id} request_required must be "
+                                 f"{GATED_REQUEST_REQUIRED[class_id]}"))
+        if not _text(entry.get("request_path")):
+            issues.append(_issue("gated_request_path", f"gated_sources.{class_id}.request_path",
+                                 "request_path is required"))
+        ceiling = _text(entry.get("evidence_ceiling"))
+        if ceiling not in STATUSES:
+            issues.append(_issue("gated_ceiling", f"gated_sources.{class_id}.evidence_ceiling",
+                                 f"evidence_ceiling must be one of {list(STATUSES)}"))
+        elif STATUS_RANK.get(ceiling, 0) > STATUS_RANK[MAX_LEAD_CEILING]:
+            issues.append(_issue("gated_ceiling_policy", f"gated_sources.{class_id}.evidence_ceiling",
+                                 f"gated evidence_ceiling must stay <= {MAX_LEAD_CEILING} in "
+                                 f"{ORG_MODE}"))
+        declared = entry.get("source_classes")
+        if not isinstance(declared, list) or not declared:
+            issues.append(_issue("gated_source_classes", f"gated_sources.{class_id}.source_classes",
+                                 "source_classes must be a non-empty list"))
+        else:
+            allowed = GATED_SOURCE_CLASSES[class_id]
+            extra = [item for item in declared if item not in allowed]
+            if extra:
+                issues.append(_issue("gated_source_classes_policy",
+                                     f"gated_sources.{class_id}.source_classes",
+                                     f"{class_id} may only map to {list(allowed)}, got {extra}"))
+
+    statuses = block.get("statuses")
+    if not isinstance(statuses, list) or tuple(statuses) != GATED_STATUSES:
+        issues.append(_issue("gated_statuses", "gated_sources.statuses",
+                             f"statuses must be {list(GATED_STATUSES)}"))
+    titles = block.get("status_titles")
+    if not isinstance(titles, dict) or any(not _text(titles.get(status)) for status in GATED_STATUSES):
+        issues.append(_issue("gated_status_titles", "gated_sources.status_titles",
+                             "status_titles must describe every status"))
+
+    journal = block.get("journal")
+    if not isinstance(journal, dict):
+        issues.append(_issue("gated_journal", "gated_sources.journal",
+                             "journal block is required (access journal)"))
+        journal = {}
+    fields = journal.get("required_fields")
+    if not isinstance(fields, list):
+        issues.append(_issue("gated_journal_fields", "gated_sources.journal.required_fields",
+                             "required_fields must be a list"))
+        fields = []
+    missing_fields = [field for field in GATED_JOURNAL_FIELDS if field not in fields]
+    if missing_fields:
+        issues.append(_issue("gated_journal_missing", "gated_sources.journal.required_fields",
+                             f"access journal misses {missing_fields}"))
+    if not _text(journal.get("rule")):
+        issues.append(_issue("gated_journal_rule", "gated_sources.journal.rule",
+                             "journal rule is required"))
+
+    no_bypass = block.get("no_bypass")
+    if not isinstance(no_bypass, list) or len(no_bypass) < len(GATED_NO_BYPASS_TOPICS):
+        issues.append(_issue("gated_no_bypass", "gated_sources.no_bypass",
+                             "no_bypass must list the prohibited bypass paths"))
+        no_bypass = []
+    joined = " ".join(item for item in no_bypass if isinstance(item, str)).lower()
+    for topic in GATED_NO_BYPASS_TOPICS:
+        if topic not in joined:
+            issues.append(_issue("gated_no_bypass_topic", "gated_sources.no_bypass",
+                                 f"no_bypass must cover {topic!r}"))
+
+    credentials = block.get("credentials")
+    if not isinstance(credentials, dict):
+        issues.append(_issue("gated_credentials", "gated_sources.credentials",
+                             "credentials block is required"))
+    else:
+        if credentials.get("in_repo") is not False:
+            issues.append(_issue("gated_credentials_repo", "gated_sources.credentials.in_repo",
+                                 "credentials.in_repo must be false: no secrets in the repository"))
+        if not _text(credentials.get("storage")) or not _text(credentials.get("rule")):
+            issues.append(_issue("gated_credentials_rule", "gated_sources.credentials",
+                                 "credentials need storage and rule"))
+
+    rules = block.get("rules")
+    if not isinstance(rules, list) or len(rules) < 3:
+        issues.append(_issue("gated_rules", "gated_sources.rules",
+                             "at least 3 gated rules are required (recognise, request, never bypass)"))
+
+    # The two playbooks must exist, be substantial and carry no bypass recipe or secret.
+    for name, markers in GATED_MARKERS.items():
+        path = org_dir / "playbooks" / name
+        if not path.is_file():
+            issues.append(_issue("gated_playbook_missing", "playbooks",
+                                 f"gated playbook not found: {name}"))
+            continue
+        text = path.read_text(encoding="utf-8")
+        if len(text) < 800:
+            issues.append(_issue("gated_playbook_short", "playbooks",
+                                 f"gated playbook too short: {name}"))
+        low = text.lower()
+        for marker in markers:
+            if marker.lower() not in low:
+                issues.append(_issue("gated_marker", "playbooks",
+                                     f"{name}: missing gated marker {marker!r}"))
+        for kind in find_credentials(text):
+            issues.append(_issue("gated_credential", "playbooks",
+                                 f"{name}: credential-like value ({kind}); keep it out of the repo"))
+        for recipe in find_bypass_recipes(text):
+            issues.append(_issue("gated_bypass_recipe", "playbooks",
+                                 f"{name}: bypass recipe {recipe!r} is not allowed"))
     return issues
 
 
@@ -602,6 +891,15 @@ def check_document(org: dict, org_dir: Path) -> list[dict]:
             if marker not in text:
                 issues.append(_issue("playbook_marker", "playbooks",
                                      f"{name}: missing OSINT-only marker {marker!r}"))
+        for kind in find_credentials(text):
+            issues.append(_issue("credential", "playbooks",
+                                 f"{name}: credential-like value ({kind}); keep it out of the repo"))
+
+    for kind in find_credentials(json.dumps(org, ensure_ascii=False)):
+        issues.append(_issue("credential", "gated_sources",
+                             f"credential-like value ({kind}) in org.json; "
+                             "store secrets in a secret manager, never in the repo"))
+    issues.extend(check_gated(org, org_dir))
     return issues
 
 
@@ -635,6 +933,32 @@ def check(org_path: Path = DEFAULT_ORG, accounts_path: Path = DEFAULT_ACCOUNTS,
         for account in role.get("accounts") or []:
             if isinstance(account, str):
                 assigned.setdefault(account, _text(role.get("id")))
+    gated_block = org.get("gated_sources") if isinstance(org.get("gated_sources"), dict) else {}
+    gated_classes = [entry for entry in (gated_block.get("classes") or []) if isinstance(entry, dict)]
+    gated_summary = {
+        "schema": _text(gated_block.get("schema")),
+        "playbook": _text(gated_block.get("playbook")),
+        "access_request": _text(gated_block.get("access_request_template")),
+        "statuses": list(gated_block.get("statuses") or []),
+        "classes": [
+            {
+                "id": entry.get("id"),
+                "access": entry.get("access"),
+                "source_classes": entry.get("source_classes") or [],
+                "collect_now": entry.get("collect_now"),
+                "request_required": entry.get("request_required"),
+            }
+            for entry in gated_classes
+        ],
+        "collect_now": [_text(entry.get("id")) for entry in gated_classes
+                        if entry.get("collect_now") is True],
+        "request_only": [_text(entry.get("id")) for entry in gated_classes
+                         if entry.get("request_required") is True],
+        "never": [_text(entry.get("id")) for entry in gated_classes
+                  if _text(entry.get("access")) == "NO_ACCESS"],
+        "journal_fields": list((gated_block.get("journal") or {}).get("required_fields") or []),
+        "credentials_in_repo": bool((gated_block.get("credentials") or {}).get("in_repo")),
+    }
     return {
         "schema": CHECK_SCHEMA,
         "org": str(org_path),
@@ -677,12 +1001,14 @@ def check(org_path: Path = DEFAULT_ORG, accounts_path: Path = DEFAULT_ACCOUNTS,
         ],
         "process": (org.get("process") or {}).get("order"),
         "boundaries": sorted((org.get("boundaries") or {}).keys()),
+        "gated": gated_summary,
         "issues": issues,
         "policy": {
             "mode": mode,
             "org_mode": org.get("mode"),
             "subscriptions": 0,
             "licensed_data": _text((org.get("licensed_data") or {}).get("status")),
+            "gated": "G0/G1 open; G2/G3 request-only; G4 never; credentials out of repo",
             "network": "disabled",
             "writes": "none (only --out writes the requested brief)",
             "model_status": "RESEARCH_ONLY",
@@ -702,6 +1028,9 @@ def render_org(summary: dict) -> str:
         f"Источники: разрешены {summary.get('source_classes', {}).get('allowed')}, "
         f"DEFERRED {summary.get('source_classes', {}).get('deferred')}, "
         f"запрещены {summary.get('source_classes', {}).get('forbidden')}",
+        f"Gated: собираем {summary.get('gated', {}).get('collect_now')}, по запросу "
+        f"{summary.get('gated', {}).get('request_only')} (договор/NDA), без доступа "
+        f"{summary.get('gated', {}).get('never')}; ключи вне репозитория",
         f"Сегментов: {summary['counts']['segments']}; аккаунтов в портфеле: "
         f"{summary['counts']['accounts_in_portfolio']}, назначено ролям: "
         f"{summary['counts']['accounts_assigned']}",
@@ -815,6 +1144,9 @@ def build_brief(org: dict, role_id: str, question: str, account_id: str = "",
         "Подписок нет: S4 не используется, S5 запрещён, paywall не обходится. Порядок источников — "
         "`playbooks/source_hierarchy.md`. Строка без источника не становится фактом: она остаётся "
         "HYPOTHESIS или NOT_FETCHED.",
+        "Gated-классы: G0 public и G1 registration — собираем в пределах ToS; G2 licensed и G3 NDA "
+        "data room — только access request (`playbooks/access_request.md`) и решение человека/Lead; "
+        "G4 restricted — NOT_AUTHORIZED, не трогаем. Обход не рассматривается как вариант.",
         "",
         "## Что уже известно (и чего нет)",
         f"- Внутренняя карточка аккаунта: HYPOTHESIS (не факт); use_cases: "
@@ -838,6 +1170,8 @@ def build_brief(org: dict, role_id: str, question: str, account_id: str = "",
         "Evidence-таблица: | # | утверждение | класс S1–S3 | grade A/B/C | статус | source_id | "
         "retrieved_at | цитата |",
         "NOT_FETCHED: | что искали | класс источника | причина | блокер |",
+        "Access journal: | request_id | источник | G0–G4 | основание | decision | expires_at |",
+        "NOT_AUTHORIZED: источник, класс G, причина, blocker",
         "Анализ: сценарии + допущения + что меняет решение",
         "Что не проверено",
         "Red lines: проверено, нарушений нет (или RL-xx + процедура остановки)",
@@ -874,18 +1208,114 @@ def build_brief(org: dict, role_id: str, question: str, account_id: str = "",
     return text
 
 
+def build_access_request(org: dict, source: str, gated_class: str, purpose: str,
+                         legal_basis: str, role_id: str = OSINT_ROLE) -> str:
+    """Draft a lawful access request for a G2/G3 source. No network, no credentials, no approval."""
+    gated = (gated_class or "").strip().upper()
+    if gated not in GATED_CLASSES:
+        raise OrgError(f"unknown gated class {gated_class!r}; expected one of {list(GATED_CLASSES)}")
+    if gated == "G0":
+        raise OrgError("G0 is public: no access request is needed (check robots/ToS and cite)")
+    if gated == "G4":
+        raise OrgError("G4 has no lawful access path: record NOT_AUTHORIZED, do not request access")
+    source = (source or "").strip()
+    purpose = (purpose or "").strip()
+    legal_basis = (legal_basis or "").strip()
+    if len(source) < 2:
+        raise OrgError("source is too short: name the gated source")
+    if len(purpose) < 12:
+        raise OrgError("purpose is too short: name the decision-relevant question (>= 12 chars)")
+    if len(legal_basis) < 8:
+        raise OrgError("legal_basis is too short: name the contract/NDA/FOIA/ToS basis (>= 8 chars)")
+    roles = [role for role in org.get("roles") or [] if isinstance(role, dict)]
+    known = {_text(role.get("id")) for role in roles}
+    if role_id not in known:
+        raise OrgError(f"unknown role {role_id!r}; known: {', '.join(sorted(known))}")
+    if role_id not in (OSINT_ROLE, "director"):
+        raise OrgError("an access request is filed by osint-scout and reviewed by director")
+    entries = {_text(entry.get("id")): entry
+               for entry in ((org.get("gated_sources") or {}).get("classes") or [])
+               if isinstance(entry, dict)}
+    entry = entries.get(gated, {})
+    title = _text(entry.get("title_ru")) or _text(entry.get("title")) or gated
+    requirements = [item for item in (entry.get("requirements") or []) if isinstance(item, str)]
+    lines = [
+        f"# Access request: {source} ({gated})",
+        "",
+        f"Схема: {ACCESS_REQUEST_SCHEMA} · сеть: {org.get('mode')} · статус: REQUEST_PENDING",
+        "Агент подготовил черновик; решение и отправку выполняет человек/Lead. Агент не подписывает",
+        "договор, не принимает NDA и не получает ключи.",
+        "",
+        "## Кто",
+        f"- Роль-заявитель: `{role_id}` (без имён и личных контактов)",
+        "- Владелец запроса: `director`; подписант: человек/Lead",
+        "",
+        "## Источник",
+        f"- Название: {source}",
+        f"- Gated-класс: {gated} — {title}",
+        "- Класс источника S: S4 (licensed dataset)",
+        f"- Что требуется по политике: {'; '.join(requirements) if requirements else 'см. playbooks/gated_sources.md'}",
+        "",
+        "## Правовое основание",
+        legal_basis,
+        "",
+        "## Цель",
+        purpose,
+        "",
+        "## Срок",
+        "- Срок доступа: заполняет человек при подписании (с даты ... по дату ...)",
+        "- Пересмотр: не позднее окончания срока; бессрочного доступа нет",
+        "",
+        "## Что не копируем",
+        "- полные тексты и сырые выгрузки в репозиторий;",
+        "- персональные данные и контакты частных лиц;",
+        "- содержимое data room сверх разрешённого объёма;",
+        "- ключи, токены, cookie и логины — только в секрет-стор, выдаёт человек.",
+        "",
+        "## Как используем",
+        "- внутренняя аналитика по вопросу из раздела «Цель»;",
+        "- цитата <= 300 символов с идентификатором и датой;",
+        "- передача клиенту — только если это прямо разрешено договором.",
+        "",
+        "## Решение",
+        "- После ответа: `AUTHORIZED` / `NOT_AUTHORIZED` / уточнение (`REQUEST_PENDING`).",
+        "- Отказ фиксируется как `NOT_AUTHORIZED` + `NOT_FETCHED` с блокером; источник не используется.",
+        "- После `AUTHORIZED` режим сети не меняется: снятие OSINT_ONLY — решение человека/Lead",
+        "  с правкой org.json, тестов и docs/212.",
+        "",
+        "## Журнал",
+        "Запись: request_id, role, source, gated_class, legal_basis, purpose, requested_at, decision,",
+        "decided_at, expires_at, owner. Ключи и персональные данные в журнал не попадают.",
+        "",
+        "## Напоминание",
+        "Обход paywall, авторизации, NDA, robots/terms и лимитов запрещён. Доступ либо есть законно,",
+        "либо его нет: `NOT_AUTHORIZED` — нормальный результат.",
+        "",
+    ]
+    body = "\n".join(lines)
+    text = body + (f"_Generated by tools/market_intel.py (no network). "
+                   f"Access request body hash: {_sha256(body)}_\n")
+    _scan_document(text, "access request")
+    return text
+
+
 def _sha256(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
-def _scan_brief(text: str) -> None:
-    """Defensive scan: the brief must not leak contacts or admit a model."""
+def _scan_document(text: str, label: str) -> None:
+    """Defensive scan: an emitted document must not leak contacts or admit a model."""
     if EMAIL_RE.search(text):
-        raise OrgError("brief would contain an e-mail address; refusing to emit it")
+        raise OrgError(f"{label} would contain an e-mail address; refusing to emit it")
     if PHONE_RE.search(text):
-        raise OrgError("brief would contain a phone-like number; refusing to emit it")
+        raise OrgError(f"{label} would contain a phone-like number; refusing to emit it")
     if ADMISSION_RE.search(text):
-        raise OrgError("brief would mention admission; refusing to emit it")
+        raise OrgError(f"{label} would mention admission; refusing to emit it")
+
+
+def _scan_brief(text: str) -> None:
+    """Backwards-compatible wrapper around :func:`_scan_document` for briefs."""
+    _scan_document(text, "brief")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -901,7 +1331,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--role", help="role id for a task brief")
     parser.add_argument("--question", default="", help="decision-relevant question for the brief")
     parser.add_argument("--account", default="", help="optional target account id (e.g. TATNEFT)")
-    parser.add_argument("--out", help="write the brief to this file instead of stdout")
+    parser.add_argument("--out", help="write the brief/access request to this file instead of stdout")
+    parser.add_argument("--access-request", action="store_true",
+                        help="draft a lawful access request for a G2/G3 gated source")
+    parser.add_argument("--source", default="", help="gated source name for --access-request")
+    parser.add_argument("--gated-class", default="", help="gated class for --access-request (G2 or G3)")
+    parser.add_argument("--purpose", default="", help="decision-relevant purpose for the request")
+    parser.add_argument("--legal-basis", default="",
+                        help="contract/NDA/FOIA/ToS basis for the access request")
     args = parser.parse_args(argv)
 
     org_path = Path(args.org_file)
@@ -912,6 +1349,34 @@ def main(argv: list[str] | None = None) -> int:
     try:
         mode = _normalise_mode(args.mode)
         org = load_org(org_path)
+        if args.access_request:
+            request = build_access_request(org, args.source, args.gated_class, args.purpose,
+                                           args.legal_basis, args.role or OSINT_ROLE)
+            if args.out:
+                out = Path(args.out)
+                if not out.parent.exists():
+                    raise OrgError(f"output directory does not exist: {out.parent}")
+                out.write_text(request, encoding="utf-8", newline="\n")
+                print(f"access request written: {out}")
+            elif args.json:
+                print(json.dumps({
+                    "schema": ACCESS_REQUEST_SCHEMA,
+                    "mode": mode,
+                    "org_mode": org.get("mode"),
+                    "role": args.role or OSINT_ROLE,
+                    "source": args.source,
+                    "gated_class": (args.gated_class or "").upper(),
+                    "purpose": args.purpose,
+                    "legal_basis": args.legal_basis,
+                    "status": "REQUEST_PENDING",
+                    "human_approval_required": True,
+                    "network": "disabled",
+                    "request": request,
+                    "request_sha256": hashlib.sha256(request.encode("utf-8")).hexdigest(),
+                }, ensure_ascii=False, indent=2, sort_keys=True))
+            else:
+                print(request)
+            return 0
         if args.role:
             brief = build_brief(org, args.role, args.question, args.account, accounts,
                                 accounts_error, mode)
@@ -957,7 +1422,8 @@ def main(argv: list[str] | None = None) -> int:
                   f"{summary['counts']['accounts_assigned']}/{summary['counts']['accounts_in_portfolio']} "
                   f"accounts covered, {summary['counts']['segments']} segments, "
                   f"mode={summary['mode']} ({summary['org_mode']}), "
-                  f"licensed-data={summary['licensed_data']['status']}")
+                  f"licensed-data={summary['licensed_data']['status']}, "
+                  f"gated=G2/G3 request-only, G4 never, credentials outside repo")
         else:
             print(f"FAIL: {summary['errors']} issue(s)", file=sys.stderr)
             for issue in summary["issues"]:

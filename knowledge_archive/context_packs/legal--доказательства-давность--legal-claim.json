@@ -1,0 +1,205 @@
+{
+  "archive": "G:\\Мировая экономика модель\\knowledge_archive",
+  "counts": {
+    "UNKNOWN": 0,
+    "due_soon": 0,
+    "excluded": 12,
+    "fresh": 2,
+    "selected": 2,
+    "stale": 0
+  },
+  "entries": [
+    {
+      "access": "PROJECT",
+      "archived": false,
+      "as_of": "2026-11-22",
+      "audience": [
+        "legal-claim",
+        "lead",
+        "archivist"
+      ],
+      "created": "2026-11-22",
+      "evidence_grade": null,
+      "evidence_status": "NOT_FETCHED",
+      "freshness": "fresh",
+      "id": "AR-0010",
+      "jurisdiction": "UA",
+      "kind": "legal",
+      "licence": "NONE",
+      "links": [
+        "docs/223_Архивариус_и_межпроектная_база.md",
+        "agents/archive/skills.md"
+      ],
+      "match": [
+        "давность"
+      ],
+      "namespace": "legal",
+      "notes": "Причина: официальный текст не получен, сеть недоступна. Блокер: проверка нормы и редакции юристом; до неё сроки в документах не указываются.",
+      "owner_role": "archivist",
+      "provenance": {
+        "collected_at": "2026-11-22",
+        "collected_by": "archivist",
+        "method": "EXPERT_NOTE",
+        "origin": "https://zakon.rada.gov.ua/laws/main/index",
+        "origin_type": "OFFICIAL_LAW",
+        "retrieved_at": null,
+        "sha256": null
+      },
+      "retention": "LEGAL_HOLD",
+      "review_due": "2027-11-22",
+      "schema": "amfe.archive.entry.v1",
+      "source_ids": [],
+      "summary": "Сроки, начало течения и основания приостановления не приводятся: без официального текста любая цифра была бы выдумкой. Запись задаёт порядок проверки: норма, редакция на дату спора, применимость, расчёт — с фиксацией провенанса на каждом шаге.",
+      "supersedes": null,
+      "tags": [
+        "legal",
+        "limitation",
+        "evidence"
+      ],
+      "title": "Срок исковой давности: только из первоисточника",
+      "ttl_days": 365,
+      "updated": "2026-11-22",
+      "version": 1,
+      "visibility": "project"
+    },
+    {
+      "access": "PROJECT",
+      "archived": false,
+      "as_of": "2026-11-22",
+      "audience": [
+        "legal-claim",
+        "case-writer",
+        "archivist"
+      ],
+      "created": "2026-11-22",
+      "evidence_grade": "C",
+      "evidence_status": "HYPOTHESIS",
+      "freshness": "fresh",
+      "id": "AR-0011",
+      "kind": "template",
+      "licence": "INTERNAL",
+      "links": [
+        "agents/archive/skills.md",
+        "docs/223_Архивариус_и_межпроектная_база.md"
+      ],
+      "match": [
+        "доказательства"
+      ],
+      "namespace": "legal",
+      "notes": "Карточка не заменяет оригинал: она показывает, где оригинал и как проверена его целостность.",
+      "owner_role": "archivist",
+      "provenance": {
+        "collected_at": "2026-11-22",
+        "collected_by": "archivist",
+        "method": "MANUAL_READ",
+        "origin": "docs/223_Архивариус_и_межпроектная_база.md",
+        "origin_type": "INTERNAL_DOC",
+        "retrieved_at": "2026-11-22",
+        "sha256": null
+      },
+      "retention": "PERMANENT",
+      "review_due": "2028-11-21",
+      "schema": "amfe.archive.entry.v1",
+      "source_ids": [],
+      "summary": "Карточка доказательства: что подтверждает, где лежит, кто и когда получил, целостность (sha256), что опровергает и где используется в тексте. Отсутствие карточки означает, что для дела доказательства не существует.",
+      "supersedes": null,
+      "tags": [
+        "template",
+        "evidence",
+        "legal"
+      ],
+      "title": "Шаблон доказательственной карточки (evidence card)",
+      "ttl_days": 730,
+      "updated": "2026-11-22",
+      "version": 1,
+      "visibility": "project"
+    }
+  ],
+  "excluded": [
+    {
+      "id": "AR-0001",
+      "reason": "topic"
+    },
+    {
+      "id": "AR-0002",
+      "reason": "topic"
+    },
+    {
+      "id": "AR-0003",
+      "reason": "topic"
+    },
+    {
+      "id": "AR-0004",
+      "reason": "audience:legal-claim"
+    },
+    {
+      "id": "AR-0005",
+      "reason": "audience:legal-claim"
+    },
+    {
+      "id": "AR-0006",
+      "reason": "audience:legal-claim"
+    },
+    {
+      "id": "AR-0007",
+      "reason": "namespace:osint"
+    },
+    {
+      "id": "AR-0008",
+      "reason": "namespace:osint"
+    },
+    {
+      "id": "AR-0009",
+      "reason": "topic"
+    },
+    {
+      "id": "AR-0012",
+      "reason": "namespace:cases"
+    },
+    {
+      "id": "AR-0013",
+      "reason": "namespace:amfe"
+    },
+    {
+      "id": "AR-0014",
+      "reason": "audience:legal-claim"
+    }
+  ],
+  "gap_count": 1,
+  "gaps": [
+    "в пакете нет записей с подтверждённым evidence (VERIFIED/PARTIAL)"
+  ],
+  "generated_for": "2026-11-22",
+  "licence_notices": [
+    {
+      "ids": [
+        "AR-0011"
+      ],
+      "licence": "INTERNAL",
+      "note": "только внутреннее использование AMFE; наружу не передаётся"
+    },
+    {
+      "ids": [
+        "AR-0010"
+      ],
+      "licence": "NONE",
+      "note": "прав нет: запись-указатель, использовать как источник нельзя"
+    }
+  ],
+  "limits": {
+    "allow_restricted": false,
+    "include_stale": false,
+    "limit": null
+  },
+  "policy": {
+    "admission": false,
+    "clock": "not read (pass --today explicitly)",
+    "evidence": "VERIFIED/PARTIAL/HYPOTHESIS/NOT_FETCHED; numbers require a source",
+    "model_status": "RESEARCH_ONLY",
+    "network": "disabled"
+  },
+  "project": "legal",
+  "role": "legal-claim",
+  "schema": "amfe.archive.pack.v1",
+  "topic": "доказательства давность"
+}

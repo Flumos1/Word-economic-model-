@@ -338,5 +338,194 @@ class MarketIntelOrgTest(unittest.TestCase):
             self.assertIn(marker, text)
 
 
+class GatedSourcesTest(unittest.TestCase):
+    """Lawful access to gated sources: recognise G0-G4, request, never bypass, no secrets."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.org = json.loads(ORG.read_text(encoding="utf-8"))
+        cls.roles = {role["id"]: role for role in cls.org["roles"]}
+        cls.gated = cls.org["gated_sources"]
+        cls.classes = {entry["id"]: entry for entry in cls.gated["classes"]}
+        cls.summary = mod.check()
+
+    def test_gated_playbooks_are_declared_and_loaded(self):
+        self.assertIn("gated_sources.md", mod.PLAYBOOKS)
+        self.assertIn("access_request.md", mod.PLAYBOOKS)
+        for name, markers in mod.GATED_MARKERS.items():
+            path = PLAYBOOKS / name
+            self.assertTrue(path.is_file(), name)
+            text = path.read_text(encoding="utf-8")
+            self.assertGreater(len(text), 800, name)
+            low = text.lower()
+            for marker in markers:
+                self.assertIn(marker.lower(), low, f"{name}: {marker}")
+
+    def test_gated_block_schema_and_statuses(self):
+        self.assertEqual(self.gated["schema"], mod.GATED_SCHEMA)
+        self.assertEqual(tuple(entry["id"] for entry in self.gated["classes"]), mod.GATED_CLASSES)
+        self.assertEqual(tuple(self.gated["statuses"]), mod.GATED_STATUSES)
+        fields = self.gated["journal"]["required_fields"]
+        for field in mod.GATED_JOURNAL_FIELDS:
+            self.assertIn(field, fields)
+        self.assertFalse(self.gated["credentials"]["in_repo"])
+        self.assertIn("NOT_AUTHORIZED", self.gated["status_titles"])
+
+    def test_gated_classes_are_request_only_or_never(self):
+        self.assertTrue(self.classes["G0"]["collect_now"])
+        self.assertTrue(self.classes["G1"]["collect_now"])
+        for class_id in ("G2", "G3"):
+            self.assertFalse(self.classes[class_id]["collect_now"], class_id)
+            self.assertTrue(self.classes[class_id]["request_required"], class_id)
+            self.assertIn("access_request.md", self.classes[class_id]["request_path"])
+        self.assertFalse(self.classes["G4"]["collect_now"])
+        self.assertFalse(self.classes["G4"]["request_required"])
+        self.assertEqual(self.classes["G4"]["access"], "NO_ACCESS")
+        for entry in self.gated["classes"]:
+            self.assertLessEqual(mod.STATUS_RANK[entry["evidence_ceiling"]],
+                                 mod.STATUS_RANK["PARTIAL"], entry["id"])
+
+    def test_gated_classes_map_to_source_classes(self):
+        self.assertTrue(set(self.classes["G0"]["source_classes"]) <= {"S1", "S2", "S3"})
+        self.assertTrue(set(self.classes["G1"]["source_classes"]) <= {"S1", "S2", "S3"})
+        self.assertEqual(self.classes["G2"]["source_classes"], ["S4"])
+        self.assertEqual(self.classes["G3"]["source_classes"], ["S4"])
+        self.assertEqual(self.classes["G4"]["source_classes"], ["S5"])
+
+    def test_osint_scout_has_gated_skills(self):
+        role = self.roles["osint-scout"]
+        for skill in mod.GATED_SKILLS:
+            self.assertIn(skill, role["skills"], skill)
+        for banned in mod.FORBIDDEN_SKILLS:
+            self.assertNotIn(banned, role["skills"], banned)
+        self.assertEqual(tuple(role["gated_classes"]), mod.GATED_CLASSES)
+        self.assertEqual(role["gated_policy"], mod.GATED_POLICY)
+        self.assertEqual(role["evidence_ceiling"], "PARTIAL")
+
+    def test_osint_scout_outputs_and_forbidden_cover_access_request(self):
+        role = self.roles["osint-scout"]
+        outputs = " ".join(role["outputs"]).lower()
+        self.assertIn("access request", outputs)
+        self.assertIn("журнал", outputs)
+        allowed = " ".join(role["allowed"]).lower()
+        self.assertTrue("access request" in allowed or "запрос доступа" in allowed)
+        forbidden = " ".join(role["forbidden"]).lower()
+        self.assertIn("обход", forbidden)
+        self.assertIn("утёкш", forbidden)
+        self.assertIn("ключ", forbidden)
+
+    def test_gated_no_bypass_policy(self):
+        joined = " ".join(self.gated["no_bypass"]).lower()
+        for topic in mod.GATED_NO_BYPASS_TOPICS:
+            self.assertIn(topic, joined, topic)
+        self.assertGreaterEqual(len(self.gated["rules"]), 3)
+
+    def test_no_bypass_recipe_and_no_credentials_in_gated_docs(self):
+        files = [ORG, ROLES_DIR / "06_osint_scout.md",
+                 PLAYBOOKS / "gated_sources.md", PLAYBOOKS / "access_request.md",
+                 DOCS / "224_Gated_источники.md"]
+        for path in files:
+            self.assertTrue(path.is_file(), path)
+            text = path.read_text(encoding="utf-8")
+            self.assertEqual(mod.find_bypass_recipes(text), [], path.name)
+            self.assertEqual(mod.find_credentials(text), [], path.name)
+
+    def test_planted_credential_fails_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            org_path, accounts = copy_package(tmp)
+            org = json.loads(org_path.read_text(encoding="utf-8"))
+            org["gated_sources"]["credentials"]["api_key"] = "sk-" + "A" * 24
+            org_path.write_text(json.dumps(org, ensure_ascii=False, indent=1), encoding="utf-8")
+            result = run_cli("--org-file", str(org_path), "--accounts-file", str(accounts),
+                             "--check")
+            self.assertEqual(result.returncode, 2, result.stdout)
+            self.assertIn("credential", result.stderr)
+
+    def test_g4_collect_fails_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            org_path, accounts = copy_package(tmp)
+            org = json.loads(org_path.read_text(encoding="utf-8"))
+            entry = next(item for item in org["gated_sources"]["classes"] if item["id"] == "G4")
+            entry["collect_now"] = True
+            org_path.write_text(json.dumps(org, ensure_ascii=False, indent=1), encoding="utf-8")
+            result = run_cli("--org-file", str(org_path), "--accounts-file", str(accounts),
+                             "--check")
+            self.assertEqual(result.returncode, 2, result.stdout)
+            self.assertIn("gated_collect_policy", result.stderr)
+
+    def test_missing_access_request_playbook_fails_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            org_path, accounts = copy_package(tmp)
+            (org_path.parent / "playbooks" / "access_request.md").unlink()
+            result = run_cli("--org-file", str(org_path), "--accounts-file", str(accounts),
+                             "--check")
+            self.assertEqual(result.returncode, 2, result.stdout)
+            self.assertIn("access_request.md", result.stderr)
+
+    def test_access_request_builder(self):
+        text = mod.build_access_request(
+            self.org, "Price DB", "G2",
+            "проверка CAPEX-бенчмарка по upstream-аккаунтам",
+            "NDA от 2026-11-20, п. 3")
+        for marker in ("REQUEST_PENDING", "G2", "NOT_AUTHORIZED", "Правовое основание",
+                       "Цель", "Срок", "Что не копируем", "director", "osint-scout"):
+            self.assertIn(marker, text)
+        self.assertNotRegex(text, r"[\w.+-]+@[\w-]+\.[\w.]+")
+        self.assertIn(mod._sha256(text.split("_Generated by")[0]), text)
+        self.assertEqual(text, mod.build_access_request(
+            self.org, "Price DB", "G2",
+            "проверка CAPEX-бенчмарка по upstream-аккаунтам",
+            "NDA от 2026-11-20, п. 3"))
+
+    def test_access_request_refuses_public_and_restricted(self):
+        for gated_class, expected in (("G0", "public"), ("G4", "no lawful access"), ("G9", "unknown")):
+            with self.subTest(gated_class=gated_class):
+                with self.assertRaises(mod.OrgError) as ctx:
+                    mod.build_access_request(self.org, "Source", gated_class,
+                                             "достаточно длинная цель запроса",
+                                             "NDA от 2026-11-20")
+                self.assertIn(expected, str(ctx.exception))
+
+    def test_access_request_cli(self):
+        result = run_cli("--access-request", "--source", "Price DB", "--gated-class", "G2",
+                         "--purpose", "проверка CAPEX-бенчмарка", "--legal-basis",
+                         "NDA от 2026-11-20", "--json")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["schema"], "amfe.market_intel.access_request.v1")
+        self.assertEqual(payload["status"], "REQUEST_PENDING")
+        self.assertTrue(payload["human_approval_required"])
+        self.assertEqual(payload["network"], "disabled")
+        self.assertIn("Price DB", payload["request"])
+        short = run_cli("--access-request", "--source", "Price DB", "--gated-class", "G2",
+                        "--purpose", "проверка CAPEX-бенчмарка", "--legal-basis", "")
+        self.assertEqual(short.returncode, 2)
+        self.assertIn("legal_basis", short.stderr)
+
+    def test_json_summary_has_gated_contract(self):
+        result = run_cli("--json")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        gated = payload["gated"]
+        self.assertEqual(gated["schema"], mod.GATED_SCHEMA)
+        self.assertEqual(gated["collect_now"], ["G0", "G1"])
+        self.assertEqual(gated["request_only"], ["G2", "G3"])
+        self.assertEqual(gated["never"], ["G4"])
+        self.assertFalse(gated["credentials_in_repo"])
+        self.assertIn("G2/G3 request-only", payload["policy"]["gated"])
+
+    def test_docs_212_and_224_cover_gated_sources(self):
+        doc212 = (DOCS / "212_Агентная_сеть_market_intelligence.md").read_text(encoding="utf-8")
+        self.assertIn("Gated sources: законный доступ", doc212)
+        for marker in ("G0", "G1", "G2", "G3", "G4", "NDA", "FOIA", "NOT_AUTHORIZED"):
+            self.assertIn(marker, doc212)
+        doc224 = DOCS / "224_Gated_источники.md"
+        self.assertTrue(doc224.is_file())
+        text = doc224.read_text(encoding="utf-8")
+        for marker in ("G0", "G1", "G2", "G3", "G4", "NDA", "FOIA", "журнал",
+                       "NOT_AUTHORIZED", "access request"):
+            self.assertIn(marker, text)
+
+
 if __name__ == "__main__":
     unittest.main()
