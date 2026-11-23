@@ -88,6 +88,7 @@ python agents/tools/memory.py export --out agents/library/export.jsonl
 |---|---|---|---|
 | Market intelligence | `agents/market_intelligence/` | OSINT, gated-доступ по разрешению, факты/числа, кейсы, evidence-QA | [docs/212](../docs/212_Агентная_сеть_market_intelligence.md), [docs/224](../docs/224_Gated_источники.md) |
 | Legal counsel | `agents/legal/` — `international-counsel` | международное публичное/частное право, прецеденты, санкции, формат мемо; **не** юридическая консультация | [docs/222](../docs/222_Юрист_международник.md) |
+| Commercial Strategy | `agents/commercial/` — `commercial-strategist` | ICP, public buyer roles, fixed-price scope, B2B/B2G procurement; без outreach | [docs/228](../docs/228_Commercial_Strategy.md) |
 | Archivist | `agents/archive/` + `knowledge_archive/` | провенанс, версии, context pack для других агентов, межпроектная база | [docs/223](../docs/223_Архивариус_и_межпроектная_база.md) |
 
 Правила стыковки:
@@ -100,6 +101,8 @@ python agents/tools/memory.py export --out agents/library/export.jsonl
    агент не копирует весь архив, а получает релевантный пакет.
 4. **Lead → человеку**: доступ к gated-источникам (G2/G3), подпись юридического мемо и отправка
    писем — только человек; агенты готовят запрос/черновик.
-5. **Запрещено**: обход доступа, утёкшие базы, персональные данные, выдача гипотезы за факт,
-   «юридическая консультация» без human-lawyer.
+5. **Commercial Strategy** берёт только роли/типы организаций из OSINT и контекст из архива; адресат,
+   fixed quote и outreach утверждаются Lead/human.
+6. **Запрещено**: обход доступа, утёкшие базы, персональные данные, выдача гипотезы за факт,
+   «юридическая консультация» без human-lawyer, или скрытое влияние/сбор контактов.
 

@@ -8,6 +8,13 @@
 
 Коротко (2026-11-20): **G1–G3 пройдены**; **G4** — подпись docs/160 получена (signoff-реестр `G4-SIGN-160`, 2026-11-20), но предрегистрация 0.3 остаётся **PROPOSED**, независимая V2 — **NOT_CONFIRMED**, C4 по предрегистрации — **FAIL**, поэтому ворота G4 не активированы; **G5** — готовы Forecast API v2 + шлюз ([docs/161](docs/161_Реестр_API_паспорта.md), [docs/183](docs/183_Forecast_API_шлюз.md)), Client Pack v2 ([docs/171](docs/171_Client_Pack_v2.md)), FLAKS MVP и пилот ([docs/184](docs/184_FLAKS_Procurement_MVP.md), [docs/189](docs/189_FLAKS_пилот.md)), Simulator UI ([docs/192](docs/192_Simulator_UI.md)), scorecard ([docs/174](docs/174_Внешние_прогнозы_scorecard.md)), мост «прогноз→мир» ([docs/178](docs/178_Мост_прогноз_мир.md)) и матрица горизонтов v5 ([docs/176](docs/176_Матрица_горизонтов_v5.md)), плюс блоки 8/11/16 ([docs/180](docs/180_Запасы_и_фьючерсы.md), [docs/182](docs/182_Монетарный_фискальный_блок.md), [docs/181](docs/181_Геополитические_сценарии.md)); **G6-prep** — синхронизация статуса и гигиена релиза ([docs/198](docs/198_Статус_2026-11-20.md)), beta 2.0 впереди; **C6** — 0/12 прогнозов (1/4 периода), допущенных моделей нет. Все числа — исследовательские.
 
+## Коммерческий запуск (23 ноября 2026)
+
+- **25 fixed-price офферов** для платёжеспособных организаций, публичных buyer-ролей, цены в USD по утверждённым полосам — [каталог](marketing/commercial_offers_25/catalog.md), [документ](docs/227_25_коммерческих_офферов.md).
+- **Commercial Strategy Agent**: B2B/B2G qualification, scope/pricing, procurement/discovery; outreach и адресат — только Lead/human ([docs/228](docs/228_Commercial_Strategy.md)).
+- Страница RU/EN: [25 офферов](site/business/offers-25.html) / [25 offers](site/business/en/offers-25.html). Все предложения — гипотезы, `not_client=true`, письма не отправлялись.
+- M1 readiness: API health/metrics/SLA сделано; Client Pack v2 локально собирается (RESEARCH_ONLY, Bridge PARTIAL_INPUTS); см. [docs/230](docs/230_M1_ClientPack_Simulator_readiness.md).
+
 ## Исторический маршрут (11 ноября 2026; сохранён для прослеживаемости)
 
 **Источник актуального плана:** [42 — Дорожная карта AMFE-17](docs/42_Дорожная_карта_реализации_AMFE17_и_контрольные_ворота.md). **Контроль преемственности:** [43 — Ревизия репозитория](docs/43_Ревизия_репозитория_и_контроль_преемственности_2026-11-11.md).

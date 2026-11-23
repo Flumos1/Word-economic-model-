@@ -1,0 +1,1092 @@
+{
+ "schema": "amfe.commercial_offers.v1",
+ "created": "2026-11-23",
+ "status": "DRAFT",
+ "currency": "USD",
+ "taxes_included": false,
+ "offers_count": 25,
+ "rules": [
+  "fixed_list_price_not_market_benchmark",
+  "public_org_types_and_role_buyers_only",
+  "hypotheses_not_clients",
+  "no_outreach_without_human_approval",
+  "RESEARCH_ONLY_admission_false"
+ ],
+ "offers": [
+  {
+   "id": "C25-001",
+   "segment": "Sovereign / public investment",
+   "buyer_org_type": "Суверенный инвестиционный фонд",
+   "buyer_role": "директор по рискам / глава макроаналитики",
+   "jurisdiction_scope": "международный портфель",
+   "title_ru": "Стресс портфеля при нефтегазовом шоке",
+   "title_en": "Portfolio stress under an oil and gas shock",
+   "need_hypothesis_ru": "Оценить чувствительность публично раскрываемого портфеля к 3 сценариям нефти, газа и логистики.",
+   "need_hypothesis_en": "Assess the disclosed portfolio's sensitivity to three oil, gas and logistics scenarios.",
+   "question_ru": "Как меняются диапазоны риска портфеля при Brent 80/100/120 USD/bbl и перебое логистики?",
+   "question_en": "How do portfolio risk ranges change under Brent at 80/100/120 USD/bbl and a logistics disruption?",
+   "deliverables_ru": "Мемо 8 стр., 3 сценария, таблица чувствительности; без рекомендаций по активам.",
+   "deliverables_en": "8-page memo, three scenarios and sensitivity table; no asset recommendations.",
+   "modules": [
+    "Ормуз/бюджет",
+    "геополитика"
+   ],
+   "duration_weeks": 6,
+   "fixed_price_usd": 25000,
+   "price_terms_ru": "Фиксированная list price за перечисленный scope: 25 000 USD  без НДС; сторонние лицензии и вне-scope работы отдельно.",
+   "price_terms_en": "Fixed list price for the stated scope: USD 25 000  taxes excluded; this is not a market benchmark or client-budget claim; third-party licences and out-of-scope work excluded.",
+   "assumptions_ru": [
+    "Данные клиента — только агрегированные и добровольно предоставленные; допустимы публичные данные.",
+    "OSINT_ONLY: лицензируемые источники не включены в цену без отдельного письменного разрешения."
+   ],
+   "assumptions_en": [
+    "Client data is aggregated and voluntarily provided; public data may be used.",
+    "OSINT_ONLY: licensed sources are excluded unless separately authorized in writing."
+   ],
+   "exclusions_ru": [
+    "Не является прогнозом, инвестиционной рекомендацией или юридическим заключением.",
+    "Нет гарантии экономии, точности или решения инвестиционного комитета."
+   ],
+   "exclusions_en": [
+    "Not a forecast, investment recommendation or legal opinion.",
+    "No guarantee of savings, accuracy or investment-committee outcome."
+   ],
+   "evidence_status": "HYPOTHESIS",
+   "not_client": true,
+   "sent": false,
+   "status": "DRAFT"
+  },
+  {
+   "id": "C25-002",
+   "segment": "Pension / retirement fund",
+   "buyer_org_type": "Пенсионный фонд",
+   "buyer_role": "директор по инвестиционным рискам",
+   "jurisdiction_scope": "публичные макроэкспозиции",
+   "title_ru": "Макростресс пенсионного портфеля",
+   "title_en": "Macro stress for a pension portfolio",
+   "need_hypothesis_ru": "Проверить заранее заданные макроэкспозиции на сценариях инфляции, энергии и ставок.",
+   "need_hypothesis_en": "Stress-test stated macro exposures against inflation, energy and rate scenarios.",
+   "question_ru": "Какие 3 шока сильнее всего изменяют диапазон обязательств и ликвидности?",
+   "question_en": "Which three shocks most change the range of liabilities and liquidity?",
+   "deliverables_ru": "Сценарная записка, допущения, чувствительность; без персональных данных участников.",
+   "deliverables_en": "Scenario note, assumptions and sensitivities; no member personal data.",
+   "modules": [
+    "Ормуз/бюджет",
+    "геополитика"
+   ],
+   "duration_weeks": 6,
+   "fixed_price_usd": 20000,
+   "price_terms_ru": "Фиксированная list price за перечисленный scope: 20 000 USD  без НДС; сторонние лицензии и вне-scope работы отдельно.",
+   "price_terms_en": "Fixed list price for the stated scope: USD 20 000  taxes excluded; this is not a market benchmark or client-budget claim; third-party licences and out-of-scope work excluded.",
+   "assumptions_ru": [
+    "Данные клиента — только агрегированные и добровольно предоставленные; допустимы публичные данные.",
+    "OSINT_ONLY: лицензируемые источники не включены в цену без отдельного письменного разрешения."
+   ],
+   "assumptions_en": [
+    "Client data is aggregated and voluntarily provided; public data may be used.",
+    "OSINT_ONLY: licensed sources are excluded unless separately authorized in writing."
+   ],
+   "exclusions_ru": [
+    "Не является прогнозом, инвестиционной рекомендацией или юридическим заключением.",
+    "Нет гарантии экономии, точности или решения инвестиционного комитета."
+   ],
+   "exclusions_en": [
+    "Not a forecast, investment recommendation or legal opinion.",
+    "No guarantee of savings, accuracy or investment-committee outcome."
+   ],
+   "evidence_status": "HYPOTHESIS",
+   "not_client": true,
+   "sent": false,
+   "status": "DRAFT"
+  },
+  {
+   "id": "C25-003",
+   "segment": "Development bank / MDB",
+   "buyer_org_type": "Банк развития / МФО",
+   "buyer_role": "директор странового риска / экономический департамент",
+   "jurisdiction_scope": "1 страна или 2 сектора",
+   "title_ru": "Страновой энергетический стресс-тест",
+   "title_en": "Country energy stress test",
+   "need_hypothesis_ru": "Сопоставить публичные энергозависимости страны и уязвимые сектора.",
+   "need_hypothesis_en": "Compare public energy dependencies and exposed sectors in one country.",
+   "question_ru": "Как три ценовых/логистических шока передаются в бюджет и выпуск?",
+   "question_en": "How do three price or logistics shocks pass through to the budget and output?",
+   "deliverables_ru": "Страновой бриф, 3 сценария, 5 отраслевых каналов, источник/допущение по каждой строке.",
+   "deliverables_en": "Country brief, three scenarios, five sector channels, source/assumption per line.",
+   "modules": [
+    "газ/СПГ",
+    "геополитика"
+   ],
+   "duration_weeks": 6,
+   "fixed_price_usd": 22000,
+   "price_terms_ru": "Фиксированная list price за перечисленный scope: 22 000 USD  без НДС; сторонние лицензии и вне-scope работы отдельно.",
+   "price_terms_en": "Fixed list price for the stated scope: USD 22 000  taxes excluded; this is not a market benchmark or client-budget claim; third-party licences and out-of-scope work excluded.",
+   "assumptions_ru": [
+    "Данные клиента — только агрегированные и добровольно предоставленные; допустимы публичные данные.",
+    "OSINT_ONLY: лицензируемые источники не включены в цену без отдельного письменного разрешения."
+   ],
+   "assumptions_en": [
+    "Client data is aggregated and voluntarily provided; public data may be used.",
+    "OSINT_ONLY: licensed sources are excluded unless separately authorized in writing."
+   ],
+   "exclusions_ru": [
+    "Не является прогнозом, инвестиционной рекомендацией или юридическим заключением.",
+    "Нет гарантии экономии, точности или решения инвестиционного комитета."
+   ],
+   "exclusions_en": [
+    "Not a forecast, investment recommendation or legal opinion.",
+    "No guarantee of savings, accuracy or investment-committee outcome."
+   ],
+   "evidence_status": "HYPOTHESIS",
+   "not_client": true,
+   "sent": false,
+   "status": "DRAFT"
+  },
+  {
+   "id": "C25-004",
+   "segment": "Finance ministry / treasury",
+   "buyer_org_type": "Министерство финансов / казначейство",
+   "buyer_role": "директор бюджетного управления / руководитель макрофиска",
+   "jurisdiction_scope": "1 государственный бюджет",
+   "title_ru": "Бюджетный стресс по сырьевым ценам",
+   "title_en": "Commodity-price budget stress",
+   "need_hypothesis_ru": "Оценить диапазон бюджетных рисков при колебаниях экспортной цены и импорта энергии.",
+   "need_hypothesis_en": "Estimate budget-risk ranges under export-price and energy-import shocks.",
+   "question_ru": "Какие бюджетные статьи требуют stress bands при Brent 80/100/120?",
+   "question_en": "Which budget lines need stress bands under Brent at 80/100/120?",
+   "deliverables_ru": "Бюджетная таблица сценариев и методика; только агрегированные данные.",
+   "deliverables_en": "Budget scenario table and method; aggregated data only.",
+   "modules": [
+    "Ормуз/бюджет",
+    "газ/СПГ"
+   ],
+   "duration_weeks": 6,
+   "fixed_price_usd": 25000,
+   "price_terms_ru": "Фиксированная list price за перечисленный scope: 25 000 USD  без НДС; сторонние лицензии и вне-scope работы отдельно.",
+   "price_terms_en": "Fixed list price for the stated scope: USD 25 000  taxes excluded; this is not a market benchmark or client-budget claim; third-party licences and out-of-scope work excluded.",
+   "assumptions_ru": [
+    "Данные клиента — только агрегированные и добровольно предоставленные; допустимы публичные данные.",
+    "OSINT_ONLY: лицензируемые источники не включены в цену без отдельного письменного разрешения."
+   ],
+   "assumptions_en": [
+    "Client data is aggregated and voluntarily provided; public data may be used.",
+    "OSINT_ONLY: licensed sources are excluded unless separately authorized in writing."
+   ],
+   "exclusions_ru": [
+    "Не является прогнозом, инвестиционной рекомендацией или юридическим заключением.",
+    "Нет гарантии экономии, точности или решения инвестиционного комитета."
+   ],
+   "exclusions_en": [
+    "Not a forecast, investment recommendation or legal opinion.",
+    "No guarantee of savings, accuracy or investment-committee outcome."
+   ],
+   "evidence_status": "HYPOTHESIS",
+   "not_client": true,
+   "sent": false,
+   "status": "DRAFT"
+  },
+  {
+   "id": "C25-005",
+   "segment": "Central bank / macroprudential authority",
+   "buyer_org_type": "Центральный банк / макропруденциальный орган",
+   "buyer_role": "департамент финансовой стабильности / макроэкономический департамент",
+   "jurisdiction_scope": "агрегированные макроряды",
+   "title_ru": "Макрофинансовый стресс энергии и инфляции",
+   "title_en": "Energy and inflation macro-financial stress",
+   "need_hypothesis_ru": "Проверить передачу внешнего энергетического шока в инфляцию и агрегированные финансовые каналы.",
+   "need_hypothesis_en": "Stress-test pass-through from external energy shocks to inflation and aggregate financial channels.",
+   "question_ru": "Как диапазон инфляционного шока меняется при 2 траекториях энергии?",
+   "question_en": "How does the inflation-shock range change under two energy paths?",
+   "deliverables_ru": "Сценарный бриф и таблица чувствительности; не прогноз и не решение по ставке.",
+   "deliverables_en": "Scenario brief and sensitivity table; not a forecast or rate recommendation.",
+   "modules": [
+    "Ормуз/бюджет",
+    "газ/СПГ"
+   ],
+   "duration_weeks": 4,
+   "fixed_price_usd": 18000,
+   "price_terms_ru": "Фиксированная list price за перечисленный scope: 18 000 USD  без НДС; сторонние лицензии и вне-scope работы отдельно.",
+   "price_terms_en": "Fixed list price for the stated scope: USD 18 000  taxes excluded; this is not a market benchmark or client-budget claim; third-party licences and out-of-scope work excluded.",
+   "assumptions_ru": [
+    "Данные клиента — только агрегированные и добровольно предоставленные; допустимы публичные данные.",
+    "OSINT_ONLY: лицензируемые источники не включены в цену без отдельного письменного разрешения."
+   ],
+   "assumptions_en": [
+    "Client data is aggregated and voluntarily provided; public data may be used.",
+    "OSINT_ONLY: licensed sources are excluded unless separately authorized in writing."
+   ],
+   "exclusions_ru": [
+    "Не является прогнозом, инвестиционной рекомендацией или юридическим заключением.",
+    "Нет гарантии экономии, точности или решения инвестиционного комитета."
+   ],
+   "exclusions_en": [
+    "Not a forecast, investment recommendation or legal opinion.",
+    "No guarantee of savings, accuracy or investment-committee outcome."
+   ],
+   "evidence_status": "HYPOTHESIS",
+   "not_client": true,
+   "sent": false,
+   "status": "DRAFT"
+  },
+  {
+   "id": "C25-006",
+   "segment": "National energy company / NOC",
+   "buyer_org_type": "Национальная энергокомпания",
+   "buyer_role": "директор по стратегии / планированию капитала",
+   "jurisdiction_scope": "1 программа CAPEX",
+   "title_ru": "CAPEX-портфель при ценовом стрессе",
+   "title_en": "CAPEX portfolio under price stress",
+   "need_hypothesis_ru": "Сравнить заранее заданные инвестиционные сценарии при разных ценах и стоимости поставок.",
+   "need_hypothesis_en": "Compare pre-defined investment scenarios under different prices and supply costs.",
+   "question_ru": "Какой из 3 графиков CAPEX сохраняет заданный диапазон бюджета?",
+   "question_en": "Which of three CAPEX schedules stays within the target budget range?",
+   "deliverables_ru": "Портфельный сценарный memo, пороги пересмотра, Excel-модель.",
+   "deliverables_en": "Portfolio scenario memo, review thresholds and an Excel model.",
+   "modules": [
+    "Ормуз/бюджет",
+    "FLAKS TCO"
+   ],
+   "duration_weeks": 6,
+   "fixed_price_usd": 25000,
+   "price_terms_ru": "Фиксированная list price за перечисленный scope: 25 000 USD  без НДС; сторонние лицензии и вне-scope работы отдельно.",
+   "price_terms_en": "Fixed list price for the stated scope: USD 25 000  taxes excluded; this is not a market benchmark or client-budget claim; third-party licences and out-of-scope work excluded.",
+   "assumptions_ru": [
+    "Данные клиента — только агрегированные и добровольно предоставленные; допустимы публичные данные.",
+    "OSINT_ONLY: лицензируемые источники не включены в цену без отдельного письменного разрешения."
+   ],
+   "assumptions_en": [
+    "Client data is aggregated and voluntarily provided; public data may be used.",
+    "OSINT_ONLY: licensed sources are excluded unless separately authorized in writing."
+   ],
+   "exclusions_ru": [
+    "Не является прогнозом, инвестиционной рекомендацией или юридическим заключением.",
+    "Нет гарантии экономии, точности или решения инвестиционного комитета."
+   ],
+   "exclusions_en": [
+    "Not a forecast, investment recommendation or legal opinion.",
+    "No guarantee of savings, accuracy or investment-committee outcome."
+   ],
+   "evidence_status": "HYPOTHESIS",
+   "not_client": true,
+   "sent": false,
+   "status": "DRAFT"
+  },
+  {
+   "id": "C25-007",
+   "segment": "State utility / power and gas",
+   "buyer_org_type": "Государственная электро- или газовая компания",
+   "buyer_role": "директор закупок / руководитель топливного портфеля",
+   "jurisdiction_scope": "2 закупочные категории",
+   "title_ru": "TCO закупки топлива и оборудования",
+   "title_en": "Fuel and equipment procurement TCO",
+   "need_hypothesis_ru": "Сопоставить публичные/клиентские предложения поставщиков на одинаковых допущениях TCO.",
+   "need_hypothesis_en": "Compare public or client-provided supplier offers on consistent TCO assumptions.",
+   "question_ru": "Как изменится общий TCO двух категорий при индексации и логистическом стрессе?",
+   "question_en": "How does total TCO for two categories change under indexation and logistics stress?",
+   "deliverables_ru": "Матрица сравнения, 2 категории, 7 компонентов TCO, CFO-brief.",
+   "deliverables_en": "Comparison matrix, two categories, seven TCO components and a CFO brief.",
+   "modules": [
+    "FLAKS TCO",
+    "газ/СПГ"
+   ],
+   "duration_weeks": 4,
+   "fixed_price_usd": 15000,
+   "price_terms_ru": "Фиксированная list price за перечисленный scope: 15 000 USD  без НДС; сторонние лицензии и вне-scope работы отдельно.",
+   "price_terms_en": "Fixed list price for the stated scope: USD 15 000  taxes excluded; this is not a market benchmark or client-budget claim; third-party licences and out-of-scope work excluded.",
+   "assumptions_ru": [
+    "Данные клиента — только агрегированные и добровольно предоставленные; допустимы публичные данные.",
+    "OSINT_ONLY: лицензируемые источники не включены в цену без отдельного письменного разрешения."
+   ],
+   "assumptions_en": [
+    "Client data is aggregated and voluntarily provided; public data may be used.",
+    "OSINT_ONLY: licensed sources are excluded unless separately authorized in writing."
+   ],
+   "exclusions_ru": [
+    "Не является прогнозом, инвестиционной рекомендацией или юридическим заключением.",
+    "Нет гарантии экономии, точности или решения инвестиционного комитета."
+   ],
+   "exclusions_en": [
+    "Not a forecast, investment recommendation or legal opinion.",
+    "No guarantee of savings, accuracy or investment-committee outcome."
+   ],
+   "evidence_status": "HYPOTHESIS",
+   "not_client": true,
+   "sent": false,
+   "status": "DRAFT"
+  },
+  {
+   "id": "C25-008",
+   "segment": "Sovereign wealth fund / energy transition",
+   "buyer_org_type": "Фонд национального благосостояния / энергопереход",
+   "buyer_role": "директор тематических инвестиций / риск-комитет",
+   "jurisdiction_scope": "публичные сектора и страны",
+   "title_ru": "Сценарии энергоперехода для инвестиционного комитета",
+   "title_en": "Transition scenarios for an investment committee",
+   "need_hypothesis_ru": "Проверить портфельные гипотезы по публичным секторам и энергетическим сценариям.",
+   "need_hypothesis_en": "Test portfolio hypotheses across public sectors and energy scenarios.",
+   "question_ru": "Как меняются отраслевые диапазоны при ускоренном и замедленном переходе?",
+   "question_en": "How do sector ranges change under faster and slower transition paths?",
+   "deliverables_ru": "Сценарный слайд-пак, assumptions ledger, 1 воркшоп.",
+   "deliverables_en": "Scenario slide pack, assumptions ledger and one workshop.",
+   "modules": [
+    "геополитика",
+    "газ/СПГ"
+   ],
+   "duration_weeks": 6,
+   "fixed_price_usd": 20000,
+   "price_terms_ru": "Фиксированная list price за перечисленный scope: 20 000 USD  без НДС; сторонние лицензии и вне-scope работы отдельно.",
+   "price_terms_en": "Fixed list price for the stated scope: USD 20 000  taxes excluded; this is not a market benchmark or client-budget claim; third-party licences and out-of-scope work excluded.",
+   "assumptions_ru": [
+    "Данные клиента — только агрегированные и добровольно предоставленные; допустимы публичные данные.",
+    "OSINT_ONLY: лицензируемые источники не включены в цену без отдельного письменного разрешения."
+   ],
+   "assumptions_en": [
+    "Client data is aggregated and voluntarily provided; public data may be used.",
+    "OSINT_ONLY: licensed sources are excluded unless separately authorized in writing."
+   ],
+   "exclusions_ru": [
+    "Не является прогнозом, инвестиционной рекомендацией или юридическим заключением.",
+    "Нет гарантии экономии, точности или решения инвестиционного комитета."
+   ],
+   "exclusions_en": [
+    "Not a forecast, investment recommendation or legal opinion.",
+    "No guarantee of savings, accuracy or investment-committee outcome."
+   ],
+   "evidence_status": "HYPOTHESIS",
+   "not_client": true,
+   "sent": false,
+   "status": "DRAFT"
+  },
+  {
+   "id": "C25-009",
+   "segment": "Export credit agency",
+   "buyer_org_type": "Экспортно-кредитное агентство",
+   "buyer_role": "директор странового риска / гарантирования",
+   "jurisdiction_scope": "1 страна × 1 отрасль",
+   "title_ru": "Страновой риск экспортного портфеля",
+   "title_en": "Export-portfolio country risk",
+   "need_hypothesis_ru": "Проверить сценарии отраслевого и валютно-энергетического риска по публичным данным.",
+   "need_hypothesis_en": "Review sector, currency and energy-risk scenarios using public data.",
+   "question_ru": "Какие стресс-сценарии включить в комитет по гарантиям?",
+   "question_en": "Which stress scenarios should be reviewed by the guarantee committee?",
+   "deliverables_ru": "Страновой профиль, 3 сценария, карта источников и неизвестных.",
+   "deliverables_en": "Country profile, three scenarios, source and unknowns map.",
+   "modules": [
+    "геополитика",
+    "Ормуз/бюджет"
+   ],
+   "duration_weeks": 6,
+   "fixed_price_usd": 20000,
+   "price_terms_ru": "Фиксированная list price за перечисленный scope: 20 000 USD  без НДС; сторонние лицензии и вне-scope работы отдельно.",
+   "price_terms_en": "Fixed list price for the stated scope: USD 20 000  taxes excluded; this is not a market benchmark or client-budget claim; third-party licences and out-of-scope work excluded.",
+   "assumptions_ru": [
+    "Данные клиента — только агрегированные и добровольно предоставленные; допустимы публичные данные.",
+    "OSINT_ONLY: лицензируемые источники не включены в цену без отдельного письменного разрешения."
+   ],
+   "assumptions_en": [
+    "Client data is aggregated and voluntarily provided; public data may be used.",
+    "OSINT_ONLY: licensed sources are excluded unless separately authorized in writing."
+   ],
+   "exclusions_ru": [
+    "Не является прогнозом, инвестиционной рекомендацией или юридическим заключением.",
+    "Нет гарантии экономии, точности или решения инвестиционного комитета."
+   ],
+   "exclusions_en": [
+    "Not a forecast, investment recommendation or legal opinion.",
+    "No guarantee of savings, accuracy or investment-committee outcome."
+   ],
+   "evidence_status": "HYPOTHESIS",
+   "not_client": true,
+   "sent": false,
+   "status": "DRAFT"
+  },
+  {
+   "id": "C25-010",
+   "segment": "Public procurement authority",
+   "buyer_org_type": "Орган государственных закупок",
+   "buyer_role": "руководитель категории / аналитик закупочной политики",
+   "jurisdiction_scope": "до 3 категорий",
+   "title_ru": "FLAKS для госзакупок: TCO и cap/floor",
+   "title_en": "FLAKS for public procurement: TCO and cap/floor",
+   "need_hypothesis_ru": "Смоделировать одинаковую методику оценки TCO без привязки к конкретному поставщику.",
+   "need_hypothesis_en": "Apply a consistent supplier-neutral TCO method.",
+   "question_ru": "Как меняется бюджет категории при 2 индексах и заданном cap/floor?",
+   "question_en": "How does category budget change under two indices and a defined cap/floor?",
+   "deliverables_ru": "Шаблон оценочной матрицы, 3 категории, пример на обезличенных данных.",
+   "deliverables_en": "Evaluation matrix template, three categories and an anonymized example.",
+   "modules": [
+    "FLAKS TCO"
+   ],
+   "duration_weeks": 3,
+   "fixed_price_usd": 9500,
+   "price_terms_ru": "Фиксированная list price за перечисленный scope: 9 500 USD  без НДС; сторонние лицензии и вне-scope работы отдельно.",
+   "price_terms_en": "Fixed list price for the stated scope: USD 9 500  taxes excluded; this is not a market benchmark or client-budget claim; third-party licences and out-of-scope work excluded.",
+   "assumptions_ru": [
+    "Данные клиента — только агрегированные и добровольно предоставленные; допустимы публичные данные.",
+    "OSINT_ONLY: лицензируемые источники не включены в цену без отдельного письменного разрешения."
+   ],
+   "assumptions_en": [
+    "Client data is aggregated and voluntarily provided; public data may be used.",
+    "OSINT_ONLY: licensed sources are excluded unless separately authorized in writing."
+   ],
+   "exclusions_ru": [
+    "Не является прогнозом, инвестиционной рекомендацией или юридическим заключением.",
+    "Нет гарантии экономии, точности или решения инвестиционного комитета."
+   ],
+   "exclusions_en": [
+    "Not a forecast, investment recommendation or legal opinion.",
+    "No guarantee of savings, accuracy or investment-committee outcome."
+   ],
+   "evidence_status": "HYPOTHESIS",
+   "not_client": true,
+   "sent": false,
+   "status": "DRAFT"
+  },
+  {
+   "id": "C25-011",
+   "segment": "Development agency / donor",
+   "buyer_org_type": "Агентство развития / донорский фонд",
+   "buyer_role": "директор программ / руководитель мониторинга",
+   "jurisdiction_scope": "портфель программ 1 страны",
+   "title_ru": "Энергетический шок в бюджете программ",
+   "title_en": "Energy shock in programme budgets",
+   "need_hypothesis_ru": "Проверить чувствительность агрегированного бюджета программ к ценам энергии и логистике.",
+   "need_hypothesis_en": "Assess programme-budget sensitivity to energy prices and logistics.",
+   "question_ru": "Какие расходы/сроки меняются в базовом и двух стресс-сценариях?",
+   "question_en": "Which costs and timelines change in the base and two stress scenarios?",
+   "deliverables_ru": "Краткий бриф, 3 сценария, допущения и данные, которые нужно запросить.",
+   "deliverables_en": "Brief, three scenarios, assumptions and data request list.",
+   "modules": [
+    "газ/СПГ",
+    "геополитика"
+   ],
+   "duration_weeks": 4,
+   "fixed_price_usd": 15000,
+   "price_terms_ru": "Фиксированная list price за перечисленный scope: 15 000 USD  без НДС; сторонние лицензии и вне-scope работы отдельно.",
+   "price_terms_en": "Fixed list price for the stated scope: USD 15 000  taxes excluded; this is not a market benchmark or client-budget claim; third-party licences and out-of-scope work excluded.",
+   "assumptions_ru": [
+    "Данные клиента — только агрегированные и добровольно предоставленные; допустимы публичные данные.",
+    "OSINT_ONLY: лицензируемые источники не включены в цену без отдельного письменного разрешения."
+   ],
+   "assumptions_en": [
+    "Client data is aggregated and voluntarily provided; public data may be used.",
+    "OSINT_ONLY: licensed sources are excluded unless separately authorized in writing."
+   ],
+   "exclusions_ru": [
+    "Не является прогнозом, инвестиционной рекомендацией или юридическим заключением.",
+    "Нет гарантии экономии, точности или решения инвестиционного комитета."
+   ],
+   "exclusions_en": [
+    "Not a forecast, investment recommendation or legal opinion.",
+    "No guarantee of savings, accuracy or investment-committee outcome."
+   ],
+   "evidence_status": "HYPOTHESIS",
+   "not_client": true,
+   "sent": false,
+   "status": "DRAFT"
+  },
+  {
+   "id": "C25-012",
+   "segment": "Large foundation / grantmaker",
+   "buyer_org_type": "Крупный фонд / грантодатель",
+   "buyer_role": "директор программ / финансовый контролёр",
+   "jurisdiction_scope": "1 программа, агрегированные расходы",
+   "title_ru": "Индексация затрат грантовых программ",
+   "title_en": "Grant-programme cost indexation",
+   "need_hypothesis_ru": "Оценить общие сценарии топливных/логистических затрат без анализа частных получателей.",
+   "need_hypothesis_en": "Estimate aggregate fuel/logistics cost scenarios without profiling individual recipients.",
+   "question_ru": "Какой резерв бюджета нужен при двух индексах и одном логистическом стрессе?",
+   "question_en": "What budget buffer is needed under two indices and one logistics stress?",
+   "deliverables_ru": "2-недельный discovery + 1 сценарный шаблон; фиксированный scope.",
+   "deliverables_en": "Two-week discovery plus one scenario template; fixed scope.",
+   "modules": [
+    "FLAKS TCO",
+    "геополитика"
+   ],
+   "duration_weeks": 2,
+   "fixed_price_usd": 7500,
+   "price_terms_ru": "Фиксированная list price за перечисленный scope: 7 500 USD  без НДС; сторонние лицензии и вне-scope работы отдельно.",
+   "price_terms_en": "Fixed list price for the stated scope: USD 7 500  taxes excluded; this is not a market benchmark or client-budget claim; third-party licences and out-of-scope work excluded.",
+   "assumptions_ru": [
+    "Данные клиента — только агрегированные и добровольно предоставленные; допустимы публичные данные.",
+    "OSINT_ONLY: лицензируемые источники не включены в цену без отдельного письменного разрешения."
+   ],
+   "assumptions_en": [
+    "Client data is aggregated and voluntarily provided; public data may be used.",
+    "OSINT_ONLY: licensed sources are excluded unless separately authorized in writing."
+   ],
+   "exclusions_ru": [
+    "Не является прогнозом, инвестиционной рекомендацией или юридическим заключением.",
+    "Нет гарантии экономии, точности или решения инвестиционного комитета."
+   ],
+   "exclusions_en": [
+    "Not a forecast, investment recommendation or legal opinion.",
+    "No guarantee of savings, accuracy or investment-committee outcome."
+   ],
+   "evidence_status": "HYPOTHESIS",
+   "not_client": true,
+   "sent": false,
+   "status": "DRAFT"
+  },
+  {
+   "id": "C25-013",
+   "segment": "Commercial bank / credit risk",
+   "buyer_org_type": "Коммерческий банк",
+   "buyer_role": "директор портфельного риска / секторный аналитик",
+   "jurisdiction_scope": "агрегированные экспозиции 1 сектора",
+   "title_ru": "Секторный стресс для кредитного комитета",
+   "title_en": "Sector stress for a credit committee",
+   "need_hypothesis_ru": "Перевести публичные макросценарии в диапазоны для агрегированного сектора.",
+   "need_hypothesis_en": "Translate public macro scenarios into ranges for an aggregate sector.",
+   "question_ru": "Как три цены энергии меняют stress bands для выбранного сектора?",
+   "question_en": "How do three energy-price paths change the selected sector's stress bands?",
+   "deliverables_ru": "Мемо 6 стр., три сценария, без оценки конкретных заёмщиков.",
+   "deliverables_en": "Six-page memo, three scenarios, no individual borrower assessment.",
+   "modules": [
+    "Ормуз/бюджет",
+    "геополитика"
+   ],
+   "duration_weeks": 4,
+   "fixed_price_usd": 15000,
+   "price_terms_ru": "Фиксированная list price за перечисленный scope: 15 000 USD  без НДС; сторонние лицензии и вне-scope работы отдельно.",
+   "price_terms_en": "Fixed list price for the stated scope: USD 15 000  taxes excluded; this is not a market benchmark or client-budget claim; third-party licences and out-of-scope work excluded.",
+   "assumptions_ru": [
+    "Данные клиента — только агрегированные и добровольно предоставленные; допустимы публичные данные.",
+    "OSINT_ONLY: лицензируемые источники не включены в цену без отдельного письменного разрешения."
+   ],
+   "assumptions_en": [
+    "Client data is aggregated and voluntarily provided; public data may be used.",
+    "OSINT_ONLY: licensed sources are excluded unless separately authorized in writing."
+   ],
+   "exclusions_ru": [
+    "Не является прогнозом, инвестиционной рекомендацией или юридическим заключением.",
+    "Нет гарантии экономии, точности или решения инвестиционного комитета."
+   ],
+   "exclusions_en": [
+    "Not a forecast, investment recommendation or legal opinion.",
+    "No guarantee of savings, accuracy or investment-committee outcome."
+   ],
+   "evidence_status": "HYPOTHESIS",
+   "not_client": true,
+   "sent": false,
+   "status": "DRAFT"
+  },
+  {
+   "id": "C25-014",
+   "segment": "Insurer / reinsurer",
+   "buyer_org_type": "Страховая / перестраховочная компания",
+   "buyer_role": "руководитель enterprise risk / моделирования сценариев",
+   "jurisdiction_scope": "агрегированный энергетический портфель",
+   "title_ru": "Сценарии энергетического supply-chain риска",
+   "title_en": "Energy supply-chain risk scenarios",
+   "need_hypothesis_ru": "Сопоставить сценарии фрахта, газовых цен и снабжения для агрегированных классов активов.",
+   "need_hypothesis_en": "Compare freight, gas-price and supply scenarios for aggregate asset classes.",
+   "question_ru": "Какие 3 стресс-сценария стоит вынести на риск-комитет?",
+   "question_en": "Which three stress scenarios should go to the risk committee?",
+   "deliverables_ru": "Карта каналов, 3 сценария, источник/допущение по каждому каналу.",
+   "deliverables_en": "Channel map, three scenarios and source/assumption per channel.",
+   "modules": [
+    "геополитика",
+    "газ/СПГ"
+   ],
+   "duration_weeks": 6,
+   "fixed_price_usd": 22000,
+   "price_terms_ru": "Фиксированная list price за перечисленный scope: 22 000 USD  без НДС; сторонние лицензии и вне-scope работы отдельно.",
+   "price_terms_en": "Fixed list price for the stated scope: USD 22 000  taxes excluded; this is not a market benchmark or client-budget claim; third-party licences and out-of-scope work excluded.",
+   "assumptions_ru": [
+    "Данные клиента — только агрегированные и добровольно предоставленные; допустимы публичные данные.",
+    "OSINT_ONLY: лицензируемые источники не включены в цену без отдельного письменного разрешения."
+   ],
+   "assumptions_en": [
+    "Client data is aggregated and voluntarily provided; public data may be used.",
+    "OSINT_ONLY: licensed sources are excluded unless separately authorized in writing."
+   ],
+   "exclusions_ru": [
+    "Не является прогнозом, инвестиционной рекомендацией или юридическим заключением.",
+    "Нет гарантии экономии, точности или решения инвестиционного комитета."
+   ],
+   "exclusions_en": [
+    "Not a forecast, investment recommendation or legal opinion.",
+    "No guarantee of savings, accuracy or investment-committee outcome."
+   ],
+   "evidence_status": "HYPOTHESIS",
+   "not_client": true,
+   "sent": false,
+   "status": "DRAFT"
+  },
+  {
+   "id": "C25-015",
+   "segment": "Infrastructure / pension investor",
+   "buyer_org_type": "Инфраструктурный или пенсионный инвестор",
+   "buyer_role": "директор инфраструктурных инвестиций / риск-комитет",
+   "jurisdiction_scope": "публичные энергозависимые активы",
+   "title_ru": "Риск инфраструктурных активов при смене энергетического режима",
+   "title_en": "Infrastructure risk under an energy-regime shift",
+   "need_hypothesis_ru": "Сопоставить регуляторные, энергетические и логистические сценарии на уровне классов активов.",
+   "need_hypothesis_en": "Compare regulatory, energy and logistics scenarios at asset-class level.",
+   "question_ru": "Как меняются cost bands портфеля в 3 сценариях?",
+   "question_en": "How do portfolio cost bands change across three scenarios?",
+   "deliverables_ru": "Карта сценариев, агрегированная чувствительность, 1 воркшоп.",
+   "deliverables_en": "Scenario map, aggregate sensitivity and one workshop.",
+   "modules": [
+    "геополитика",
+    "газ/СПГ"
+   ],
+   "duration_weeks": 6,
+   "fixed_price_usd": 25000,
+   "price_terms_ru": "Фиксированная list price за перечисленный scope: 25 000 USD  без НДС; сторонние лицензии и вне-scope работы отдельно.",
+   "price_terms_en": "Fixed list price for the stated scope: USD 25 000  taxes excluded; this is not a market benchmark or client-budget claim; third-party licences and out-of-scope work excluded.",
+   "assumptions_ru": [
+    "Данные клиента — только агрегированные и добровольно предоставленные; допустимы публичные данные.",
+    "OSINT_ONLY: лицензируемые источники не включены в цену без отдельного письменного разрешения."
+   ],
+   "assumptions_en": [
+    "Client data is aggregated and voluntarily provided; public data may be used.",
+    "OSINT_ONLY: licensed sources are excluded unless separately authorized in writing."
+   ],
+   "exclusions_ru": [
+    "Не является прогнозом, инвестиционной рекомендацией или юридическим заключением.",
+    "Нет гарантии экономии, точности или решения инвестиционного комитета."
+   ],
+   "exclusions_en": [
+    "Not a forecast, investment recommendation or legal opinion.",
+    "No guarantee of savings, accuracy or investment-committee outcome."
+   ],
+   "evidence_status": "HYPOTHESIS",
+   "not_client": true,
+   "sent": false,
+   "status": "DRAFT"
+  },
+  {
+   "id": "C25-016",
+   "segment": "Industry association / chamber",
+   "buyer_org_type": "Отраслевая ассоциация / торговая палата",
+   "buyer_role": "директор аналитики / policy lead",
+   "jurisdiction_scope": "агрегированные данные членов",
+   "title_ru": "Квартальный industry shock brief",
+   "title_en": "Quarterly industry shock brief",
+   "need_hypothesis_ru": "Собрать обезличенные отраслевые сценарии из открытых источников и добровольных агрегатов.",
+   "need_hypothesis_en": "Prepare anonymized sector scenarios from open sources and voluntary aggregates.",
+   "question_ru": "Какие факторы меняют отраслевые затраты и поставки в следующем квартале?",
+   "question_en": "Which factors change sector costs and supply next quarter?",
+   "deliverables_ru": "Один выпуск брифа и шаблон обновления; не включает данные членов без разрешения.",
+   "deliverables_en": "One brief plus update template; no member data without permission.",
+   "modules": [
+    "геополитика",
+    "FLAKS TCO"
+   ],
+   "duration_weeks": 3,
+   "fixed_price_usd": 9500,
+   "price_terms_ru": "Фиксированная list price за перечисленный scope: 9 500 USD  без НДС; сторонние лицензии и вне-scope работы отдельно.",
+   "price_terms_en": "Fixed list price for the stated scope: USD 9 500  taxes excluded; this is not a market benchmark or client-budget claim; third-party licences and out-of-scope work excluded.",
+   "assumptions_ru": [
+    "Данные клиента — только агрегированные и добровольно предоставленные; допустимы публичные данные.",
+    "OSINT_ONLY: лицензируемые источники не включены в цену без отдельного письменного разрешения."
+   ],
+   "assumptions_en": [
+    "Client data is aggregated and voluntarily provided; public data may be used.",
+    "OSINT_ONLY: licensed sources are excluded unless separately authorized in writing."
+   ],
+   "exclusions_ru": [
+    "Не является прогнозом, инвестиционной рекомендацией или юридическим заключением.",
+    "Нет гарантии экономии, точности или решения инвестиционного комитета."
+   ],
+   "exclusions_en": [
+    "Not a forecast, investment recommendation or legal opinion.",
+    "No guarantee of savings, accuracy or investment-committee outcome."
+   ],
+   "evidence_status": "HYPOTHESIS",
+   "not_client": true,
+   "sent": false,
+   "status": "DRAFT"
+  },
+  {
+   "id": "C25-017",
+   "segment": "Public authority / emergency planning",
+   "buyer_org_type": "Государственный орган / гражданское планирование",
+   "buyer_role": "директор аналитики / руководитель планирования",
+   "jurisdiction_scope": "агрегированный сценарный контур",
+   "title_ru": "Настольный tabletop по энергетическому шоку",
+   "title_en": "Energy-shock tabletop exercise",
+   "need_hypothesis_ru": "Проверить координацию по заранее описанным сценариям, без разведданных и персональных профилей.",
+   "need_hypothesis_en": "Exercise coordination using predefined scenarios, without intelligence or personal profiling.",
+   "question_ru": "Как реагируют бюджет, поставки и отрасли на 2 стресс-сценария?",
+   "question_en": "How do budgets, supply and sectors respond to two stress scenarios?",
+   "deliverables_ru": "2-часовой воркшоп + сценарные карточки и after-action note.",
+   "deliverables_en": "Two-hour workshop, scenario cards and after-action note.",
+   "modules": [
+    "геополитика",
+    "газ/СПГ"
+   ],
+   "duration_weeks": 2,
+   "fixed_price_usd": 7500,
+   "price_terms_ru": "Фиксированная list price за перечисленный scope: 7 500 USD  без НДС; сторонние лицензии и вне-scope работы отдельно.",
+   "price_terms_en": "Fixed list price for the stated scope: USD 7 500  taxes excluded; this is not a market benchmark or client-budget claim; third-party licences and out-of-scope work excluded.",
+   "assumptions_ru": [
+    "Данные клиента — только агрегированные и добровольно предоставленные; допустимы публичные данные.",
+    "OSINT_ONLY: лицензируемые источники не включены в цену без отдельного письменного разрешения."
+   ],
+   "assumptions_en": [
+    "Client data is aggregated and voluntarily provided; public data may be used.",
+    "OSINT_ONLY: licensed sources are excluded unless separately authorized in writing."
+   ],
+   "exclusions_ru": [
+    "Не является прогнозом, инвестиционной рекомендацией или юридическим заключением.",
+    "Нет гарантии экономии, точности или решения инвестиционного комитета."
+   ],
+   "exclusions_en": [
+    "Not a forecast, investment recommendation or legal opinion.",
+    "No guarantee of savings, accuracy or investment-committee outcome."
+   ],
+   "evidence_status": "HYPOTHESIS",
+   "not_client": true,
+   "sent": false,
+   "status": "DRAFT"
+  },
+  {
+   "id": "C25-018",
+   "segment": "Large energy-intensive manufacturer",
+   "buyer_org_type": "Крупный энергоёмкий производитель",
+   "buyer_role": "директор по закупкам / CFO / supply-chain risk",
+   "jurisdiction_scope": "1 площадка, 2–3 категории",
+   "title_ru": "Энергетический бюджет и TCO поставок",
+   "title_en": "Energy budget and supply TCO",
+   "need_hypothesis_ru": "Сравнить тарифные/топливные стресс-сценарии и TCO критичных категорий.",
+   "need_hypothesis_en": "Compare tariff/fuel stress scenarios and TCO of critical categories.",
+   "question_ru": "Какой диапазон бюджета выдерживают 3 цены энергии и два срока поставки?",
+   "question_en": "What budget range withstands three energy prices and two lead times?",
+   "deliverables_ru": "3 категории, 3 сценария, Excel/PDF, one workshop.",
+   "deliverables_en": "Three categories, three scenarios, Excel/PDF and one workshop.",
+   "modules": [
+    "FLAKS TCO",
+    "газ/СПГ"
+   ],
+   "duration_weeks": 6,
+   "fixed_price_usd": 25000,
+   "price_terms_ru": "Фиксированная list price за перечисленный scope: 25 000 USD  без НДС; сторонние лицензии и вне-scope работы отдельно.",
+   "price_terms_en": "Fixed list price for the stated scope: USD 25 000  taxes excluded; this is not a market benchmark or client-budget claim; third-party licences and out-of-scope work excluded.",
+   "assumptions_ru": [
+    "Данные клиента — только агрегированные и добровольно предоставленные; допустимы публичные данные.",
+    "OSINT_ONLY: лицензируемые источники не включены в цену без отдельного письменного разрешения."
+   ],
+   "assumptions_en": [
+    "Client data is aggregated and voluntarily provided; public data may be used.",
+    "OSINT_ONLY: licensed sources are excluded unless separately authorized in writing."
+   ],
+   "exclusions_ru": [
+    "Не является прогнозом, инвестиционной рекомендацией или юридическим заключением.",
+    "Нет гарантии экономии, точности или решения инвестиционного комитета."
+   ],
+   "exclusions_en": [
+    "Not a forecast, investment recommendation or legal opinion.",
+    "No guarantee of savings, accuracy or investment-committee outcome."
+   ],
+   "evidence_status": "HYPOTHESIS",
+   "not_client": true,
+   "sent": false,
+   "status": "DRAFT"
+  },
+  {
+   "id": "C25-019",
+   "segment": "Port / airport authority",
+   "buyer_org_type": "Портовая / аэропортовая администрация",
+   "buyer_role": "директор операций / руководитель топлива и логистики",
+   "jurisdiction_scope": "один объект, агрегированные потоки",
+   "title_ru": "Логистический стресс для критической инфраструктуры",
+   "title_en": "Logistics stress for critical infrastructure",
+   "need_hypothesis_ru": "Оценить чувствительность закупок и графика поставок к фрахту и энергоценам.",
+   "need_hypothesis_en": "Assess procurement and schedule sensitivity to freight and energy prices.",
+   "question_ru": "Какой резерв времени и бюджета нужен при перебое на 2/6 недель?",
+   "question_en": "What time and budget buffer is needed for a 2/6-week disruption?",
+   "deliverables_ru": "Scenario map, 2 delay bands, 2 budget bands, без operational-security data.",
+   "deliverables_en": "Scenario map, two delay bands, two budget bands, no operational-security data.",
+   "modules": [
+    "геополитика",
+    "FLAKS TCO"
+   ],
+   "duration_weeks": 6,
+   "fixed_price_usd": 20000,
+   "price_terms_ru": "Фиксированная list price за перечисленный scope: 20 000 USD  без НДС; сторонние лицензии и вне-scope работы отдельно.",
+   "price_terms_en": "Fixed list price for the stated scope: USD 20 000  taxes excluded; this is not a market benchmark or client-budget claim; third-party licences and out-of-scope work excluded.",
+   "assumptions_ru": [
+    "Данные клиента — только агрегированные и добровольно предоставленные; допустимы публичные данные.",
+    "OSINT_ONLY: лицензируемые источники не включены в цену без отдельного письменного разрешения."
+   ],
+   "assumptions_en": [
+    "Client data is aggregated and voluntarily provided; public data may be used.",
+    "OSINT_ONLY: licensed sources are excluded unless separately authorized in writing."
+   ],
+   "exclusions_ru": [
+    "Не является прогнозом, инвестиционной рекомендацией или юридическим заключением.",
+    "Нет гарантии экономии, точности или решения инвестиционного комитета."
+   ],
+   "exclusions_en": [
+    "Not a forecast, investment recommendation or legal opinion.",
+    "No guarantee of savings, accuracy or investment-committee outcome."
+   ],
+   "evidence_status": "HYPOTHESIS",
+   "not_client": true,
+   "sent": false,
+   "status": "DRAFT"
+  },
+  {
+   "id": "C25-020",
+   "segment": "University endowment / research foundation",
+   "buyer_org_type": "Университетский эндаумент / исследовательский фонд",
+   "buyer_role": "CIO / инвестиционный комитет",
+   "jurisdiction_scope": "публичный инвестиционный мандат",
+   "title_ru": "Сценарии отраслевой экспозиции эндаумента",
+   "title_en": "Endowment sector-exposure scenarios",
+   "need_hypothesis_ru": "Проверить агрегированный публичный портфель по тематическим energy/industry scenarios.",
+   "need_hypothesis_en": "Stress-test aggregate public portfolio themes under energy/industry scenarios.",
+   "question_ru": "Какие макросценарии меняют диапазоны трёх секторов?",
+   "question_en": "Which macro scenarios change the ranges for three sectors?",
+   "deliverables_ru": "4-недельный brief, три сектора, source ledger; не stock-picking.",
+   "deliverables_en": "Four-week brief, three sectors and source ledger; no stock picking.",
+   "modules": [
+    "геополитика",
+    "Ормуз/бюджет"
+   ],
+   "duration_weeks": 3,
+   "fixed_price_usd": 9500,
+   "price_terms_ru": "Фиксированная list price за перечисленный scope: 9 500 USD  без НДС; сторонние лицензии и вне-scope работы отдельно.",
+   "price_terms_en": "Fixed list price for the stated scope: USD 9 500  taxes excluded; this is not a market benchmark or client-budget claim; third-party licences and out-of-scope work excluded.",
+   "assumptions_ru": [
+    "Данные клиента — только агрегированные и добровольно предоставленные; допустимы публичные данные.",
+    "OSINT_ONLY: лицензируемые источники не включены в цену без отдельного письменного разрешения."
+   ],
+   "assumptions_en": [
+    "Client data is aggregated and voluntarily provided; public data may be used.",
+    "OSINT_ONLY: licensed sources are excluded unless separately authorized in writing."
+   ],
+   "exclusions_ru": [
+    "Не является прогнозом, инвестиционной рекомендацией или юридическим заключением.",
+    "Нет гарантии экономии, точности или решения инвестиционного комитета."
+   ],
+   "exclusions_en": [
+    "Not a forecast, investment recommendation or legal opinion.",
+    "No guarantee of savings, accuracy or investment-committee outcome."
+   ],
+   "evidence_status": "HYPOTHESIS",
+   "not_client": true,
+   "sent": false,
+   "status": "DRAFT"
+  },
+  {
+   "id": "C25-021",
+   "segment": "Ministry of Energy / regulator",
+   "buyer_org_type": "Министерство энергетики / регулятор",
+   "buyer_role": "директор энергетической политики / планирования",
+   "jurisdiction_scope": "агрегированные поставки и цены",
+   "title_ru": "Сценарии безопасности энергоснабжения",
+   "title_en": "Energy-security scenarios",
+   "need_hypothesis_ru": "Сопоставить публичные сценарии спроса, поставок, LNG и маршрутов.",
+   "need_hypothesis_en": "Compare public demand, supply, LNG and route scenarios.",
+   "question_ru": "Какие 3 сочетания цены и маршрута создают наибольший бюджетный риск?",
+   "question_en": "Which three price/route combinations create the greatest budget risk?",
+   "deliverables_ru": "Карта каналов, 3 сценария, список первичных данных для регулятора.",
+   "deliverables_en": "Channel map, three scenarios and a primary-data checklist for the regulator.",
+   "modules": [
+    "газ/СПГ",
+    "геополитика"
+   ],
+   "duration_weeks": 4,
+   "fixed_price_usd": 15000,
+   "price_terms_ru": "Фиксированная list price за перечисленный scope: 15 000 USD  без НДС; сторонние лицензии и вне-scope работы отдельно.",
+   "price_terms_en": "Fixed list price for the stated scope: USD 15 000  taxes excluded; this is not a market benchmark or client-budget claim; third-party licences and out-of-scope work excluded.",
+   "assumptions_ru": [
+    "Данные клиента — только агрегированные и добровольно предоставленные; допустимы публичные данные.",
+    "OSINT_ONLY: лицензируемые источники не включены в цену без отдельного письменного разрешения."
+   ],
+   "assumptions_en": [
+    "Client data is aggregated and voluntarily provided; public data may be used.",
+    "OSINT_ONLY: licensed sources are excluded unless separately authorized in writing."
+   ],
+   "exclusions_ru": [
+    "Не является прогнозом, инвестиционной рекомендацией или юридическим заключением.",
+    "Нет гарантии экономии, точности или решения инвестиционного комитета."
+   ],
+   "exclusions_en": [
+    "Not a forecast, investment recommendation or legal opinion.",
+    "No guarantee of savings, accuracy or investment-committee outcome."
+   ],
+   "evidence_status": "HYPOTHESIS",
+   "not_client": true,
+   "sent": false,
+   "status": "DRAFT"
+  },
+  {
+   "id": "C25-022",
+   "segment": "Sovereign fund / national development institution",
+   "buyer_org_type": "Суверенный фонд / национальный институт развития",
+   "buyer_role": "директор стратегии / риск-комитет",
+   "jurisdiction_scope": "международный портфель, агрегировано",
+   "title_ru": "Интегрированный портфельный стресс-тест",
+   "title_en": "Integrated portfolio stress test",
+   "need_hypothesis_ru": "Связать публичные macro, commodity и logistics scenarios в один портфельный диапазон.",
+   "need_hypothesis_en": "Combine public macro, commodity and logistics scenarios into a portfolio range.",
+   "question_ru": "Как меняются 5 секторных диапазонов в базовом и 3 стресс-сценариях?",
+   "question_en": "How do five sector ranges shift in the base and three stress scenarios?",
+   "deliverables_ru": "Полный сценарий 8–12 недель, 5 секторов, board-ready memo.",
+   "deliverables_en": "Full 8–12-week scenario, five sectors, board-ready memo.",
+   "modules": [
+    "Ормуз/бюджет",
+    "газ/СПГ",
+    "геополитика"
+   ],
+   "duration_weeks": 8,
+   "fixed_price_usd": 30000,
+   "price_terms_ru": "Фиксированная list price за перечисленный scope: 30 000 USD  без НДС; сторонние лицензии и вне-scope работы отдельно.",
+   "price_terms_en": "Fixed list price for the stated scope: USD 30 000  taxes excluded; this is not a market benchmark or client-budget claim; third-party licences and out-of-scope work excluded.",
+   "assumptions_ru": [
+    "Данные клиента — только агрегированные и добровольно предоставленные; допустимы публичные данные.",
+    "OSINT_ONLY: лицензируемые источники не включены в цену без отдельного письменного разрешения."
+   ],
+   "assumptions_en": [
+    "Client data is aggregated and voluntarily provided; public data may be used.",
+    "OSINT_ONLY: licensed sources are excluded unless separately authorized in writing."
+   ],
+   "exclusions_ru": [
+    "Не является прогнозом, инвестиционной рекомендацией или юридическим заключением.",
+    "Нет гарантии экономии, точности или решения инвестиционного комитета."
+   ],
+   "exclusions_en": [
+    "Not a forecast, investment recommendation or legal opinion.",
+    "No guarantee of savings, accuracy or investment-committee outcome."
+   ],
+   "evidence_status": "HYPOTHESIS",
+   "not_client": true,
+   "sent": false,
+   "status": "DRAFT"
+  },
+  {
+   "id": "C25-023",
+   "segment": "International development fund",
+   "buyer_org_type": "Международный фонд развития",
+   "buyer_role": "директор программ / страновой экономист",
+   "jurisdiction_scope": "2 страны, публичные данные",
+   "title_ru": "Сравнение энергобедности и бюджетной устойчивости",
+   "title_en": "Energy affordability and fiscal resilience comparison",
+   "need_hypothesis_ru": "Сравнить публичные агрегаты и сценарии по двум странам; без профилирования домохозяйств.",
+   "need_hypothesis_en": "Compare public aggregates and scenarios across two countries; no household profiling.",
+   "question_ru": "Где изменение цены сильнее влияет на доступность энергии и бюджет?",
+   "question_en": "Where does a price change affect energy affordability and budgets most?",
+   "deliverables_ru": "Сравнительный бриф, диапазоны, источники и пробелы данных.",
+   "deliverables_en": "Comparative brief, ranges, sources and data gaps.",
+   "modules": [
+    "газ/СПГ",
+    "Ормуз/бюджет"
+   ],
+   "duration_weeks": 6,
+   "fixed_price_usd": 20000,
+   "price_terms_ru": "Фиксированная list price за перечисленный scope: 20 000 USD  без НДС; сторонние лицензии и вне-scope работы отдельно.",
+   "price_terms_en": "Fixed list price for the stated scope: USD 20 000  taxes excluded; this is not a market benchmark or client-budget claim; third-party licences and out-of-scope work excluded.",
+   "assumptions_ru": [
+    "Данные клиента — только агрегированные и добровольно предоставленные; допустимы публичные данные.",
+    "OSINT_ONLY: лицензируемые источники не включены в цену без отдельного письменного разрешения."
+   ],
+   "assumptions_en": [
+    "Client data is aggregated and voluntarily provided; public data may be used.",
+    "OSINT_ONLY: licensed sources are excluded unless separately authorized in writing."
+   ],
+   "exclusions_ru": [
+    "Не является прогнозом, инвестиционной рекомендацией или юридическим заключением.",
+    "Нет гарантии экономии, точности или решения инвестиционного комитета."
+   ],
+   "exclusions_en": [
+    "Not a forecast, investment recommendation or legal opinion.",
+    "No guarantee of savings, accuracy or investment-committee outcome."
+   ],
+   "evidence_status": "HYPOTHESIS",
+   "not_client": true,
+   "sent": false,
+   "status": "DRAFT"
+  },
+  {
+   "id": "C25-024",
+   "segment": "Commodity-trading / logistics group",
+   "buyer_org_type": "Товарный трейдер / логистическая группа",
+   "buyer_role": "руководитель портфельного риска / диспетчеризации",
+   "jurisdiction_scope": "один маршрут и 2 продукта",
+   "title_ru": "Маршрутный риск и стоимость фрахта",
+   "title_en": "Route risk and freight-cost scenarios",
+   "need_hypothesis_ru": "Оценить сценарии фрахта, сроков и цены по одному маршруту, используя данные клиента/публичные ряды.",
+   "need_hypothesis_en": "Assess freight, timing and price scenarios on one route using client-provided/public series.",
+   "question_ru": "Как 2 перебоя маршрута меняют landed-cost диапазон?",
+   "question_en": "How do two route disruptions change the landed-cost range?",
+   "deliverables_ru": "4–6 недель, 1 маршрут, 2 товара, таблица landed-cost.",
+   "deliverables_en": "4–6 weeks, one route, two commodities and landed-cost table.",
+   "modules": [
+    "геополитика",
+    "FLAKS TCO"
+   ],
+   "duration_weeks": 4,
+   "fixed_price_usd": 18000,
+   "price_terms_ru": "Фиксированная list price за перечисленный scope: 18 000 USD  без НДС; сторонние лицензии и вне-scope работы отдельно.",
+   "price_terms_en": "Fixed list price for the stated scope: USD 18 000  taxes excluded; this is not a market benchmark or client-budget claim; third-party licences and out-of-scope work excluded.",
+   "assumptions_ru": [
+    "Данные клиента — только агрегированные и добровольно предоставленные; допустимы публичные данные.",
+    "OSINT_ONLY: лицензируемые источники не включены в цену без отдельного письменного разрешения."
+   ],
+   "assumptions_en": [
+    "Client data is aggregated and voluntarily provided; public data may be used.",
+    "OSINT_ONLY: licensed sources are excluded unless separately authorized in writing."
+   ],
+   "exclusions_ru": [
+    "Не является прогнозом, инвестиционной рекомендацией или юридическим заключением.",
+    "Нет гарантии экономии, точности или решения инвестиционного комитета."
+   ],
+   "exclusions_en": [
+    "Not a forecast, investment recommendation or legal opinion.",
+    "No guarantee of savings, accuracy or investment-committee outcome."
+   ],
+   "evidence_status": "HYPOTHESIS",
+   "not_client": true,
+   "sent": false,
+   "status": "DRAFT"
+  },
+  {
+   "id": "C25-025",
+   "segment": "Large corporate treasury / family office organization",
+   "buyer_org_type": "Корпоративное казначейство / офис управления капиталом организации",
+   "buyer_role": "CFO / руководитель казначейства",
+   "jurisdiction_scope": "публичная агрегированная валютно-энергетическая экспозиция",
+   "title_ru": "Казначейский стресс энергии, инфляции и FX",
+   "title_en": "Treasury stress: energy, inflation and FX",
+   "need_hypothesis_ru": "Проверить агрегированный корпоративный бюджет и валютную экспозицию без личных финансовых профилей.",
+   "need_hypothesis_en": "Stress-test aggregate corporate budget and FX exposure without personal financial profiles.",
+   "question_ru": "Как 3 энергоценовых сценария меняют cash-planning bands?",
+   "question_en": "How do three energy-price scenarios change cash-planning bands?",
+   "deliverables_ru": "Полный сценарий 8–12 недель, агрегированный cash bridge, assumptions ledger.",
+   "deliverables_en": "Full 8–12-week scenario, aggregate cash bridge, assumptions ledger.",
+   "modules": [
+    "Ормуз/бюджет",
+    "газ/СПГ"
+   ],
+   "duration_weeks": 8,
+   "fixed_price_usd": 25000,
+   "price_terms_ru": "Фиксированная list price за перечисленный scope: 25 000 USD  без НДС; сторонние лицензии и вне-scope работы отдельно.",
+   "price_terms_en": "Fixed list price for the stated scope: USD 25 000  taxes excluded; this is not a market benchmark or client-budget claim; third-party licences and out-of-scope work excluded.",
+   "assumptions_ru": [
+    "Данные клиента — только агрегированные и добровольно предоставленные; допустимы публичные данные.",
+    "OSINT_ONLY: лицензируемые источники не включены в цену без отдельного письменного разрешения."
+   ],
+   "assumptions_en": [
+    "Client data is aggregated and voluntarily provided; public data may be used.",
+    "OSINT_ONLY: licensed sources are excluded unless separately authorized in writing."
+   ],
+   "exclusions_ru": [
+    "Не является прогнозом, инвестиционной рекомендацией или юридическим заключением.",
+    "Нет гарантии экономии, точности или решения инвестиционного комитета."
+   ],
+   "exclusions_en": [
+    "Not a forecast, investment recommendation or legal opinion.",
+    "No guarantee of savings, accuracy or investment-committee outcome."
+   ],
+   "evidence_status": "HYPOTHESIS",
+   "not_client": true,
+   "sent": false,
+   "status": "DRAFT"
+  }
+ ]
+}
