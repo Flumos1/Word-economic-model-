@@ -8,8 +8,8 @@
 
 | # | Источник | Файл | Байт | SHA-256 | Наблюдений | Покрытие |
 |---|---|---|---|---|---|---|
-| 1 | Eurostat, `prc_hicp_manr` (HICP, annual rate) | `data/public/eurostat_hicp_monthly.csv` | 2 930 | `3c166519bdf722a8cdc3beb5a1d34f31b168414763811ec93b0d3d55ac953192` | 120 | EA и DE; 2021-01 .. 2025-12; monthly, CP00, RCH_A |
-| 2 | UN Comtrade public preview, C/A/HS | `data/public/un_comtrade_deu_hs27_2023.csv` | 333 | `e604992eb640c23f1b8a442e558014da42d724c09f2dadc9b461e1fcba743f3e` | 2 | DEU (276), partner World (0), HS chapter 27, 2023, flows X/M |
+| 1 | Eurostat, `prc_hicp_manr` (HICP, annual rate) | `data/public/eurostat_hicp_monthly.csv` | 2 930 | `10f4e89f5401a67a2d4018cb4c10ee81ac99d019dc5dfad9e7deb538f3bf92ef` | 120 | EA и DE; 2021-01 .. 2025-12; monthly, CP00, RCH_A |
+| 2 | UN Comtrade public preview, C/A/HS | `data/public/un_comtrade_deu_hs27_2023.csv` | 333 | `1a7c7a435da5c4a40a10f72faaf3c9768fb080a50fba7b76f43d36e517df6ea4` | 2 | DEU (276), partner World (0), HS chapter 27, 2023, flows X/M |
 
 Метаданные: `eurostat_hicp_monthly.meta.json` (1 341 B) и `un_comtrade_deu_hs27_2023.meta.json` (1 585 B); оба содержат точный `source_url`, `retrieved_at` = 2026-11-25, лицензию, coverage, `file_bytes`, `file_sha256`, ограничения и `schema = AMFE-PUBLIC-* /1.0.0`.
 

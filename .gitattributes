@@ -1,0 +1,10 @@
+# Git line-ending policy for data pins.
+#
+# Every committed aggregate under data/ carries its own SHA-256 in a neighbouring *.meta.json
+# sidecar; tests and CI compare those hashes byte-for-byte (docs/205, docs/236).  A checkout-time
+# CRLF conversion would silently change the bytes and break the pin, so these paths are explicitly
+# marked as text-free: git stores and checks them out verbatim on every platform.
+data/oil/*.csv -text
+data/oil/*.meta.json -text
+data/public/*.csv -text
+data/public/*.meta.json -text

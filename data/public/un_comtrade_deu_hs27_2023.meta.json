@@ -1,21 +1,21 @@
 {
- "dataset_id": "UN_COMTRADE_PREVIEW_C_A_HS",
- "name": "UN Comtrade annual goods trade: Germany, HS chapter 27 (mineral fuels), world partner, exports and imports, 2023",
- "source": "UN Comtrade public preview API (comtradeapi.un.org/public/v1/preview/C/A/HS)",
- "publisher": "United Nations Statistics Division",
- "source_url": "https://comtradeapi.un.org/public/v1/preview/C/A/HS?reporterCode=276&period=2023&cmdCode=27&flowCode=X&partnerCode=0",
- "other_source_urls": [
-  "https://comtradeapi.un.org/public/v1/preview/C/A/HS?reporterCode=276&period=2023&cmdCode=27&flowCode=M&partnerCode=0"
- ],
- "license": "UN Comtrade terms of use: free for non-commercial use with attribution; premium API limits apply; no re-sale",
- "retrieved_at": "2026-11-25",
- "unit": "USD (primaryValue); net weight in kg when reported",
- "frequency": "annual",
- "coverage": "reporter 276 (Germany), partner 0 (World), cmdCode 27 (HS chapter 27), flows X and M, period 2023; 2 observations",
- "file": "data/public/un_comtrade_deu_hs27_2023.csv",
- "file_bytes": 333,
- "file_sha256": "e604992eb640c23f1b8a442e558014da42d724c09f2dadc9b461e1fcba743f3e",
- "notes": "Compact public aggregate slice only (world totals, one reporter, one HS chapter, one year, exports and imports). Raw API responses, full bilateral matrices and the premium bulk API are not stored or committed. Values are as reported in the public preview; no revisions/vintage history and no PIT claim. Not for re-sale; attribution to UN Comtrade required.",
- "schema": "AMFE-PUBLIC-UN-COMTRADE/1.0.0",
- "observations": 2
+  "dataset_id": "UN_COMTRADE_PREVIEW_C_A_HS",
+  "name": "UN Comtrade annual goods trade: Germany, HS chapter 27 (mineral fuels), world partner, exports and imports, 2023",
+  "source": "UN Comtrade public preview API (comtradeapi.un.org/public/v1/preview/C/A/HS)",
+  "publisher": "United Nations Statistics Division",
+  "source_url": "https://comtradeapi.un.org/public/v1/preview/C/A/HS?reporterCode=276&period=2023&cmdCode=27&flowCode=X&partnerCode=0",
+  "other_source_urls": [
+    "https://comtradeapi.un.org/public/v1/preview/C/A/HS?reporterCode=276&period=2023&cmdCode=27&flowCode=M&partnerCode=0"
+  ],
+  "license": "UN Comtrade terms of use: free for non-commercial use with attribution; premium API limits apply; no re-sale",
+  "retrieved_at": "2026-11-25",
+  "unit": "USD (primaryValue); net weight in kg when reported",
+  "frequency": "annual",
+  "coverage": "reporter 276 (Germany), partner 0 (World), cmdCode 27 (HS chapter 27), flows X and M, period 2023; 2 observations",
+  "file": "data/public/un_comtrade_deu_hs27_2023.csv",
+  "file_bytes": 330,
+  "file_sha256": "1a7c7a435da5c4a40a10f72faaf3c9768fb080a50fba7b76f43d36e517df6ea4",
+  "notes": "Compact public aggregate slice only (world totals, one reporter, one HS chapter, one year, exports and imports). Raw API responses, full bilateral matrices and the premium bulk API are not stored or committed. Values are as reported in the public preview; no revisions/vintage history and no PIT claim. Not for re-sale; attribution to UN Comtrade required.",
+  "schema": "AMFE-PUBLIC-UN-COMTRADE/1.0.0",
+  "observations": 2
 }
