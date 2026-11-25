@@ -16,6 +16,8 @@ Endpoints (all ``GET`` unless noted):
 * ``GET /v1/forecast?target=&horizon=`` -- scenario envelope for a target (key required); oil
   targets are range-only, the gas target ``gas_ttf`` also carries the published central point and
   the sensitivity interval (the gateway recomputes neither);
+* ``GET /v1/metrics/prometheus`` -- Prometheus text exposition (``text/plain; version=0.0.4``) of
+  the same in-process request metrics (public, no key; no secrets and no wall-clock values);
 
 Security and policy:
 
@@ -71,6 +73,25 @@ GATEWAY_VERSION = "1.0.0"
 OPENAPI_VERSION = "3.0.3"
 METRICS_SCHEMA = "amfe.forecast_gateway.metrics.v1"
 SLA_SCHEMA = "amfe.forecast_gateway.sla.v1"
+JSON_CONTENT_TYPE = "application/json; charset=utf-8"
+PROMETHEUS_CONTENT_TYPE = "text/plain; version=0.0.4; charset=utf-8"
+#: Path template for ``GET /v1/scenarios/{id}`` (one bounded label, never the raw scenario id).
+PROMETHEUS_SCENARIO_PATH = "/v1/scenarios/{scenario_id}"
+#: Exact API paths that keep their own label in amfe_requests_by_path_total.  Anything else is
+#: collapsed (requests to scenario documents use the template label; unknown paths -> "other").
+PROMETHEUS_KNOWN_PATHS = (
+    "/openapi.json",
+    "/v1",
+    "/v1/status",
+    "/v1/health",
+    "/v1/metrics",
+    "/v1/metrics/prometheus",
+    "/v1/sla",
+    "/v1/modules",
+    "/v1/scenarios",
+    PROMETHEUS_SCENARIO_PATH,
+    "/v1/forecast",
+)
 SLA_TARGETS = {
     "availability": 0.995,
     "latency_p95_ms": 500,
@@ -629,8 +650,17 @@ def _load_product(snapshot: FeedSnapshot, *, allow_point: bool) -> None:
 @dataclass
 class Response:
     status: int
-    payload: dict
+    payload: Any = field(default_factory=dict)
     headers: dict = field(default_factory=dict)
+    content_type: str = JSON_CONTENT_TYPE
+    body: bytes | None = None
+
+    def encoded_body(self) -> bytes:
+        """Serialised body: an explicit raw body wins, otherwise the JSON payload is encoded."""
+        if self.body is not None:
+            return self.body
+        return json.dumps(self.payload, ensure_ascii=False, sort_keys=True,
+                          separators=(",", ":")).encode("utf-8")
 
 
 def _header(headers: Mapping[str, str] | None, name: str) -> str | None:
@@ -722,6 +752,101 @@ class GatewayMetrics:
             "by_path": by_path,
             "status_counts": status_counts,
         }
+
+
+# -------------------------------------------------------------------------------------------- Prometheus
+def prometheus_escape_label(value: Any) -> str:
+    """Escape a Prometheus label value (backslash, newline and double quote)."""
+    text = str(value)
+    return text.replace("\\", "\\\\").replace("\n", "\\n").replace('"', '\\"')
+
+
+def prometheus_path_label(path: str, known_paths: Mapping[str, Any] | None = None) -> str:
+    """Bounded-cardinality label for ``amfe_requests_by_path_total``.
+
+    Only the known API paths keep their own label; scenario documents share one template label and
+    everything else is collapsed into ``other`` (a request path is never trusted as a label).
+    """
+    known = known_paths if known_paths is not None else PROMETHEUS_KNOWN_PATHS
+    value = str(path)
+    if value in known:
+        return value
+    if value.startswith("/v1/scenarios/") and value != "/v1/scenarios/":
+        return PROMETHEUS_SCENARIO_PATH
+    return "other"
+
+
+def _prometheus_number(value: Any) -> str:
+    """Render a numeric sample value without locale/scientific surprises."""
+    number = float(value)
+    if number == int(number):
+        return str(int(number))
+    return format(number, ".12g")
+
+
+def prometheus_exposition(snapshot: Mapping[str, Any],
+                          known_paths: Mapping[str, Any] | None = None) -> str:
+    """Prometheus text exposition (version 0.0.4) of one ``GatewayMetrics.snapshot()``.
+
+    Pure function: no wall clock, no secrets, no request bodies and no local paths.  Counters with
+    labels are emitted in a deterministic order; an empty snapshot still carries every HELP/TYPE
+    line, so a dashboard can distinguish "zero traffic" from "endpoint missing".
+    """
+    data = dict(snapshot or {})
+    latencies = data.get("latency_ms") or {}
+    lines: list[str] = []
+
+    def emit(name: str, kind: str, help_text: str, samples) -> None:
+        lines.append(f"# HELP {name} {help_text}")
+        lines.append(f"# TYPE {name} {kind}")
+        for labels, value in samples:
+            if labels:
+                rendered = ",".join(
+                    f'{key}="{prometheus_escape_label(label_value)}"'
+                    for key, label_value in labels)
+                lines.append(f"{name}{{{rendered}}} {_prometheus_number(value)}")
+            else:
+                lines.append(f"{name} {_prometheus_number(value)}")
+
+    emit("amfe_gateway_up", "gauge",
+         "1 while the Forecast Gateway process is serving this request.",
+         [((), 1)])
+    emit("amfe_uptime_seconds", "gauge",
+         "Seconds since the gateway process started (in-process clock, not wall time).",
+         [((), max(0.0, float(data.get("uptime_seconds") or 0.0)))])
+    emit("amfe_requests_total", "counter",
+         "Total HTTP requests observed by the gateway since process start.",
+         [((), int(data.get("requests_total") or 0))])
+    emit("amfe_errors_total", "counter",
+         "Total HTTP responses with status >= 400 since process start.",
+         [((), int(data.get("errors_total") or 0))])
+    emit("amfe_error_rate", "gauge",
+         "errors_total / requests_total since process start (0 when no requests).",
+         [((), float(data.get("error_rate") or 0.0))])
+    emit("amfe_request_duration_p50_ms", "gauge",
+         "Median observed request duration in milliseconds (process lifetime).",
+         [((), float(latencies.get("p50") or 0.0))])
+    emit("amfe_request_duration_p95_ms", "gauge",
+         "95th percentile observed request duration in milliseconds (process lifetime).",
+         [((), float(latencies.get("p95") or 0.0))])
+
+    status_samples = []
+    for status, count in sorted((data.get("status_counts") or {}).items()):
+        status_samples.append(([("status", status)], int(count)))
+    emit("amfe_http_status_total", "counter",
+         "HTTP responses by status code observed since process start.",
+         status_samples)
+
+    path_counts: dict[str, int] = {}
+    for path, count in sorted((data.get("by_path") or {}).items()):
+        label = prometheus_path_label(path, known_paths)
+        path_counts[label] = path_counts.get(label, 0) + int(count)
+    path_samples = [([("path", label)], count)
+                    for label, count in sorted(path_counts.items())]
+    emit("amfe_requests_by_path_total", "counter",
+         "HTTP requests by known API path (unknown paths collapse into path=\"other\").",
+         path_samples)
+    return "\n".join(lines) + "\n"
 
 
 class ForecastGateway:
@@ -857,6 +982,8 @@ class ForecastGateway:
             return self._health()
         if path == "/v1/metrics":
             return Response(200, self.metrics.snapshot(), {})
+        if path == "/v1/metrics/prometheus":
+            return self._prometheus()
         if path == "/v1/sla":
             return self._sla()
         if path != "/v1" and not path.startswith("/v1/"):
@@ -902,7 +1029,8 @@ class ForecastGateway:
         return response
 
     def _public_paths(self) -> list[str]:
-        return ["/openapi.json", "/v1/status", "/v1/health", "/v1/metrics", "/v1/sla",
+        return ["/openapi.json", "/v1/status", "/v1/health", "/v1/metrics",
+                "/v1/metrics/prometheus", "/v1/sla",
                 "/v1/modules", "/v1/scenarios", "/v1/scenarios/{scenario_id}",
                 "/v1/forecast?target=&horizon="]
 
@@ -1033,6 +1161,8 @@ class ForecastGateway:
                  "description": "liveness/readiness checks (no key)"},
                 {"method": "GET", "path": "/v1/metrics", "auth": False,
                  "description": "in-process request/latency/error metrics (no key)"},
+                {"method": "GET", "path": "/v1/metrics/prometheus", "auth": False,
+                 "description": "Prometheus text exposition of the in-process metrics (no key)"},
                 {"method": "GET", "path": "/v1/sla", "auth": False,
                  "description": "declared SLA targets and observed process metrics (no key)"},
                 {"method": "GET", "path": "/v1/modules", "auth": True,
@@ -1091,6 +1221,12 @@ class ForecastGateway:
             links={"health": "/v1/health", "metrics": "/v1/metrics", "status": "/v1/status"},
         )
         return Response(200, document, {})
+
+    def _prometheus(self) -> Response:
+        """Prometheus text exposition of the same in-process metrics (public, read-only)."""
+        body = prometheus_exposition(self.metrics.snapshot())
+        return Response(200, {}, {"Content-Type": PROMETHEUS_CONTENT_TYPE},
+                        content_type=PROMETHEUS_CONTENT_TYPE, body=body.encode("utf-8"))
 
     def _modules(self, client: Client) -> Response:
         self._require_feed()
@@ -1298,6 +1434,20 @@ class ForecastGateway:
                     "summary": "In-process request/latency/error metrics (public, no key)",
                     "security": [],
                     "responses": {"200": {"description": "metrics document"}},
+                }
+            },
+            "/v1/metrics/prometheus": {
+                "get": {
+                    "tags": ["meta"], "operationId": "getMetricsPrometheus",
+                    "summary": "Prometheus text exposition of the in-process metrics (public, no key)",
+                    "security": [],
+                    "responses": {
+                        "200": {
+                            "description": ("Prometheus text exposition format 0.0.4; in-process "
+                                            "counters/gauges, no secrets, no wall-clock values"),
+                            "content": {"text/plain": {"schema": {"type": "string"}}},
+                        }
+                    },
                 }
             },
             "/v1/sla": {
@@ -1539,10 +1689,12 @@ class GatewayRequestHandler(BaseHTTPRequestHandler):
             self.rfile.read(min(length, 65536))
         gateway: ForecastGateway = self.server.gateway  # type: ignore[attr-defined]
         response = gateway.handle(method, self.path, dict(self.headers.items()))
-        body = json.dumps(response.payload, ensure_ascii=False, sort_keys=True,
-                          separators=(",", ":")).encode("utf-8")
+        body = response.encoded_body()
         self.send_response(response.status)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
+        has_content_type = any(str(name).lower() == "content-type"
+                               for name in response.headers)
+        if not has_content_type:
+            self.send_header("Content-Type", response.content_type)
         self.send_header("Content-Length", str(len(body)))
         for name, value in response.headers.items():
             self.send_header(name, value)

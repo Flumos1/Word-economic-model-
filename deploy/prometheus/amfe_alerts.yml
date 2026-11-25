@@ -1,0 +1,67 @@
+# Prometheus alert rules for the AMFE Forecast Gateway.
+#
+# The gateway is research-only (RESEARCH_ONLY, admission=false): these rules protect the demo
+# service, they are not a contractual SLA and they do not imply availability/ROI guarantees.
+# They expect the gateway to be scraped at /v1/metrics/prometheus (see docs/233), e.g.:
+#
+#   scrape_configs:
+#     - job_name: amfe-forecast-gateway
+#       static_configs:
+#         - targets: ["127.0.0.1:8080"]
+#
+# Validate with: promtool check rules deploy/prometheus/amfe_alerts.yml
+groups:
+  - name: amfe-forecast-gateway
+    rules:
+      - alert: AmfeGatewayDown
+        expr: amfe_gateway_up == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: amfe-forecast-gateway
+        annotations:
+          summary: "AMFE Forecast Gateway is down"
+          description: >-
+            amfe_gateway_up has been 0 for 2 minutes: the gateway process is not serving
+            requests (or the scrape target is unreachable). Check the process and the
+            /v1/health endpoint; this is a demo service, not a contractual SLA.
+
+      - alert: AmfeHighErrorRate
+        expr: amfe_error_rate > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          service: amfe-forecast-gateway
+        annotations:
+          summary: "AMFE Forecast Gateway error rate above 5%"
+          description: >-
+            amfe_error_rate (HTTP responses with status >= 400 divided by all requests,
+            process lifetime) has been above 0.05 for 5 minutes. Inspect the status-code
+            labels and the gateway logs; this is an operational signal, not a quality claim.
+
+      - alert: AmfeHighLatencyP95
+        expr: amfe_request_duration_p95_ms > 500
+        for: 5m
+        labels:
+          severity: warning
+          service: amfe-forecast-gateway
+        annotations:
+          summary: "AMFE Forecast Gateway p95 latency above 500 ms"
+          description: >-
+            The in-process p95 request duration (amfe_request_duration_p95_ms) has been
+            above 500 ms for 5 minutes. The gateway serves static published JSON, so a
+            sustained p95 above 500 ms usually means host saturation or a slow proxy.
+
+      - alert: AmfeNoTraffic
+        expr: increase(amfe_requests_total[10m]) == 0
+        for: 10m
+        labels:
+          severity: warning
+          service: amfe-forecast-gateway
+        annotations:
+          summary: "AMFE Forecast Gateway receives no traffic"
+          description: >-
+            amfe_requests_total has not increased over a 10-minute window. Either no client
+            is calling the gateway (expected for an idle demo) or the scrape target is not
+            the live process. Verify the client/proxy configuration; do not treat this
+            alert as evidence that the gateway is healthy or unhealthy by itself.
