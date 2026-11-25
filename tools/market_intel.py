@@ -770,6 +770,26 @@ def check_document(org: dict, org_dir: Path) -> list[dict]:
                                  f"default_cli_mode must be one of {list(MODES)}"))
         if not _text(rules.get("rule")):
             issues.append(_issue("mode_rule_text", "mode_rules.rule", "mode_rules.rule is required"))
+    policy = org.get("owner_policy")
+    if not isinstance(policy, dict):
+        issues.append(_issue("owner_policy_block", "owner_policy",
+                             "owner_policy block is required: no paid licences, data only via OSINT"))
+    else:
+        if _text(policy.get("decision")) != "NO_PAID_LICENCES":
+            issues.append(_issue("owner_policy_decision", "owner_policy.decision",
+                                 "owner_policy.decision must stay NO_PAID_LICENCES"))
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", _text(policy.get("date"))):
+            issues.append(_issue("owner_policy_date", "owner_policy.date",
+                                 "owner_policy.date must be an ISO date"))
+        if not _text(policy.get("statement")):
+            issues.append(_issue("owner_policy_statement", "owner_policy.statement",
+                                 "owner_policy.statement is required"))
+        if not isinstance(policy.get("rules"), list) or len(policy["rules"]) < 4:
+            issues.append(_issue("owner_policy_rules", "owner_policy.rules",
+                                 "owner_policy.rules must list at least 4 rules"))
+        if not isinstance(policy.get("enforcement"), list) or not policy["enforcement"]:
+            issues.append(_issue("owner_policy_enforcement", "owner_policy.enforcement",
+                                 "owner_policy.enforcement must point to tests/docs"))
     licensed = org.get("licensed_data")
     if not isinstance(licensed, dict):
         issues.append(_issue("licensed_block", "licensed_data",

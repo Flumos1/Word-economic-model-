@@ -66,6 +66,22 @@ class MarketIntelOrgTest(unittest.TestCase):
         self.assertEqual(self.summary["errors"], 0)
         self.assertEqual(self.summary["schema"], "amfe.market_intel.check.v1")
 
+    def test_owner_policy_forbids_paid_licences(self):
+        """Owner decision 2026-11-26: no paid licences; data only via the OSINT role (RL-24)."""
+        policy = self.org["owner_policy"]
+        self.assertEqual(policy["decision"], "NO_PAID_LICENCES")
+        self.assertEqual(self.org["subscriptions"], 0)
+        self.assertIn("OSINT-агент", policy["statement"])
+        joined = " ".join(policy["rules"]).lower()
+        for token in ("никаких платных подписок", "только osint-scout", "not_fetched"):
+            self.assertIn(token, joined)
+        self.assertTrue(policy["enforcement"])
+
+    def test_red_lines_cover_paid_licences_and_osint_only_search(self):
+        text = (ORG.parent / "playbooks" / "red_lines.md").read_text(encoding="utf-8")
+        self.assertIn("RL-24", text)
+        self.assertIn("RL-01…RL-24", text)
+
     def test_schema_version_and_research_only(self):
         self.assertEqual(self.org["schema"], "amfe.market_intelligence.org.v1")
         self.assertRegex(self.org["version"], r"^\d+\.\d+\.\d+$")
