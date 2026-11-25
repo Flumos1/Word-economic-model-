@@ -593,6 +593,29 @@ class HttpServer(unittest.TestCase):
         self.assertEqual(payload, again)
         self.assertEqual(response.status, again_response.status)
 
+    def test_all_six_scenarios_over_http(self):
+        """Live smoke (docs/235): every declared scenario answers over HTTP, honestly."""
+        payloads = (
+            {"scenario": "hormuz_base", "price": 75, "shock": 100, "country": "US"},
+            {"scenario": "hormuz_stress", "price": 90, "shock": 100, "country": "DE"},
+            {"scenario": "gas_shock", "price": 50, "shock": 60, "country": "DE"},
+            {"scenario": "geopolitics", "country": "US"},
+            {"scenario": "institutions", "inst_scenario": "POLARIZATION",
+             "profile": "EXAMPLE-MID"},
+            {"scenario": "technology", "tech_scenario": "ai_acceleration"},
+        )
+        for payload in payloads:
+            response, body = self.request(
+                "POST", "/api/run", body=json.dumps(payload).encode("utf-8"),
+                headers={"Content-Type": "application/json"})
+            self.assertEqual(response.status, 200, payload["scenario"])
+            document = json.loads(body)
+            self.assertEqual(document["status"], "RESEARCH_ONLY", payload["scenario"])
+            self.assertIs(document["admission"], False, payload["scenario"])
+            self.assertIs(document["causal_claim"], False, payload["scenario"])
+            self.assertTrue(document.get("digest"), payload["scenario"])
+            self.assertGreater(len(document["cards"]), 0, payload["scenario"])
+
     def test_error_codes_over_http(self):
         response, payload = self.request("POST", "/api/run", body=b"{oops",
                                          headers={"Content-Type": "application/json"})
