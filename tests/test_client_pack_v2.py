@@ -369,7 +369,8 @@ class FixtureCase(unittest.TestCase):
         self.tmp.cleanup()
 
     def make_pack(self, out: Path | None = None, **overrides) -> dict:
-        values = {"inputs_root": self.build, "generated_at": FIXED, "root": self.root}
+        values = {"inputs_root": self.build, "generated_at": FIXED, "root": self.root,
+                  "make_pdf": False}
         values.update(overrides)
         return pack.build_pack(out or self.out, **values)
 
@@ -1135,6 +1136,57 @@ class DefaultTimestamp(FixtureCase):
     def test_default_generated_at_comes_from_the_inputs(self):
         summary = self.make_pack(generated_at=None)
         self.assertEqual(summary["generated_at"], "2026-11-16T00:00:00Z")
+
+
+class PdfExport(FixtureCase):
+    """PDF export is optional and non-deterministic; it must never affect the byte-identical manifest."""
+
+    def _build_with_pdf(self):
+        return self.make_pack(make_pdf=True)
+
+    def test_pdf_files_match_docx_sources_when_soffice_present(self):
+        summary = self._build_with_pdf()
+        manifest = read_json(self.out / "07_Reproducibility.json")
+        self.assertIn("pdf_file_count", manifest)
+        if pack._soffice() is None:
+            self.skipTest("LibreOffice not available")
+        self.assertEqual(summary["pdfs"], ["01_Executive_Summary.pdf",
+                                           "05_Methodology_and_Sources.pdf",
+                                           "06_Licence_and_Disclaimer.pdf"])
+        self.assertEqual(manifest["pdf_file_count"], 3)
+        self.assertEqual(len(manifest["non_deterministic_artifacts"]), 3)
+        for name, meta in manifest["non_deterministic_artifacts"].items():
+            pdf = self.out / name
+            self.assertTrue(pdf.is_file(), name)
+            self.assertTrue(pdf.read_bytes().startswith(b"%PDF-"), name)
+            self.assertEqual(meta["sha256"], sha(pdf), name)
+            self.assertIn("source", meta)
+            self.assertGreater(meta["bytes"], 100, name)
+            self.assertGreater(meta["pages"], 0, name)
+
+    def test_no_pdf_keeps_deterministic_manifest_unchanged(self):
+        self.make_pack(make_pdf=False)
+        manifest = read_json(self.out / "07_Reproducibility.json")
+        self.assertEqual(manifest["pdf_file_count"], 0)
+        self.assertEqual(manifest["non_deterministic_artifacts"], {})
+        names = sorted(path.name for path in self.out.iterdir())
+        self.assertNotIn("01_Executive_Summary.pdf", names)
+
+    def test_deterministic_artifacts_exclude_pdfs(self):
+        self._build_with_pdf()
+        manifest = read_json(self.out / "07_Reproducibility.json")
+        self.assertEqual(manifest["file_count"], 7)
+        self.assertEqual(manifest["file_count"], len(manifest["deterministic_artifacts"]))
+        self.assertNotIn("01_Executive_Summary.pdf", manifest["deterministic_artifacts"])
+
+    def test_readme_lists_pdfs_when_present(self):
+        self._build_with_pdf()
+        readme = (self.out / "README.md").read_text(encoding="utf-8")
+        if pack._soffice() is None:
+            self.assertNotIn(".pdf", readme)
+        else:
+            self.assertIn("01_Executive_Summary.pdf", readme)
+            self.assertIn("недетерминированный артефакт", readme)
 
 
 @unittest.skipUnless(REAL_ARTIFACTS.is_file(), "generated build/ artefacts are not present")

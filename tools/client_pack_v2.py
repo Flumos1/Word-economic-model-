@@ -43,8 +43,10 @@ import json
 import math
 import re
 import shutil
+import subprocess
 import sys
 import tempfile
+import time
 from datetime import datetime, timezone
 from html import escape as _escape
 from pathlib import Path
@@ -161,6 +163,68 @@ def _now() -> str:
 
 def _sha256(path: Path) -> str:
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def _soffice() -> str | None:
+    """Locate a headless LibreOffice binary (same discovery as the other client packs)."""
+    candidates = [
+        shutil.which("soffice"),
+        shutil.which("libreoffice"),
+        r"C:\Program Files\LibreOffice\program\soffice.exe",
+        r"C:\Program Files (x86)\LibreOffice\program\soffice.exe",
+        "/usr/bin/soffice",
+        "/Applications/LibreOffice.app/Contents/MacOS/soffice",
+    ]
+    return next((item for item in candidates if item and Path(item).exists()), None)
+
+
+def convert_pdf(docx_path: Path, out_dir: Path) -> Path | None:
+    """Convert one DOCX to PDF in ``out_dir``; returns the PDF path or ``None`` when unavailable.
+
+    PDFs are intentionally *non-deterministic* (LibreOffice embeds its own producer/creation
+    metadata), so they are recorded with their own SHA-256 and page count rather than being pinned
+    into the byte-identical manifest. Absence of LibreOffice is fail-open (the pack still builds
+    without PDF), matching the other client pack builders.
+
+    Every call uses a throwaway ``UserInstallation`` profile: LibreOffice refuses/loses concurrent
+    conversions when two processes share the default profile (e.g. the full regression running a
+    second build in parallel), and the retry absorbs the remaining transient lock races.
+    """
+    soffice = _soffice()
+    if not soffice:
+        return None
+    pdf = out_dir / (docx_path.stem + ".pdf")
+    for attempt in range(2):
+        profile = Path(tempfile.mkdtemp(prefix=".lo-profile-", dir=str(out_dir.parent)))
+        try:
+            subprocess.run([soffice, "--headless", "--nolockcheck", "--norestore",
+                            f"-env:UserInstallation={profile.as_uri()}",
+                            "--convert-to", "pdf", "--outdir", str(out_dir), str(docx_path)],
+                           check=True, capture_output=True, timeout=240)
+        except (OSError, subprocess.SubprocessError):
+            pass
+        finally:
+            shutil.rmtree(profile, ignore_errors=True)
+        if pdf.is_file() and pdf.stat().st_size > 0:
+            return pdf
+        if attempt == 0:  # transient profile/lock race: wait briefly and retry once
+            time.sleep(1.0)
+    return None
+
+
+def pdf_pages(pdf_path: Path) -> int | None:
+    """Count PDF pages from a trailer ``/Count`` without pulling in a PDF library.
+
+    LibreOffice writes ``/Count N`` in the page-tree object, which may sit anywhere in the file, so
+    scan the whole (small) file rather than only the header.
+    """
+    try:
+        blob = pdf_path.read_bytes()
+    except OSError:
+        return None
+    for match in re.finditer(rb"/Count\s+(\d+)", blob):
+        return int(match.group(1))
+    return None
 
 
 def _canonical_sha256(payload) -> str:
@@ -1896,8 +1960,9 @@ def build_dashboard(path: Path, data: dict) -> None:
 
 
 # ---------------------------------------------------------------------------------------- README
-def build_readme(path: Path, data: dict, files: list) -> None:
+def build_readme(path: Path, data: dict, files: list, pdfs: list | None = None) -> None:
     summary = data["summary"]
+    pdfs = pdfs or []
     lines = [
         "# AMFE — Client Pack v2 (research only)",
         "",
@@ -1918,6 +1983,11 @@ def build_readme(path: Path, data: dict, files: list) -> None:
         "| 06_Licence_and_Disclaimer.docx | Лицензии и дисклеймеры |",
         "| 07_Reproducibility.json | Манифест воспроизводимости и команда сборки |",
         "| README.md | Этот файл |",
+    ]
+    for pdf in pdfs:
+        lines.append(f"| {pdf['path']} | PDF-версия `{pdf['source']}` "
+                     f"({pdf['pages'] or '?'} стр., недетерминированный артефакт) |")
+    lines += [
         "",
         "## Ключевые числа (из артефактов)",
         "",
@@ -2049,7 +2119,9 @@ def build_readme(path: Path, data: dict, files: list) -> None:
 
 
 # --------------------------------------------------------------------------------- reproducibility
-def build_reproducibility(path: Path, data: dict, files: list, command: str) -> None:
+def build_reproducibility(path: Path, data: dict, files: list, command: str,
+                          pdfs: list | None = None) -> None:
+    pdfs = pdfs or []
     document = {
         "schema": REPRO_SCHEMA,
         "kind": "client_pack_reproducibility",
@@ -2060,13 +2132,20 @@ def build_reproducibility(path: Path, data: dict, files: list, command: str) -> 
         "inputs": data["sources"],
         "deterministic_artifacts": {item["path"]: item["sha256"]
                                     for item in sorted(files, key=lambda entry: entry["path"])},
+        "non_deterministic_artifacts": {item["path"]: {
+            "source": item["source"], "sha256": item["sha256"],
+            "bytes": item["bytes"], "pages": item["pages"],
+        } for item in sorted(pdfs, key=lambda entry: entry["path"])},
         "normalization": {
             "docx": "zip entry timestamps + docProps/core.xml created/modified pinned to generated_at",
             "xlsx": "zip entry timestamps + docProps/core.xml created/modified pinned to generated_at",
             "json": "sorted keys, indent=1, UTF-8, LF",
             "html": "static, no scripts, no external links",
+            "pdf": ("rendered from the DOCX via headless LibreOffice; non-deterministic (producer/"
+                    "creation metadata), recorded separately with SHA-256 and page count"),
         },
         "file_count": len(files),
+        "pdf_file_count": len(pdfs),
         "document_digest": data["document_digest"],
     }
     _write_json(path, document)
@@ -2075,7 +2154,8 @@ def build_reproducibility(path: Path, data: dict, files: list, command: str) -> 
 # --------------------------------------------------------------------------------------- build pack
 def build_pack(out_dir: Path, *, inputs_root: Path | None = None, scenario_id: str = DEFAULT_SCENARIO,
                client: str = DEFAULT_CLIENT, generated_at: str | None = None,
-               root: Path | None = None, bridge_path=None, include_blocks: bool = False) -> dict:
+               root: Path | None = None, bridge_path=None, include_blocks: bool = False,
+               make_pdf: bool = True) -> dict:
     """Build the whole client pack; raises ClientPackError (fail-closed) before any output."""
     root = Path(root) if root is not None else ROOT
     inputs_root = Path(inputs_root) if inputs_root is not None else root / "build"
@@ -2105,11 +2185,25 @@ def build_pack(out_dir: Path, *, inputs_root: Path | None = None, scenario_id: s
             ("05_Methodology_and_Sources.docx", build_methodology),
             ("06_Licence_and_Disclaimer.docx", build_licence),
         ]
+        docx_paths: list[Path] = []
         for name, builder in docx_builders:
             path = staging / name
             builder(path, data, generated)
             _normalise_office_zip(path, generated)
             record(path)
+            docx_paths.append(path)
+
+        # Optional PDF export (non-deterministic): one PDF per DOCX, recorded separately from the
+        # byte-identical manifest so the determinism guarantee stays intact. Fail-open when
+        # LibreOffice is unavailable; `--no-pdf` disables it explicitly.
+        pdfs: list[dict] = []
+        if make_pdf:
+            for docx_path in docx_paths:
+                pdf_path = convert_pdf(docx_path, staging)
+                if pdf_path is not None:
+                    pdfs.append({"path": pdf_path.name, "source": docx_path.name,
+                                 "sha256": _sha256(pdf_path), "bytes": pdf_path.stat().st_size,
+                                 "pages": pdf_pages(pdf_path)})
 
         xlsx_path = staging / "02_Numbers.xlsx"
         build_xlsx(xlsx_path, data, generated)
@@ -2121,7 +2215,7 @@ def build_pack(out_dir: Path, *, inputs_root: Path | None = None, scenario_id: s
         for name in ("03_Dashboard.html", "04_Machine_Readable.json"):
             record(staging / name)
 
-        build_readme(staging / "README.md", data, files)
+        build_readme(staging / "README.md", data, files, pdfs)
         record(staging / "README.md")
 
         # The reproducibility command must not depend on the chosen output directory: for the
@@ -2140,7 +2234,7 @@ def build_pack(out_dir: Path, *, inputs_root: Path | None = None, scenario_id: s
             command += f" --bridge {data['bridge']['source']}"
         if data["blocks"].get("included"):
             command += " --include-blocks"
-        build_reproducibility(staging / "07_Reproducibility.json", data, files, command)
+        build_reproducibility(staging / "07_Reproducibility.json", data, files, command, pdfs)
         record(staging / "07_Reproducibility.json")
 
         if out_dir.exists():
@@ -2158,6 +2252,7 @@ def build_pack(out_dir: Path, *, inputs_root: Path | None = None, scenario_id: s
         "generated_at": generated_at,
         "out": str(out_dir).replace("\\", "/"),
         "files": sorted(item["path"] for item in files),
+        "pdfs": sorted(item["path"] for item in pdfs),
         "document_digest": data["document_digest"],
         "numbers": {
             "candidate": data["summary"]["candidate"],
@@ -2215,6 +2310,9 @@ def build_parser() -> argparse.ArgumentParser:
                         help=("include the optional blocks 15/17 section (institutions, technology) "
                               "from <inputs-root>/institutions/report.json and "
                               "<inputs-root>/technology_scenarios/report.json"))
+    parser.add_argument("--no-pdf", action="store_true",
+                        help="skip the optional PDF export (default: render PDFs when LibreOffice "
+                             "is available)")
     parser.add_argument("--json", action="store_true", help="print the build summary as JSON")
     return parser
 
@@ -2227,7 +2325,8 @@ def main(argv=None) -> int:
     try:
         summary = build_pack(out_dir, inputs_root=inputs_root, scenario_id=args.scenario,
                              client=args.client, generated_at=args.generated_at, root=root,
-                             bridge_path=args.bridge, include_blocks=args.include_blocks)
+                             bridge_path=args.bridge, include_blocks=args.include_blocks,
+                             make_pdf=not args.no_pdf)
     except ClientPackError as error:
         print(json.dumps({"status": "BLOCKED_DATA", "error": str(error)}, ensure_ascii=False),
               file=sys.stderr)
