@@ -56,7 +56,9 @@ institutions/technology modules. Auth is optional for local demo and required fo
    манифеста сохранён; `--no-pdf` отключает.
 2. ~~Make a 30-minute scripted Simulator demo~~ — **сделано 2026-11-25**: 6 шагов, `--check/--run/--runbook`,
    прогон в процессе без сервера, 22 теста ([docs/231](231_Simulator_демо_сценарий.md)).
-3. Decide whether M1 accepts a `PARTIAL_INPUTS` bridge or requires one complete bridge target; do not fabricate T2/T3 inputs. Record GO/NO-GO in docs/207.
+3. ~~Decide whether M1 accepts a `PARTIAL_INPUTS` bridge~~ — **решено 2026-11-25: GO с оговоркой**,
+   M1 принимает partial bridge (2 из 3 сценариев, рост `BLOCKED_INPUT`, без синтетики T2/T3) —
+   [docs/234](234_Мост_PARTIAL_INPUTS_решение.md); критерии пересмотра там же.
 
 ## 4. Commercial track in parallel
 
