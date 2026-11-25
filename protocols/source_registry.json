@@ -1,6 +1,6 @@
 {
   "schema": "AMFE-SOURCE-REGISTRY/1.0.0",
-  "date": "2026-11-16",
+  "date": "2026-11-25",
   "intended_use": "Non-commercial research. Published artefacts contain derived statistics only (errors, ranges, scores), never raw third-party data. The registry records what is confirmed and what remains an assumption; it does not download anything and does not make network calls.",
   "statuses": {
     "CATALOGUED": "Source is catalogued (URL, publisher, licence, coverage and fields checked on the web page or documentation); no data has been retrieved into the project yet.",
@@ -78,10 +78,10 @@
         "product (CN/HS)",
         "energy balances"
       ],
-      "retrieved_at": null,
+      "retrieved_at": "2026-11-25",
       "vintage_support": "partial",
-      "status": "ACCESS_VERIFIED",
-      "notes": "Useful for EU-level cross-checks of MRIO trade shares; no data retrieved yet. | Source-page verification 2026-11-20T07:30:00Z: HTTP 200 for https://ec.europa.eu/eurostat/web/international-trade-in-goods (page sha256 1ad64f464464ba50…), terms https://ec.europa.eu/eurostat/help/copyright-notice HTTP 200 (sha256 528cd3676bacc130…); coverage/field markers confirmed. Dataset ingestion NOT performed: VERIFIED here means source-page evidence, not observed data (protocols/source_verification_log.jsonl). | ACCESS_VERIFIED 2026-11-20: page and terms HTTP 200 (evidence SHA-256 and markers in protocols/source_verification_log.jsonl, docs/197). No data retrieved into the project: ACCESS_VERIFIED is access evidence, NOT VERIFIED and not observed data."
+      "status": "VERIFIED",
+      "notes": "Useful for EU-level cross-checks of MRIO trade shares; no data retrieved yet. | Source-page verification 2026-11-20T07:30:00Z: HTTP 200 for https://ec.europa.eu/eurostat/web/international-trade-in-goods (page sha256 1ad64f464464ba5057ab77d023c108c7bd33375dd7201f42fd86c1ef87ea98b1), terms https://ec.europa.eu/eurostat/help/copyright-notice HTTP 200 (sha256 528cd3676bacc13089a2841c0683210acb3da1892091ebcc9e79d4c8eb276c41); coverage/field markers confirmed. Dataset ingestion NOT performed: VERIFIED here means source-page evidence, not observed data (protocols/source_verification_log.jsonl). | ACCESS_VERIFIED 2026-11-20: page and terms HTTP 200 (evidence SHA-256 and markers in protocols/source_verification_log.jsonl, docs/197). No data retrieved into the project: ACCESS_VERIFIED is access evidence, NOT VERIFIED and not observed data. | VERIFIED 2026-11-25: dataset actually retrieved and pinned - data/public/eurostat_hicp_monthly.csv + .meta.json; 120 observations (EA and DE, 2021-01..2025-12); file_bytes 2930; sha256 3c166519bdf722a8cdc3beb5a1d34f31b168414763811ec93b0d3d55ac953192. Exact API query is in the meta file; only this compact aggregate is stored, bulk/raw JSON-stat is not committed. Licence: Eurostat copyright notice - reuse authorised provided the source is acknowledged (terms page fetched 2026-11-25, 177904 bytes, sha256 77abcaca637e6a9384eb3af82b47ecb1ccf6514143ada63b829382e786f86201). No PIT/vintage claim."
     },
     {
       "source_id": "FAO_FAOSTAT",
@@ -275,10 +275,10 @@
         "net weight",
         "quantity unit"
       ],
-      "retrieved_at": null,
+      "retrieved_at": "2026-11-25",
       "vintage_support": "partial",
-      "status": "ACCESS_VERIFIED",
-      "notes": "Candidate for replacing trade-share assumptions; reporter revisions mean a short pseudo-vintage window only. Premium API limits apply above the free tier. | Source-page verification 2026-11-20T07:30:00Z: HTTP 200 for https://comtradeplus.un.org/ (page sha256 f9a44dca4960162d…), terms https://comtradeplus.un.org/en/license-agreement HTTP 200 (sha256 0b29daf6f703dc74…); coverage/field markers confirmed. Dataset ingestion NOT performed: VERIFIED here means source-page evidence, not observed data (protocols/source_verification_log.jsonl). | ACCESS_VERIFIED 2026-11-20: page and terms HTTP 200 (evidence SHA-256 and markers in protocols/source_verification_log.jsonl, docs/197). No data retrieved into the project: ACCESS_VERIFIED is access evidence, NOT VERIFIED and not observed data."
+      "status": "VERIFIED",
+      "notes": "Candidate for replacing trade-share assumptions; reporter revisions mean a short pseudo-vintage window only. Premium API limits apply above the free tier. | Source-page verification 2026-11-20T07:30:00Z: HTTP 200 for https://comtradeplus.un.org/ (page sha256 f9a44dca4960162d75e9bf8ecbc721a8ecf88fcc292ee02f07edcbca0f095b89), terms https://comtradeplus.un.org/en/license-agreement HTTP 200 (sha256 0b29daf6f703dc74050741833e0196e4b4c7178effd3e2f854980b8033cef141); coverage/field markers confirmed. Dataset ingestion NOT performed: VERIFIED here means source-page evidence, not observed data (protocols/source_verification_log.jsonl). | ACCESS_VERIFIED 2026-11-20: page and terms HTTP 200 (evidence SHA-256 and markers in protocols/source_verification_log.jsonl, docs/197). No data retrieved into the project: ACCESS_VERIFIED is access evidence, NOT VERIFIED and not observed data. | VERIFIED 2026-11-25: dataset actually retrieved and pinned - data/public/un_comtrade_deu_hs27_2023.csv + .meta.json; 2 observations (Germany 276, HS chapter 27, partner World 0, flows X and M, 2023); file_bytes 333; sha256 e604992eb640c23f1b8a442e558014da42d724c09f2dadc9b461e1fcba743f3e. Public preview API only; premium bulk and full bilateral matrices are not stored or committed. Licence: UN Comtrade terms - free for non-commercial use with attribution; no re-sale (terms page fetched 2026-11-25, 50828 bytes, sha256 cedc18d78dfe1ab0ad92face2a8b62ec9a36591392953b181652b013405673db). No revisions history/PIT claim."
     },
     {
       "source_id": "USDA_FAS_EXPORT_SALES",

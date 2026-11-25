@@ -86,18 +86,18 @@ class RealRegistryDocket(unittest.TestCase):
         counts = self.report["counts"]
         self.assertEqual(counts["total"], 15)
         self.assertEqual(counts["by_docket_verdict"],
-                         {"VERIFIED": 3, "PARTIAL": 4, "UNVERIFIED": 8})
+                         {"VERIFIED": 5, "PARTIAL": 2, "UNVERIFIED": 8})
         self.assertEqual(sum(counts["by_docket_verdict"].values()), counts["total"])
 
     def test_registry_status_counts_are_separate_from_the_docket_verdict(self):
         self.assertEqual(self.report["counts"]["by_registry_status"],
-                         {"CATALOGUED": 6, "NOT_DOWNLOADED": 4, "ACCESS_VERIFIED": 2,
-                          "VERIFIED": 3})
-        self.assertEqual(self.report["verified"], ["EIA", "OECD_ICIO", "WORLD_BANK"])
+                         {"CATALOGUED": 6, "NOT_DOWNLOADED": 4, "ACCESS_VERIFIED": 0,
+                          "VERIFIED": 5})
+        self.assertEqual(self.report["verified"],
+                         ["EIA", "EUROSTAT", "OECD_ICIO", "UN_COMTRADE", "WORLD_BANK"])
 
     def test_partial_list_is_the_close_ring(self):
-        self.assertEqual(self.report["partial"],
-                         ["BLS", "EUROSTAT", "FRED_ALFRED", "UN_COMTRADE"])
+        self.assertEqual(self.report["partial"], ["BLS", "FRED_ALFRED"])
         for source_id in self.report["partial"]:
             record = self.by_id[source_id]
             self.assertFalse(record["citation_allowed"])
@@ -123,7 +123,7 @@ class RealRegistryDocket(unittest.TestCase):
 
     def test_gaps_cover_every_non_verified_source(self):
         gaps = self.report["gaps"]
-        self.assertEqual(len(gaps), 12)
+        self.assertEqual(len(gaps), 10)
         self.assertEqual([gap["source_id"] for gap in gaps],
                          sorted(set(self.by_id) - set(self.report["verified"])))
         for gap in gaps:
@@ -419,8 +419,8 @@ class CommandLine(Workspace):
     def test_default_summary_exit_zero(self):
         code, out, _ = self.run_cli()
         self.assertEqual(code, 0)
-        self.assertIn("VERIFIED 3", out)
-        self.assertIn("PARTIAL 4", out)
+        self.assertIn("VERIFIED 5", out)
+        self.assertIn("PARTIAL 2", out)
         self.assertIn("UNVERIFIED 8", out)
         self.assertIn("Матрица", out)
 
