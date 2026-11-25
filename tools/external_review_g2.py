@@ -902,19 +902,27 @@ def check_limitations(repo: Path, docs: dict, documents: dict) -> dict:
 RAW_PATTERNS = (r"^data/mrio/", r"\.zip$", r"\.dta$", r"\.csv$", r"\.xlsx$", r"\.parquet$",
                 r"^data/raw/")
 
-#: Public-domain derived aggregates that may live in git if (and only if) a provenance sidecar
-#: documents the licence, the series and the exact hash.  The project policy (docs/84, docs/160)
-#: forbids raw third-party data in git but allows derived aggregates when the licence permits;
-#: a blanket ``*.csv`` block would wrongly flag such a file, so the exception is explicit.
-PUBLIC_DOMAIN_AGGREGATES = {
+#: Derived aggregates that may live in git if (and only if) a provenance sidecar documents the
+#: licence, the source URL, the retrieval date, the coverage and the exact hash.  The project policy
+#: (docs/84, docs/160) forbids raw third-party data in git but allows *derived aggregates* when the
+#: licence permits reuse; a blanket ``*.csv`` block would wrongly flag such files, so every exception
+#: is explicit and audited.
+ALLOWED_AGGREGATES = {
     "data/oil/brent_monthly_eia.csv": "data/oil/brent_monthly_eia.meta.json",
+    "data/public/eurostat_hicp_monthly.csv": "data/public/eurostat_hicp_monthly.meta.json",
+    "data/public/un_comtrade_deu_hs27_2023.csv": "data/public/un_comtrade_deu_hs27_2023.meta.json",
 }
+#: Backwards-compatible alias (the older EIA-only allow list, same object).
+PUBLIC_DOMAIN_AGGREGATES = ALLOWED_AGGREGATES
+
+#: A licence marker must permit reuse for research; the exact wording stays in the sidecar.
+LICENCE_MARKERS = ("public domain", "attribution", "non-commercial", "noncommercial")
 
 
 def _public_domain_aggregates(repo: Path) -> dict:
-    """Verify allow-listed derived aggregates: meta exists, hash matches, licence is public."""
+    """Verify allow-listed derived aggregates: provenance sidecar, hash, licence, source, date."""
     allowed, problems = [], []
-    for relative, meta_relative in PUBLIC_DOMAIN_AGGREGATES.items():
+    for relative, meta_relative in ALLOWED_AGGREGATES.items():
         path, meta_path = Path(repo) / relative, Path(repo) / meta_relative
         if not path.is_file():
             problems.append({"path": relative, "problem": "file not found"})
@@ -927,17 +935,25 @@ def _public_domain_aggregates(repo: Path) -> dict:
         except (OSError, json.JSONDecodeError) as error:
             problems.append({"path": relative, "problem": f"provenance unreadable: {error}"})
             continue
+        licence = str(meta.get("license", "")).lower()
         if str(meta.get("file", "")) != relative:
             problems.append({"path": relative, "problem": "provenance names a different file"})
         elif str(meta.get("file_sha256", "")) != sha256_file(path):
             problems.append({"path": relative, "problem": "provenance hash does not match the file"})
-        elif "public domain" not in str(meta.get("license", "")).lower():
-            problems.append({"path": relative, "problem": "licence is not public domain"})
+        elif not any(marker in licence for marker in LICENCE_MARKERS):
+            problems.append({"path": relative, "problem": "licence permits no documented reuse"})
+        elif not str(meta.get("source_url", "")).strip():
+            problems.append({"path": relative, "problem": "provenance has no source URL"})
+        elif not str(meta.get("retrieved_at", "")).strip():
+            problems.append({"path": relative, "problem": "provenance has no retrieval date"})
+        elif not str(meta.get("coverage", "")).strip():
+            problems.append({"path": relative, "problem": "provenance has no coverage note"})
         else:
             allowed.append(relative)
     return {"allowed": allowed, "problems": problems,
-            "policy": "public-domain derived aggregates require a provenance sidecar (licence, "
-                      "series, hash); everything else under data/ must stay untracked"}
+            "policy": "derived third-party aggregates require a provenance sidecar (licence, "
+                      "source URL, retrieval date, coverage, hash); everything else under data/ "
+                      "must stay untracked"}
 
 
 def _tracked_raw_data(repo: Path) -> dict:

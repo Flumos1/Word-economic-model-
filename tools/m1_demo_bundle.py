@@ -157,7 +157,17 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _configure_output() -> None:
+    """Force UTF-8 on stdout/stderr so Cyrillic and ``→`` survive a CP1251 console."""
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError):  # pragma: no cover - non-reconfigurable stream
+            pass
+
+
 def main(argv=None) -> int:
+    _configure_output()
     args = build_parser().parse_args(argv)
     if args.check:
         print(json.dumps({"schema": SCHEMA, "status": STATUS, "checks": CHECKS},

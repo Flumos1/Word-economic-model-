@@ -11,6 +11,7 @@ unexpected success (visible failure) and KNOWN_REPORT_RAW_VALUES must be emptied
 
 Run: python tests/test_licence_hygiene.py
 """
+import hashlib
 import json
 import re
 import subprocess
@@ -40,6 +41,12 @@ ALLOWED_TRACKED_RAW = {
     # the series has a committed .meta.json provenance file and a licence-register entry.
     "data/oil/brent_monthly_eia.csv",
     "data/oil/brent_monthly_eia.meta.json",
+    # Small public aggregates committed on 2026-11-25 with full provenance sidecars
+    # (source URL, licence, retrieval date, coverage, sha256) — docs/236, docs/205.
+    "data/public/eurostat_hicp_monthly.csv",
+    "data/public/eurostat_hicp_monthly.meta.json",
+    "data/public/un_comtrade_deu_hs27_2023.csv",
+    "data/public/un_comtrade_deu_hs27_2023.meta.json",
 }
 NUMERIC_ARRAY_MIN = 10
 CONSTANT_ARRAYS_ALLOWED = {("protocols/r3_specification.json", "quantile_grid")}
@@ -110,6 +117,26 @@ class GitTree(unittest.TestCase):
             elif Path(name).suffix.lower() in RAW_SUFFIXES and name not in ALLOWED_TRACKED_RAW:
                 offenders.append(name)
         self.assertEqual(offenders, [], "third-party raw data must never be committed (docs/84 F-1, F-2)")
+
+    def test_public_aggregates_carry_full_provenance(self):
+        """Every committed aggregate under data/public must be reproducible and licensed."""
+        files = tracked_files()
+        if files is None:
+            self.skipTest("git index is not available")
+        aggregates = [name for name in files
+                      if name.startswith("data/public/") and name.endswith(".csv")]
+        self.assertTrue(aggregates, "expected at least one pinned public aggregate")
+        for name in aggregates:
+            meta_name = name[: -len(".csv")] + ".meta.json"
+            self.assertIn(meta_name, files, f"{name}: provenance sidecar is not committed")
+            meta = load(ROOT / meta_name)
+            self.assertEqual(str(meta.get("file", "").replace("\\", "/")), name)
+            self.assertEqual(str(meta.get("file_sha256", "")),
+                             hashlib.sha256((ROOT / name).read_bytes()).hexdigest(),
+                             f"{name}: sidecar hash must match the committed bytes")
+            for field in ("source_url", "license", "retrieved_at", "coverage"):
+                self.assertTrue(str(meta.get(field, "")).strip(), f"{name}: missing {field}")
+            self.assertRegex(str(meta.get("retrieved_at", "")), r"^\d{4}-\d{2}-\d{2}$")
 
     def test_data_directories_are_gitignored(self):
         text = GITIGNORE.read_text(encoding="utf-8")
