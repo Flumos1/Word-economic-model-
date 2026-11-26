@@ -1,0 +1,19 @@
+{
+ "series_id": "CUUR0000SA0",
+ "name": "Consumer Price Index for All Urban Consumers: All Items in U.S. City Average (CPI-U, not seasonally adjusted)",
+ "source": "U.S. Bureau of Labor Statistics, BLS Public Data API v1 (no key; GET)",
+ "publisher": "U.S. Bureau of Labor Statistics",
+ "source_url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CUUR0000SA0",
+ "license": "public domain (U.S. Government work), attribution recommended",
+ "license_url": "https://www.bls.gov/bls/linksite.htm",
+ "retrieved_at": "2026-11-26",
+ "unit": "index 1982-84=100, not seasonally adjusted (CUUR)",
+ "frequency": "monthly (M01..M12) plus annual average (M13) where published",
+ "coverage": "2024-01 .. 2026-10 monthly (M01..M12) plus annual averages M13 for 2024 and 2025; 36 observations; years 2024..2026",
+ "file": "data/public/bls_cpi_monthly.csv",
+ "file_bytes": 1433,
+ "file_sha256": "fcd6ddf0ed8fe61d65483cefd9bb3efca97554d4fb85d2c5373acc910164d6e4",
+ "notes": "One compact public series from the official BLS Public Data API v1 (GET, no registration key, no POST, no v2). Without a key the API returned the latest three years only (36 rows); explicit startyear/endyear parameters were ignored by v1 and no alternative/key path was used. Values are the latest published CPI-U NSA index; this is NOT a vintage/PIT slice and no ALFRED-like first-publication history is claimed. Do not mix CUUR (NSA) with CUSR (SA) series. Footnotes are carried in the CSV footnote column where the API returned them. Public domain (U.S. Government work), attribution recommended; compact aggregate only, no bulk download.",
+ "schema": "AMFE-PUBLIC-BLS/1.0.0",
+ "observations": 36
+}

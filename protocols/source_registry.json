@@ -14,7 +14,7 @@
       "name": "U.S. Bureau of Labor Statistics CPI and employment releases",
       "publisher": "U.S. Bureau of Labor Statistics",
       "url": "https://www.bls.gov/developers/",
-      "license": "public domain (U.S. Government work); attribution recommended",
+      "license": "public domain (U.S. Government work), attribution recommended",
       "access": "api",
       "coverage": {
         "geography": "United States, national and metro",
@@ -29,10 +29,10 @@
         "payrolls",
         "release dates"
       ],
-      "retrieved_at": null,
+      "retrieved_at": "2026-11-26",
       "vintage_support": "none",
-      "status": "CATALOGUED",
-      "notes": "The target feed for C6 forward forecasts; release calendar is public, but no BLS series is ingested into the C6 journal yet."
+      "status": "VERIFIED",
+      "notes": "The target feed for C6 forward forecasts; release calendar is public, but no BLS series is ingested into the C6 journal yet. BLS Cpi-U all items pinned 2026-11-26: data/public/bls_cpi_monthly.csv (+ .meta.json), 1433 B, sha256 fcd6ddf0ed8fe61d65483cefd9bb3efca97554d4fb85d2c5373acc910164d6e4, 36 observations (2024-01..2026-10, CUUR0000SA0 NSA, plus two M13 annual averages), one series through the BLS Public Data API v1 without a key; API v2/POST and keys were not used. Not a PIT/vintage series, not the full history (v1 without a key returned ~3 years and startyear/endyear do not widen it), and NSA must not be mixed with SA. The BLS licence page answered 403 (bot policy), so the licence wording is the one already recorded in the project. See docs/249."
     },
     {
       "source_id": "EIA",
@@ -375,10 +375,10 @@
         "deflators",
         "investment"
       ],
-      "retrieved_at": "2026-11-14",
+      "retrieved_at": "2026-11-26",
       "vintage_support": "partial",
       "status": "VERIFIED",
-      "notes": "Offline WDI cache used for macro cross-checks (data/mrio/wb, docs/130 D1 country checks); retrieved_at is the date the cache was fixed in the project. WDI revisions are not stored per vintage."
+      "notes": "Offline WDI cache used for macro cross-checks (data/mrio/wb, docs/130 D1 country checks); retrieved_at is the date the cache was fixed in the project. WDI revisions are not stored per vintage. WGI institutional indicators pinned 2026-11-26: data/public/worldbank_wgi_2025.csv (+ .meta.json), 13190 B, sha256 62ec6e08bf9f19317a29fe32e7721e2ce4d1bffdbff3d12b39ac1a575b8f2300, 120 observations (20 large economies x 6 WGI indicators, year 2025), CC BY 4.0 with attribution. Current WGI codes GOV_WGI_VA/PV/GE/RQ/RL/CC.EST are used (the older VA.EST/PS.EST codes are archived in the WDI archives and are not served by the data endpoint). One year only: no PIT/vintage history and no full panel. The data feed block 15 calibration mode (src/amfe/world/institutions.py, source WGI_CALIBRATED); the block stays RESEARCH_ONLY, not calibrated in the admission sense. See docs/248."
     }
   ]
 }

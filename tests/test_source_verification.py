@@ -86,19 +86,19 @@ class RealRegistryDocket(unittest.TestCase):
         counts = self.report["counts"]
         self.assertEqual(counts["total"], 15)
         self.assertEqual(counts["by_docket_verdict"],
-                         {"VERIFIED": 7, "PARTIAL": 1, "UNVERIFIED": 7})
+                         {"VERIFIED": 8, "PARTIAL": 0, "UNVERIFIED": 7})
         self.assertEqual(sum(counts["by_docket_verdict"].values()), counts["total"])
 
     def test_registry_status_counts_are_separate_from_the_docket_verdict(self):
         self.assertEqual(self.report["counts"]["by_registry_status"],
-                         {"CATALOGUED": 4, "NOT_DOWNLOADED": 4, "ACCESS_VERIFIED": 0,
-                          "VERIFIED": 7})
+                         {"CATALOGUED": 3, "NOT_DOWNLOADED": 4, "ACCESS_VERIFIED": 0,
+                          "VERIFIED": 8})
         self.assertEqual(self.report["verified"],
-                         ["EIA", "EUROSTAT", "FRED_ALFRED", "OECD_ICIO", "UN_COMTRADE",
+                         ["BLS", "EIA", "EUROSTAT", "FRED_ALFRED", "OECD_ICIO", "UN_COMTRADE",
                           "USDA_PSD", "WORLD_BANK"])
 
     def test_partial_list_is_the_close_ring(self):
-        self.assertEqual(self.report["partial"], ["BLS"])
+        self.assertEqual(self.report["partial"], [])
         for source_id in self.report["partial"]:
             record = self.by_id[source_id]
             self.assertFalse(record["citation_allowed"])
@@ -124,7 +124,7 @@ class RealRegistryDocket(unittest.TestCase):
 
     def test_gaps_cover_every_non_verified_source(self):
         gaps = self.report["gaps"]
-        self.assertEqual(len(gaps), 8)
+        self.assertEqual(len(gaps), 7)
         self.assertEqual([gap["source_id"] for gap in gaps],
                          sorted(set(self.by_id) - set(self.report["verified"])))
         for gap in gaps:
@@ -145,19 +145,23 @@ class RealRegistryDocket(unittest.TestCase):
 
     def test_verified_sources_with_weak_evidence_are_reported(self):
         # The registry status is not demoted; the missing evidence is named instead.
-        self.assertIn("dataset_hash", self.by_id["WORLD_BANK"]["weak_evidence"])
-        self.assertEqual(self.by_id["WORLD_BANK"]["dataset_hash"]["state"], "absent")
+        # WORLD_BANK gained a pinned WGI file in the 2026-11-26 log, so its dataset hash is now
+        # full and only the licence/terms evidence is still missing.
+        self.assertIn("terms_evidence", self.by_id["WORLD_BANK"]["weak_evidence"])
+        self.assertEqual(self.by_id["WORLD_BANK"]["dataset_hash"]["state"], "full")
         self.assertEqual(self.by_id["EIA"]["dataset_hash"]["state"], "full")
         self.assertEqual(len(self.by_id["EIA"]["dataset_hash"]["value"]), 64)
         self.assertEqual(self.by_id["OECD_ICIO"]["dataset_hash"]["state"], "truncated")
         self.assertTrue(any("усечён" in warning
                             for warning in self.by_id["OECD_ICIO"]["warnings"]))
-        # FRED_ALFRED was promoted on 2026-11-26 with a pinned file, dataset hash and terms
-        # evidence, so it is the one VERIFIED source with no weak evidence left.
-        self.assertEqual(self.by_id["FRED_ALFRED"]["weak_evidence"], [])
-        self.assertEqual(self.by_id["FRED_ALFRED"]["dataset_hash"]["state"], "full")
+        # FRED_ALFRED and BLS were promoted on 2026-11-26 with a pinned file and dataset hash,
+        # so they are the VERIFIED sources with no weak evidence left.
+        full = {"FRED_ALFRED", "BLS"}
+        for source_id in full:
+            self.assertEqual(self.by_id[source_id]["weak_evidence"], [], source_id)
+            self.assertEqual(self.by_id[source_id]["dataset_hash"]["state"], "full", source_id)
         for source_id in self.report["verified"]:
-            if source_id == "FRED_ALFRED":
+            if source_id in full:
                 continue
             self.assertTrue(self.by_id[source_id]["weak_evidence"], source_id)
 
@@ -427,7 +431,7 @@ class CommandLine(Workspace):
         code, out, _ = self.run_cli()
         self.assertEqual(code, 0)
         self.assertIn("VERIFIED 7", out)
-        self.assertIn("PARTIAL 1", out)
+        self.assertIn("PARTIAL 0", out)
         self.assertIn("UNVERIFIED 7", out)
         self.assertIn("Матрица", out)
 

@@ -911,7 +911,9 @@ ALLOWED_AGGREGATES = {
     "data/oil/brent_monthly_eia.csv": "data/oil/brent_monthly_eia.meta.json",
     "data/public/eurostat_hicp_monthly.csv": "data/public/eurostat_hicp_monthly.meta.json",
     "data/public/fred_cpiaucsl.csv": "data/public/fred_cpiaucsl.meta.json",
+    "data/public/bls_cpi_monthly.csv": "data/public/bls_cpi_monthly.meta.json",
     "data/public/un_comtrade_deu_hs27_2023.csv": "data/public/un_comtrade_deu_hs27_2023.meta.json",
+    "data/public/worldbank_wgi_2025.csv": "data/public/worldbank_wgi_2025.meta.json",
     "data/public/un_comtrade_us_soy_corn_monthly.csv":
         "data/public/un_comtrade_us_soy_corn_monthly.meta.json",
     "data/public/usda_psd_soybean_corn_2022_2026.csv":

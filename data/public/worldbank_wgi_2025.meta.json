@@ -1,0 +1,100 @@
+{
+ "schema": "AMFE-PUBLIC-WGI/1.0.0",
+ "dataset": "World Bank Worldwide Governance Indicators (WGI), six governance dimensions",
+ "file": "data/public/worldbank_wgi_2025.csv",
+ "file_bytes": 13190,
+ "file_sha256": "62ec6e08bf9f19317a29fe32e7721e2ce4d1bffdbff3d12b39ac1a575b8f2300",
+ "license": "World Bank WGI, CC BY 4.0, attribution required",
+ "license_url": "https://creativecommons.org/licenses/by/4.0/",
+ "publisher": "World Bank",
+ "source": "Worldwide Governance Indicators (WGI)",
+ "source_url": "https://api.worldbank.org/v2/country/USA;CHN;DEU;JPN;RUS;IND;BRA;GBR;FRA;ITA;CAN;MEX;IDN;KOR;AUS;TUR;SAU;ZAF;ARG;POL/indicator/GOV_WGI_VA.EST?format=json&per_page=1000&date=2015:2025",
+ "source_urls": {
+  "voice": "https://api.worldbank.org/v2/country/USA;CHN;DEU;JPN;RUS;IND;BRA;GBR;FRA;ITA;CAN;MEX;IDN;KOR;AUS;TUR;SAU;ZAF;ARG;POL/indicator/GOV_WGI_VA.EST?format=json&per_page=1000&date=2015:2025",
+  "stability": "https://api.worldbank.org/v2/country/USA;CHN;DEU;JPN;RUS;IND;BRA;GBR;FRA;ITA;CAN;MEX;IDN;KOR;AUS;TUR;SAU;ZAF;ARG;POL/indicator/GOV_WGI_PV.EST?format=json&per_page=1000&date=2015:2025",
+  "effectiveness": "https://api.worldbank.org/v2/country/USA;CHN;DEU;JPN;RUS;IND;BRA;GBR;FRA;ITA;CAN;MEX;IDN;KOR;AUS;TUR;SAU;ZAF;ARG;POL/indicator/GOV_WGI_GE.EST?format=json&per_page=1000&date=2015:2025",
+  "regulatory": "https://api.worldbank.org/v2/country/USA;CHN;DEU;JPN;RUS;IND;BRA;GBR;FRA;ITA;CAN;MEX;IDN;KOR;AUS;TUR;SAU;ZAF;ARG;POL/indicator/GOV_WGI_RQ.EST?format=json&per_page=1000&date=2015:2025",
+  "rule_of_law": "https://api.worldbank.org/v2/country/USA;CHN;DEU;JPN;RUS;IND;BRA;GBR;FRA;ITA;CAN;MEX;IDN;KOR;AUS;TUR;SAU;ZAF;ARG;POL/indicator/GOV_WGI_RL.EST?format=json&per_page=1000&date=2015:2025",
+  "corruption": "https://api.worldbank.org/v2/country/USA;CHN;DEU;JPN;RUS;IND;BRA;GBR;FRA;ITA;CAN;MEX;IDN;KOR;AUS;TUR;SAU;ZAF;ARG;POL/indicator/GOV_WGI_CC.EST?format=json&per_page=1000&date=2015:2025"
+ },
+ "retrieved_at": "2026-11-26",
+ "retrieval_method": "direct HTTPS GET to the World Bank API v2 (urllib, User-Agent AMFE-research/1.0); no scraping of pages; 6 requests, 1.2 s apart",
+ "coverage": {
+  "year": 2025,
+  "period_requested": "2015:2025",
+  "year_rule": "latest year with all 20 countries and all 6 indicators non-null is 2025; the task text named a 2023 file, but at retrieval the API already publishes 2025 -- the pinned file is named by the actual year for auditability",
+  "countries": 20,
+  "country_iso3": [
+   "ARG",
+   "AUS",
+   "BRA",
+   "CAN",
+   "CHN",
+   "DEU",
+   "FRA",
+   "GBR",
+   "IDN",
+   "IND",
+   "ITA",
+   "JPN",
+   "KOR",
+   "MEX",
+   "POL",
+   "RUS",
+   "SAU",
+   "TUR",
+   "USA",
+   "ZAF"
+  ],
+  "indicators": 6,
+  "observations": 120,
+  "missing_cells": 0
+ },
+ "unit": "WGI governance estimate, approximately -2.5..+2.5 (higher = better governance)",
+ "observed_range": {
+  "min": -1.7289262,
+  "max": 2.0412225
+ },
+ "indicators": [
+  {
+   "key": "voice",
+   "indicator_code": "GOV_WGI_VA.EST",
+   "indicator_name": "Voice and Accountability - Governance estimate (approx. -2.5 to +2.5)"
+  },
+  {
+   "key": "stability",
+   "indicator_code": "GOV_WGI_PV.EST",
+   "indicator_name": "Political Stability - Governance estimate (approx. -2.5 to +2.5)"
+  },
+  {
+   "key": "effectiveness",
+   "indicator_code": "GOV_WGI_GE.EST",
+   "indicator_name": "Government Effectiveness - Governance estimate (approx. -2.5 to +2.5)"
+  },
+  {
+   "key": "regulatory",
+   "indicator_code": "GOV_WGI_RQ.EST",
+   "indicator_name": "Regulatory Quality - Governance estimate (approx. -2.5 to +2.5)"
+  },
+  {
+   "key": "rule_of_law",
+   "indicator_code": "GOV_WGI_RL.EST",
+   "indicator_name": "Rule of Law - Governance estimate (approx. -2.5 to +2.5)"
+  },
+  {
+   "key": "corruption",
+   "indicator_code": "GOV_WGI_CC.EST",
+   "indicator_name": "Control of Corruption - Governance estimate (approx. -2.5 to +2.5)"
+  }
+ ],
+ "code_note": "current WGI codes are GOV_WGI_*.EST (source 'Worldwide Governance Indicators'); the older VA.EST/PS.EST/... codes are archived in 'WDI Database Archives' and their data endpoint no longer serves series. Political stability is GOV_WGI_PV.EST (the old PS.EST code was renamed/archived). The six dimensions map one-to-one to the block's keys voice/stability/effectiveness/regulatory/rule_of_law/corruption.",
+ "notes": [
+  "WGI estimates are perceptions aggregated from surveys/expert assessments, not a factual measurement of institutions",
+  "annual estimates are revised between WGI editions; this pin is a single year, not a PIT/vintage series",
+  "the file is a compact aggregate for the optional block-15 calibration mode; not a country ranking and not an admission input",
+  "raw values are pinned here with CC BY 4.0 attribution to the World Bank; block reports contain only 0-100 indicators and sanitized provenance",
+  "no paid licences used; source class S1 (open, CC BY 4.0)"
+ ],
+ "attribution": "Source: World Bank, Worldwide Governance Indicators (WGI), CC BY 4.0",
+ "observations": 120
+}

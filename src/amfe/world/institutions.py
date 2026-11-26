@@ -117,6 +117,31 @@ DIMENSION_LABELS_RU = {
 DEFAULT_WEIGHTS = {key: 1.0 / len(INDICATOR_KEYS) for key in INDICATOR_KEYS}
 MAX_ABS_DELTA_POINTS = 100.0
 
+#: Optional open-data calibration mode (block 15, docs/248).  The built-in profiles stay
+#: ``ILLUSTRATIVE``; a profile built from World Bank WGI is marked ``WGI_CALIBRATED`` and carries
+#: the raw WGI estimates only as internal provenance (they never enter a report).
+WGI_SOURCE = "WGI_CALIBRATED"
+PROFILE_SOURCES = ("ILLUSTRATIVE", "USER_INPUT", WGI_SOURCE)
+WGI_SCALE_MIN = -2.5
+WGI_SCALE_MAX = 2.5
+WGI_LICENSE = "CC BY 4.0"
+WGI_ATTRIBUTION = ("World Bank, Worldwide Governance Indicators (WGI), CC BY 4.0, attribution "
+                   "required")
+WGI_DATA_STATUS = "WGI_CALIBRATED_OPEN_DATA"
+WGI_INDICATOR_CODES = {
+    "voice": "GOV_WGI_VA.EST",
+    "stability": "GOV_WGI_PV.EST",
+    "effectiveness": "GOV_WGI_GE.EST",
+    "regulatory": "GOV_WGI_RQ.EST",
+    "rule_of_law": "GOV_WGI_RL.EST",
+    "corruption": "GOV_WGI_CC.EST",
+}
+WGI_NOTES = (
+    "WGI — восприятие качества управления (не факт и не измерение в строгом смысле); шкала "
+    "оценок примерно −2,5…+2,5, в блочный балл 0–100 переводится линейно с клиппингом; "
+    "год фиксируется, PIT/винтажей нет; RESEARCH_ONLY, admission=false, не страновой рейтинг"
+)
+
 #: Explicit assumptions.  Every number in an overlay report must trace back to one of these.
 ASSUMPTIONS = (
     {"id": "A1", "kind": "ASSUMPTION_BASED",
@@ -212,6 +237,58 @@ def _positive(value: object, name: str) -> float:
     if number <= 0.0:
         raise InstitutionError(f"{name}: должно быть > 0, получено {number!r}")
     return number
+
+
+def wgi_score(value: object) -> float:
+    """Convert one WGI estimate (approx. −2.5…+2.5) to the block's 0–100 scale, clipped.
+
+    ``score = (value + 2.5) / 5 * 100``, then ``max(0, min(100, score))``.  The conversion is a
+    declared linear mapping of the WGI estimate, not a ranking; the WGI estimate itself stays in the
+    profile provenance and is not written to reports.
+    """
+    number = _finite(value, "WGI value")
+    score = (number - WGI_SCALE_MIN) / (WGI_SCALE_MAX - WGI_SCALE_MIN) * 100.0
+    return max(0.0, min(100.0, score))
+
+
+def _validate_wgi_provenance(value: object) -> dict:
+    """Validate and copy the internal WGI provenance of a calibrated profile (fail-closed)."""
+    if not isinstance(value, Mapping):
+        raise InstitutionError("wgi_provenance: ожидается объект")
+    allowed = {"iso3", "year", "raw_values", "source_note", "indicator_codes"}
+    unknown = sorted(str(key) for key in value if key not in allowed)
+    if unknown:
+        raise InstitutionError(f"wgi_provenance: неизвестные поля {unknown}")
+    iso3 = value.get("iso3")
+    if not isinstance(iso3, str) or len(iso3) != 3 or not iso3.isalpha() or not iso3.isupper():
+        raise InstitutionError("wgi_provenance.iso3: ожидается ISO3 (3 заглавные буквы)")
+    year = value.get("year")
+    if isinstance(year, bool) or not isinstance(year, int) or not 1996 <= year <= 2030:
+        raise InstitutionError("wgi_provenance.year: ожидается целый год 1996…2030")
+    raw = value.get("raw_values")
+    if not isinstance(raw, Mapping):
+        raise InstitutionError("wgi_provenance.raw_values: ожидается объект {индикатор: значение}")
+    unknown_raw = sorted(str(key) for key in raw if key not in INDICATOR_KEYS)
+    if unknown_raw:
+        raise InstitutionError(f"wgi_provenance.raw_values: неизвестные индикаторы {unknown_raw}")
+    missing_raw = [key for key in INDICATOR_KEYS if key not in raw]
+    if missing_raw:
+        raise InstitutionError(f"wgi_provenance.raw_values: не заданы {missing_raw}")
+    raw_values = {key: _finite(raw[key], f"wgi_provenance.raw_values[{key!r}]")
+                  for key in INDICATOR_KEYS}
+    source_note = value.get("source_note", WGI_ATTRIBUTION)
+    if not isinstance(source_note, str):
+        raise InstitutionError("wgi_provenance.source_note: ожидается строка")
+    codes = value.get("indicator_codes", WGI_INDICATOR_CODES)
+    if not isinstance(codes, Mapping) or set(codes) != set(INDICATOR_KEYS):
+        raise InstitutionError("wgi_provenance.indicator_codes: ожидаются все 6 индикаторов")
+    return {
+        "iso3": iso3,
+        "year": year,
+        "raw_values": raw_values,
+        "source_note": source_note,
+        "indicator_codes": {key: str(codes[key]) for key in INDICATOR_KEYS},
+    }
 
 
 def _horizon(value: object, name: str = "horizon_years") -> int:
@@ -436,6 +513,7 @@ class InstitutionProfile:
     weights: Mapping | None = None
     source: str = "ILLUSTRATIVE"
     note: str = ""
+    wgi_provenance: Mapping | None = None
 
     def __post_init__(self) -> None:
         if not isinstance(self.name, str) or not self.name.strip():
@@ -446,8 +524,13 @@ class InstitutionProfile:
                                    InstitutionalIndicators.from_mapping(self.indicators))
             else:
                 raise InstitutionError("indicators: ожидается InstitutionalIndicators или объект")
-        if self.source not in ("ILLUSTRATIVE", "USER_INPUT"):
-            raise InstitutionError("source: ожидается ILLUSTRATIVE или USER_INPUT")
+        if self.source not in PROFILE_SOURCES:
+            raise InstitutionError("source: ожидается ILLUSTRATIVE, USER_INPUT или WGI_CALIBRATED")
+        if self.source == WGI_SOURCE:
+            object.__setattr__(self, "wgi_provenance",
+                               _validate_wgi_provenance(self.wgi_provenance))
+        elif self.wgi_provenance is not None:
+            raise InstitutionError("wgi_provenance: допустим только для source=WGI_CALIBRATED")
         object.__setattr__(self, "weights", normalise_weights(self.weights))
         if not isinstance(self.note, str):
             raise InstitutionError("note: ожидается строка")
@@ -457,7 +540,7 @@ class InstitutionProfile:
 
     def to_dict(self) -> dict:
         breakdown = institutional_score_breakdown(self.indicators, self.weights)
-        return {
+        payload = {
             "name": self.name,
             "source": self.source,
             "note": self.note,
@@ -476,6 +559,37 @@ class InstitutionProfile:
             "disclaimer": ("иллюстративные/пользовательские числа; не страновые данные и не "
                            "результат измерения"),
         }
+        if self.source == WGI_SOURCE:
+            provenance = dict(self.wgi_provenance or {})
+            payload.update({
+                "classification": "WGI_CALIBRATED",
+                "data_status": WGI_DATA_STATUS,
+                "calibration_note": ("индикаторы профиля переведены из открытых WGI; блок остаётся "
+                                     "RESEARCH_ONLY, admission=false, не валидирован и не является "
+                                     "допуском или страновым рейтингом"),
+                "wgi_provenance": {
+                    "iso3": provenance["iso3"],
+                    "year": provenance["year"],
+                    "source_note": provenance.get("source_note", WGI_ATTRIBUTION),
+                    "indicator_codes": dict(provenance.get("indicator_codes", WGI_INDICATOR_CODES)),
+                    "scale": [WGI_SCALE_MIN, WGI_SCALE_MAX],
+                    "license": WGI_LICENSE,
+                    "attribution": WGI_ATTRIBUTION,
+                    "raw_values_in_report": False,
+                    "notes": WGI_NOTES,
+                },
+                "disclaimer": ("индикаторы — открытые WGI (восприятие, не факт); RESEARCH_ONLY, "
+                               "не допуск, не PIT и не страновой рейтинг"),
+            })
+        return payload
+
+    @classmethod
+    def from_wgi(cls, indicators_by_key: Mapping, *, iso3: str, year: int,
+                 name: str | None = None, weights: Mapping | None = None,
+                 source_note: str | None = None) -> "InstitutionProfile":
+        """Build an optional WGI-calibrated profile (docs/248); does not touch any default."""
+        return profile_from_wgi(indicators_by_key, iso3=iso3, year=year, name=name,
+                                weights=weights, source_note=source_note)
 
 
 #: Built-in profiles are geometric examples, not measurements.  They exist so that the CLI has
@@ -486,6 +600,62 @@ _EXAMPLE_VALUES = {
     "EXAMPLE-HIGH": (82.0, 78.0, 85.0, 84.0, 88.0, 86.0),
     "EXAMPLE-POLARIZED": (65.0, 35.0, 45.0, 60.0, 40.0, 38.0),
 }
+
+
+def profile_from_wgi(indicators_by_key: Mapping, *, iso3: str, year: int,
+                     name: str | None = None, weights: Mapping | None = None,
+                     source_note: str | None = None) -> InstitutionProfile:
+    """Build an optional WGI-calibrated profile from six WGI estimates (docs/248).
+
+    Input: ``{voice, stability, effectiveness, regulatory, rule_of_law, corruption}`` in the WGI
+    estimate scale (approx. −2.5…+2.5).  Each value is converted to the block's 0–100 scale with
+    ``wgi_score`` (linear, clipped) and the raw estimates + year + ISO3 are kept in the profile's
+    ``wgi_provenance`` for audit.  Reports contain only the 0–100 indicators and sanitized
+    provenance, never the raw WGI values.  Defaults, ``EXAMPLE-*`` profiles and the simulator are
+    not affected: this is an additional, explicit mode.
+    """
+    if not isinstance(indicators_by_key, Mapping):
+        raise InstitutionError("wgi: ожидается объект {индикатор: значение}")
+    unknown = sorted(str(key) for key in indicators_by_key if key not in INDICATOR_KEYS)
+    if unknown:
+        raise InstitutionError(f"wgi: неизвестные индикаторы {unknown}")
+    missing = [key for key in INDICATOR_KEYS if key not in indicators_by_key]
+    if missing:
+        raise InstitutionError(f"wgi: не заданы индикаторы {missing}")
+    raw = {key: _finite(indicators_by_key[key], f"wgi[{key!r}]") for key in INDICATOR_KEYS}
+    if not isinstance(iso3, str) or len(iso3) != 3 or not iso3.isalpha() or not iso3.isupper():
+        raise InstitutionError("wgi.iso3: ожидается ISO3 (3 заглавные буквы)")
+    if isinstance(year, bool) or not isinstance(year, int) or not 1996 <= year <= 2030:
+        raise InstitutionError("wgi.year: ожидается целый год 1996…2030")
+    profile_name = f"WGI-{iso3}-{year}" if name is None else name
+    note = WGI_ATTRIBUTION if source_note is None else source_note
+    if not isinstance(note, str) or not note.strip():
+        raise InstitutionError("wgi.source_note: ожидается непустая строка")
+    scores = {key: wgi_score(raw[key]) for key in INDICATOR_KEYS}
+    return InstitutionProfile(
+        name=profile_name,
+        indicators=InstitutionalIndicators(**scores),
+        weights=weights,
+        source=WGI_SOURCE,
+        note=note,
+        wgi_provenance={
+            "iso3": iso3,
+            "year": year,
+            "raw_values": raw,
+            "source_note": note,
+            "indicator_codes": dict(WGI_INDICATOR_CODES),
+        },
+    )
+
+
+def wgi_indicators_metadata() -> list[dict]:
+    """Metadata of the six WGI indicators used by the optional calibration mode."""
+    return [
+        {"key": item["key"], "label_en": item["label_en"], "label_ru": item["label_ru"],
+         "indicator_code": WGI_INDICATOR_CODES[item["key"]],
+         "scale": [WGI_SCALE_MIN, WGI_SCALE_MAX], "license": WGI_LICENSE}
+        for item in INDICATORS
+    ]
 
 
 def example_profiles() -> tuple[InstitutionProfile, ...]:
@@ -894,6 +1064,21 @@ def scenario_overlay(profile: InstitutionProfile, scenario: InstitutionScenario,
         "limitations": limitations(),
     }
 
+    if profile.source == WGI_SOURCE:
+        provenance = profile.to_dict()["wgi_provenance"]
+        payload["data_status"] = WGI_DATA_STATUS
+        payload["calibration_note"] = (
+            "индикаторы профиля откалиброваны на открытых WGI; блок RESEARCH_ONLY, admission=false, "
+            "не валидирован, не PIT и не является допуском или страновым рейтингом")
+        payload["wgi_provenance"] = provenance
+        payload["provenance"].update({
+            "calibration": "WGI_OPEN_DATA",
+            "data_read": True,
+            "country_table": True,
+            "note": ("профиль страны из открытых WGI (CC BY 4.0); RESEARCH_ONLY, не допуск, "
+                     "не PIT; сырые значения в отчёт не попадают"),
+        })
+
     checks = {
         "score_bounds": all(0.0 <= row["score"] <= 100.0 for row in path)
         and 0.0 <= base_score <= 100.0 and 0.0 <= full_score <= 100.0,
@@ -939,8 +1124,8 @@ def as_scenario_modifier(report: Mapping) -> dict:
         "delta_score_points": full["delta_score_points"],
         "applies_to": ["block_5_investment", "block_11_12_policy_fiscal",
                        "block_16_geopolitics"],
-        "data_status": DATA_STATUS,
-        "not_calibrated": NOT_CALIBRATED,
+        "data_status": report.get("data_status", DATA_STATUS),
+        "not_calibrated": report.get("not_calibrated", NOT_CALIBRATED),
         "gating": GATING,
         "causal_claim": CAUSAL_CLAIM,
         "note": ("модификатор сценария: три канала при допущениях A1–A10; не прогноз, не "
@@ -1031,6 +1216,12 @@ def run_all(profile: InstitutionProfile | None = None,
         "assumptions": assumptions(),
         "limitations": limitations(),
     }
+    if profile.source == WGI_SOURCE:
+        index["data_status"] = WGI_DATA_STATUS
+        index["calibration_note"] = (
+            "индикаторы профиля откалиброваны на открытых WGI; блок RESEARCH_ONLY, admission=false, "
+            "не валидирован и не является допуском")
+        index["wgi_provenance"] = profile.to_dict()["wgi_provenance"]
     index["digest"] = digest(index)
     return {"index": index, "reports": reports}
 
@@ -1093,6 +1284,9 @@ __all__ = [
     "SCENARIO_KINDS", "DEFAULT_HORIZON", "MAX_HORIZON", "INDICATORS", "INDICATOR_KEYS",
     "INDICATOR_LABELS_RU", "DIMENSIONS", "DIMENSION_LABELS_RU", "DEFAULT_WEIGHTS",
     "MAX_ABS_DELTA_POINTS", "ASSUMPTIONS", "LIMITATIONS", "FORBIDDEN_KEYS", "InstitutionError",
+    "WGI_SOURCE", "PROFILE_SOURCES", "WGI_SCALE_MIN", "WGI_SCALE_MAX", "WGI_LICENSE",
+    "WGI_ATTRIBUTION", "WGI_DATA_STATUS", "WGI_INDICATOR_CODES", "WGI_NOTES",
+    "wgi_score", "profile_from_wgi", "wgi_indicators_metadata",
     "InstitutionalIndicators", "InstitutionProfile", "InstitutionScenario", "OverlayParameters",
     "normalise_weights", "institutional_score", "institutional_score_breakdown", "forbidden_keys",
     "example_profiles", "find_example_profile", "profile_from_config", "parse_indicator_text",

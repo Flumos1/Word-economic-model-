@@ -1,0 +1,121 @@
+country_iso3,country_name,year,indicator_code,indicator_name,value
+ARG,Argentina,2025,GOV_WGI_VA.EST,Voice and Accountability - Governance estimate (approx. -2.5 to +2.5),0.4476404
+ARG,Argentina,2025,GOV_WGI_PV.EST,Political Stability - Governance estimate (approx. -2.5 to +2.5),0.1620605
+ARG,Argentina,2025,GOV_WGI_GE.EST,Government Effectiveness - Governance estimate (approx. -2.5 to +2.5),0.2757855
+ARG,Argentina,2025,GOV_WGI_RQ.EST,Regulatory Quality - Governance estimate (approx. -2.5 to +2.5),-0.093359
+ARG,Argentina,2025,GOV_WGI_RL.EST,Rule of Law - Governance estimate (approx. -2.5 to +2.5),-0.1023981
+ARG,Argentina,2025,GOV_WGI_CC.EST,Control of Corruption - Governance estimate (approx. -2.5 to +2.5),-0.3860634
+AUS,Australia,2025,GOV_WGI_VA.EST,Voice and Accountability - Governance estimate (approx. -2.5 to +2.5),1.4181575
+AUS,Australia,2025,GOV_WGI_PV.EST,Political Stability - Governance estimate (approx. -2.5 to +2.5),0.7805855
+AUS,Australia,2025,GOV_WGI_GE.EST,Government Effectiveness - Governance estimate (approx. -2.5 to +2.5),1.7511677
+AUS,Australia,2025,GOV_WGI_RQ.EST,Regulatory Quality - Governance estimate (approx. -2.5 to +2.5),1.6689879
+AUS,Australia,2025,GOV_WGI_RL.EST,Rule of Law - Governance estimate (approx. -2.5 to +2.5),1.4588952
+AUS,Australia,2025,GOV_WGI_CC.EST,Control of Corruption - Governance estimate (approx. -2.5 to +2.5),1.8381491
+BRA,Brazil,2025,GOV_WGI_VA.EST,Voice and Accountability - Governance estimate (approx. -2.5 to +2.5),0.4223661
+BRA,Brazil,2025,GOV_WGI_PV.EST,Political Stability - Governance estimate (approx. -2.5 to +2.5),-0.3845996
+BRA,Brazil,2025,GOV_WGI_GE.EST,Government Effectiveness - Governance estimate (approx. -2.5 to +2.5),-0.0356251
+BRA,Brazil,2025,GOV_WGI_RQ.EST,Regulatory Quality - Governance estimate (approx. -2.5 to +2.5),-0.44189
+BRA,Brazil,2025,GOV_WGI_RL.EST,Rule of Law - Governance estimate (approx. -2.5 to +2.5),-0.4855083
+BRA,Brazil,2025,GOV_WGI_CC.EST,Control of Corruption - Governance estimate (approx. -2.5 to +2.5),-0.3810545
+CAN,Canada,2025,GOV_WGI_VA.EST,Voice and Accountability - Governance estimate (approx. -2.5 to +2.5),1.4950789
+CAN,Canada,2025,GOV_WGI_PV.EST,Political Stability - Governance estimate (approx. -2.5 to +2.5),0.809649
+CAN,Canada,2025,GOV_WGI_GE.EST,Government Effectiveness - Governance estimate (approx. -2.5 to +2.5),1.7570824
+CAN,Canada,2025,GOV_WGI_RQ.EST,Regulatory Quality - Governance estimate (approx. -2.5 to +2.5),1.4406381
+CAN,Canada,2025,GOV_WGI_RL.EST,Rule of Law - Governance estimate (approx. -2.5 to +2.5),1.4769162
+CAN,Canada,2025,GOV_WGI_CC.EST,Control of Corruption - Governance estimate (approx. -2.5 to +2.5),1.5948956
+CHN,China,2025,GOV_WGI_VA.EST,Voice and Accountability - Governance estimate (approx. -2.5 to +2.5),-1.7207236
+CHN,China,2025,GOV_WGI_PV.EST,Political Stability - Governance estimate (approx. -2.5 to +2.5),0.022475
+CHN,China,2025,GOV_WGI_GE.EST,Government Effectiveness - Governance estimate (approx. -2.5 to +2.5),0.623841
+CHN,China,2025,GOV_WGI_RQ.EST,Regulatory Quality - Governance estimate (approx. -2.5 to +2.5),-0.1107931
+CHN,China,2025,GOV_WGI_RL.EST,Rule of Law - Governance estimate (approx. -2.5 to +2.5),-0.4292116
+CHN,China,2025,GOV_WGI_CC.EST,Control of Corruption - Governance estimate (approx. -2.5 to +2.5),0.0709491
+DEU,Germany,2025,GOV_WGI_VA.EST,Voice and Accountability - Governance estimate (approx. -2.5 to +2.5),1.5424524
+DEU,Germany,2025,GOV_WGI_PV.EST,Political Stability - Governance estimate (approx. -2.5 to +2.5),0.2082813
+DEU,Germany,2025,GOV_WGI_GE.EST,Government Effectiveness - Governance estimate (approx. -2.5 to +2.5),1.4897351
+DEU,Germany,2025,GOV_WGI_RQ.EST,Regulatory Quality - Governance estimate (approx. -2.5 to +2.5),1.2160052
+DEU,Germany,2025,GOV_WGI_RL.EST,Rule of Law - Governance estimate (approx. -2.5 to +2.5),1.604343
+DEU,Germany,2025,GOV_WGI_CC.EST,Control of Corruption - Governance estimate (approx. -2.5 to +2.5),1.6760641
+FRA,France,2025,GOV_WGI_VA.EST,Voice and Accountability - Governance estimate (approx. -2.5 to +2.5),1.1587806
+FRA,France,2025,GOV_WGI_PV.EST,Political Stability - Governance estimate (approx. -2.5 to +2.5),-0.09223
+FRA,France,2025,GOV_WGI_GE.EST,Government Effectiveness - Governance estimate (approx. -2.5 to +2.5),1.2114339
+FRA,France,2025,GOV_WGI_RQ.EST,Regulatory Quality - Governance estimate (approx. -2.5 to +2.5),0.9886707
+FRA,France,2025,GOV_WGI_RL.EST,Rule of Law - Governance estimate (approx. -2.5 to +2.5),0.969859
+FRA,France,2025,GOV_WGI_CC.EST,Control of Corruption - Governance estimate (approx. -2.5 to +2.5),1.2418184
+GBR,United Kingdom,2025,GOV_WGI_VA.EST,Voice and Accountability - Governance estimate (approx. -2.5 to +2.5),1.2841432
+GBR,United Kingdom,2025,GOV_WGI_PV.EST,Political Stability - Governance estimate (approx. -2.5 to +2.5),0.2896866
+GBR,United Kingdom,2025,GOV_WGI_GE.EST,Government Effectiveness - Governance estimate (approx. -2.5 to +2.5),1.2331241
+GBR,United Kingdom,2025,GOV_WGI_RQ.EST,Regulatory Quality - Governance estimate (approx. -2.5 to +2.5),1.4606297
+GBR,United Kingdom,2025,GOV_WGI_RL.EST,Rule of Law - Governance estimate (approx. -2.5 to +2.5),1.2680565
+GBR,United Kingdom,2025,GOV_WGI_CC.EST,Control of Corruption - Governance estimate (approx. -2.5 to +2.5),1.5306459
+IDN,Indonesia,2025,GOV_WGI_VA.EST,Voice and Accountability - Governance estimate (approx. -2.5 to +2.5),-0.1663031
+IDN,Indonesia,2025,GOV_WGI_PV.EST,Political Stability - Governance estimate (approx. -2.5 to +2.5),-0.7389189
+IDN,Indonesia,2025,GOV_WGI_GE.EST,Government Effectiveness - Governance estimate (approx. -2.5 to +2.5),0.25504
+IDN,Indonesia,2025,GOV_WGI_RQ.EST,Regulatory Quality - Governance estimate (approx. -2.5 to +2.5),0.1062892
+IDN,Indonesia,2025,GOV_WGI_RL.EST,Rule of Law - Governance estimate (approx. -2.5 to +2.5),-0.2545855
+IDN,Indonesia,2025,GOV_WGI_CC.EST,Control of Corruption - Governance estimate (approx. -2.5 to +2.5),-0.5139034
+IND,India,2025,GOV_WGI_VA.EST,Voice and Accountability - Governance estimate (approx. -2.5 to +2.5),-0.1522429
+IND,India,2025,GOV_WGI_PV.EST,Political Stability - Governance estimate (approx. -2.5 to +2.5),-0.6078803
+IND,India,2025,GOV_WGI_GE.EST,Government Effectiveness - Governance estimate (approx. -2.5 to +2.5),0.5021381
+IND,India,2025,GOV_WGI_RQ.EST,Regulatory Quality - Governance estimate (approx. -2.5 to +2.5),-0.1695733
+IND,India,2025,GOV_WGI_RL.EST,Rule of Law - Governance estimate (approx. -2.5 to +2.5),-0.1286599
+IND,India,2025,GOV_WGI_CC.EST,Control of Corruption - Governance estimate (approx. -2.5 to +2.5),-0.2791735
+ITA,Italy,2025,GOV_WGI_VA.EST,Voice and Accountability - Governance estimate (approx. -2.5 to +2.5),1.0814199
+ITA,Italy,2025,GOV_WGI_PV.EST,Political Stability - Governance estimate (approx. -2.5 to +2.5),0.4567383
+ITA,Italy,2025,GOV_WGI_GE.EST,Government Effectiveness - Governance estimate (approx. -2.5 to +2.5),0.9246078
+ITA,Italy,2025,GOV_WGI_RQ.EST,Regulatory Quality - Governance estimate (approx. -2.5 to +2.5),0.5979855
+ITA,Italy,2025,GOV_WGI_RL.EST,Rule of Law - Governance estimate (approx. -2.5 to +2.5),0.5852594
+ITA,Italy,2025,GOV_WGI_CC.EST,Control of Corruption - Governance estimate (approx. -2.5 to +2.5),0.5838644
+JPN,Japan,2025,GOV_WGI_VA.EST,Voice and Accountability - Governance estimate (approx. -2.5 to +2.5),1.1071795
+JPN,Japan,2025,GOV_WGI_PV.EST,Political Stability - Governance estimate (approx. -2.5 to +2.5),1.258588
+JPN,Japan,2025,GOV_WGI_GE.EST,Government Effectiveness - Governance estimate (approx. -2.5 to +2.5),2.0412225
+JPN,Japan,2025,GOV_WGI_RQ.EST,Regulatory Quality - Governance estimate (approx. -2.5 to +2.5),1.2213162
+JPN,Japan,2025,GOV_WGI_RL.EST,Rule of Law - Governance estimate (approx. -2.5 to +2.5),1.542334
+JPN,Japan,2025,GOV_WGI_CC.EST,Control of Corruption - Governance estimate (approx. -2.5 to +2.5),1.454513
+KOR,"Korea, Rep.",2025,GOV_WGI_VA.EST,Voice and Accountability - Governance estimate (approx. -2.5 to +2.5),0.8755894
+KOR,"Korea, Rep.",2025,GOV_WGI_PV.EST,Political Stability - Governance estimate (approx. -2.5 to +2.5),0.917367
+KOR,"Korea, Rep.",2025,GOV_WGI_GE.EST,Government Effectiveness - Governance estimate (approx. -2.5 to +2.5),1.5029013
+KOR,"Korea, Rep.",2025,GOV_WGI_RQ.EST,Regulatory Quality - Governance estimate (approx. -2.5 to +2.5),1.0028188
+KOR,"Korea, Rep.",2025,GOV_WGI_RL.EST,Rule of Law - Governance estimate (approx. -2.5 to +2.5),1.1954222
+KOR,"Korea, Rep.",2025,GOV_WGI_CC.EST,Control of Corruption - Governance estimate (approx. -2.5 to +2.5),0.9238643
+MEX,Mexico,2025,GOV_WGI_VA.EST,Voice and Accountability - Governance estimate (approx. -2.5 to +2.5),-0.2820937
+MEX,Mexico,2025,GOV_WGI_PV.EST,Political Stability - Governance estimate (approx. -2.5 to +2.5),-0.6081623
+MEX,Mexico,2025,GOV_WGI_GE.EST,Government Effectiveness - Governance estimate (approx. -2.5 to +2.5),-0.1806742
+MEX,Mexico,2025,GOV_WGI_RQ.EST,Regulatory Quality - Governance estimate (approx. -2.5 to +2.5),-0.233724
+MEX,Mexico,2025,GOV_WGI_RL.EST,Rule of Law - Governance estimate (approx. -2.5 to +2.5),-1.1681501
+MEX,Mexico,2025,GOV_WGI_CC.EST,Control of Corruption - Governance estimate (approx. -2.5 to +2.5),-0.942445
+POL,Poland,2025,GOV_WGI_VA.EST,Voice and Accountability - Governance estimate (approx. -2.5 to +2.5),0.8187193
+POL,Poland,2025,GOV_WGI_PV.EST,Political Stability - Governance estimate (approx. -2.5 to +2.5),0.6937747
+POL,Poland,2025,GOV_WGI_GE.EST,Government Effectiveness - Governance estimate (approx. -2.5 to +2.5),0.7962743
+POL,Poland,2025,GOV_WGI_RQ.EST,Regulatory Quality - Governance estimate (approx. -2.5 to +2.5),0.7887153
+POL,Poland,2025,GOV_WGI_RL.EST,Rule of Law - Governance estimate (approx. -2.5 to +2.5),0.5689166
+POL,Poland,2025,GOV_WGI_CC.EST,Control of Corruption - Governance estimate (approx. -2.5 to +2.5),0.8484408
+RUS,Russian Federation,2025,GOV_WGI_VA.EST,Voice and Accountability - Governance estimate (approx. -2.5 to +2.5),-1.4401918
+RUS,Russian Federation,2025,GOV_WGI_PV.EST,Political Stability - Governance estimate (approx. -2.5 to +2.5),-0.9449586
+RUS,Russian Federation,2025,GOV_WGI_GE.EST,Government Effectiveness - Governance estimate (approx. -2.5 to +2.5),-0.5007182
+RUS,Russian Federation,2025,GOV_WGI_RQ.EST,Regulatory Quality - Governance estimate (approx. -2.5 to +2.5),-1.1954072
+RUS,Russian Federation,2025,GOV_WGI_RL.EST,Rule of Law - Governance estimate (approx. -2.5 to +2.5),-1.2724942
+RUS,Russian Federation,2025,GOV_WGI_CC.EST,Control of Corruption - Governance estimate (approx. -2.5 to +2.5),-0.9830237
+SAU,Saudi Arabia,2025,GOV_WGI_VA.EST,Voice and Accountability - Governance estimate (approx. -2.5 to +2.5),-1.7289262
+SAU,Saudi Arabia,2025,GOV_WGI_PV.EST,Political Stability - Governance estimate (approx. -2.5 to +2.5),0.0170733
+SAU,Saudi Arabia,2025,GOV_WGI_GE.EST,Government Effectiveness - Governance estimate (approx. -2.5 to +2.5),0.739527
+SAU,Saudi Arabia,2025,GOV_WGI_RQ.EST,Regulatory Quality - Governance estimate (approx. -2.5 to +2.5),0.6694526
+SAU,Saudi Arabia,2025,GOV_WGI_RL.EST,Rule of Law - Governance estimate (approx. -2.5 to +2.5),0.2737498
+SAU,Saudi Arabia,2025,GOV_WGI_CC.EST,Control of Corruption - Governance estimate (approx. -2.5 to +2.5),0.8055716
+TUR,Turkiye,2025,GOV_WGI_VA.EST,Voice and Accountability - Governance estimate (approx. -2.5 to +2.5),-1.1138391
+TUR,Turkiye,2025,GOV_WGI_PV.EST,Political Stability - Governance estimate (approx. -2.5 to +2.5),-0.8812265
+TUR,Turkiye,2025,GOV_WGI_GE.EST,Government Effectiveness - Governance estimate (approx. -2.5 to +2.5),0.0289387
+TUR,Turkiye,2025,GOV_WGI_RQ.EST,Regulatory Quality - Governance estimate (approx. -2.5 to +2.5),-0.1718558
+TUR,Turkiye,2025,GOV_WGI_RL.EST,Rule of Law - Governance estimate (approx. -2.5 to +2.5),-0.8121093
+TUR,Turkiye,2025,GOV_WGI_CC.EST,Control of Corruption - Governance estimate (approx. -2.5 to +2.5),-0.5280827
+USA,United States,2025,GOV_WGI_VA.EST,Voice and Accountability - Governance estimate (approx. -2.5 to +2.5),0.6447555
+USA,United States,2025,GOV_WGI_PV.EST,Political Stability - Governance estimate (approx. -2.5 to +2.5),-0.3020818
+USA,United States,2025,GOV_WGI_GE.EST,Government Effectiveness - Governance estimate (approx. -2.5 to +2.5),1.1909909
+USA,United States,2025,GOV_WGI_RQ.EST,Regulatory Quality - Governance estimate (approx. -2.5 to +2.5),1.0060452
+USA,United States,2025,GOV_WGI_RL.EST,Rule of Law - Governance estimate (approx. -2.5 to +2.5),0.7914024
+USA,United States,2025,GOV_WGI_CC.EST,Control of Corruption - Governance estimate (approx. -2.5 to +2.5),0.8652136
+ZAF,South Africa,2025,GOV_WGI_VA.EST,Voice and Accountability - Governance estimate (approx. -2.5 to +2.5),0.6809024
+ZAF,South Africa,2025,GOV_WGI_PV.EST,Political Stability - Governance estimate (approx. -2.5 to +2.5),-0.3816822
+ZAF,South Africa,2025,GOV_WGI_GE.EST,Government Effectiveness - Governance estimate (approx. -2.5 to +2.5),-0.0230339
+ZAF,South Africa,2025,GOV_WGI_RQ.EST,Regulatory Quality - Governance estimate (approx. -2.5 to +2.5),-0.0682228
+ZAF,South Africa,2025,GOV_WGI_RL.EST,Rule of Law - Governance estimate (approx. -2.5 to +2.5),0.0407744
+ZAF,South Africa,2025,GOV_WGI_CC.EST,Control of Corruption - Governance estimate (approx. -2.5 to +2.5),-0.1334379
