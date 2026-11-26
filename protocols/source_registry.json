@@ -284,8 +284,8 @@
       "source_id": "USDA_FAS_EXPORT_SALES",
       "name": "USDA FAS Export Sales and GAIN reports",
       "publisher": "U.S. Department of Agriculture, Foreign Agricultural Service",
-      "url": "https://apps.fas.usda.gov/export-sales/",
-      "license": "public domain (U.S. Government work); attribution recommended",
+      "url": "https://apps.fas.usda.gov/esrqs/",
+      "license": "data.gov metadata: CC BY 4.0 (attribution); 'public domain (U.S. Government work)' is NOT confirmed — FAS/USDA policy pages returned 403 bot policy on 2026-11-26",
       "access": "file",
       "coverage": {
         "geography": "U.S. exports by destination country",
@@ -302,7 +302,8 @@
       "retrieved_at": null,
       "vintage_support": "partial",
       "status": "CATALOGUED",
-      "notes": "Weekly export-sales files are the natural PIT input for trade-flow assumptions in the soy pilot."
+      "notes": "OSINT step 2026-11-26 (docs/241): no keyless static public file. Interactive ESRQS app https://apps.fas.usda.gov/esrqs/ (HTTP 200) is the only public entry; the data API /esrqs/api/reports/* answers 401 'OAuth token has expired', static report endpoints 404 anonymously, OpenData API 403 'Bad API Key'; legacy /export-sales/ and /esrquery/ are 404; www.fas.usda.gov and www.usda.gov return 403 bot policy (not bypassed). data.gov card USDA-26351 is the only catalogue record and exposes an interactive resource only. No data retrieved, nothing to cite; keys and paywall bypass are forbidden by the owner policy. Path forward: a human exports a report from the public ESRQS UI with provenance, or a legal access request (docs/224 G1/G2) is approved.",
+      "catalog_url": "https://catalog.data.gov/dataset/export-sales-reporting"
     },
     {
       "source_id": "USDA_PSD",
