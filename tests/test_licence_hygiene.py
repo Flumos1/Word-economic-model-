@@ -49,6 +49,8 @@ ALLOWED_TRACKED_RAW = {
     "data/public/fred_cpiaucsl.meta.json",
     "data/public/un_comtrade_deu_hs27_2023.csv",
     "data/public/un_comtrade_deu_hs27_2023.meta.json",
+    "data/public/un_comtrade_us_soy_corn_monthly.csv",
+    "data/public/un_comtrade_us_soy_corn_monthly.meta.json",
     "data/public/usda_psd_soybean_corn_2022_2026.csv",
     "data/public/usda_psd_soybean_corn_2022_2026.meta.json",
 }

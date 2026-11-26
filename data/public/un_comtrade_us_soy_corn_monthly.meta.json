@@ -1,0 +1,87 @@
+{
+  "dataset_id": "US_SOY_CORN_MONTHLY_EXPORTS",
+  "name": "UN Comtrade public preview: US monthly exports of soybeans (HS 1201) and maize/corn (HS 1005) to World",
+  "source": "UN Comtrade Database (United Nations Statistics Division), public preview API (no key)",
+  "publisher": "United Nations Statistics Division (UNSD)",
+  "source_url": "https://comtradeapi.un.org/public/v1/preview/C/M/HS?reporterCode=842&period=202301&cmdCode=1201&flowCode=X&partnerCode=0 (pattern; one request per commodity-month, 44 months x 2 codes = 88 requests, e.g. ...&period=202608&cmdCode=1005...)",
+  "landing_url": "https://comtradeplus.un.org/",
+  "terms_page": "https://comtradeplus.un.org/en/license-agreement",
+  "terms_retrieved_at": "2026-11-26",
+  "terms_bytes": 51445,
+  "terms_sha256": "021d37ed6ef4a6d72bb12e8d5fa0a76257de147652b8bebbc17b97b7803404d6",
+  "license": "UN Comtrade terms of use: free for non-commercial use with attribution; no re-sale; public preview used without an API key or subscription; premium API limits apply above the free tier",
+  "retrieved_at": "2026-11-26",
+  "reporter": "United States (842)",
+  "partner": "World (0)",
+  "flow": "Exports (X)",
+  "commodities": {
+    "1201": "Soya beans, whether or not broken (HS 1201)",
+    "1005": "Maize (corn) (HS 1005)"
+  },
+  "unit": "primary_value_usd in USD (FOB export value); net_weight_kg in kg (net weight)",
+  "frequency": "monthly (public preview, freqCode=M; exactly one period per request)",
+  "coverage": "2023-01 .. 2026-08; 88 monthly observations (44 months x 2 HS codes); United States (reporter 842) exports to World (partner 0); no destination breakdown",
+  "file": "data/public/un_comtrade_us_soy_corn_monthly.csv",
+  "file_bytes": 5814,
+  "file_sha256": "48c9762be8693beda64e303a40fd879c3765210f1149e1821fb3993751c3dfa4",
+  "observations": 88,
+  "annual_cross_check": [
+    {
+      "cmd": "1201",
+      "year": 2023,
+      "months": 12,
+      "monthly_sum_usd": 28006470143.0,
+      "annual_usd": 28006470143.0,
+      "diff_pct": 0.0
+    },
+    {
+      "cmd": "1201",
+      "year": 2024,
+      "months": 12,
+      "monthly_sum_usd": 24570058895.0,
+      "annual_usd": 24570058895.0,
+      "diff_pct": 0.0
+    },
+    {
+      "cmd": "1201",
+      "year": 2025,
+      "months": 12,
+      "monthly_sum_usd": 16459153793.0,
+      "annual_usd": 16459153793.0,
+      "diff_pct": 0.0
+    },
+    {
+      "cmd": "1005",
+      "year": 2023,
+      "months": 12,
+      "monthly_sum_usd": 13683227155.0,
+      "annual_usd": 13683227155.0,
+      "diff_pct": 0.0
+    },
+    {
+      "cmd": "1005",
+      "year": 2024,
+      "months": 12,
+      "monthly_sum_usd": 14342041436.0,
+      "annual_usd": 14342041436.0,
+      "diff_pct": 0.0
+    },
+    {
+      "cmd": "1005",
+      "year": 2025,
+      "months": 12,
+      "monthly_sum_usd": 18878400950.0,
+      "annual_usd": 18878400950.0,
+      "diff_pct": 0.0
+    }
+  ],
+  "notes": "Compact public aggregate: monthly US customs export value and net weight for two HS codes, partner World only. Raw API responses (88 monthly JSON files, 85,304 B) were kept in a temporary directory outside the repository and are NOT committed; only this CSV is. The monthly preview returns null descriptive fields (reporterDesc/partnerDesc/cmdDesc), so the CSV keeps codes only and the labels above are static. isReported=false in every monthly row (API flag; values used as returned, no adjustment). Monthly values sum exactly to the annual API totals for 2023, 2024 and 2025 for both HS codes (cross-check in annual_cross_check; 0.0% difference), which is the main internal consistency evidence. Frequency is MONTHLY, not weekly: this replaces the FAS export-sales series only at a monthly horizon; FAS weekly commitments/outstanding sales and destination detail are NOT available here. No PIT/vintages: one current preview snapshot, US/Comtrade revisions may alter historical months; 2026-09 returned no records on 2026-11-26 (data lag). No re-sale; attribution to UN Comtrade/UNSD required. This is not the full Comtrade database. One monthly record (HS 1005, 2025-08) has primaryValue but a null netWgt in the public preview; net_weight_kg is left EMPTY for that row (no imputation).",
+  "schema": "AMFE-PUBLIC-COMTrade-US-SOY-CORN/1.0.0",
+  "terms_previous_pin": {
+    "url": "https://comtradeplus.un.org/en/license-agreement",
+    "retrieved_at": "2026-11-25",
+    "bytes": 50828,
+    "sha256": "cedc18d78dfe1ab0ad92face2a8b62ec9a36591392953b181652b013405673db",
+    "note": "pin recorded in protocols/source_registry.json for 2026-11-25; the license page is JavaScript-rendered and its bytes changed by 2026-11-26 (fresh fetch: terms_bytes/terms_sha256 above) — both pins are evidence, the licence wording is the same UN Comtrade terms: free for non-commercial use with attribution, no re-sale"
+  }
+}
