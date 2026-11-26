@@ -160,6 +160,31 @@ def render_markdown(item: dict) -> str:
     return "\n".join(lines)
 
 
+def _normalise_docx(path: Path, moment: str = "2026-11-26T00:00:00Z") -> None:
+    """Pin DOCX zip timestamps and core.xml dates so two rebuilds are byte-identical."""
+    import re
+    import zipfile
+    from datetime import datetime
+
+    stamp = datetime.strptime(moment, "%Y-%m-%dT%H:%M:%SZ")
+    date_time = stamp.timetuple()[:6]
+    stamp_bytes = moment.encode("utf-8")
+    with zipfile.ZipFile(path, "r") as source:
+        entries = [(info, source.read(info.filename)) for info in source.infolist()]
+    temporary = path.with_name(path.name + ".tmp")
+    with zipfile.ZipFile(temporary, "w", zipfile.ZIP_DEFLATED) as target:
+        for info, data in entries:
+            if info.filename == "docProps/core.xml":
+                data = re.sub(
+                    rb"(<dcterms:(?:created|modified)[^>]*>)[^<]*(</dcterms:(?:created|modified)>)",
+                    rb"\g<1>" + stamp_bytes + rb"\g<2>", data)
+            new_info = zipfile.ZipInfo(info.filename, date_time=date_time)
+            new_info.compress_type = zipfile.ZIP_DEFLATED
+            new_info.external_attr = info.external_attr
+            target.writestr(new_info, data)
+    temporary.replace(path)
+
+
 def build_docx(item: dict, path: Path) -> None:
     import docx
     from docx.shared import Pt
@@ -204,6 +229,7 @@ def build_docx(item: dict, path: Path) -> None:
     disclaimer.runs[0].italic = True
     path.parent.mkdir(parents=True, exist_ok=True)
     document.save(str(path))
+    _normalise_docx(path)
 
 
 def build() -> list[Path]:

@@ -109,6 +109,20 @@ class Rendered(unittest.TestCase):
         self.assertEqual(mod._weeks(11), "11 недель")
         self.assertEqual(mod._weeks(21), "21 неделя")
 
+    def test_docx_rebuild_is_byte_identical(self):
+        import hashlib
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            target = Path(tmp)
+            digests = []
+            for _ in range(2):
+                for item in mod.select():
+                    path = target / f"{item['slug']}.docx"
+                    mod.build_docx(item, path)
+                    digests.append(hashlib.sha256(path.read_bytes()).hexdigest())
+            first, second = digests[:2], digests[2:]
+            self.assertEqual(first, second, "DOCX rebuild must be deterministic")
+
     def test_docx_carries_the_same_disclaimers(self):
         from docx import Document
         for item in mod.select():
