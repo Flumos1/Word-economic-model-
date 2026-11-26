@@ -106,6 +106,13 @@ DEFAULT_DATA_ROOT = ROOT / "data" / "raw"
 #: docs/173 P0-1 acceptance criteria for this MVP.
 MIN_SCORED_SOURCES = 3
 MIN_SCORED_POINTS = 50
+#: docs/207 M2 asks for at least two scorable sources; docs/173 asked for three.  Both are
+#: reported, so meeting M2 never silently hides that the stricter MVP target is still open.
+M2_MIN_SCORED_SOURCES = 2
+#: Project policy (stronger than the NY Fed licence): no third-party forecast/actual values are
+#: written into the committed report, even when the register allows publication.  Only aggregates,
+#: counts, metadata and hashes are published.
+REPORT_VALUES_POLICY = "aggregates_and_metadata_only"
 
 TARGET_T2 = "T2_GDP_GROWTH"
 SUPPORTED_TARGETS = (TARGET_T2,)
@@ -308,8 +315,25 @@ def licence_verdict(entry: Mapping | None) -> dict:
     }
 
 
-def publication_block(records: Sequence[Mapping], verdict: Mapping, *, limit: int = 5) -> dict:
-    """Values block of one source: full sample only when the licence allows publication."""
+def publication_block(records: Sequence[Mapping], verdict: Mapping, *, limit: int = 5,
+                      allow_values: bool = True) -> dict:
+    """Values block of one source.
+
+    The licence verdict decides whether the *licence* would allow publishing a sample.  The report
+    builder additionally applies the project policy (``REPORT_VALUES_POLICY``) and never publishes
+    third-party values into the committed report: passing ``allow_values=False`` keeps the block
+    aggregates-only even for an OPEN licence without publication blockers.
+    """
+    if not allow_values:
+        return {
+            "values_published": False,
+            "reason": "PROJECT_VALUES_NOT_PUBLISHED",
+            "licence_status": verdict.get("status"),
+            "publication_blocker": None,
+            "note": ("project policy: third-party forecast/actual values stay outside git; only "
+                     "aggregates, counts, metadata and hashes are published"),
+            "sample": None,
+        }
     if not verdict.get("values_publishable"):
         return {
             "values_published": False,
@@ -533,6 +557,8 @@ SOURCE_SPECS: dict[str, dict] = {
         "urls": [
             "https://www.newyorkfed.org/research/policy/nowcast",
             "https://www.newyorkfed.org/privacy/termsofuse",
+            "https://www.newyorkfed.org/medialibrary/media/research/policy/nowcast/"
+            "new-york-fed-staff-nowcast_data_2002-present.xlsx",
         ],
         "values_location": NYFED_SCHEMA["path"],
         "attribution": NYFED_ATTRIBUTION,
@@ -1118,7 +1144,7 @@ def _score_source(adapter: Adapter, protocol: Mapping, *, horizons: Sequence[int
         "counts_mode": "scored" if actuals is not None else "available",
     }
     if not adapter.status()["available"]:
-        empty = publication_block([], adapter.verdict)
+        empty = publication_block([], adapter.verdict, allow_values=False)
         empty["values_published"] = False
         if not empty.get("reason"):
             empty["reason"] = "SOURCE_NOT_SCORED"
@@ -1160,7 +1186,7 @@ def _score_source(adapter: Adapter, protocol: Mapping, *, horizons: Sequence[int
             result["points"]["eligible"] += eligible
         if target_block:
             result["targets"][target] = target_block
-    result["values"] = publication_block(published_records, adapter.verdict)
+    result["values"] = publication_block(published_records, adapter.verdict, allow_values=False)
     return result
 
 
@@ -1242,6 +1268,15 @@ def build_report(*, data_root=None, horizons: Sequence[int] = (0, 1), max_origin
             "point-in-time scorecard of external forecasts against the first publication of the fact "
             "on the frozen protocol windows W1/W2: who is more accurate, when, and with what coverage"
         ),
+        "publication_policy": {
+            "third_party_values": REPORT_VALUES_POLICY,
+            "note": (
+                "even when the licence register would allow publishing a sample (NY Fed), the "
+                "committed report keeps third-party forecast/actual values outside git; only "
+                "aggregates, counts, metadata and hashes are written"
+            ),
+            "raw_data_location": "data/raw/ (git-ignored; fetched with tools/fetch_scorecard_data.py)",
+        },
         "status": None,
         "status_reasons": [],
         "protocol": {
@@ -1282,13 +1317,17 @@ def build_report(*, data_root=None, horizons: Sequence[int] = (0, 1), max_origin
         "criteria": {
             "min_scored_sources": MIN_SCORED_SOURCES,
             "min_scored_points": MIN_SCORED_POINTS,
-            "source": "docs/173 P0-1 acceptance criteria for the external scorecard MVP",
+            "m2_min_scored_sources": M2_MIN_SCORED_SOURCES,
+            "source": "docs/173 P0-1 MVP asks for >=3 scorable sources; docs/207 M2 asks for >=2",
         },
         "gaps": [],
         "limitations": [
             "MVP scope: T2_GDP_GROWTH at h=0 and h=1 only; T1/T3 and h=2/h=4 are not scored yet",
             "the SPF file is the latest revision of the medians, not a point-in-time vintage snapshot: "
             "the release date fixes availability, errata after the survey are not audited",
+            "NY Fed Staff Nowcast is a values-only archive: 2002Q1-2015Q4 are historical "
+            "reconstructions (excluded from real-time scoring) and only 2016Q1-2021Q3 rows are as "
+            "published; the archive has no underlying series, so no re-estimation is possible",
             "SPF forecasts are point (median) forecasts: CRPS and interval coverage are NOT_AVAILABLE "
             "for that source, and no distribution is imputed to make a number appear",
             "no external source in this MVP publishes a probability for a protocol event, so Brier is "
@@ -1304,8 +1343,9 @@ def build_report(*, data_root=None, horizons: Sequence[int] = (0, 1), max_origin
         "next_steps": [
             "add the project's own OPEN baselines (C6 forward-registry rows, R3 ensemble) to the same "
             "origins to produce the 'external vs ours' table",
-            "restore or fetch a licensed NY Fed / Cleveland archive and register the exact terms before "
-            "scoring (the adapters are ready and validated against a documented schema)",
+            "seek at least one more OPEN source with a matching T2 horizon mapping: GDPNow is "
+            "RESTRICTED in the licence register (owner decision needed before any use) and Cleveland "
+            "publishes a current-month CPI nowcast with no protocol T2 horizon mapping",
             "extend to h=2/h=4 and to T1 once a source with a matching horizon mapping is registered",
             "turn the report into the UC-44 subscription artifact: per-source error tables, charts and a "
             "stable API payload once >=3 sources are scored",
@@ -1330,6 +1370,7 @@ def build_report(*, data_root=None, horizons: Sequence[int] = (0, 1), max_origin
         "criteria_pass": {
             "sources": len(scored_sources) >= MIN_SCORED_SOURCES,
             "points": total_points >= MIN_SCORED_POINTS,
+            "m2_sources": len(scored_sources) >= M2_MIN_SCORED_SOURCES,
         },
         "licence_compliance": {
             "restricted_used": [sid for sid, block in report["sources"].items()
@@ -1353,9 +1394,11 @@ def _gaps(report: Mapping) -> list[str]:
         elif block["points"]["scored"] == 0:
             gaps.append(f"{source_id}: AVAILABLE but no point passed the PIT/actual gates")
     if report["cross_source"]["scored_sources_count"] < MIN_SCORED_SOURCES:
+        count = report["cross_source"]["scored_sources_count"]
+        m2 = "met" if count >= M2_MIN_SCORED_SOURCES else "NOT met"
         gaps.append(
-            f"only {report['cross_source']['scored_sources_count']} of {len(report['sources'])} catalogue "
-            f"sources could be scored; docs/173 asks for >= {MIN_SCORED_SOURCES}"
+            f"only {count} of {len(report['sources'])} catalogue sources could be scored; "
+            f"docs/207 M2 (>={M2_MIN_SCORED_SOURCES}) is {m2}, docs/173 MVP asks for >={MIN_SCORED_SOURCES}"
         )
     gaps.append("project's own baselines are not joined to these origins yet ('external vs ours' is open)")
     gaps.append("CRPS and Brier are NOT_AVAILABLE for every scored source (point-only, no event probability)")

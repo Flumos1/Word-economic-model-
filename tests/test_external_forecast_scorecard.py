@@ -21,7 +21,9 @@ import external_forecast_scorecard as sc  # noqa: E402
 
 VALUES = ROOT / "data" / "raw" / "spf" / "spf_median.json"
 VINTAGES = ROOT / "data" / "raw" / "GDPC1" / "vintages.zip"
+NYFED = ROOT / "data" / "raw" / "ny_fed" / "nowcast.csv"
 LOCAL_DATA = VALUES.exists() and VINTAGES.exists()
+LOCAL_SCORECARD_DATA = LOCAL_DATA and NYFED.exists()
 
 
 def quantile_dict(value, levels=sc.PROTOCOL_QUANTILES):
@@ -247,6 +249,17 @@ class LicenceTests(TempDirMixin):
         self.assertEqual(len(allowed["sample"]), 1)
         self.assertEqual(allowed["sample"][0]["forecast"], 2.0)
 
+    def test_project_policy_keeps_values_out_even_when_the_licence_allows_them(self):
+        records = [{"origin": "2019-02-28", "target_period": "2019-03-31", "status": "SCORED",
+                    "forecast": 2.0, "actual": 2.4, "publication_date": "2019-02-22"}]
+        open_entry = {"id": "SYNTHETIC", "status": "OPEN", "conditions": ["attribution"]}
+        suppressed = sc.publication_block(records, sc.licence_verdict(open_entry),
+                                          allow_values=False)
+        self.assertFalse(suppressed["values_published"])
+        self.assertEqual(suppressed["reason"], "PROJECT_VALUES_NOT_PUBLISHED")
+        self.assertIsNone(suppressed["sample"])
+        self.assertNotIn("forecast\"", json.dumps(suppressed))
+
     def test_gdpnow_values_are_never_read_even_if_a_file_exists(self):
         (self.tmp / "gdpnow").mkdir(parents=True)
         (self.tmp / "gdpnow" / "nowcast.csv").write_text(
@@ -369,11 +382,12 @@ class NyFedAdapterTests(TempDirMixin):
 # --------------------------------------------------------------------------------------------
 # Report
 # --------------------------------------------------------------------------------------------
-@unittest.skipUnless(LOCAL_DATA, "local SPF values / ALFRED vintages are absent (git-ignored)")
+@unittest.skipUnless(LOCAL_SCORECARD_DATA,
+                     "local SPF values, NY Fed archive or ALFRED vintages are absent (git-ignored)")
 class ReportTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.report = sc.build_report(horizons=(0,), max_origins=30, generated_at="2026-11-18T00:00:00Z")
+        cls.report = sc.build_report(horizons=(0,), generated_at="2026-11-18T00:00:00Z")
 
     def test_report_structure(self):
         report = self.report
@@ -385,6 +399,9 @@ class ReportTests(unittest.TestCase):
         self.assertEqual(report["protocol"]["status"], "FROZEN")
         self.assertEqual(report["criteria"]["min_scored_sources"], sc.MIN_SCORED_SOURCES)
         self.assertEqual(report["criteria"]["min_scored_points"], sc.MIN_SCORED_POINTS)
+        self.assertEqual(report["criteria"]["m2_min_scored_sources"], sc.M2_MIN_SCORED_SOURCES)
+        self.assertEqual(report["publication_policy"]["third_party_values"],
+                         sc.REPORT_VALUES_POLICY)
         self.assertEqual(set(report["sources"]), set(sc.SOURCE_SPECS))
 
     def test_report_has_the_five_required_metrics(self):
@@ -419,22 +436,57 @@ class ReportTests(unittest.TestCase):
         spf = self.report["sources"]["SPF_GDP_MEDIAN"]
         self.assertFalse(spf["values"]["values_published"])
         self.assertIsNone(spf["values"]["sample"])
+        # the NY Fed licence allows a sample, but the project policy still keeps all third-party
+        # forecast/actual values outside the committed report
+        nyfed = self.report["sources"]["NY_FED_STAFF_NOWCAST"]
+        self.assertFalse(nyfed["values"]["values_published"])
+        self.assertIsNone(nyfed["values"]["sample"])
         self.assertIn("values_published", self.report["sources"]["ATLANTA_FED_GDPNOW"]["values"])
 
+    def test_two_scorable_sources_meet_the_m2_requirement(self):
+        report = self.report
+        cross = report["cross_source"]
+        self.assertGreaterEqual(cross["scored_sources_count"], sc.M2_MIN_SCORED_SOURCES)
+        self.assertIn("SPF_GDP_MEDIAN", cross["scored_sources"])
+        self.assertIn("NY_FED_STAFF_NOWCAST", cross["scored_sources"])
+        self.assertTrue(cross["criteria_pass"]["m2_sources"])
+        self.assertTrue(cross["criteria_pass"]["points"])
+        self.assertGreaterEqual(cross["scored_points_total"], sc.MIN_SCORED_POINTS)
+        # 2 >= 2 (M2) but still below the stricter docs/173 MVP target of 3
+        if cross["scored_sources_count"] < sc.MIN_SCORED_SOURCES:
+            self.assertFalse(cross["criteria_pass"]["sources"])
+
+    def test_nyfed_archive_is_partial_and_not_overclaimed(self):
+        block = self.report["sources"]["NY_FED_STAFF_NOWCAST"]["targets"][sc.TARGET_T2]["0"]
+        w1 = block["windows"]["W1"]
+        w2 = block["windows"]["W2"]
+        # W1 is entirely historical reconstruction / no publication before the origin
+        self.assertEqual(w1["scored"], 0)
+        self.assertEqual(w1["exclusions"].get("RECONSTRUCTED_NOT_REAL_TIME"), 60)
+        self.assertEqual(w1["exclusions"].get("NO_PUBLICATION_BEFORE_ORIGIN"), 144)
+        # only as-published 2016-2019 rows are scorable inside W2; 2007-2015 are reconstructions
+        self.assertEqual(w2["scored"], 48)
+        self.assertEqual(w2["exclusions"].get("RECONSTRUCTED_NOT_REAL_TIME"), 108)
+        self.assertEqual(w2["lookahead_excluded"], 0)
+        self.assertLess(w2["coverage_share"], 0.5)
+
     def test_report_is_deterministic(self):
-        again = sc.build_report(horizons=(0,), max_origins=30, generated_at="2026-11-18T00:00:00Z")
+        again = sc.build_report(horizons=(0,), generated_at="2026-11-18T00:00:00Z")
         self.assertEqual(self.report["content_sha256"], again["content_sha256"])
-        other_stamp = sc.build_report(horizons=(0,), max_origins=30, generated_at="2030-01-01T00:00:00Z")
+        other_stamp = sc.build_report(horizons=(0,), generated_at="2030-01-01T00:00:00Z")
         self.assertEqual(self.report["content_sha256"], other_stamp["content_sha256"],
                          "generated_at must be excluded from the content digest")
 
     def test_status_is_honest_about_the_missing_sources(self):
         report = self.report
+        cross = report["cross_source"]
         self.assertEqual(report["status"], "PARTIAL")
-        self.assertIn("SCORED_SOURCES_BELOW_CRITERION(1<3)", report["status_reasons"])
-        self.assertFalse(report["cross_source"]["criteria_pass"]["sources"])
-        self.assertEqual(report["cross_source"]["licence_compliance"]["restricted_used"], [])
-        self.assertEqual(report["cross_source"]["licence_compliance"]["values_published"], [])
+        self.assertIn("SCORED_SOURCES_BELOW_CRITERION(2<3)", report["status_reasons"])
+        self.assertFalse(cross["criteria_pass"]["sources"])
+        self.assertTrue(cross["criteria_pass"]["m2_sources"])
+        self.assertEqual(cross["scored_sources_count"], 2)
+        self.assertEqual(cross["licence_compliance"]["restricted_used"], [])
+        self.assertEqual(cross["licence_compliance"]["values_published"], [])
         self.assertEqual(report["sources"]["ATLANTA_FED_GDPNOW"]["status"]["status"],
                          "RESTRICTED_NOT_USED")
 

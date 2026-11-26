@@ -2,11 +2,16 @@
  "report_id": "AMFE-EXTERNAL-FORECAST-SCORECARD",
  "version": "0.1.0",
  "tool": "tools/external_forecast_scorecard.py",
- "generated_at": "2026-11-18T07:59:34Z",
+ "generated_at": "2026-11-26T17:04:43Z",
  "purpose": "point-in-time scorecard of external forecasts against the first publication of the fact on the frozen protocol windows W1/W2: who is more accurate, when, and with what coverage",
+ "publication_policy": {
+  "third_party_values": "aggregates_and_metadata_only",
+  "note": "even when the licence register would allow publishing a sample (NY Fed), the committed report keeps third-party forecast/actual values outside git; only aggregates, counts, metadata and hashes are written",
+  "raw_data_location": "data/raw/ (git-ignored; fetched with tools/fetch_scorecard_data.py)"
+ },
  "status": "PARTIAL",
  "status_reasons": [
-  "SCORED_SOURCES_BELOW_CRITERION(1<3)"
+  "SCORED_SOURCES_BELOW_CRITERION(2<3)"
  ],
  "protocol": {
   "file": "protocols/evaluation_protocol_v5.json",
@@ -434,10 +439,10 @@
    "counts_mode": "scored",
    "values": {
     "values_published": false,
-    "reason": "LICENCE_VALUES_NOT_PUBLISHABLE",
+    "reason": "PROJECT_VALUES_NOT_PUBLISHED",
     "licence_status": "OPEN",
-    "publication_blocker": "a register condition keeps the values out of published artefacts",
-    "note": "only aggregates, counts and metadata are published for this source",
+    "publication_blocker": null,
+    "note": "project policy: third-party forecast/actual values stay outside git; only aggregates, counts, metadata and hashes are published",
     "sample": null
    }
   },
@@ -448,7 +453,8 @@
     "provider": "Federal Reserve Bank of New York",
     "urls": [
      "https://www.newyorkfed.org/research/policy/nowcast",
-     "https://www.newyorkfed.org/privacy/termsofuse"
+     "https://www.newyorkfed.org/privacy/termsofuse",
+     "https://www.newyorkfed.org/medialibrary/media/research/policy/nowcast/new-york-fed-staff-nowcast_data_2002-present.xlsx"
     ],
     "attribution": "Source: Federal Reserve Bank of New York, Staff Nowcast (https://www.newyorkfed.org/research/policy/nowcast); non-exclusive licence, attribution required, modifications marked",
     "licence_entry": "NY_FED",
@@ -508,32 +514,159 @@
       "nowcast": "annualised quarter-on-quarter real GDP growth, percent",
       "provenance": "PUBLISHED | RECONSTRUCTED; anything else is rejected"
      },
-     "values_present": false,
+     "values_present": true,
      "archive_path": "data/raw/ny_fed/nowcast.csv",
-     "rows": 0,
+     "rows": 1790,
      "row_errors": {},
-     "values_only_archive": true
+     "values_only_archive": true,
+     "sha256": "11cb535c15aaab66e076625b64e6d0cc20995c6b36a7999253aab3fece9bc9ff"
     }
    },
    "status": {
-    "status": "UNAVAILABLE",
-    "reason": "ARCHIVE_NOT_LOCAL",
-    "detail": "optional local archive not usable; expected schema {'path': 'data/raw/ny_fed/nowcast.csv (git-ignored)', 'columns': ['date', 'quarter', 'nowcast', 'provenance'], 'date': 'publication date of the nowcast, YYYY-MM-DD', 'quarter': 'target quarter of the nowcast, YYYYQn', 'nowcast': 'annualised quarter-on-quarter real GDP growth, percent', 'provenance': 'PUBLISHED | RECONSTRUCTED; anything else is rejected'}",
-    "available": false
+    "status": "AVAILABLE",
+    "reason": null,
+    "detail": "1790 archived nowcasts",
+    "available": true
    },
-   "targets": {},
+   "targets": {
+    "T2_GDP_GROWTH": {
+     "0": {
+      "windows": {
+       "W1": {
+        "window": "W1",
+        "origins_eligible": 204,
+        "available": 0,
+        "scored": 0,
+        "coverage_share": 0.0,
+        "lookahead_excluded": 144,
+        "exclusions": {
+         "NO_PUBLICATION_BEFORE_ORIGIN": 144,
+         "RECONSTRUCTED_NOT_REAL_TIME": 60
+        },
+        "n": 0,
+        "metrics": {
+         "rmse": null,
+         "mae": null,
+         "bias": null,
+         "crps": null,
+         "brier": null,
+         "coverage_90": null
+        },
+        "metric_status": {
+         "rmse": "NO_SCORED_POINTS",
+         "mae": "NO_SCORED_POINTS",
+         "bias": "NO_SCORED_POINTS",
+         "crps": "NO_SCORED_POINTS",
+         "brier": "NO_SCORED_POINTS",
+         "coverage_90": "NO_SCORED_POINTS"
+        },
+        "secondary": {
+         "n": 0,
+         "rmse": null,
+         "mae": null
+        }
+       },
+       "W2": {
+        "window": "W2",
+        "origins_eligible": 156,
+        "available": 48,
+        "scored": 48,
+        "coverage_share": 0.3076923077,
+        "lookahead_excluded": 0,
+        "exclusions": {
+         "RECONSTRUCTED_NOT_REAL_TIME": 108
+        },
+        "n": 48,
+        "metrics": {
+         "rmse": 0.9494073503,
+         "mae": 0.8216019883,
+         "bias": -0.2938066485,
+         "crps": null,
+         "brier": null,
+         "coverage_90": null
+        },
+        "metric_status": {
+         "rmse": "AVAILABLE",
+         "mae": "AVAILABLE",
+         "bias": "AVAILABLE",
+         "crps": "NO_PREDICTIVE_DISTRIBUTION",
+         "brier": "NO_EVENT_PROBABILITY_MAPPING",
+         "coverage_90": "NO_PREDICTIVE_DISTRIBUTION"
+        },
+        "secondary": {
+         "n": 48,
+         "rmse": 1.007606464,
+         "mae": 0.8638848765,
+         "rmse_delta_vs_primary": 0.0581991137,
+         "rule": "protocol actuals.secondary, value in the vintage 12 months after the period"
+        }
+       },
+       "ALL": {
+        "window": "ALL",
+        "origins_eligible": 360,
+        "scored": 48,
+        "available": 48,
+        "coverage_share": 0.1333333333,
+        "lookahead_excluded": 144,
+        "exclusions": {
+         "NO_PUBLICATION_BEFORE_ORIGIN": 144,
+         "RECONSTRUCTED_NOT_REAL_TIME": 168
+        },
+        "n": 48,
+        "metrics": {
+         "rmse": 0.9494073503,
+         "mae": 0.8216019883,
+         "bias": -0.2938066485,
+         "crps": null,
+         "brier": null,
+         "coverage_90": null
+        },
+        "metric_status": {
+         "rmse": "AVAILABLE",
+         "mae": "AVAILABLE",
+         "bias": "AVAILABLE",
+         "crps": "NO_PREDICTIVE_DISTRIBUTION",
+         "brier": "NO_EVENT_PROBABILITY_MAPPING",
+         "coverage_90": "NO_PREDICTIVE_DISTRIBUTION"
+        },
+        "secondary": {
+         "n": 48,
+         "rmse": 1.007606464,
+         "mae": 0.8638848765,
+         "rmse_delta_vs_primary": 0.0581991137,
+         "rule": "protocol actuals.secondary, value in the vintage 12 months after the period"
+        }
+       }
+      },
+      "totals": {
+       "eligible": 360,
+       "scored": 48,
+       "available": 48,
+       "coverage_share": 0.1333333333
+      }
+     }
+    }
+   },
    "points": {
-    "scored": 0,
-    "available": 0,
-    "eligible": 0,
-    "by_target": {}
+    "scored": 48,
+    "available": 48,
+    "eligible": 360,
+    "by_target": {
+     "T2_GDP_GROWTH/h0": {
+      "eligible": 360,
+      "scored": 48,
+      "available": 48,
+      "coverage_share": 0.1333333333
+     }
+    }
    },
    "counts_mode": "scored",
    "values": {
     "values_published": false,
-    "reason": "SOURCE_NOT_SCORED",
+    "reason": "PROJECT_VALUES_NOT_PUBLISHED",
     "licence_status": "OPEN",
-    "note": "licence allows publication; at most 5 scored points are sampled",
+    "publication_blocker": null,
+    "note": "project policy: third-party forecast/actual values stay outside git; only aggregates, counts, metadata and hashes are published",
     "sample": null
    }
   },
@@ -597,9 +730,10 @@
    "counts_mode": "scored",
    "values": {
     "values_published": false,
-    "reason": "SOURCE_NOT_SCORED",
+    "reason": "PROJECT_VALUES_NOT_PUBLISHED",
     "licence_status": "OPEN",
-    "note": "licence allows publication; at most 5 scored points are sampled",
+    "publication_blocker": null,
+    "note": "project policy: third-party forecast/actual values stay outside git; only aggregates, counts, metadata and hashes are published",
     "sample": null
    }
   },
@@ -659,10 +793,10 @@
    "counts_mode": "scored",
    "values": {
     "values_published": false,
-    "reason": "LICENCE_VALUES_NOT_PUBLISHABLE",
+    "reason": "PROJECT_VALUES_NOT_PUBLISHED",
     "licence_status": "RESTRICTED",
-    "publication_blocker": "LICENCE_RESTRICTED",
-    "note": "only aggregates, counts and metadata are published for this source",
+    "publication_blocker": null,
+    "note": "project policy: third-party forecast/actual values stay outside git; only aggregates, counts, metadata and hashes are published",
     "sample": null
    }
   }
@@ -670,19 +804,20 @@
  "criteria": {
   "min_scored_sources": 3,
   "min_scored_points": 50,
-  "source": "docs/173 P0-1 acceptance criteria for the external scorecard MVP"
+  "m2_min_scored_sources": 2,
+  "source": "docs/173 P0-1 MVP asks for >=3 scorable sources; docs/207 M2 asks for >=2"
  },
  "gaps": [
-  "NY_FED_STAFF_NOWCAST: UNAVAILABLE (ARCHIVE_NOT_LOCAL)",
   "CLEVELAND_FED_NOWCAST: UNAVAILABLE (NO_PROTOCOL_HORIZON_MAPPING)",
   "ATLANTA_FED_GDPNOW: RESTRICTED_NOT_USED (LICENCE_RESTRICTED)",
-  "only 1 of 4 catalogue sources could be scored; docs/173 asks for >= 3",
+  "only 2 of 4 catalogue sources could be scored; docs/207 M2 (>=2) is met, docs/173 MVP asks for >=3",
   "project's own baselines are not joined to these origins yet ('external vs ours' is open)",
   "CRPS and Brier are NOT_AVAILABLE for every scored source (point-only, no event probability)"
  ],
  "limitations": [
   "MVP scope: T2_GDP_GROWTH at h=0 and h=1 only; T1/T3 and h=2/h=4 are not scored yet",
   "the SPF file is the latest revision of the medians, not a point-in-time vintage snapshot: the release date fixes availability, errata after the survey are not audited",
+  "NY Fed Staff Nowcast is a values-only archive: 2002Q1-2015Q4 are historical reconstructions (excluded from real-time scoring) and only 2016Q1-2021Q3 rows are as published; the archive has no underlying series, so no re-estimation is possible",
   "SPF forecasts are point (median) forecasts: CRPS and interval coverage are NOT_AVAILABLE for that source, and no distribution is imputed to make a number appear",
   "no external source in this MVP publishes a probability for a protocol event, so Brier is implemented and tested but NOT_AVAILABLE for every scored source",
   "GDPNow is RESTRICTED and is not used; its model quantity is represented by the project's own OPEN OWN_NOWCAST_BRIDGE, which is a different object and is not a like-for-like substitute",
@@ -691,31 +826,33 @@
  ],
  "next_steps": [
   "add the project's own OPEN baselines (C6 forward-registry rows, R3 ensemble) to the same origins to produce the 'external vs ours' table",
-  "restore or fetch a licensed NY Fed / Cleveland archive and register the exact terms before scoring (the adapters are ready and validated against a documented schema)",
+  "seek at least one more OPEN source with a matching T2 horizon mapping: GDPNow is RESTRICTED in the licence register (owner decision needed before any use) and Cleveland publishes a current-month CPI nowcast with no protocol T2 horizon mapping",
   "extend to h=2/h=4 and to T1 once a source with a matching horizon mapping is registered",
   "turn the report into the UC-44 subscription artifact: per-source error tables, charts and a stable API payload once >=3 sources are scored"
  ],
  "cross_source": {
   "scored_sources": [
-   "SPF_GDP_MEDIAN"
+   "SPF_GDP_MEDIAN",
+   "NY_FED_STAFF_NOWCAST"
   ],
-  "scored_sources_count": 1,
-  "scored_points_total": 233,
-  "eligible_origins_total": 478,
+  "scored_sources_count": 2,
+  "scored_points_total": 281,
+  "eligible_origins_total": 838,
   "sources_by_status": {
    "SPF_GDP_MEDIAN": "AVAILABLE",
-   "NY_FED_STAFF_NOWCAST": "UNAVAILABLE",
+   "NY_FED_STAFF_NOWCAST": "AVAILABLE",
    "CLEVELAND_FED_NOWCAST": "UNAVAILABLE",
    "ATLANTA_FED_GDPNOW": "RESTRICTED_NOT_USED"
   },
   "criteria_pass": {
    "sources": false,
-   "points": true
+   "points": true,
+   "m2_sources": true
   },
   "licence_compliance": {
    "restricted_used": [],
    "values_published": []
   }
  },
- "content_sha256": "183a07caf412d09141ef97ef6179895a90d6ee0c318bac7de1afe2dfa50e2b1d"
+ "content_sha256": "494cb0060b306f421811d52772b8f997f86dc462f201224a7306195c9bd4f93a"
 }

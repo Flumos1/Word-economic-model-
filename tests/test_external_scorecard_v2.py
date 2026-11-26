@@ -66,7 +66,7 @@ class RegistryCatalogueTests(TempDirMixin):
         registry = load_registry()
         self.assertEqual(registry["schema"], v2.REGISTRY_SCHEMA)
         self.assertEqual(registry["registry_id"], v2.REGISTRY_ID)
-        self.assertEqual(registry["date"], "2026-11-20")
+        self.assertEqual(registry["date"], "2026-11-26")
         for status in v2.STATUSES:
             self.assertTrue(registry["statuses"].get(status), status)
         for licence in v2.LICENCE_STATUSES:
@@ -162,7 +162,7 @@ class RegistryValidationTests(TempDirMixin):
         ready = set(report["coverage"]["adapter_ready"]["sources"])
         scored = set(report["coverage"]["scorecard_comparison"]["scored_sources"])
         self.assertEqual(ready, scored)
-        self.assertEqual(ready, {"SPF_GDP_MEDIAN"})
+        self.assertEqual(ready, {"NY_FED_STAFF_NOWCAST", "SPF_GDP_MEDIAN"})
         self.assertEqual(report["coverage"]["scorecard_comparison"]["mismatches"], [])
 
     def test_licence_register_references_exist_and_are_not_more_permissive(self):
@@ -293,7 +293,8 @@ class FailClosedTests(TempDirMixin):
         comparison = report["coverage"]["scorecard_comparison"]
         self.assertTrue(comparison["file"].endswith("/scorecard.json"), comparison["file"])
         self.assertEqual(comparison["scored_sources"], [])
-        self.assertEqual(comparison["ready_but_not_scored"], ["SPF_GDP_MEDIAN"])
+        self.assertEqual(comparison["ready_but_not_scored"],
+                         ["NY_FED_STAFF_NOWCAST", "SPF_GDP_MEDIAN"])
         self.assertEqual(len(comparison["registry_only"]), len(load_registry()["sources"]))
 
 
@@ -351,7 +352,7 @@ class CoverageTests(TempDirMixin):
 
     def test_status_and_reasons_are_explained(self):
         self.assertEqual(self.report["status"], "PARTIAL")
-        self.assertIn("ADAPTER_READY_BELOW_CRITERION(1<3)", self.report["status_reasons"])
+        self.assertIn("ADAPTER_READY_BELOW_CRITERION(2<3)", self.report["status_reasons"])
         self.assertTrue(self.report["gaps"])
         self.assertTrue(any("RESTRICTED" in gap for gap in self.report["gaps"]))
 
@@ -406,7 +407,7 @@ class CliTests(TempDirMixin):
         self.assertEqual(code, 0)
         self.assertIn("26 sources", out)
         self.assertIn("status: PARTIAL", out)
-        self.assertIn("ADAPTER_READY 1", out)
+        self.assertIn("ADAPTER_READY 2", out)
 
     def test_strict_turns_partial_into_exit_three(self):
         code, _, _ = self.run_cli(["--check", "--strict"])
@@ -448,7 +449,7 @@ class CliTests(TempDirMixin):
         self.assertEqual(code, 0)
         text = md_path.read_text(encoding="utf-8")
         self.assertIn("# External forecasts registry v2 - coverage", text)
-        self.assertIn("| ADAPTER_READY | 1 |", text)
+        self.assertIn("| ADAPTER_READY | 2 |", text)
 
     def test_unknown_out_suffix_exits_two(self):
         code, _, err = self.run_cli(["--out", str(self.tmp / "coverage.txt")])
