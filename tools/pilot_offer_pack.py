@@ -232,7 +232,43 @@ def build_docx(item: dict, path: Path) -> None:
     _normalise_docx(path)
 
 
-def build() -> list[Path]:
+def _soffice() -> str | None:
+    """Locate a headless LibreOffice binary (same discovery as the other builders)."""
+    import shutil
+    candidates = [
+        shutil.which("soffice"),
+        shutil.which("libreoffice"),
+        r"C:\Program Files\LibreOffice\program\soffice.exe",
+        r"C:\Program Files (x86)\LibreOffice\program\soffice.exe",
+        "/usr/bin/soffice",
+        "/Applications/LibreOffice.app/Contents/MacOS/soffice",
+    ]
+    return next((item for item in candidates if item and Path(item).exists()), None)
+
+
+def convert_pdf(docx_path: Path, out_dir: Path) -> Path | None:
+    """Render one DOCX to PDF; fail-open when LibreOffice is absent (PDF is optional)."""
+    import subprocess
+    import tempfile
+    soffice = _soffice()
+    if not soffice:
+        return None
+    pdf = out_dir / (docx_path.stem + ".pdf")
+    profile = Path(tempfile.mkdtemp(prefix=".lo-pilot-", dir=str(out_dir.parent)))
+    try:
+        subprocess.run([soffice, "--headless", "--nolockcheck", "--norestore",
+                        f"-env:UserInstallation={profile.as_uri()}",
+                        "--convert-to", "pdf", "--outdir", str(out_dir), str(docx_path)],
+                       check=True, capture_output=True, timeout=240)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    finally:
+        import shutil as _shutil
+        _shutil.rmtree(profile, ignore_errors=True)
+    return pdf if pdf.is_file() and pdf.stat().st_size > 0 else None
+
+
+def build(make_pdf: bool = True) -> list[Path]:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     written: list[Path] = []
     for item in select():
@@ -242,6 +278,10 @@ def build() -> list[Path]:
         docx_path = OUT_DIR / f"{item['slug']}.docx"
         build_docx(item, docx_path)
         written.append(docx_path)
+        if make_pdf:
+            pdf = convert_pdf(docx_path, OUT_DIR)
+            if pdf is not None:
+                written.append(pdf)
     index = OUT_DIR / "README.md"
     rows = ["# Пилотные предложения M1 (2 шт.)", "",
             "Черновики, сгенерированные из каталога 25 офферов. **Не отправлены.**", "",
@@ -266,6 +306,8 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--build", action="store_true")
+    parser.add_argument("--no-pdf", action="store_true",
+                        help="skip the optional PDF export (LibreOffice)")
     args = parser.parse_args(argv)
     errors = validate()
     if errors:
@@ -277,7 +319,7 @@ def main(argv=None) -> int:
                          ensure_ascii=False, sort_keys=True))
         return 0
     if args.build:
-        written = build()
+        written = build(make_pdf=not args.no_pdf)
         print(f"OK: {len(written)} files in {OUT_DIR.relative_to(ROOT)}")
         return 0
     print(json.dumps({"usage": "python tools/pilot_offer_pack.py --check|--build"},

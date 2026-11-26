@@ -64,7 +64,8 @@ class Selection(unittest.TestCase):
 class Rendered(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.files = mod.build()
+        # PDF export is slow (LibreOffice); it is covered separately against the committed files.
+        cls.files = mod.build(make_pdf=False)
 
     def test_files_are_written(self):
         for item in mod.select():
@@ -108,6 +109,17 @@ class Rendered(unittest.TestCase):
         self.assertEqual(mod._weeks(5), "5 недель")
         self.assertEqual(mod._weeks(11), "11 недель")
         self.assertEqual(mod._weeks(21), "21 неделя")
+
+    def test_pdf_is_optional_but_valid_when_present(self):
+        pdfs = sorted(OUT.glob("*.pdf"))
+        if not pdfs:
+            self.skipTest("no PDF was built (LibreOffice is optional)")
+        for item in mod.select():
+            pdf = OUT / f"{item['slug']}.pdf"
+            self.assertTrue(pdf.is_file(), pdf.name)
+            payload = pdf.read_bytes()
+            self.assertTrue(payload.startswith(b"%PDF-"), pdf.name)
+            self.assertGreater(len(payload), 1000, pdf.name)
 
     def test_docx_rebuild_is_byte_identical(self):
         import hashlib
