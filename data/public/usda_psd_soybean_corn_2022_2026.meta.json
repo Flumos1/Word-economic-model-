@@ -1,0 +1,28 @@
+{
+  "dataset_id": "usda_psd_soybean_corn",
+  "name": "USDA PSD: soybean and corn production, exports, ending stocks, imports and domestic consumption (key countries, market years 2022-2026)",
+  "source": "USDA Foreign Agricultural Service, Production, Supply and Distribution (PSD) online bulk file psd_alldata_csv.zip",
+  "publisher": "U.S. Department of Agriculture, Foreign Agricultural Service (USDA FAS)",
+  "source_url": "https://apps.fas.usda.gov/psdonline/downloads/psd_alldata_csv.zip",
+  "landing_url": "https://apps.fas.usda.gov/psdonline/",
+  "license": "public domain (U.S. Government work)",
+  "license_detail": "USDA FAS PSD data are a U.S. Government work (public domain); attribution/citation of USDA FAS is recommended, not required.",
+  "retrieved_at": "2026-11-26",
+  "bulk_zip": {
+    "url": "https://apps.fas.usda.gov/psdonline/downloads/psd_alldata_csv.zip",
+    "bytes": 10459432,
+    "sha256": "a293f2b05b1b7b185d7fdb7e1a562c43e6a0f190c6bf0e03fbe3df876286bd32",
+    "extracted_csv": "psd_alldata.csv",
+    "extracted_csv_bytes": 202290029
+  },
+  "unit": "1000 metric tons (1000 MT)",
+  "frequency": "marketing year (annual PSD aggregate; monthly PSD release)",
+  "coverage": "Oilseed, Soybean (2222000) and Corn (0440000); United States, Brazil, Argentina, China, European Union (+Ukraine for corn); market years 2022-2026; attributes Production, Exports, Ending Stocks, Imports, Domestic Consumption; 275 observations",
+  "file": "data/public/usda_psd_soybean_corn_2022_2026.csv",
+  "file_bytes": 20882,
+  "file_sha256": "c0f19817d954e1ccc2ce5fbcae5266f58f3da0404f85eab1dbe5b4a647ceb6ee",
+  "observations": 275,
+  "notes": "Compact slice of the official public bulk CSV: 2 commodities x 5-6 countries x 5 market years x 5 attributes. The full ~202 MB psd_alldata.csv and the ~10.5 MB zip are NOT committed; only this aggregate is. No World total exists as a row in psd_alldata and no World aggregate is computed here (the file carries the 'European Union' aggregate and its member states, so naive summation would double-count; 'Other' is not a world residual). No PIT/vintage history: psd_alldata holds one current value per (commodity, country, market year, attribute) and a 2-digit release Month column that is retained verbatim as source_month and NOT interpreted; a new monthly bulk can revise historical values, so this pin is a dated snapshot, not a revision archive. No forecasts, no assumptions, no re-sale. Citation: USDA FAS, PSD, 2026-11-26.",
+  "schema": "AMFE-PUBLIC-USDA-PSD/1.0.0",
+  "generated_by": "task-75 (data/PIT role), tools-free deterministic extraction"
+}

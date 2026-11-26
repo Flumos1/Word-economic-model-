@@ -1,6 +1,6 @@
 {
   "schema": "AMFE-SOURCE-REGISTRY/1.0.0",
-  "date": "2026-11-25",
+  "date": "2026-11-26",
   "intended_use": "Non-commercial research. Published artefacts contain derived statistics only (errors, ranges, scores), never raw third-party data. The registry records what is confirmed and what remains an assumption; it does not download anything and does not make network calls.",
   "statuses": {
     "CATALOGUED": "Source is catalogued (URL, publisher, licence, coverage and fields checked on the web page or documentation); no data has been retrieved into the project yet.",
@@ -113,7 +113,7 @@
       "name": "FRED (Federal Reserve Economic Data) and ALFRED vintage archive",
       "publisher": "Federal Reserve Bank of St. Louis",
       "url": "https://fred.stlouisfed.org/",
-      "license": "FRED terms of use (public series; attribution; some series are third-party restricted)",
+      "license": "FRED/ALFRED Services Terms of Use: personal non-commercial use with attribution; CPIAUCSL labelled 'Public Domain: Citation Requested'; no bulk download, no API caching, no redistribution",
       "access": "api",
       "coverage": {
         "geography": "United States and international series",
@@ -128,10 +128,10 @@
         "FX",
         "revisions via ALFRED"
       ],
-      "retrieved_at": null,
+      "retrieved_at": "2026-11-26",
       "vintage_support": "full",
-      "status": "CATALOGUED",
-      "notes": "ALFRED provides real vintage history, the strongest candidate for a proper PIT layer for T1 CPI (C6) once ingestion is approved."
+      "status": "VERIFIED",
+      "notes": "Compact public aggregate pinned: data/public/fred_cpiaucsl.csv (+ .meta.json), 958 observations, CPIAUCSL (CPI-U all items, SA, index 1982-84=100), monthly 1947-01..2026-10, file_bytes 17767, sha256 a82d532c22d14c5dc7dc365413f03780185920c387a9efff4c3f0e4862cfaa25, retrieved 2026-11-26 via https://fred.stlouisfed.org/graph/fredgraph.csv?id=CPIAUCSL. One public series through the public CSV endpoint: no bulk download, no API key, no API caching, no redistribution; attribution to FRED and U.S. BLS required. Series page labels CPIAUCSL 'Public Domain: Citation Requested'. ALFRED vintage archive / real-time first releases NOT retrieved, so this is not a PIT vintage. See docs/239."
     },
     {
       "source_id": "ICE_NYMEX_SETTLEMENTS",
@@ -325,10 +325,10 @@
         "yield",
         "area"
       ],
-      "retrieved_at": null,
+      "retrieved_at": "2026-11-26",
       "vintage_support": "partial",
-      "status": "CATALOGUED",
-      "notes": "The main candidate to replace the soybean balance assumptions; monthly PSD revisions can reconstruct a short pseudo-vintage history, not a full PIT archive."
+      "status": "VERIFIED",
+      "notes": "Compact public aggregate pinned: data/public/usda_psd_soybean_corn_2022_2026.csv (+ .meta.json), 275 observations, market years 2022-2026, Oilseed Soybean and Corn, US/BR/AR/CH/EU (+UA for corn), attributes Production/Exports/Ending Stocks/Imports/Domestic Consumption, unit 1000 MT, file_bytes 20882, sha256 c0f19817d954e1ccc2ce5fbcae5266f58f3da0404f85eab1dbe5b4a647ceb6ee, retrieved 2026-11-26 from psd_alldata_csv.zip (10459432 B, sha256 a293f2b05b1b7b185d7fdb7e1a562c43e6a0f190c6bf0e03fbe3df876286bd32). Full bulk CSV/zip not committed. No World total (psd_alldata has an EU aggregate plus member states, so a World row would double-count). No PIT/vintage history: one current value per key, source Month column retained verbatim. Licence public domain (U.S. Government work). See docs/240."
     },
     {
       "source_id": "VORTEXA",

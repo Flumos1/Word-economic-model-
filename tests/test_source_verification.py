@@ -86,18 +86,19 @@ class RealRegistryDocket(unittest.TestCase):
         counts = self.report["counts"]
         self.assertEqual(counts["total"], 15)
         self.assertEqual(counts["by_docket_verdict"],
-                         {"VERIFIED": 5, "PARTIAL": 2, "UNVERIFIED": 8})
+                         {"VERIFIED": 7, "PARTIAL": 1, "UNVERIFIED": 7})
         self.assertEqual(sum(counts["by_docket_verdict"].values()), counts["total"])
 
     def test_registry_status_counts_are_separate_from_the_docket_verdict(self):
         self.assertEqual(self.report["counts"]["by_registry_status"],
-                         {"CATALOGUED": 6, "NOT_DOWNLOADED": 4, "ACCESS_VERIFIED": 0,
-                          "VERIFIED": 5})
+                         {"CATALOGUED": 4, "NOT_DOWNLOADED": 4, "ACCESS_VERIFIED": 0,
+                          "VERIFIED": 7})
         self.assertEqual(self.report["verified"],
-                         ["EIA", "EUROSTAT", "OECD_ICIO", "UN_COMTRADE", "WORLD_BANK"])
+                         ["EIA", "EUROSTAT", "FRED_ALFRED", "OECD_ICIO", "UN_COMTRADE",
+                          "USDA_PSD", "WORLD_BANK"])
 
     def test_partial_list_is_the_close_ring(self):
-        self.assertEqual(self.report["partial"], ["BLS", "FRED_ALFRED"])
+        self.assertEqual(self.report["partial"], ["BLS"])
         for source_id in self.report["partial"]:
             record = self.by_id[source_id]
             self.assertFalse(record["citation_allowed"])
@@ -123,7 +124,7 @@ class RealRegistryDocket(unittest.TestCase):
 
     def test_gaps_cover_every_non_verified_source(self):
         gaps = self.report["gaps"]
-        self.assertEqual(len(gaps), 10)
+        self.assertEqual(len(gaps), 8)
         self.assertEqual([gap["source_id"] for gap in gaps],
                          sorted(set(self.by_id) - set(self.report["verified"])))
         for gap in gaps:
@@ -151,7 +152,13 @@ class RealRegistryDocket(unittest.TestCase):
         self.assertEqual(self.by_id["OECD_ICIO"]["dataset_hash"]["state"], "truncated")
         self.assertTrue(any("усечён" in warning
                             for warning in self.by_id["OECD_ICIO"]["warnings"]))
+        # FRED_ALFRED was promoted on 2026-11-26 with a pinned file, dataset hash and terms
+        # evidence, so it is the one VERIFIED source with no weak evidence left.
+        self.assertEqual(self.by_id["FRED_ALFRED"]["weak_evidence"], [])
+        self.assertEqual(self.by_id["FRED_ALFRED"]["dataset_hash"]["state"], "full")
         for source_id in self.report["verified"]:
+            if source_id == "FRED_ALFRED":
+                continue
             self.assertTrue(self.by_id[source_id]["weak_evidence"], source_id)
 
     def test_journal_mapping_is_explicit_and_counted(self):
@@ -419,9 +426,9 @@ class CommandLine(Workspace):
     def test_default_summary_exit_zero(self):
         code, out, _ = self.run_cli()
         self.assertEqual(code, 0)
-        self.assertIn("VERIFIED 5", out)
-        self.assertIn("PARTIAL 2", out)
-        self.assertIn("UNVERIFIED 8", out)
+        self.assertIn("VERIFIED 7", out)
+        self.assertIn("PARTIAL 1", out)
+        self.assertIn("UNVERIFIED 7", out)
         self.assertIn("Матрица", out)
 
     def test_check_mode_reports_ok(self):

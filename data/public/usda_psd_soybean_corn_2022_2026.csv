@@ -1,0 +1,276 @@
+commodity_code,commodity,country_code,country,market_year,attribute_id,attribute,unit,value,source_month
+0440000,Corn,AR,Argentina,2022,028,Production,1000 MT,37000.0000,05
+0440000,Corn,AR,Argentina,2022,057,Imports,1000 MT,16.0000,05
+0440000,Corn,AR,Argentina,2022,088,Exports,1000 MT,25241.0000,05
+0440000,Corn,AR,Argentina,2022,125,Domestic Consumption,1000 MT,14200.0000,05
+0440000,Corn,AR,Argentina,2022,176,Ending Stocks,1000 MT,2309.0000,05
+0440000,Corn,AR,Argentina,2023,028,Production,1000 MT,51600.0000,05
+0440000,Corn,AR,Argentina,2023,057,Imports,1000 MT,10.0000,05
+0440000,Corn,AR,Argentina,2023,088,Exports,1000 MT,36257.0000,05
+0440000,Corn,AR,Argentina,2023,125,Domestic Consumption,1000 MT,15200.0000,05
+0440000,Corn,AR,Argentina,2023,176,Ending Stocks,1000 MT,2462.0000,05
+0440000,Corn,AR,Argentina,2024,028,Production,1000 MT,49000.0000,05
+0440000,Corn,AR,Argentina,2024,057,Imports,1000 MT,5.0000,05
+0440000,Corn,AR,Argentina,2024,088,Exports,1000 MT,29065.0000,05
+0440000,Corn,AR,Argentina,2024,125,Domestic Consumption,1000 MT,17100.0000,05
+0440000,Corn,AR,Argentina,2024,176,Ending Stocks,1000 MT,5302.0000,05
+0440000,Corn,AR,Argentina,2025,028,Production,1000 MT,64000.0000,11
+0440000,Corn,AR,Argentina,2025,057,Imports,1000 MT,5.0000,11
+0440000,Corn,AR,Argentina,2025,088,Exports,1000 MT,45000.0000,11
+0440000,Corn,AR,Argentina,2025,125,Domestic Consumption,1000 MT,18600.0000,11
+0440000,Corn,AR,Argentina,2025,176,Ending Stocks,1000 MT,5707.0000,11
+0440000,Corn,AR,Argentina,2026,028,Production,1000 MT,57000.0000,11
+0440000,Corn,AR,Argentina,2026,057,Imports,1000 MT,5.0000,11
+0440000,Corn,AR,Argentina,2026,088,Exports,1000 MT,40000.0000,11
+0440000,Corn,AR,Argentina,2026,125,Domestic Consumption,1000 MT,17700.0000,11
+0440000,Corn,AR,Argentina,2026,176,Ending Stocks,1000 MT,5012.0000,11
+0440000,Corn,BR,Brazil,2022,028,Production,1000 MT,137000.0000,05
+0440000,Corn,BR,Brazil,2022,057,Imports,1000 MT,1331.0000,05
+0440000,Corn,BR,Brazil,2022,088,Exports,1000 MT,54196.0000,05
+0440000,Corn,BR,Brazil,2022,125,Domestic Consumption,1000 MT,79500.0000,05
+0440000,Corn,BR,Brazil,2022,176,Ending Stocks,1000 MT,9377.0000,05
+0440000,Corn,BR,Brazil,2023,028,Production,1000 MT,119000.0000,05
+0440000,Corn,BR,Brazil,2023,057,Imports,1000 MT,1717.0000,05
+0440000,Corn,BR,Brazil,2023,088,Exports,1000 MT,38240.0000,05
+0440000,Corn,BR,Brazil,2023,125,Domestic Consumption,1000 MT,84500.0000,05
+0440000,Corn,BR,Brazil,2023,176,Ending Stocks,1000 MT,7354.0000,05
+0440000,Corn,BR,Brazil,2024,028,Production,1000 MT,136000.0000,09
+0440000,Corn,BR,Brazil,2024,057,Imports,1000 MT,1761.0000,09
+0440000,Corn,BR,Brazil,2024,088,Exports,1000 MT,42011.0000,09
+0440000,Corn,BR,Brazil,2024,125,Domestic Consumption,1000 MT,92500.0000,09
+0440000,Corn,BR,Brazil,2024,176,Ending Stocks,1000 MT,10604.0000,09
+0440000,Corn,BR,Brazil,2025,028,Production,1000 MT,144500.0000,11
+0440000,Corn,BR,Brazil,2025,057,Imports,1000 MT,1700.0000,11
+0440000,Corn,BR,Brazil,2025,088,Exports,1000 MT,38000.0000,11
+0440000,Corn,BR,Brazil,2025,125,Domestic Consumption,1000 MT,103500.0000,11
+0440000,Corn,BR,Brazil,2025,176,Ending Stocks,1000 MT,15304.0000,11
+0440000,Corn,BR,Brazil,2026,028,Production,1000 MT,141000.0000,11
+0440000,Corn,BR,Brazil,2026,057,Imports,1000 MT,1800.0000,11
+0440000,Corn,BR,Brazil,2026,088,Exports,1000 MT,43000.0000,11
+0440000,Corn,BR,Brazil,2026,125,Domestic Consumption,1000 MT,104000.0000,11
+0440000,Corn,BR,Brazil,2026,176,Ending Stocks,1000 MT,11104.0000,11
+0440000,Corn,CH,China,2022,028,Production,1000 MT,277200.0000,09
+0440000,Corn,CH,China,2022,057,Imports,1000 MT,18694.0000,09
+0440000,Corn,CH,China,2022,088,Exports,1000 MT,8.0000,09
+0440000,Corn,CH,China,2022,125,Domestic Consumption,1000 MT,299000.0000,09
+0440000,Corn,CH,China,2022,176,Ending Stocks,1000 MT,206023.0000,09
+0440000,Corn,CH,China,2023,028,Production,1000 MT,288842.0000,09
+0440000,Corn,CH,China,2023,057,Imports,1000 MT,23330.0000,09
+0440000,Corn,CH,China,2023,088,Exports,1000 MT,3.0000,09
+0440000,Corn,CH,China,2023,125,Domestic Consumption,1000 MT,307000.0000,09
+0440000,Corn,CH,China,2023,176,Ending Stocks,1000 MT,211192.0000,09
+0440000,Corn,CH,China,2024,028,Production,1000 MT,294917.0000,01
+0440000,Corn,CH,China,2024,057,Imports,1000 MT,1823.0000,01
+0440000,Corn,CH,China,2024,088,Exports,1000 MT,4.0000,01
+0440000,Corn,CH,China,2024,125,Domestic Consumption,1000 MT,316000.0000,01
+0440000,Corn,CH,China,2024,176,Ending Stocks,1000 MT,191928.0000,01
+0440000,Corn,CH,China,2025,028,Production,1000 MT,301240.0000,11
+0440000,Corn,CH,China,2025,057,Imports,1000 MT,3823.0000,11
+0440000,Corn,CH,China,2025,088,Exports,1000 MT,20.0000,11
+0440000,Corn,CH,China,2025,125,Domestic Consumption,1000 MT,320000.0000,11
+0440000,Corn,CH,China,2025,176,Ending Stocks,1000 MT,176971.0000,11
+0440000,Corn,CH,China,2026,028,Production,1000 MT,307000.0000,11
+0440000,Corn,CH,China,2026,057,Imports,1000 MT,5000.0000,11
+0440000,Corn,CH,China,2026,088,Exports,1000 MT,20.0000,11
+0440000,Corn,CH,China,2026,125,Domestic Consumption,1000 MT,322000.0000,11
+0440000,Corn,CH,China,2026,176,Ending Stocks,1000 MT,166951.0000,11
+0440000,Corn,E4,European Union,2022,028,Production,1000 MT,52379.0000,02
+0440000,Corn,E4,European Union,2022,057,Imports,1000 MT,23188.0000,02
+0440000,Corn,E4,European Union,2022,088,Exports,1000 MT,4198.0000,02
+0440000,Corn,E4,European Union,2022,125,Domestic Consumption,1000 MT,74700.0000,02
+0440000,Corn,E4,European Union,2022,176,Ending Stocks,1000 MT,8024.0000,02
+0440000,Corn,E4,European Union,2023,028,Production,1000 MT,61947.0000,08
+0440000,Corn,E4,European Union,2023,057,Imports,1000 MT,19877.0000,08
+0440000,Corn,E4,European Union,2023,088,Exports,1000 MT,4389.0000,08
+0440000,Corn,E4,European Union,2023,125,Domestic Consumption,1000 MT,78200.0000,08
+0440000,Corn,E4,European Union,2023,176,Ending Stocks,1000 MT,7259.0000,08
+0440000,Corn,E4,European Union,2024,028,Production,1000 MT,59591.0000,08
+0440000,Corn,E4,European Union,2024,057,Imports,1000 MT,18761.0000,08
+0440000,Corn,E4,European Union,2024,088,Exports,1000 MT,2761.0000,08
+0440000,Corn,E4,European Union,2024,125,Domestic Consumption,1000 MT,76700.0000,08
+0440000,Corn,E4,European Union,2024,176,Ending Stocks,1000 MT,6150.0000,08
+0440000,Corn,E4,European Union,2025,028,Production,1000 MT,56899.0000,11
+0440000,Corn,E4,European Union,2025,057,Imports,1000 MT,20000.0000,11
+0440000,Corn,E4,European Union,2025,088,Exports,1000 MT,2300.0000,11
+0440000,Corn,E4,European Union,2025,125,Domestic Consumption,1000 MT,74600.0000,11
+0440000,Corn,E4,European Union,2025,176,Ending Stocks,1000 MT,6149.0000,11
+0440000,Corn,E4,European Union,2026,028,Production,1000 MT,47500.0000,11
+0440000,Corn,E4,European Union,2026,057,Imports,1000 MT,22500.0000,11
+0440000,Corn,E4,European Union,2026,088,Exports,1000 MT,1600.0000,11
+0440000,Corn,E4,European Union,2026,125,Domestic Consumption,1000 MT,69500.0000,11
+0440000,Corn,E4,European Union,2026,176,Ending Stocks,1000 MT,5049.0000,11
+0440000,Corn,UP,Ukraine,2022,028,Production,1000 MT,27000.0000,04
+0440000,Corn,UP,Ukraine,2022,057,Imports,1000 MT,21.0000,04
+0440000,Corn,UP,Ukraine,2022,088,Exports,1000 MT,27122.0000,04
+0440000,Corn,UP,Ukraine,2022,125,Domestic Consumption,1000 MT,4700.0000,04
+0440000,Corn,UP,Ukraine,2022,176,Ending Stocks,1000 MT,2995.0000,04
+0440000,Corn,UP,Ukraine,2023,028,Production,1000 MT,32500.0000,04
+0440000,Corn,UP,Ukraine,2023,057,Imports,1000 MT,10.0000,04
+0440000,Corn,UP,Ukraine,2023,088,Exports,1000 MT,29488.0000,04
+0440000,Corn,UP,Ukraine,2023,125,Domestic Consumption,1000 MT,5475.0000,04
+0440000,Corn,UP,Ukraine,2023,176,Ending Stocks,1000 MT,542.0000,04
+0440000,Corn,UP,Ukraine,2024,028,Production,1000 MT,26800.0000,05
+0440000,Corn,UP,Ukraine,2024,057,Imports,1000 MT,15.0000,05
+0440000,Corn,UP,Ukraine,2024,088,Exports,1000 MT,20019.0000,05
+0440000,Corn,UP,Ukraine,2024,125,Domestic Consumption,1000 MT,6500.0000,05
+0440000,Corn,UP,Ukraine,2024,176,Ending Stocks,1000 MT,838.0000,05
+0440000,Corn,UP,Ukraine,2025,028,Production,1000 MT,30900.0000,10
+0440000,Corn,UP,Ukraine,2025,057,Imports,1000 MT,15.0000,10
+0440000,Corn,UP,Ukraine,2025,088,Exports,1000 MT,22237.0000,10
+0440000,Corn,UP,Ukraine,2025,125,Domestic Consumption,1000 MT,6600.0000,10
+0440000,Corn,UP,Ukraine,2025,176,Ending Stocks,1000 MT,2916.0000,10
+0440000,Corn,UP,Ukraine,2026,028,Production,1000 MT,31800.0000,11
+0440000,Corn,UP,Ukraine,2026,057,Imports,1000 MT,10.0000,11
+0440000,Corn,UP,Ukraine,2026,088,Exports,1000 MT,20000.0000,11
+0440000,Corn,UP,Ukraine,2026,125,Domestic Consumption,1000 MT,7200.0000,11
+0440000,Corn,UP,Ukraine,2026,176,Ending Stocks,1000 MT,7526.0000,11
+0440000,Corn,US,United States,2022,028,Production,1000 MT,346739.0000,07
+0440000,Corn,US,United States,2022,057,Imports,1000 MT,982.0000,07
+0440000,Corn,US,United States,2022,088,Exports,1000 MT,42214.0000,07
+0440000,Corn,US,United States,2022,125,Domestic Consumption,1000 MT,305931.0000,07
+0440000,Corn,US,United States,2022,176,Ending Stocks,1000 MT,34551.0000,07
+0440000,Corn,US,United States,2023,028,Production,1000 MT,389667.0000,01
+0440000,Corn,US,United States,2023,057,Imports,1000 MT,722.0000,01
+0440000,Corn,US,United States,2023,088,Exports,1000 MT,57275.0000,01
+0440000,Corn,US,United States,2023,125,Domestic Consumption,1000 MT,322873.0000,01
+0440000,Corn,US,United States,2023,176,Ending Stocks,1000 MT,44792.0000,01
+0440000,Corn,US,United States,2024,028,Production,1000 MT,378268.0000,11
+0440000,Corn,US,United States,2024,057,Imports,1000 MT,550.0000,11
+0440000,Corn,US,United States,2024,088,Exports,1000 MT,72966.0000,11
+0440000,Corn,US,United States,2024,125,Domestic Consumption,1000 MT,311240.0000,11
+0440000,Corn,US,United States,2024,176,Ending Stocks,1000 MT,39404.0000,11
+0440000,Corn,US,United States,2025,028,Production,1000 MT,430896.0000,11
+0440000,Corn,US,United States,2025,057,Imports,1000 MT,797.0000,11
+0440000,Corn,US,United States,2025,088,Exports,1000 MT,87106.0000,11
+0440000,Corn,US,United States,2025,125,Domestic Consumption,1000 MT,330774.0000,11
+0440000,Corn,US,United States,2025,176,Ending Stocks,1000 MT,53217.0000,11
+0440000,Corn,US,United States,2026,028,Production,1000 MT,403711.0000,11
+0440000,Corn,US,United States,2026,057,Imports,1000 MT,635.0000,11
+0440000,Corn,US,United States,2026,088,Exports,1000 MT,83189.0000,11
+0440000,Corn,US,United States,2026,125,Domestic Consumption,1000 MT,329707.0000,11
+0440000,Corn,US,United States,2026,176,Ending Stocks,1000 MT,44667.0000,11
+2222000,"Oilseed, Soybean",AR,Argentina,2022,028,Production,1000 MT,25000.0000,05
+2222000,"Oilseed, Soybean",AR,Argentina,2022,057,Imports,1000 MT,9059.0000,05
+2222000,"Oilseed, Soybean",AR,Argentina,2022,088,Exports,1000 MT,4185.0000,05
+2222000,"Oilseed, Soybean",AR,Argentina,2022,125,Domestic Consumption,1000 MT,36591.0000,05
+2222000,"Oilseed, Soybean",AR,Argentina,2022,176,Ending Stocks,1000 MT,16999.0000,05
+2222000,"Oilseed, Soybean",AR,Argentina,2023,028,Production,1000 MT,48210.0000,05
+2222000,"Oilseed, Soybean",AR,Argentina,2023,057,Imports,1000 MT,7787.0000,05
+2222000,"Oilseed, Soybean",AR,Argentina,2023,088,Exports,1000 MT,5114.0000,05
+2222000,"Oilseed, Soybean",AR,Argentina,2023,125,Domestic Consumption,1000 MT,43833.0000,05
+2222000,"Oilseed, Soybean",AR,Argentina,2023,176,Ending Stocks,1000 MT,24049.0000,05
+2222000,"Oilseed, Soybean",AR,Argentina,2024,028,Production,1000 MT,51108.0000,05
+2222000,"Oilseed, Soybean",AR,Argentina,2024,057,Imports,1000 MT,6324.0000,05
+2222000,"Oilseed, Soybean",AR,Argentina,2024,088,Exports,1000 MT,7874.0000,05
+2222000,"Oilseed, Soybean",AR,Argentina,2024,125,Domestic Consumption,1000 MT,48936.0000,05
+2222000,"Oilseed, Soybean",AR,Argentina,2024,176,Ending Stocks,1000 MT,24671.0000,05
+2222000,"Oilseed, Soybean",AR,Argentina,2025,028,Production,1000 MT,49260.0000,11
+2222000,"Oilseed, Soybean",AR,Argentina,2025,057,Imports,1000 MT,7496.0000,11
+2222000,"Oilseed, Soybean",AR,Argentina,2025,088,Exports,1000 MT,8952.0000,11
+2222000,"Oilseed, Soybean",AR,Argentina,2025,125,Domestic Consumption,1000 MT,48834.0000,11
+2222000,"Oilseed, Soybean",AR,Argentina,2025,176,Ending Stocks,1000 MT,23641.0000,11
+2222000,"Oilseed, Soybean",AR,Argentina,2026,028,Production,1000 MT,50000.0000,11
+2222000,"Oilseed, Soybean",AR,Argentina,2026,057,Imports,1000 MT,6500.0000,11
+2222000,"Oilseed, Soybean",AR,Argentina,2026,088,Exports,1000 MT,6750.0000,11
+2222000,"Oilseed, Soybean",AR,Argentina,2026,125,Domestic Consumption,1000 MT,49650.0000,11
+2222000,"Oilseed, Soybean",AR,Argentina,2026,176,Ending Stocks,1000 MT,23741.0000,11
+2222000,"Oilseed, Soybean",BR,Brazil,2022,028,Production,1000 MT,162000.0000,04
+2222000,"Oilseed, Soybean",BR,Brazil,2022,057,Imports,1000 MT,154.0000,04
+2222000,"Oilseed, Soybean",BR,Brazil,2022,088,Exports,1000 MT,95504.0000,04
+2222000,"Oilseed, Soybean",BR,Brazil,2022,125,Domestic Consumption,1000 MT,57209.0000,04
+2222000,"Oilseed, Soybean",BR,Brazil,2022,176,Ending Stocks,1000 MT,36819.0000,04
+2222000,"Oilseed, Soybean",BR,Brazil,2023,028,Production,1000 MT,154500.0000,04
+2222000,"Oilseed, Soybean",BR,Brazil,2023,057,Imports,1000 MT,867.0000,04
+2222000,"Oilseed, Soybean",BR,Brazil,2023,088,Exports,1000 MT,104170.0000,04
+2222000,"Oilseed, Soybean",BR,Brazil,2023,125,Domestic Consumption,1000 MT,58255.0000,04
+2222000,"Oilseed, Soybean",BR,Brazil,2023,176,Ending Stocks,1000 MT,29761.0000,04
+2222000,"Oilseed, Soybean",BR,Brazil,2024,028,Production,1000 MT,172500.0000,04
+2222000,"Oilseed, Soybean",BR,Brazil,2024,057,Imports,1000 MT,731.0000,04
+2222000,"Oilseed, Soybean",BR,Brazil,2024,088,Exports,1000 MT,103142.0000,04
+2222000,"Oilseed, Soybean",BR,Brazil,2024,125,Domestic Consumption,1000 MT,62162.0000,04
+2222000,"Oilseed, Soybean",BR,Brazil,2024,176,Ending Stocks,1000 MT,37688.0000,04
+2222000,"Oilseed, Soybean",BR,Brazil,2025,028,Production,1000 MT,180500.0000,10
+2222000,"Oilseed, Soybean",BR,Brazil,2025,057,Imports,1000 MT,1053.0000,10
+2222000,"Oilseed, Soybean",BR,Brazil,2025,088,Exports,1000 MT,114460.0000,10
+2222000,"Oilseed, Soybean",BR,Brazil,2025,125,Domestic Consumption,1000 MT,66900.0000,10
+2222000,"Oilseed, Soybean",BR,Brazil,2025,176,Ending Stocks,1000 MT,37881.0000,10
+2222000,"Oilseed, Soybean",BR,Brazil,2026,028,Production,1000 MT,186000.0000,11
+2222000,"Oilseed, Soybean",BR,Brazil,2026,057,Imports,1000 MT,1000.0000,11
+2222000,"Oilseed, Soybean",BR,Brazil,2026,088,Exports,1000 MT,118000.0000,11
+2222000,"Oilseed, Soybean",BR,Brazil,2026,125,Domestic Consumption,1000 MT,69600.0000,11
+2222000,"Oilseed, Soybean",BR,Brazil,2026,176,Ending Stocks,1000 MT,37281.0000,11
+2222000,"Oilseed, Soybean",CH,China,2022,028,Production,1000 MT,20284.0000,04
+2222000,"Oilseed, Soybean",CH,China,2022,057,Imports,1000 MT,104500.0000,04
+2222000,"Oilseed, Soybean",CH,China,2022,088,Exports,1000 MT,89.0000,04
+2222000,"Oilseed, Soybean",CH,China,2022,125,Domestic Consumption,1000 MT,117500.0000,04
+2222000,"Oilseed, Soybean",CH,China,2022,176,Ending Stocks,1000 MT,32341.0000,04
+2222000,"Oilseed, Soybean",CH,China,2023,028,Production,1000 MT,20840.0000,04
+2222000,"Oilseed, Soybean",CH,China,2023,057,Imports,1000 MT,112000.0000,04
+2222000,"Oilseed, Soybean",CH,China,2023,088,Exports,1000 MT,70.0000,04
+2222000,"Oilseed, Soybean",CH,China,2023,125,Domestic Consumption,1000 MT,121800.0000,04
+2222000,"Oilseed, Soybean",CH,China,2023,176,Ending Stocks,1000 MT,43311.0000,04
+2222000,"Oilseed, Soybean",CH,China,2024,028,Production,1000 MT,20650.0000,04
+2222000,"Oilseed, Soybean",CH,China,2024,057,Imports,1000 MT,108000.0000,04
+2222000,"Oilseed, Soybean",CH,China,2024,088,Exports,1000 MT,72.0000,04
+2222000,"Oilseed, Soybean",CH,China,2024,125,Domestic Consumption,1000 MT,127400.0000,04
+2222000,"Oilseed, Soybean",CH,China,2024,176,Ending Stocks,1000 MT,44489.0000,04
+2222000,"Oilseed, Soybean",CH,China,2025,028,Production,1000 MT,20900.0000,11
+2222000,"Oilseed, Soybean",CH,China,2025,057,Imports,1000 MT,113000.0000,11
+2222000,"Oilseed, Soybean",CH,China,2025,088,Exports,1000 MT,131.0000,11
+2222000,"Oilseed, Soybean",CH,China,2025,125,Domestic Consumption,1000 MT,133900.0000,11
+2222000,"Oilseed, Soybean",CH,China,2025,176,Ending Stocks,1000 MT,44358.0000,11
+2222000,"Oilseed, Soybean",CH,China,2026,028,Production,1000 MT,21000.0000,11
+2222000,"Oilseed, Soybean",CH,China,2026,057,Imports,1000 MT,115000.0000,11
+2222000,"Oilseed, Soybean",CH,China,2026,088,Exports,1000 MT,100.0000,11
+2222000,"Oilseed, Soybean",CH,China,2026,125,Domestic Consumption,1000 MT,136000.0000,11
+2222000,"Oilseed, Soybean",CH,China,2026,176,Ending Stocks,1000 MT,44258.0000,11
+2222000,"Oilseed, Soybean",E4,European Union,2022,028,Production,1000 MT,2610.0000,09
+2222000,"Oilseed, Soybean",E4,European Union,2022,057,Imports,1000 MT,13127.0000,09
+2222000,"Oilseed, Soybean",E4,European Union,2022,088,Exports,1000 MT,230.0000,09
+2222000,"Oilseed, Soybean",E4,European Union,2022,125,Domestic Consumption,1000 MT,15820.0000,09
+2222000,"Oilseed, Soybean",E4,European Union,2022,176,Ending Stocks,1000 MT,1259.0000,09
+2222000,"Oilseed, Soybean",E4,European Union,2023,028,Production,1000 MT,2811.0000,09
+2222000,"Oilseed, Soybean",E4,European Union,2023,057,Imports,1000 MT,13550.0000,09
+2222000,"Oilseed, Soybean",E4,European Union,2023,088,Exports,1000 MT,253.0000,09
+2222000,"Oilseed, Soybean",E4,European Union,2023,125,Domestic Consumption,1000 MT,16070.0000,09
+2222000,"Oilseed, Soybean",E4,European Union,2023,176,Ending Stocks,1000 MT,1297.0000,09
+2222000,"Oilseed, Soybean",E4,European Union,2024,028,Production,1000 MT,2911.0000,09
+2222000,"Oilseed, Soybean",E4,European Union,2024,057,Imports,1000 MT,14709.0000,09
+2222000,"Oilseed, Soybean",E4,European Union,2024,088,Exports,1000 MT,333.0000,09
+2222000,"Oilseed, Soybean",E4,European Union,2024,125,Domestic Consumption,1000 MT,17020.0000,09
+2222000,"Oilseed, Soybean",E4,European Union,2024,176,Ending Stocks,1000 MT,1564.0000,09
+2222000,"Oilseed, Soybean",E4,European Union,2025,028,Production,1000 MT,2851.0000,09
+2222000,"Oilseed, Soybean",E4,European Union,2025,057,Imports,1000 MT,14000.0000,09
+2222000,"Oilseed, Soybean",E4,European Union,2025,088,Exports,1000 MT,325.0000,09
+2222000,"Oilseed, Soybean",E4,European Union,2025,125,Domestic Consumption,1000 MT,16570.0000,09
+2222000,"Oilseed, Soybean",E4,European Union,2025,176,Ending Stocks,1000 MT,1520.0000,09
+2222000,"Oilseed, Soybean",E4,European Union,2026,028,Production,1000 MT,2700.0000,11
+2222000,"Oilseed, Soybean",E4,European Union,2026,057,Imports,1000 MT,13700.0000,11
+2222000,"Oilseed, Soybean",E4,European Union,2026,088,Exports,1000 MT,250.0000,11
+2222000,"Oilseed, Soybean",E4,European Union,2026,125,Domestic Consumption,1000 MT,16370.0000,11
+2222000,"Oilseed, Soybean",E4,European Union,2026,176,Ending Stocks,1000 MT,1300.0000,11
+2222000,"Oilseed, Soybean",US,United States,2022,028,Production,1000 MT,116221.0000,04
+2222000,"Oilseed, Soybean",US,United States,2022,057,Imports,1000 MT,667.0000,04
+2222000,"Oilseed, Soybean",US,United States,2022,088,Exports,1000 MT,53864.0000,04
+2222000,"Oilseed, Soybean",US,United States,2022,125,Domestic Consumption,1000 MT,63302.0000,04
+2222000,"Oilseed, Soybean",US,United States,2022,176,Ending Stocks,1000 MT,7190.0000,04
+2222000,"Oilseed, Soybean",US,United States,2023,028,Production,1000 MT,113273.0000,07
+2222000,"Oilseed, Soybean",US,United States,2023,057,Imports,1000 MT,567.0000,07
+2222000,"Oilseed, Soybean",US,United States,2023,088,Exports,1000 MT,46350.0000,07
+2222000,"Oilseed, Soybean",US,United States,2023,125,Domestic Consumption,1000 MT,65361.0000,07
+2222000,"Oilseed, Soybean",US,United States,2023,176,Ending Stocks,1000 MT,9319.0000,07
+2222000,"Oilseed, Soybean",US,United States,2024,028,Production,1000 MT,119047.0000,07
+2222000,"Oilseed, Soybean",US,United States,2024,057,Imports,1000 MT,806.0000,07
+2222000,"Oilseed, Soybean",US,United States,2024,088,Exports,1000 MT,51495.0000,07
+2222000,"Oilseed, Soybean",US,United States,2024,125,Domestic Consumption,1000 MT,68837.0000,07
+2222000,"Oilseed, Soybean",US,United States,2024,176,Ending Stocks,1000 MT,8840.0000,07
+2222000,"Oilseed, Soybean",US,United States,2025,028,Production,1000 MT,115966.0000,10
+2222000,"Oilseed, Soybean",US,United States,2025,057,Imports,1000 MT,606.0000,10
+2222000,"Oilseed, Soybean",US,United States,2025,088,Exports,1000 MT,41243.0000,10
+2222000,"Oilseed, Soybean",US,United States,2025,125,Domestic Consumption,1000 MT,75592.0000,10
+2222000,"Oilseed, Soybean",US,United States,2025,176,Ending Stocks,1000 MT,8577.0000,10
+2222000,"Oilseed, Soybean",US,United States,2026,028,Production,1000 MT,124478.0000,11
+2222000,"Oilseed, Soybean",US,United States,2026,057,Imports,1000 MT,680.0000,11
+2222000,"Oilseed, Soybean",US,United States,2026,088,Exports,1000 MT,46811.0000,11
+2222000,"Oilseed, Soybean",US,United States,2026,125,Domestic Consumption,1000 MT,78758.0000,11
+2222000,"Oilseed, Soybean",US,United States,2026,176,Ending Stocks,1000 MT,8166.0000,11

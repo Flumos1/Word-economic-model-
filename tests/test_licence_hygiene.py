@@ -45,8 +45,12 @@ ALLOWED_TRACKED_RAW = {
     # (source URL, licence, retrieval date, coverage, sha256) — docs/236, docs/205.
     "data/public/eurostat_hicp_monthly.csv",
     "data/public/eurostat_hicp_monthly.meta.json",
+    "data/public/fred_cpiaucsl.csv",
+    "data/public/fred_cpiaucsl.meta.json",
     "data/public/un_comtrade_deu_hs27_2023.csv",
     "data/public/un_comtrade_deu_hs27_2023.meta.json",
+    "data/public/usda_psd_soybean_corn_2022_2026.csv",
+    "data/public/usda_psd_soybean_corn_2022_2026.meta.json",
 }
 NUMERIC_ARRAY_MIN = 10
 CONSTANT_ARRAYS_ALLOWED = {("protocols/r3_specification.json", "quantile_grid")}

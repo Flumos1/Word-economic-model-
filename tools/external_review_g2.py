@@ -910,7 +910,10 @@ RAW_PATTERNS = (r"^data/mrio/", r"\.zip$", r"\.dta$", r"\.csv$", r"\.xlsx$", r"\
 ALLOWED_AGGREGATES = {
     "data/oil/brent_monthly_eia.csv": "data/oil/brent_monthly_eia.meta.json",
     "data/public/eurostat_hicp_monthly.csv": "data/public/eurostat_hicp_monthly.meta.json",
+    "data/public/fred_cpiaucsl.csv": "data/public/fred_cpiaucsl.meta.json",
     "data/public/un_comtrade_deu_hs27_2023.csv": "data/public/un_comtrade_deu_hs27_2023.meta.json",
+    "data/public/usda_psd_soybean_corn_2022_2026.csv":
+        "data/public/usda_psd_soybean_corn_2022_2026.meta.json",
 }
 #: Backwards-compatible alias (the older EIA-only allow list, same object).
 PUBLIC_DOMAIN_AGGREGATES = ALLOWED_AGGREGATES
