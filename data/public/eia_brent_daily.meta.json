@@ -1,0 +1,33 @@
+{
+ "schema": "AMFE-PUBLIC-PRICES/1.0.0",
+ "dataset_id": "eia_brent_daily",
+ "name": "Europe Brent Spot Price FOB, daily (EIA RBRTEd)",
+ "source": "U.S. Energy Information Administration (EIA), Spot Prices, series RBRTE daily",
+ "publisher": "U.S. Department of Energy / Energy Information Administration (EIA)",
+ "source_url": "https://www.eia.gov/dnav/pet/hist_xls/RBRTEd.xls",
+ "landing_url": "https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=PET&s=RBRTE&f=D",
+ "license": "public domain (U.S. Government work); attribution/acknowledgment recommended",
+ "license_url": "https://www.eia.gov/about/copyrights_reuse.php",
+ "terms_page": "https://www.eia.gov/about/copyrights_reuse.php",
+ "terms_retrieved_at": "2026-11-26",
+ "terms_bytes": 52531,
+ "terms_sha256": "57346cef99c7de759e1099258e9d29b7aa1cbfaac75dccbd98da99acd2737c28",
+ "retrieved_at": "2026-11-26",
+ "frequency": "daily (business days)",
+ "unit": "USD per barrel, nominal (spot FOB, Europe Brent)",
+ "coverage": "1987-05-20 .. 2026-11-24; 9,137 daily observations (business days with a published value; latest data 2026-11-24, release date 2026-11-25)",
+ "file": "data/public/eia_brent_daily.csv",
+ "file_bytes": 155293,
+ "file_sha256": "6225dc150c81a51385e65fc1b34f72cf3635a974c1d2718c2dace464f6cd01e8",
+ "observations": 9137,
+ "raw_source": {
+  "url": "https://www.eia.gov/dnav/pet/hist_xls/RBRTEd.xls",
+  "content_type": "application/vnd.ms-excel",
+  "bytes": 453632,
+  "sha256": "82ef9d6f48fbcce031f168a61c235e9b6cf5ce57c07a8f7bd201a30d7d85c0fb",
+  "workbook_updated": "2026-11-25",
+  "latest_data": "2026-11-24"
+ },
+ "notes": "Compact two-column public-domain pin: date,value (USD/bbl), LF, UTF-8 without BOM, 9,137 business-day observations. The raw RBRTEd.xls (453,632 B) is NOT committed; only this derived aggregate is. Values are copied as published, no filling of holidays/weekends and no monthly aggregation. This is a dated snapshot, not a PIT/vintage archive: EIA may revise historical values. It is byte-identical to data/public/fred_brent_daily.csv (9,137 overlapping dates, 0 differing values, max abs diff 0.0) because FRED DCOILBRENTEU is a mirror of the same EIA series. It is a SPOT price, not an ICE/NYMEX futures settlement and not a contract curve; no volumes, open interest or term structure. Licences: EIA public domain (U.S. Government work), attribution recommended. See docs/251.",
+ "citation": "U.S. Energy Information Administration, Europe Brent Spot Price FOB (RBRTE, daily), https://www.eia.gov/dnav/pet/hist_xls/RBRTEd.xls, retrieved 2026-11-26."
+}

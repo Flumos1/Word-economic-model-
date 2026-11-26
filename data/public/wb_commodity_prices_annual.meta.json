@@ -1,0 +1,56 @@
+{
+ "schema": "AMFE-PUBLIC-PRICES/1.0.0",
+ "dataset_id": "wb_commodity_prices_annual",
+ "name": "World Bank Commodity Markets (Pink Sheet): annual prices for crude oil, natural gas, wheat and soybeans",
+ "source": "World Bank Commodity Markets (Pink Sheet), CMO Historical Data - Annual, sheet 'Annual Prices (Nominal)'",
+ "publisher": "World Bank",
+ "source_url": "https://thedocs.worldbank.org/en/doc/5d903e848db1d1b83e0ec8f744e55570-0350012021/related/CMO-Historical-Data-Annual.xlsx",
+ "landing_url": "https://www.worldbank.org/en/research/commodity-markets",
+ "license": "CC BY 4.0, attribution required (World Bank Commodity Markets / Pink Sheet)",
+ "license_url": "https://creativecommons.org/licenses/by/4.0/",
+ "terms_page": "https://www.worldbank.org/en/about/legal/terms-of-use",
+ "terms_retrieved_at": "2026-11-26",
+ "terms_http_status": 404,
+ "terms_sha256": "1ea5946fc9040fb0e010e3dd93142a20237d8d7343f870ccb464d477d34e88c9",
+ "retrieved_at": "2026-11-26",
+ "frequency": "annual (calendar year)",
+ "unit": "mixed per column: crude oil USD/bbl; natural gas USD/mmbtu; wheat USD/mt; soybeans USD/mt (nominal US dollars)",
+ "coverage": "2015-2024 (10 annual rows); 4 series x 10 years = 40 values; source workbook annual table updated 2025-01-03 and ends at 2024 (no 2025 annual value in the file)",
+ "workbook_updated": "2025-01-03",
+ "years": [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024],
+ "series": {
+  "crude_oil_average_usd_per_bbl": {
+   "source_column": "Crude oil, average",
+   "source_unit_row": "($/bbl)",
+   "unit": "USD per barrel"
+  },
+  "natural_gas_us_usd_per_mmbtu": {
+   "source_column": "Natural gas, US",
+   "source_unit_row": "($/mmbtu)",
+   "unit": "USD per million British thermal units"
+  },
+  "wheat_us_hrw_usd_per_mt": {
+   "source_column": "Wheat, US HRW",
+   "source_unit_row": "($/mt)",
+   "unit": "USD per metric ton"
+  },
+  "soybeans_usd_per_mt": {
+   "source_column": "Soybeans",
+   "source_unit_row": "($/mt)",
+   "unit": "USD per metric ton"
+  }
+ },
+ "file": "data/public/wb_commodity_prices_annual.csv",
+ "file_bytes": 676,
+ "file_sha256": "3100b6c6d64c7e17aa1a8dd371d25957218a46e3853091cf22779f1f7823b049",
+ "observations": 10,
+ "raw_source": {
+  "url": "https://thedocs.worldbank.org/en/doc/5d903e848db1d1b83e0ec8f744e55570-0350012021/related/CMO-Historical-Data-Annual.xlsx",
+  "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "bytes": 3132896,
+  "sha256": "53558e24cc363f57f3536ca8dd6c8e5cf1ac937ecaec8f485d5266b0b52b080c",
+  "sheet": "Annual Prices (Nominal)"
+ },
+ "notes": "Compact 10-year annual pin of four Pink Sheet series (4 columns + year): values copied from the official annual nominal workbook cells as stored, no rounding, averaging or recomputation; LF, UTF-8 without BOM. The raw 3,132,896 B xlsx is NOT committed. Annual averages are not daily spot prices and not futures settlements; no monthly Pink Sheet history, no forecast, no PIT/vintage archive is included (the workbook is a dated snapshot, updated 2025-01-03). World Bank Commodity Markets data are CC BY 4.0 with attribution; terms page was not retrieved (HTTP 404 from the World Bank URL tried - the CC BY 4.0 licence URL is the operative licence reference). Attribution: World Bank Commodity Markets (Pink Sheet), https://www.worldbank.org/en/research/commodity-markets, retrieved 2026-11-26. See docs/251.",
+ "citation": "World Bank, Commodity Markets (Pink Sheet), CMO Historical Data - Annual, https://thedocs.worldbank.org/en/doc/5d903e848db1d1b83e0ec8f744e55570-0350012021/related/CMO-Historical-Data-Annual.xlsx, retrieved 2026-11-26."
+}

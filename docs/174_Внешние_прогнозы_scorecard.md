@@ -17,6 +17,7 @@ docs/86 (SPF-маппинг и даты релизов), docs/84 и `protocols/l
 > файлы. Тот — каталог 50 кейсов (UC-44 в нём — «подписка на scorecard»); этот — сам scorecard.
 
 **Статус: 2 scorable источника из 4; M2 docs/207 (≥2) выполнен, docs/173 (≥3) — ещё нет.**
+Повторная попытка третьего источника на открытых данных (ECB SPF / OECD EO / IMF WEO, 2026-11-26) третьего scorable не дала — §13; scorecard по-прежнему **2/4**, реестр v2 обновлён (ECB_SPF и IMF_WEO переведены в `UNAVAILABLE` с кодированными причинами).
 Скорятся **SPF (233 PIT-точки)** и **NY Fed Staff Nowcast (48 PIT-точек, только 2016Q1–2019Q4
 as published)**; суммарно 281 точка на 838 eligible началах. Поэтому отчёт честно имеет
 `status = PARTIAL`, `status_reasons = ["SCORED_SOURCES_BELOW_CRITERION(2<3)"]`: второй источник
@@ -224,7 +225,8 @@ CRPS и Brier не «выключены навсегда»: обе функци�
    «техническое» ограничение, а лицензионное.
 2. **Cleveland:** нужен источник с годичным y/y горизонтом (или регистрация T1-мэппинга с
    пересчётом m/m → y/y, что меняет цель) — до этого источник остаётся метаданными.
-3. **Другие OPEN источники:** искать ряд с T2-мэппингом и публичной датой релиза (не только текущее
+3. **Другие OPEN источники:** проверено 2026-11-26 (ECB SPF, OECD EO, IMF WEO — §13): третий
+   scorable не найден; искать ряд с T2-мэппингом **США** и публичной датой релиза (не только текущее
    значение); без PIT-архива источник не scorable — «лучше честные 2, чем фиктивные 3».
 4. **«Внешние vs наши»:** добавить к тем же началам свои OPEN-базлайны (C6 forward-registry и
    R3-ансамбль) — это сделает UC-44 продуктом, а не диагностикой.
@@ -277,3 +279,36 @@ python -m unittest tests.test_external_forecast_scorecard tests.test_external_fo
 Новые данные (git-ignored, не коммитятся): `data/raw/ny_fed/nowcast.csv` (64 203 B, sha256
 `11cb535c…`), `data/raw/ny_fed/nowcast.meta.json` (URL/дата/размер/sha256/counts),
 `data/raw/scorecard_fetch_log.jsonl` (история загрузок).
+
+## 13. Попытка третьего scorable источника: ECB SPF / OECD EO / IMF WEO (2026-11-26)
+
+Правило владельца — без платных лицензий; третий scorable нужен как замена Consensus/Blue Chip
+(RESTRICTED). Проверены открытые машиночитаемые каналы; **ни одно значение не скачивалось в проект и
+не читалось**, scorecard остаётся 2 scorable. Это не юридическая консультация.
+
+| Кандидат | Что проверено (сеть, 2026-11-26) | Факт | Маппинг на protocol v5 | Итог |
+|---|---|---|---|---|
+| **ECB SPF** | страница SPF: HTTP 200, 108 659 B (sha256 `f5cbb45b…`); ECB Data Portal API dataflow `ECB:SPF(1.0)`, structure `ECB_FCT1`: HTTP 200, 1 009 B XML | опрос: инфляция, реальный ВВП и безработица **еврозоны**, горизонты «текущий год … длиннее», квартальные раунды и **годовые** горизонты; лицензия `OPEN_ATTRIBUTION`, terms-страница 200; записи в `licence_register` нет → значения не читались | T2 = **US** GDPC1 q/q annualised, T1 = **US** CPI-U y/y, T3 = NBER US: еврозона и HICP — другой объект/география; преобразование = смена цели (protocol decision) → `NONE` | **UNAVAILABLE / `NO_PROTOCOL_TARGET_MAPPING`**, не scorable |
+| **IMF WEO** | data mapper `NGDP_RPCH/USA`: HTTP 200, 121 784 B; IMF SDMX dataflow endpoint: HTTP 200 | значения **годовые**, в payload нет даты публикации/винтажа; WEO-раунды в проекте не загружены | протокол требует квартальный q/q annualised; интерполяция годовых значений выдала бы выдуманную величину → `NONE` | **UNAVAILABLE / `NO_PROTOCOL_HORIZON_MAPPING`**, не scorable |
+| **OECD EO** | `sdmx.oecd.org` public SDMX: HTTP 406 с перечнем допустимых форматов (`structure`, `xml-structure-3.0.0`, `sdmx-3.0`, `json-structure-2.0.0`) — сервис жив, нужна согласовка формата | EO — ближайший кандидат (квартальные проекции для членов OECD), но локального архива, publication dates и зарегистрированного преобразования нет | `PENDING`; без архива публикаций PIT невозможен | остаётся **NOT_FETCHED / `PUBLIC_ARCHIVE_NOT_FETCHED`**, пока не scorable |
+
+CBO/FOMC SEP/World Bank GEP/EC ECFIN/BoE и остальные 22 источника — в прежних статусах реестра v2
+(annual/cadence или mapping PENDING); в этой попытке не перепроверялись.
+
+**Итог:** третий scorable законно **не получен**: scorecard = **2 источника** (SPF 233 + NY Fed 48 =
+281 PIT-точка), `status = PARTIAL`, `status_reasons = ["SCORED_SOURCES_BELOW_CRITERION(2<3)"]`.
+`protocols/evaluation_protocol_v5.json`, `protocols/licence_register.json`, PIT-инварианты и
+`protocols/external_forecast_scorecard.json` **не менялись** (нового scorable нет, отчёт не
+перегенерировался). Реестр `protocols/external_forecasts_v2.json` обновлён: 26 источников,
+2 `ADAPTER_READY`, 10 `UNAVAILABLE`, 8 `RESTRICTED`, 6 `NOT_FETCHED`; валидация — **0 errors / 0 warnings**.
+
+**Что разблокирует третий источник:** (1) протокольное решение о целях еврозоны/годовых горизонтах —
+это изменение frozen v5, отдельное решение владельца (сейчас не принималось); (2) публичный
+machine-readable **PIT-архив квартальных прогнозов США** с датами публикаций (исторические Greenbook/
+аналоги — вне доступного в этой задаче архива); (3) для OECD — загрузка архива проекций с
+publication dates и регистрация документированного преобразования цели. Без этого — «честные 2, а не
+фиктивные 3» (docs/173 §3).
+
+**Тесты:** `tests/test_external_scorecard_v2.py` дополнен проверками статусов ECB SPF/IMF WEO и
+наличием этого раздела; `tests/test_external_forecast_scorecard*.py` не менялись и остаются зелёными.
+

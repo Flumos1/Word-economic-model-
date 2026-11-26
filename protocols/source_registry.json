@@ -54,10 +54,10 @@
         "STEO balances",
         "natural gas"
       ],
-      "retrieved_at": "2026-11-16",
+      "retrieved_at": "2026-11-26",
       "vintage_support": "partial",
       "status": "VERIFIED",
-      "notes": "Monthly Europe Brent spot price (EIA series RBRTE) obtained and pinned in the project: data/oil/brent_monthly_eia.csv, 474 monthly observations 1987-05..2026-10, sha256 0d173df09db3331c7deffa40aaf19f9f58dd718ad0c8ab38483bcb9a33041a79, 3 149 bytes. Source page: https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=PET&s=RBRTE&f=M; public domain (U.S. Government work). Monthly averages only; no intraday or vintage history, API access still requires a key for other series. Used by the oil v3 validation (docs/165)."
+      "notes": "Monthly Europe Brent spot price (EIA series RBRTE) obtained and pinned in the project: data/oil/brent_monthly_eia.csv, 474 monthly observations 1987-05..2026-10, sha256 0d173df09db3331c7deffa40aaf19f9f58dd718ad0c8ab38483bcb9a33041a79, 3 149 bytes. Source page: https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=PET&s=RBRTE&f=M; public domain (U.S. Government work). Monthly averages only; no intraday or vintage history, API access still requires a key for other series. Used by the oil v3 validation (docs/165). Daily Brent spot (EIA RBRTEd / RBRTE daily) pinned 2026-11-26: data/public/eia_brent_daily.csv (+ .meta.json), 9137 observations 1987-05-20..2026-11-24, file_bytes 155293, sha256 6225dc150c81a51385e65fc1b34f72cf3635a974c1d2718c2dace464f6cd01e8, public domain (U.S. Government work). Open replacement for ICE/NYMEX settlements — spot only; no futures curve, term structure, volumes or open interest. See docs/251."
     },
     {
       "source_id": "EUROSTAT",
@@ -131,7 +131,7 @@
       "retrieved_at": "2026-11-26",
       "vintage_support": "full",
       "status": "VERIFIED",
-      "notes": "Compact public aggregate pinned: data/public/fred_cpiaucsl.csv (+ .meta.json), 958 observations, CPIAUCSL (CPI-U all items, SA, index 1982-84=100), monthly 1947-01..2026-10, file_bytes 17767, sha256 a82d532c22d14c5dc7dc365413f03780185920c387a9efff4c3f0e4862cfaa25, retrieved 2026-11-26 via https://fred.stlouisfed.org/graph/fredgraph.csv?id=CPIAUCSL. One public series through the public CSV endpoint: no bulk download, no API key, no API caching, no redistribution; attribution to FRED and U.S. BLS required. Series page labels CPIAUCSL 'Public Domain: Citation Requested'. ALFRED vintage archive / real-time first releases NOT retrieved, so this is not a PIT vintage. See docs/239."
+      "notes": "Compact public aggregate pinned: data/public/fred_cpiaucsl.csv (+ .meta.json), 958 observations, CPIAUCSL (CPI-U all items, SA, index 1982-84=100), monthly 1947-01..2026-10, file_bytes 17767, sha256 a82d532c22d14c5dc7dc365413f03780185920c387a9efff4c3f0e4862cfaa25, retrieved 2026-11-26 via https://fred.stlouisfed.org/graph/fredgraph.csv?id=CPIAUCSL. One public series through the public CSV endpoint: no bulk download, no API key, no API caching, no redistribution; attribution to FRED and U.S. BLS required. Series page labels CPIAUCSL 'Public Domain: Citation Requested'. ALFRED vintage archive / real-time first releases NOT retrieved, so this is not a PIT vintage. See docs/239. Daily Brent (DCOILBRENTEU) pinned 2026-11-26: data/public/fred_brent_daily.csv (+ .meta.json), 9137 non-missing observations 1987-05-20..2026-11-24, file_bytes 155293, sha256 6225dc150c81a51385e65fc1b34f72cf3635a974c1d2718c2dace464f6cd01e8, byte-identical to the EIA RBRTEd pin (FRED mirrors EIA, it is not an independent measurement); FRED terms personal non-commercial + attribution, series 'Public Domain: Citation Requested'. See docs/251."
     },
     {
       "source_id": "ICE_NYMEX_SETTLEMENTS",
@@ -155,7 +155,7 @@
       "retrieved_at": null,
       "vintage_support": "partial",
       "status": "NOT_DOWNLOADED",
-      "notes": "Needed to replace price-level assumptions with observed settlement curves; licence review required before any ingestion or redistribution."
+      "notes": "Needed to replace price-level assumptions with observed settlement curves; licence review required before any ingestion or redistribution. NOT USED (paid exchange licence; no data retrieved). Price contour replaced 2026-11-26 with open public data: EIA RBRTEd daily Brent spot, FRED DCOILBRENTEU (mirror), World Bank Pink Sheet annual. The replacement does NOT provide futures settlement, contract curve/term structure, volumes or open interest; models needing those remain assumption-based/restricted. See docs/251."
     },
     {
       "source_id": "IEA",
@@ -378,7 +378,52 @@
       "retrieved_at": "2026-11-26",
       "vintage_support": "partial",
       "status": "VERIFIED",
-      "notes": "Offline WDI cache used for macro cross-checks (data/mrio/wb, docs/130 D1 country checks); retrieved_at is the date the cache was fixed in the project. WDI revisions are not stored per vintage. WGI institutional indicators pinned 2026-11-26: data/public/worldbank_wgi_2025.csv (+ .meta.json), 13190 B, sha256 62ec6e08bf9f19317a29fe32e7721e2ce4d1bffdbff3d12b39ac1a575b8f2300, 120 observations (20 large economies x 6 WGI indicators, year 2025), CC BY 4.0 with attribution. Current WGI codes GOV_WGI_VA/PV/GE/RQ/RL/CC.EST are used (the older VA.EST/PS.EST codes are archived in the WDI archives and are not served by the data endpoint). One year only: no PIT/vintage history and no full panel. The data feed block 15 calibration mode (src/amfe/world/institutions.py, source WGI_CALIBRATED); the block stays RESEARCH_ONLY, not calibrated in the admission sense. See docs/248."
+      "notes": "Offline WDI cache used for macro cross-checks (data/mrio/wb, docs/130 D1 country checks); retrieved_at is the date the cache was fixed in the project. WDI revisions are not stored per vintage. WGI institutional indicators pinned 2026-11-26: data/public/worldbank_wgi_2025.csv (+ .meta.json), 13190 B, sha256 62ec6e08bf9f19317a29fe32e7721e2ce4d1bffdbff3d12b39ac1a575b8f2300, 120 observations (20 large economies x 6 WGI indicators, year 2025), CC BY 4.0 with attribution. Current WGI codes GOV_WGI_VA/PV/GE/RQ/RL/CC.EST are used (the older VA.EST/PS.EST codes are archived in the WDI archives and are not served by the data endpoint). One year only: no PIT/vintage history and no full panel. The data feed block 15 calibration mode (src/amfe/world/institutions.py, source WGI_CALIBRATED); the block stays RESEARCH_ONLY, not calibrated in the admission sense. See docs/248. Pink Sheet annual prices pinned 2026-11-26: data/public/wb_commodity_prices_annual.csv (+ .meta.json), 2015-2024, 4 series x 10 years = 40 values, file_bytes 676, sha256 3100b6c6d64c7e17aa1a8dd371d25957218a46e3853091cf22779f1f7823b049, CC BY 4.0 attribution. See docs/251."
+    },
+    {
+      "source_id": "JODI_OIL",
+      "name": "Joint Organisations Data Initiative - oil (production, exports, refinery intake)",
+      "publisher": "JODI / UNSD",
+      "url": "https://www.jodidata.org/oil/database/data-downloads.aspx",
+      "license": "JODI-Oil public data: free public access, attribution to JODI/UNSD required; no re-sale",
+      "access": "file",
+      "coverage": {
+        "geography": "SA, US, CA, NO (countries returning kb/d in the JODI primary files)",
+        "period": "2024-09 .. 2026-09, monthly",
+        "frequency": "monthly"
+      },
+      "fields": [
+        "crude production",
+        "crude exports",
+        "refinery intake"
+      ],
+      "retrieved_at": "2026-11-26",
+      "vintage_support": "none",
+      "status": "VERIFIED",
+      "notes": "Open replacement for the factual part of IEA OMR (not a replacement for IEA's balances, stocks, trade matrices or margins). Pinned 2026-11-26: data/public/jodi_oil_crude_kbd_2024_2026.csv (+ .meta.json), 11083 B, sha256 a9705bedf6f4fbfbe75a96ded477f128f58ae4bc0d8939f79bb45f1717b13e94, 300 rows, 4 countries x 3 flows x 25 months, unit kb/d, source files 2024/2025/primary2026 annual CSVs (raw files streamed, not committed). RU/IQ/AE do not return kb/d in the JODI primary files, so CA and NO are used instead. Assessment codes 1/3 are preserved. No PIT/vintage archive; JODI revises and publishes with a lag (last month 2026-09 on 2026-11-26). JODI has no separate machine readable terms page: openness recorded from the public download page, robots and copyright. See docs/252."
+    },
+    {
+      "source_id": "EIA_STEO",
+      "name": "U.S. EIA Short-Term Energy Outlook (machine readable tables)",
+      "publisher": "U.S. Energy Information Administration",
+      "url": "https://www.eia.gov/outlooks/steo/xls/STEO_m.xlsx",
+      "license": "public domain (U.S. Government work), attribution recommended",
+      "access": "file",
+      "coverage": {
+        "geography": "world aggregates",
+        "period": "2026-10 .. 2027-12 (November 2026 vintage)",
+        "frequency": "monthly"
+      },
+      "fields": [
+        "world crude production",
+        "world liquids production",
+        "world liquids consumption",
+        "WTI price"
+      ],
+      "retrieved_at": "2026-11-26",
+      "vintage_support": "none",
+      "status": "VERIFIED",
+      "notes": "Open replacement for the forecast part of IEA OMR (a different publisher and a different model; not an IEA WEO replacement). Pinned 2026-11-26: data/public/eia_steo_oil_forecast_2026_2027.csv (+ .meta.json), 6669 B, sha256 55bd1c01f4aef2b925e506c5e27ff9cd705e5b8cf063cd56b531a92c630f4f13, 60 rows, 4 series x 15 months (1 historical + 14 forecast). Source workbook STEO_m.xlsx 1096645 B, sha256 7d28012ff726ebeafd584905d842ded42bb3c9922550cb26e005af9cd4e27fb5, forecast month November 2026, last historical month 202610. One vintage only: no as-published archive, no PIT. See docs/252."
     }
   ]
 }

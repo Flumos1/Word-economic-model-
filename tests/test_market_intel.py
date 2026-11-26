@@ -66,6 +66,25 @@ class MarketIntelOrgTest(unittest.TestCase):
         self.assertEqual(self.summary["errors"], 0)
         self.assertEqual(self.summary["schema"], "amfe.market_intel.check.v1")
 
+    def test_osint_role_carries_the_licence_substitution_policy(self):
+        """Owner rule 2026-11-26: restricted sources are replaced, never bypassed."""
+        role = self.roles["osint-scout"]
+        self.assertIn("licence_substitution", role["skills"])
+        substitution = role["substitution"]
+        self.assertEqual(substitution["playbook"], "playbooks/substitution.md")
+        self.assertTrue((ORG.parent / substitution["playbook"]).is_file())
+        for field in ("substitution_for", "covers", "does_not_cover",
+                      "frequency_change", "pit"):
+            self.assertIn(field, substitution["required_fields"])
+
+    def test_substitution_playbook_names_the_known_replacements(self):
+        text = (ORG.parent / "playbooks" / "substitution.md").read_text(encoding="utf-8")
+        for token in ("ICE/NYMEX", "IEA", "Kpler", "Consensus", "JODI", "EIA",
+                      "SPF", "Comtrade"):
+            self.assertIn(token, text)
+        for token in ("Нельзя", "обход", "paywall"):
+            self.assertIn(token, text)
+
     def test_owner_policy_forbids_paid_licences(self):
         """Owner decision 2026-11-26: no paid licences; data only via the OSINT role (RL-24)."""
         policy = self.org["owner_policy"]

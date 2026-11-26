@@ -376,7 +376,7 @@
       "horizon": {
         "native": "annual real GDP growth and inflation for the current and next years",
         "protocol_h": [],
-        "mapping": "PENDING"
+        "mapping": "NONE"
       },
       "publication": {
         "cadence": "the April and October WEO rounds",
@@ -390,13 +390,13 @@
         "terms_url": "https://www.imf.org/en/About/copyright",
         "note": "attribution required; redistribution of the database may need permission, so the registry publishes no values"
       },
-      "status": "NOT_FETCHED",
-      "status_reason": "PUBLIC_ARCHIVE_NOT_FETCHED",
-      "adapter": "imf_weo_csv",
-      "adapter_state": "PLANNED",
+      "status": "UNAVAILABLE",
+      "status_reason": "NO_PROTOCOL_HORIZON_MAPPING",
+      "adapter": null,
+      "adapter_state": "NOT_APPLICABLE",
       "data_path": null,
       "url": "https://www.imf.org/en/Publications/WEO",
-      "notes": "public vintages exist and make a point-in-time comparison possible, but no round has been retrieved into the project and the annual grid does not match the protocol quarterly grid"
+      "notes": "assessed 2026-11-26: the IMF public API is reachable (data mapper NGDP_RPCH for USA, HTTP 200, 121,784 B; IMF SDMX dataflow endpoint HTTP 200) but the WEO quantity is ANNUAL real GDP growth and its payload carries no publication date or vintage selector; the protocol T2 grid is quarterly q/q annualised growth, so no protocol horizon maps. Interpolating annual WEO numbers onto quarters would invent a quantity; retrieving WEO rounds would still need an annual-to-quarterly target change. Status UNAVAILABLE with NO_PROTOCOL_HORIZON_MAPPING; no WEO value was downloaded or read."
     },
     {
       "id": "OECD_EO",
@@ -430,7 +430,7 @@
       "adapter_state": "PLANNED",
       "data_path": null,
       "url": "https://www.oecd.org/economic-outlook/",
-      "notes": "the closest international source to the protocol grid (quarterly projections exist), but neither the data nor the mapping is in the project"
+      "notes": "assessed 2026-11-26: the public SDMX endpoint sdmx.oecd.org is reachable (the EO dataflow request answered HTTP 406 with the accepted format list structure/sdmx-3.0/json-structure-2.0.0, i.e. the service is alive but the format must be negotiated). OECD EO is the closest international source (quarterly projections exist for members), but no local data, no registered transformation and no verified PIT vintage archive were obtained in this task: status stays NOT_FETCHED with PUBLIC_ARCHIVE_NOT_FETCHED and MAPPING_PENDING. Nothing was downloaded; scorable only after a protocol mapping decision and a local archive with publication dates."
     },
     {
       "id": "WORLD_BANK_GEP",
@@ -511,7 +511,7 @@
       "horizon": {
         "native": "annual HICP inflation and real GDP growth expectations for the current and next two years plus longer horizons",
         "protocol_h": [],
-        "mapping": "PENDING"
+        "mapping": "NONE"
       },
       "publication": {
         "cadence": "quarterly survey rounds",
@@ -523,15 +523,15 @@
         "entry": null,
         "values_publishable": false,
         "terms_url": "https://www.ecb.europa.eu/services/using-our-site/html/index.en.html",
-        "note": "attribution required; a register entry is still missing"
+        "note": "attribution required; the ECB 'Using our site' terms page is reachable (HTTP 200, 2026-11-26) but the licence register has no ECB entry, so no value is read; only page/metadata evidence is used"
       },
-      "status": "NOT_FETCHED",
-      "status_reason": "PUBLIC_ARCHIVE_NOT_FETCHED",
-      "adapter": "ecb_spf_csv",
-      "adapter_state": "PLANNED",
+      "status": "UNAVAILABLE",
+      "status_reason": "NO_PROTOCOL_TARGET_MAPPING",
+      "adapter": null,
+      "adapter_state": "NOT_APPLICABLE",
       "data_path": null,
       "url": "https://www.ecb.europa.eu/stats/ecb_surveys/survey_of_professional_forecasters/html/index.en.html",
-      "notes": "the European counterpart of the SPF; HICP is not CPI-U, so a mapping would change the target"
+      "notes": "assessed 2026-11-26: the SPF page is reachable (HTTP 200, 108,659 B) and the machine-readable dataset exists in the ECB Data Portal API (dataflow ECB:SPF(1.0), structure ECB_FCT1, HTTP 200). The survey covers inflation, real GDP growth and unemployment IN THE EURO AREA at horizons from the current year to the longer term (annual horizons, quarterly rounds). The protocol targets are US GDPC1 quarter-on-quarter annualised growth and US CPI-U year-over-year: euro-area HICP and euro-area annual GDP are a different quantity and geography, so no horizon mapping exists and a transformation would be a target change (protocol decision), not a registry edit. Status therefore UNAVAILABLE with NO_PROTOCOL_TARGET_MAPPING; no ECB value was downloaded or read."
     },
     {
       "id": "BOE_MPR",

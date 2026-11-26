@@ -1,0 +1,23 @@
+{
+ "dataset_id": "STEO_M_OIL_FORECAST",
+ "name": "EIA Short-Term Energy Outlook (November 2026): world oil production, consumption and WTI price, Oct 2026 - Dec 2027",
+ "source": "U.S. Energy Information Administration, Short-Term Energy Outlook monthly workbook STEO_m.xlsx",
+ "publisher": "U.S. Energy Information Administration (EIA)",
+ "source_url": "https://www.eia.gov/outlooks/steo/xls/STEO_m.xlsx",
+ "steo_page": "https://www.eia.gov/outlooks/steo/",
+ "workbook_bytes": 1096645,
+ "workbook_sha256": "7d28012ff726ebeafd584905d842ded42bb3c9922550cb26e005af9cd4e27fb5",
+ "license": "public domain (U.S. Government work), attribution recommended",
+ "retrieved_at": "2026-11-26",
+ "unit": "million barrels per day (production/consumption); USD per barrel (WTI)",
+ "frequency": "monthly",
+ "coverage": "world crude oil production, world total liquids production, world total liquids consumption, WTI price; 2026-10 .. 2027-12 (15 months, 1 historical + 14 forecast); 60 rows",
+ "forecast_vintage": "STEO November 2026 (modeling completed 2026-11-05); last historical month 2026-10; table beginning 2022-01",
+ "file": "data/public/eia_steo_oil_forecast_2026_2027.csv",
+ "file_bytes": 6669,
+ "file_sha256": "55bd1c01f4aef2b925e506c5e27ff9cd705e5b8cf063cd56b531a92c630f4f13",
+ "notes": "Machine-readable slice of the public EIA STEO monthly workbook: four series rows (copr_world, papr_world, patc_world, WTIPUUS) extracted from sheets 3dtab/3atab/3etab/2tab for 2026-10..2027-12. status column marks 2026-10 as historical and later months as forecast (cutoff from the workbook's 'Last Historical Month' = 202610). Values are copied as published, not re-estimated. This is a single forecast vintage (November 2026), not a PIT/vintage archive and not a substitute for IEA WEO scenarios. Workbook is not committed; only this compact table is pinned. EIA is public domain (U.S. Government work), attribution recommended.",
+ "schema": "AMFE-PUBLIC-STEO/1.0.0",
+ "observations": 60,
+ "rows": 60
+}

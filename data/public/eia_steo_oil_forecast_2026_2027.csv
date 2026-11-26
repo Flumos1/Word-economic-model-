@@ -1,0 +1,61 @@
+series_id,series_label,period,value,unit,status,source_table
+copr_world,World crude oil production,2026-10,78.689993487,million barrels per day,historical,3dtab
+copr_world,World crude oil production,2026-11,79.34249457,million barrels per day,forecast,3dtab
+copr_world,World crude oil production,2026-12,79.478061809,million barrels per day,forecast,3dtab
+copr_world,World crude oil production,2027-01,79.533949081,million barrels per day,forecast,3dtab
+copr_world,World crude oil production,2027-02,79.758490082,million barrels per day,forecast,3dtab
+copr_world,World crude oil production,2027-03,79.857480805,million barrels per day,forecast,3dtab
+copr_world,World crude oil production,2027-04,80.244531108,million barrels per day,forecast,3dtab
+copr_world,World crude oil production,2027-05,80.753576742,million barrels per day,forecast,3dtab
+copr_world,World crude oil production,2027-06,80.607238274,million barrels per day,forecast,3dtab
+copr_world,World crude oil production,2027-07,81.172679424,million barrels per day,forecast,3dtab
+copr_world,World crude oil production,2027-08,81.192342903,million barrels per day,forecast,3dtab
+copr_world,World crude oil production,2027-09,81.279434981,million barrels per day,forecast,3dtab
+copr_world,World crude oil production,2027-10,81.647013988,million barrels per day,forecast,3dtab
+copr_world,World crude oil production,2027-11,82.167431122,million barrels per day,forecast,3dtab
+copr_world,World crude oil production,2027-12,82.154781346,million barrels per day,forecast,3dtab
+papr_world,World total petroleum and other liquid fuels production,2026-10,104.46989761,million barrels per day,historical,3atab
+papr_world,World total petroleum and other liquid fuels production,2026-11,105.46019383,million barrels per day,forecast,3atab
+papr_world,World total petroleum and other liquid fuels production,2026-12,105.48541603,million barrels per day,forecast,3atab
+papr_world,World total petroleum and other liquid fuels production,2027-01,105.47037587,million barrels per day,forecast,3atab
+papr_world,World total petroleum and other liquid fuels production,2027-02,105.98125256,million barrels per day,forecast,3atab
+papr_world,World total petroleum and other liquid fuels production,2027-03,106.54032251,million barrels per day,forecast,3atab
+papr_world,World total petroleum and other liquid fuels production,2027-04,107.58155107,million barrels per day,forecast,3atab
+papr_world,World total petroleum and other liquid fuels production,2027-05,108.50742356,million barrels per day,forecast,3atab
+papr_world,World total petroleum and other liquid fuels production,2027-06,108.56936277,million barrels per day,forecast,3atab
+papr_world,World total petroleum and other liquid fuels production,2027-07,109.25941398,million barrels per day,forecast,3atab
+papr_world,World total petroleum and other liquid fuels production,2027-08,109.35677783,million barrels per day,forecast,3atab
+papr_world,World total petroleum and other liquid fuels production,2027-09,109.28453133,million barrels per day,forecast,3atab
+papr_world,World total petroleum and other liquid fuels production,2027-10,109.7629638,million barrels per day,forecast,3atab
+papr_world,World total petroleum and other liquid fuels production,2027-11,110.30890232,million barrels per day,forecast,3atab
+papr_world,World total petroleum and other liquid fuels production,2027-12,110.04177544,million barrels per day,forecast,3atab
+patc_world,World total petroleum and other liquid fuels consumption,2026-10,102.77963375,million barrels per day,historical,3etab
+patc_world,World total petroleum and other liquid fuels consumption,2026-11,103.53423775,million barrels per day,forecast,3etab
+patc_world,World total petroleum and other liquid fuels consumption,2026-12,104.69220089,million barrels per day,forecast,3etab
+patc_world,World total petroleum and other liquid fuels consumption,2027-01,101.71457391,million barrels per day,forecast,3etab
+patc_world,World total petroleum and other liquid fuels consumption,2027-02,104.04674858,million barrels per day,forecast,3etab
+patc_world,World total petroleum and other liquid fuels consumption,2027-03,102.81716596,million barrels per day,forecast,3etab
+patc_world,World total petroleum and other liquid fuels consumption,2027-04,103.70894742,million barrels per day,forecast,3etab
+patc_world,World total petroleum and other liquid fuels consumption,2027-05,103.83720245,million barrels per day,forecast,3etab
+patc_world,World total petroleum and other liquid fuels consumption,2027-06,105.41579482,million barrels per day,forecast,3etab
+patc_world,World total petroleum and other liquid fuels consumption,2027-07,105.32295132,million barrels per day,forecast,3etab
+patc_world,World total petroleum and other liquid fuels consumption,2027-08,105.10589849,million barrels per day,forecast,3etab
+patc_world,World total petroleum and other liquid fuels consumption,2027-09,105.25475861,million barrels per day,forecast,3etab
+patc_world,World total petroleum and other liquid fuels consumption,2027-10,104.08284007,million barrels per day,forecast,3etab
+patc_world,World total petroleum and other liquid fuels consumption,2027-11,104.92278717,million barrels per day,forecast,3etab
+patc_world,World total petroleum and other liquid fuels consumption,2027-12,106.03206917,million barrels per day,forecast,3etab
+WTIPUUS,West Texas Intermediate spot average,2026-10,102.93,USD per barrel,historical,2tab
+WTIPUUS,West Texas Intermediate spot average,2026-11,97.0,USD per barrel,forecast,2tab
+WTIPUUS,West Texas Intermediate spot average,2026-12,92.0,USD per barrel,forecast,2tab
+WTIPUUS,West Texas Intermediate spot average,2027-01,91.0,USD per barrel,forecast,2tab
+WTIPUUS,West Texas Intermediate spot average,2027-02,89.0,USD per barrel,forecast,2tab
+WTIPUUS,West Texas Intermediate spot average,2027-03,87.0,USD per barrel,forecast,2tab
+WTIPUUS,West Texas Intermediate spot average,2027-04,86.0,USD per barrel,forecast,2tab
+WTIPUUS,West Texas Intermediate spot average,2027-05,84.0,USD per barrel,forecast,2tab
+WTIPUUS,West Texas Intermediate spot average,2027-06,82.0,USD per barrel,forecast,2tab
+WTIPUUS,West Texas Intermediate spot average,2027-07,80.0,USD per barrel,forecast,2tab
+WTIPUUS,West Texas Intermediate spot average,2027-08,78.0,USD per barrel,forecast,2tab
+WTIPUUS,West Texas Intermediate spot average,2027-09,76.0,USD per barrel,forecast,2tab
+WTIPUUS,West Texas Intermediate spot average,2027-10,74.0,USD per barrel,forecast,2tab
+WTIPUUS,West Texas Intermediate spot average,2027-11,72.0,USD per barrel,forecast,2tab
+WTIPUUS,West Texas Intermediate spot average,2027-12,70.0,USD per barrel,forecast,2tab

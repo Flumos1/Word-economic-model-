@@ -1,0 +1,25 @@
+{
+ "dataset_id": "JODI_OIL_PRIMARY_CRUDE",
+ "name": "JODI-Oil primary database: crude oil production, total crude exports and refinery intake, monthly, four reporting countries",
+ "source": "JODI-Oil (Joint Organisations Data Initiative), primary annual CSV downloads",
+ "publisher": "JODI / UNSD (Joint Organisations Data Initiative)",
+ "source_url": "https://www.jodidata.org/oil/database/data-downloads.aspx",
+ "source_files": [
+  "https://www.jodidata.org/_resources/files/downloads/oil-data/annual-csv/primary/2024.csv",
+  "https://www.jodidata.org/_resources/files/downloads/oil-data/annual-csv/primary/2025.csv",
+  "https://www.jodidata.org/_resources/files/downloads/oil-data/annual-csv/primary/primaryyear2026.csv"
+ ],
+ "license": "JODI-Oil public data: free public access, attribution to JODI/UNSD required; no re-sale",
+ "license_note": "No dedicated JODI terms-of-use page was found on 2026-11-26; robots.txt allows the download paths used, the data-downloads page is public and the footer states 'Copyright JODI 2026'. The licence line is the project's public-data attribution reading, not a quoted formal licence.",
+ "retrieved_at": "2026-11-26",
+ "unit": "thousand barrels per day (kb/d)",
+ "frequency": "monthly",
+ "coverage": "SA, US, CA, NO; 2024-09 .. 2026-09 (25 months); series: crude oil production (INDPROD), total crude exports (TOTEXPSB), refinery intake (REFINOBS); 300 rows, all values present in KBD; the suggested RU/IQ/AE were checked first but the JODI primary CSV reports no KBD values for them (empty/missing), so they were replaced by CA and NO, which report all three series",
+ "file": "data/public/jodi_oil_crude_kbd_2024_2026.csv",
+ "file_bytes": 11083,
+ "file_sha256": "a9705bedf6f4fbfbe75a96ded477f128f58ae4bc0d8939f79bb45f1717b13e94",
+ "notes": "Compact aggregate slice only: one product (CRUDEOIL), three flows, four countries, 25 months. Raw JODI annual CSV files (8-12 MB each) were streamed and not stored or committed; only this small table is pinned. KBD unit selected; KBBL monthly totals, other units/products and secondary estimates are not included. No vintages/PIT: JODI publishes revisions and country submissions with lags; these are the latest published values at the retrieval date. Not for resale; attribution to JODI/UNSD.",
+ "schema": "AMFE-PUBLIC-JODI/1.0.0",
+ "observations": 300,
+ "rows": 300
+}

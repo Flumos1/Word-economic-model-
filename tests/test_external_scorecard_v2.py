@@ -8,8 +8,8 @@ honest rather than decorative:
   Dallas/Kansas City), with a status, a licence and a publication/vintage policy on every entry;
 * the validator refuses fabricated values, duplicate ids, unknown statuses/licences and
   status/licence/mapping inconsistencies instead of warning about them;
-* coverage arithmetic is exact and the comparison with the current scorecard (one scored source)
-  does not invent a second one;
+* coverage arithmetic is exact and the comparison with the current scorecard (two scored sources)
+  does not invent a third one;
 * the CLI is deterministic, writes JSON/Markdown only where asked and exits 2 on a broken registry.
 """
 import io
@@ -253,14 +253,48 @@ class FailClosedTests(TempDirMixin):
         self.assertIn("UNAVAILABLE_REASON_VS_MAPPING", error_codes(result))
 
     def test_not_fetched_requires_an_open_licence(self):
-        source_of(self.registry, "IMF_WEO")["licence"]["status"] = "RESTRICTED"
+        source_of(self.registry, "BOE_MPR")["licence"]["status"] = "RESTRICTED"
         result = self.validate()
         self.assertIn("NOT_FETCHED_WITHOUT_OPEN_LICENCE", error_codes(result))
 
     def test_not_fetched_requires_a_planned_adapter(self):
-        source_of(self.registry, "IMF_WEO")["adapter_state"] = "NOT_APPLICABLE"
+        source_of(self.registry, "BOE_MPR")["adapter_state"] = "NOT_APPLICABLE"
         result = self.validate()
         self.assertIn("NOT_FETCHED_WITHOUT_PLANNED_ADAPTER", error_codes(result))
+
+    def test_ecb_spf_is_not_scorable_because_the_protocol_targets_are_us(self):
+        registry = load_registry()
+        source = source_of(registry, "ECB_SPF")
+        self.assertEqual(source["status"], "UNAVAILABLE")
+        self.assertEqual(source["status_reason"], "NO_PROTOCOL_TARGET_MAPPING")
+        self.assertEqual(source["horizon"]["mapping"], "NONE")
+        self.assertIsNone(source["adapter"])
+        self.assertEqual(source["adapter_state"], "NOT_APPLICABLE")
+        self.assertIsNone(source["data_path"])
+        self.assertIn("euro area", source["notes"].lower())
+        self.assertIn("2026-11-26", source["notes"])
+        result = v2.validate_registry(registry, register=v2.load_licence_register(),
+                                      scorecard=v2.load_scorecard())
+        self.assertTrue(result["ok"], result["errors"])
+
+    def test_imf_weo_is_not_scorable_on_the_quarterly_protocol_grid(self):
+        registry = load_registry()
+        source = source_of(registry, "IMF_WEO")
+        self.assertEqual(source["status"], "UNAVAILABLE")
+        self.assertEqual(source["status_reason"], "NO_PROTOCOL_HORIZON_MAPPING")
+        self.assertEqual(source["horizon"]["mapping"], "NONE")
+        self.assertIsNone(source["adapter"])
+        self.assertEqual(source["adapter_state"], "NOT_APPLICABLE")
+        self.assertIn("annual", source["notes"].lower())
+        self.assertIn("2026-11-26", source["notes"])
+
+    def test_third_source_attempt_is_documented(self):
+        doc = ROOT / "docs" / "174_Внешние_прогнозы_scorecard.md"
+        text = doc.read_text(encoding="utf-8")
+        self.assertIn("## 13. Попытка третьего scorable", text)
+        self.assertIn("NO_PROTOCOL_TARGET_MAPPING", text)
+        self.assertIn("NO_PROTOCOL_HORIZON_MAPPING", text)
+        self.assertIn("281 PIT", text)
 
     def test_raw_values_are_rejected(self):
         source_of(self.registry, "IMF_WEO")["values"] = {"2026": 3.1}

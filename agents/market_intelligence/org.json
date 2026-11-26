@@ -1,6 +1,6 @@
 {
   "schema": "amfe.market_intelligence.org.v1",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "created": "2026-11-21",
   "updated": "2026-11-22",
   "author_role": "dense-vintages",
@@ -22,7 +22,12 @@
       "если нужна лицензия — фиксируется предложение владельцу, работа останавливается на этом источнике",
       "уже закоммиченные публичные агрегаты (data/oil, data/public) — открытые данные под атрибуцию, не лицензии"
     ],
-    "enforcement": ["agents/market_intelligence/playbooks/red_lines.md RL-24", "tests/test_market_intel.py", "docs/212 §owner policy", "tools/market_intel.py --check"]
+    "enforcement": [
+      "agents/market_intelligence/playbooks/red_lines.md RL-24",
+      "tests/test_market_intel.py",
+      "docs/212 §owner policy",
+      "tools/market_intel.py --check"
+    ]
   },
   "mode_rules": {
     "allowed_source_classes": [
@@ -863,8 +868,29 @@
         "fact_pack",
         "access_request",
         "no_paywall_bypass",
-        "no_personal_data"
-      ]
+        "no_personal_data",
+        "licence_substitution",
+        "alternative_source_mapping",
+        "coverage_gap_analysis"
+      ],
+      "substitution": {
+        "playbook": "playbooks/substitution.md",
+        "rule": "Когда источник RESTRICTED/NOT_DOWNLOADED, роль не обходит доступ, а находит полноценную открытую замену по чек-листу C1–C7 и фиксирует: substitution_for, covers, does_not_cover, frequency_change, pit.",
+        "required_fields": [
+          "substitution_for",
+          "covers",
+          "does_not_cover",
+          "frequency_change",
+          "pit"
+        ],
+        "forbidden": [
+          "называть замену тем же источником",
+          "обходить paywall/401/403/лимиты",
+          "использовать ключи без письменного разрешения",
+          "скрывать более низкую частоту или отсутствие PIT"
+        ],
+        "map_doc": "docs/253_Замена_лицензионных_источников.md"
+      }
     },
     {
       "id": "licensed-data",

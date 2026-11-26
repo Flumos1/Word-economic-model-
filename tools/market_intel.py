@@ -433,6 +433,30 @@ def check_roles(org: dict, org_dir: Path, accounts: dict[str, dict],
             issues.append(_issue("gated_ceiling_role", "evidence_ceiling",
                                  f"{OSINT_ROLE} evidence_ceiling must stay PARTIAL: gated access "
                                  "does not certify VERIFIED", OSINT_ROLE))
+        substitution = osint_role.get("substitution")
+        if not isinstance(substitution, dict):
+            issues.append(_issue("substitution_block", "substitution",
+                                 f"{OSINT_ROLE} must declare the licence-substitution policy",
+                                 OSINT_ROLE))
+        else:
+            playbook = _text(substitution.get("playbook"))
+            if not playbook or not (org_dir / playbook).is_file():
+                issues.append(_issue("substitution_playbook", "substitution.playbook",
+                                     f"substitution playbook not found: {playbook!r}", OSINT_ROLE))
+            if not _text(substitution.get("rule")):
+                issues.append(_issue("substitution_rule", "substitution.rule",
+                                     "substitution rule text is required", OSINT_ROLE))
+            required = substitution.get("required_fields") or []
+            for field in ("substitution_for", "covers", "does_not_cover",
+                          "frequency_change", "pit"):
+                if field not in required:
+                    issues.append(_issue("substitution_fields", "substitution.required_fields",
+                                         f"{field} must be a required substitution field",
+                                         OSINT_ROLE))
+            if "licence_substitution" not in (osint_role.get("skills") or []):
+                issues.append(_issue("substitution_skill", "skills",
+                                     f"{OSINT_ROLE} must carry the licence_substitution skill",
+                                     OSINT_ROLE))
         allowed_text = " ".join(item for item in (osint_role.get("allowed") or [])
                                 if isinstance(item, str)).lower()
         if "access request" not in allowed_text and "запрос доступа" not in allowed_text:

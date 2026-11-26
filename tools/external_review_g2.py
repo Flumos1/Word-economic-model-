@@ -912,6 +912,11 @@ ALLOWED_AGGREGATES = {
     "data/public/eurostat_hicp_monthly.csv": "data/public/eurostat_hicp_monthly.meta.json",
     "data/public/fred_cpiaucsl.csv": "data/public/fred_cpiaucsl.meta.json",
     "data/public/bls_cpi_monthly.csv": "data/public/bls_cpi_monthly.meta.json",
+    "data/public/eia_brent_daily.csv": "data/public/eia_brent_daily.meta.json",
+    "data/public/jodi_oil_crude_kbd_2024_2026.csv": "data/public/jodi_oil_crude_kbd_2024_2026.meta.json",
+    "data/public/eia_steo_oil_forecast_2026_2027.csv": "data/public/eia_steo_oil_forecast_2026_2027.meta.json",
+    "data/public/fred_brent_daily.csv": "data/public/fred_brent_daily.meta.json",
+    "data/public/wb_commodity_prices_annual.csv": "data/public/wb_commodity_prices_annual.meta.json",
     "data/public/un_comtrade_deu_hs27_2023.csv": "data/public/un_comtrade_deu_hs27_2023.meta.json",
     "data/public/worldbank_wgi_2025.csv": "data/public/worldbank_wgi_2025.meta.json",
     "data/public/un_comtrade_us_soy_corn_monthly.csv":

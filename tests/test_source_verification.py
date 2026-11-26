@@ -84,18 +84,18 @@ class RealRegistryDocket(unittest.TestCase):
 
     def test_counts_total_and_verdict_buckets(self):
         counts = self.report["counts"]
-        self.assertEqual(counts["total"], 15)
+        self.assertEqual(counts["total"], 17)
         self.assertEqual(counts["by_docket_verdict"],
-                         {"VERIFIED": 8, "PARTIAL": 0, "UNVERIFIED": 7})
+                         {"VERIFIED": 10, "PARTIAL": 0, "UNVERIFIED": 7})
         self.assertEqual(sum(counts["by_docket_verdict"].values()), counts["total"])
 
     def test_registry_status_counts_are_separate_from_the_docket_verdict(self):
         self.assertEqual(self.report["counts"]["by_registry_status"],
                          {"CATALOGUED": 3, "NOT_DOWNLOADED": 4, "ACCESS_VERIFIED": 0,
-                          "VERIFIED": 8})
+                          "VERIFIED": 10})
         self.assertEqual(self.report["verified"],
-                         ["BLS", "EIA", "EUROSTAT", "FRED_ALFRED", "OECD_ICIO", "UN_COMTRADE",
-                          "USDA_PSD", "WORLD_BANK"])
+                         ["BLS", "EIA", "EIA_STEO", "EUROSTAT", "FRED_ALFRED", "JODI_OIL",
+                          "OECD_ICIO", "UN_COMTRADE", "USDA_PSD", "WORLD_BANK"])
 
     def test_partial_list_is_the_close_ring(self):
         self.assertEqual(self.report["partial"], [])
@@ -224,7 +224,7 @@ class LicenceMatrix(unittest.TestCase):
         flags = report["licence_matrix"]["class_flags"]
         self.assertEqual(flags["share_alike"], ["FAO_FAOSTAT"])
         self.assertEqual(report["counts"]["by_licence_class"],
-                         {"OPEN": 3, "ATTRIBUTION": 8, "RESTRICTED": 4, "UNKNOWN": 0})
+                         {"OPEN": 4, "ATTRIBUTION": 9, "RESTRICTED": 4, "UNKNOWN": 0})
 
 
 # ----------------------------------------------------------------------------------- fixtures
@@ -386,7 +386,7 @@ class NoNetwork(Workspace):
             raise AssertionError("network access attempted")
         with mock.patch("socket.socket", boom), mock.patch("socket.create_connection", boom):
             report = sv.build_docket(REGISTRY, LICENCES)
-        self.assertEqual(report["counts"]["total"], 15)
+        self.assertEqual(report["counts"]["total"], 17)
 
     def test_cli_runs_with_sockets_disabled(self):
         def boom(*args, **kwargs):  # pragma: no cover
@@ -438,7 +438,7 @@ class CommandLine(Workspace):
     def test_check_mode_reports_ok(self):
         code, out, _ = self.run_cli("--check")
         self.assertEqual(code, 0)
-        self.assertIn("OK: 15", out)
+        self.assertIn("OK: 17", out)
         self.assertIn("нарушений нет", out)
 
     def test_json_mode_is_machine_readable(self):
@@ -467,7 +467,7 @@ class CommandLine(Workspace):
         code, _, _ = self.run_cli("--json", "--out", str(target))
         self.assertEqual(code, 0)
         payload = json.loads(target.read_text(encoding="utf-8"))
-        self.assertEqual(payload["counts"]["total"], 15)
+        self.assertEqual(payload["counts"]["total"], 17)
 
     def test_out_to_an_input_is_refused_without_writing(self):
         before = REGISTRY.read_bytes()

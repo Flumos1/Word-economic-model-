@@ -42,7 +42,7 @@ class RealRegistry(unittest.TestCase):
     def test_loads_and_has_the_required_sources(self):
         doc = document()
         self.assertEqual(doc["schema"], sr.SCHEMA)
-        self.assertEqual(len(doc["sources"]), 15)
+        self.assertEqual(len(doc["sources"]), 17)
         ids = [item["source_id"] for item in doc["sources"]]
         self.assertEqual(ids, sorted(ids))
         for required in ("EIA", "IEA", "OPEC", "USDA_PSD", "USDA_FAS_EXPORT_SALES",
@@ -52,13 +52,13 @@ class RealRegistry(unittest.TestCase):
 
     def test_status_and_access_distribution(self):
         counts = sr.counts(document())
-        self.assertEqual(counts["sources"], 15)
+        self.assertEqual(counts["sources"], 17)
         self.assertEqual(counts["by_status"], {"CATALOGUED": 3, "NOT_DOWNLOADED": 4,
-                                               "ACCESS_VERIFIED": 0, "VERIFIED": 8})
-        self.assertEqual(counts["by_access"], {"api": 6, "file": 5, "paid": 4})
+                                               "ACCESS_VERIFIED": 0, "VERIFIED": 10})
+        self.assertEqual(counts["by_access"], {"api": 6, "file": 7, "paid": 4})
         self.assertEqual(set(sr.missing(document())["verified"]),
-                         {"BLS", "EIA", "EUROSTAT", "FRED_ALFRED", "OECD_ICIO", "UN_COMTRADE",
-                          "USDA_PSD", "WORLD_BANK"})
+                         {"BLS", "EIA", "EIA_STEO", "EUROSTAT", "FRED_ALFRED", "JODI_OIL",
+                          "OECD_ICIO", "UN_COMTRADE", "USDA_PSD", "WORLD_BANK"})
         self.assertEqual(set(sr.missing(document())["access_verified"]), set())
 
     def test_every_record_is_complete_and_https(self):
@@ -88,10 +88,11 @@ class RealRegistry(unittest.TestCase):
     def test_validation_report(self):
         report = sr.validate_file(REGISTRY)
         self.assertTrue(report["valid"])
-        self.assertEqual(report["sources"], 15)
+        self.assertEqual(report["sources"], 17)
         self.assertEqual(report["errors"], [])
         self.assertEqual(sorted(report["verified"]),
-                         ["BLS", "EIA", "EUROSTAT", "FRED_ALFRED", "OECD_ICIO", "UN_COMTRADE", "USDA_PSD",
+                         ["BLS", "EIA", "EIA_STEO", "EUROSTAT", "FRED_ALFRED", "JODI_OIL",
+                         "OECD_ICIO", "UN_COMTRADE", "USDA_PSD",
                           "WORLD_BANK"])
 
 
@@ -186,8 +187,8 @@ class Views(unittest.TestCase):
         doc = document()
         verified = sr.find(doc, status="VERIFIED")
         self.assertEqual([item["source_id"] for item in verified],
-                         ["BLS", "EIA", "EUROSTAT", "FRED_ALFRED", "OECD_ICIO", "UN_COMTRADE", "USDA_PSD",
-                         "WORLD_BANK"])
+                         ["BLS", "EIA", "EIA_STEO", "EUROSTAT", "FRED_ALFRED", "JODI_OIL",
+                         "OECD_ICIO", "UN_COMTRADE", "USDA_PSD", "WORLD_BANK"])
         paid = sr.find(doc, access="paid")
         self.assertEqual({item["status"] for item in paid}, {"NOT_DOWNLOADED"})
         crude = [item["source_id"] for item in sr.find(doc, query="crude")]
@@ -200,7 +201,7 @@ class Views(unittest.TestCase):
             sr.get(doc, "UNKNOWN")
 
     def test_counts_and_license_classes(self):
-        self.assertEqual(sr.counts(document())["by_status"]["VERIFIED"], 8)
+        self.assertEqual(sr.counts(document())["by_status"]["VERIFIED"], 10)
         self.assertEqual(sr.counts(document())["by_status"]["ACCESS_VERIFIED"], 0)
         self.assertEqual(sr.license_class("public domain (U.S. Government work)"), "public_domain")
         self.assertEqual(sr.license_class("CC BY 4.0"), "open_attribution")
@@ -216,7 +217,7 @@ class Views(unittest.TestCase):
         self.assertEqual(first["schema"], sr.EXPORT_SCHEMA)
         ids = [item["source_id"] for item in first["sources"]]
         self.assertEqual(ids, sorted(ids))
-        self.assertEqual(first["counts"]["sources"], 15)
+        self.assertEqual(first["counts"]["sources"], 17)
         self.assertNotIn("protocols/source_registry.json", json.dumps(first["sources"]))
 
     def test_template_is_valid_catalogued(self):
@@ -276,8 +277,8 @@ class Cli(unittest.TestCase):
         self.assertEqual(code, 0)
         payload = json.loads(output)
         self.assertEqual([item["source_id"] for item in payload["list"]],
-                         ["BLS", "EIA", "EUROSTAT", "FRED_ALFRED", "OECD_ICIO", "UN_COMTRADE", "USDA_PSD",
-                         "WORLD_BANK"])
+                         ["BLS", "EIA", "EIA_STEO", "EUROSTAT", "FRED_ALFRED", "JODI_OIL", "OECD_ICIO",
+                         "UN_COMTRADE", "USDA_PSD", "WORLD_BANK"])
 
     def test_missing_and_export(self):
         code, output = self._run("--missing", "--json")
@@ -285,8 +286,8 @@ class Cli(unittest.TestCase):
         payload = json.loads(output)
         self.assertEqual(payload["missing"]["n_pending"], 7)
         self.assertEqual(payload["missing"]["verified"],
-                         ["BLS", "EIA", "EUROSTAT", "FRED_ALFRED", "OECD_ICIO",
-                          "UN_COMTRADE", "USDA_PSD", "WORLD_BANK"])
+                         ["BLS", "EIA", "EIA_STEO", "EUROSTAT", "FRED_ALFRED", "JODI_OIL",
+                          "OECD_ICIO", "UN_COMTRADE", "USDA_PSD", "WORLD_BANK"])
         code, output = self._run("--json")
         self.assertEqual(code, 0)
         export = json.loads(output)
