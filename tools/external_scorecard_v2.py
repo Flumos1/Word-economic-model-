@@ -91,7 +91,7 @@ PROVIDER_TYPES = (
 
 #: Adapters that exist in tools/external_forecast_scorecard.py (task-54).  A registry entry may
 #: claim IMPLEMENTED only with one of these names; adding a new name here requires the adapter too.
-IMPLEMENTED_ADAPTERS = ("spf_local", "ny_fed_local", "metadata_only", "restricted")
+IMPLEMENTED_ADAPTERS = ("spf_local", "ny_fed_local", "livingston_local", "metadata_only", "restricted")
 
 STATUS_REASONS = {
     "ADAPTER_READY": ("SCORED_IN_CURRENT_SCORECARD", "ADAPTER_IMPLEMENTED_DATA_LOCAL"),

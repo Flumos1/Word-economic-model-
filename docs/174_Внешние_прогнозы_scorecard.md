@@ -1,29 +1,30 @@
 # 174. Внешние прогнозы: PIT-scorecard (task-54/task-82, UC-44)
 
-Дата: 2026-11-26 (обновление task-82: второй OPEN-источник). Задача: `task-54` (docs/173 §3,
-P0-1; docs/174_50_кейсов §UC-44), продолжение `task-82` (M2 docs/207: scorecard ≥2).
+Дата: 2026-11-26 (обновление task-88: третий scorable — Livingston Survey). Задача: `task-54`
+(docs/173 §3, P0-1; docs/174_50_кейсов §UC-44), продолжения `task-82` (M2 docs/207: scorecard ≥2)
+и `task-88` (третий OPEN-источник, docs/254).
 Инструмент: [`tools/external_forecast_scorecard.py`](../tools/external_forecast_scorecard.py) ·
 Загрузка данных: [`tools/fetch_scorecard_data.py`](../tools/fetch_scorecard_data.py) ·
 Отчёт: [`protocols/external_forecast_scorecard.json`](../protocols/external_forecast_scorecard.json)
-(`content_sha256 = 494cb0060b306f42…`) ·
+(`content_sha256 = fd038a777a430a7e…`) ·
 Тесты: [`tests/test_external_forecast_scorecard.py`](../tests/test_external_forecast_scorecard.py) +
 [`tests/test_external_forecast_scorecard_fetch.py`](../tests/test_external_forecast_scorecard_fetch.py)
-(**51 тест, `Ran 51 tests OK`, офлайн**).
+(**48 + 14 тестов, `Ran 62 tests OK`, офлайн**; вместе с v2 — 111).
 Связанные документы: docs/173 (P0-1), docs/207 §M2, docs/95 (SPF в T2-скоринге — те же окна),
 docs/86 (SPF-маппинг и даты релизов), docs/84 и `protocols/licence_register.json` (лицензии),
+[`docs/254`](254_PIT_кандидат_NYFed_SMP.md) (OSINT третьего источника),
 `protocols/evaluation_protocol_v5.json` (FROZEN: окна, факты, потери, политика источников).
 
 > Не путать с [`docs/174_50_кейсов_использования.md`](174_50_кейсов_использования.md): это разные
 > файлы. Тот — каталог 50 кейсов (UC-44 в нём — «подписка на scorecard»); этот — сам scorecard.
 
-**Статус: 2 scorable источника из 4; M2 docs/207 (≥2) выполнен, docs/173 (≥3) — ещё нет.**
-Повторная попытка третьего источника на открытых данных (ECB SPF / OECD EO / IMF WEO, 2026-11-26) третьего scorable не дала — §13; scorecard по-прежнему **2/4**, реестр v2 обновлён (ECB_SPF и IMF_WEO переведены в `UNAVAILABLE` с кодированными причинами).
-Скорятся **SPF (233 PIT-точки)** и **NY Fed Staff Nowcast (48 PIT-точек, только 2016Q1–2019Q4
-as published)**; суммарно 281 точка на 838 eligible началах. Поэтому отчёт честно имеет
-`status = PARTIAL`, `status_reasons = ["SCORED_SOURCES_BELOW_CRITERION(2<3)"]`: второй источник
-добавлен, но третий MVP-критерий docs/173 не достигнут. В отчёте отдельно:
-`criteria.m2_min_scored_sources = 2`, `cross_source.criteria_pass.m2_sources = true` — M2-требование
-видно явно и не маскирует более строгий критерий. Допуск не присваивается.
+**Статус: 3 scorable источника из 4; M2 docs/207 (≥2) и MVP docs/173 (≥3) выполнены.**
+Скорятся **SPF (233 PIT-точки)**, **NY Fed Staff Nowcast (48 PIT-точек, только 2016Q1–2019Q4
+as published)** и **Livingston Survey (32 PIT-точки, 2004Q2–2019Q4, T2 h=0, strict post-2004)**;
+суммарно **313 точек** на 838 eligible началах. Отчёт имеет `status = OK`,
+`status_reasons = []`: оба критерия источников пройдены (`criteria.min_scored_sources = 3`,
+`criteria.m2_min_scored_sources = 2`), и это не отменяет оговорок §7/§9 — CRPS/Brier по-прежнему
+`NOT_AVAILABLE`, допуск не присваивается.
 
 CRPS и Brier реализованы и покрыты тестами, но для текущих источников `NOT_AVAILABLE` — ни один из
 них не публикует ни плотность, ни вероятность события; подставлять «свою» плотность, чтобы получить
@@ -52,13 +53,15 @@ SPF и NY Fed — оба OPEN в `protocols/licence_register.json`; их зна�
 |---|---|---|---|---|
 | `SPF_GDP_MEDIAN` | Philadelphia Fed, SPF | `PHILADELPHIA_FED` — **OPEN** (research use), но с условием «values outside git» | **AVAILABLE**, 233 точки | скорится: медиана `drgdp2/3` (T2 h=0/h=1); значения только в git-ignored `data/raw/spf/spf_median.json`, в отчёт не пишутся |
 | `NY_FED_STAFF_NOWCAST` | NY Fed, Staff Nowcast | `NY_FED` — **OPEN** (атрибуция, mark modifications, redistribute on same terms) | **AVAILABLE**, 48 точек | загружен публичный workbook (2002–2021, values-only), преобразован в `data/raw/ny_fed/nowcast.csv`; 2002Q1–2015Q4 — `RECONSTRUCTED` (не real-time, исключаются), 2016Q1–2021Q3 — `PUBLISHED`; в scoring попадают только PUBLISHED-точки W2 (2016–2019), h=0 |
+| `LIVINGSTON_SURVEY` | Philadelphia Fed, Livingston Survey (median levels) | `LIVINGSTON_SURVEY` — **OPEN** (research use, attribution, values outside git; якорь `PHILADELPHIA_FED`) | **AVAILABLE**, 32 точки | загружены публичные `medians.xlsx`/`livingston-release-dates.xlsx` в git-ignored `data/raw/livingston/`; CSV `livingston_t2_h0.csv` — 45 strict post-2004 строк, в W1/W2 скорится 32 (W1 6, W2 26), T2 h=0; 2020+ и pre-2004 в окна/строгий поднабор не входят |
 | `CLEVELAND_FED_NOWCAST` | Cleveland Fed, Inflation Nowcasting | `CLEVELAND_FED` — **OPEN** (non-commercial, credit) | **UNAVAILABLE** (`NO_PROTOCOL_HORIZON_MAPPING`) | сопоставления нет: публикуется nowcast текущего месяца по CPI, цель протокола T1 — y/y на t−1+h; скорить нечего, поэтому только метаданные |
 | `ATLANTA_FED_GDPNOW` | Atlanta Fed, GDPNow | `ATLANTA_FED_GDPNOW` — **RESTRICTED** | **RESTRICTED_NOT_USED** (`LICENCE_RESTRICTED`) | значения не читаются даже при наличии локального файла (есть тест); модель-величина заменена своим OPEN `OWN_NOWCAST_BRIDGE` (protocol `licence_policy.substitute`), и это прямо сказано в отчёте |
 
 Отдельно зафиксировано: SPF-значения **не** публикуются (условие реестра), поэтому в отчёте у
 источника стоит `values_published = false`, а блок значений — `null`; у NY Fed лицензия допускает
 выборочную публикацию, но проектная политика `REPORT_VALUES_POLICY = aggregates_and_metadata_only`
-всё равно ставит `values_published = false` и `sample = null`. Тест
+всё равно ставит `values_published = false` и `sample = null`; Livingston-значения — median-уровни
+третьей стороны, они лежат только в git-ignored `data/raw/livingston/` и тоже не публикуются. Тест
 `test_report_contains_no_third_party_forecast_values` обходит весь JSON и запрещает ключ `forecast`,
 а также ищет в тексте отчёта фактические числа из файла SPF; отдельный тест
 `test_project_policy_keeps_values_out_even_when_the_licence_allows_them` фиксирует более строгое
@@ -81,12 +84,33 @@ SPF и NY Fed — оба OPEN в `protocols/licence_register.json`; их зна�
 Инструмент загрузки намеренно не пишет значения в git: xlsx и CSV — третьи данные, они живут только
 в git-ignored `data/raw/`; в коммит попадают только URL/размер/sha256/счётчики в отчёте и документации.
 
+### 3.2 Данные Livingston: что именно загружено (task-88)
+
+| Факт | Значение |
+|---|---|
+| URL `medians.xlsx` | `https://www.philadelphiafed.org/-/media/FRBP/Assets/Surveys-And-Data/livingston-survey/historical-data/medians.xlsx` |
+| Размер / SHA-256 `medians.xlsx` | **162 457 B** / `ddb2a9f7ed51c2964921d04efefbe3363b3d8aa223df0c7efc28723d4a8175df` |
+| Лист / колонки | `RGDPX`; `Date`, `RGDPX_BP`, `RGDPX_ZM` (median-уровни реального GDP, annual rate, SA) |
+| URL / SHA-256 release dates | `livingston-release-dates.xlsx`, **22 357 B**, `22d621f3b2e0069443c9eae934797e9c7fddb7ca1179d2e9db41a0da6023db1b` |
+| Лист / колонки release dates | `Dates`; `Survey`, `Exact`, `Not After` (161 строка; `Survey` до 2001 кодирует год +100 — сопоставление по порядку строк, дата берётся из `RGDPX`) |
+| Сырой CSV (git-ignored) | `data/raw/livingston/livingston_t2_h0.csv`, **3 079 B**, sha256 `f2d72a83210c830a892b9ab5e6c8efe04d5a80867a42114b72c406e8444850fa`; 45 strict post-2004 строк |
+| Строки / окно | 45 строк 2004Q2–2026Q2 (все с точными датами релиза); в W1/W2 скорится 32: W1 6 (2004–2006), W2 26 (2007–2019) |
+| PIT-граница | strict post-2004; release_date = `Exact`, иначе `Not After` (PIT-safe upper bound); используется только `release_date ≤ origin` |
+| Маппинг | T2_GDP_GROWTH h=0: `400*ln(RGDPX_ZM/RGDPX_BP)`; origin — 30 июня/31 декабря; документальноe преобразование median-уровней, не отдельно опубликованный median growth |
+| Загрузка | `python tools/fetch_scorecard_data.py --livingston` (два URL, `retrieved_at`, bytes, sha256, counts → `data/raw/livingston/livingston.meta.json`; `--check` сверяет CSV/manifest) |
+
+Ограничения §9: только T2 h=0, только strict post-2004, медиана-уровни → growth; T1/T2 h>0 не
+мапятся; pre-2004 base values ненадёжны (X_BP caveat).
+
 ## 4. PIT-правила (как не заглянуть в будущее)
 
 1. **Дата публикации, а не дедлайн.** Прогноз входит в scorecard, только если его дата публикации
    `≤ origin` (`origin_policy.default`). Для SPF это официальная дата новостного релиза квартала
    опроса (`src/amfe/ensemble/spf_calendar.py`, docs/86 §5), не дата дедлайна. Для NY Fed — колонка
-   `Forecast Date` (пятничная публикация nowcast), не дата квартала.
+   `Forecast Date` (пятничная публикация nowcast), не дата квартала. Для Livingston —
+   `release_date` из официального `livingston-release-dates.xlsx`: `Exact`, иначе `Not After`
+   (консервативная верхняя граница публикации); дата берётся из RGDPX/порядка строк, а не из
+   `Survey`-года (который до 2001 сдвинут на +100).
 2. **Real-time начало.** До 1990Q3 SPF не проводился в реальном времени → точки до 1990Q3
    отбрасываются с причиной `SPF_NOT_REAL_TIME_BEFORE_1990Q3`. Для NY Fed строки
    `RECONSTRUCTED` (2002Q1–2015Q4) отбрасываются с причиной `RECONSTRUCTED_NOT_REAL_TIME` — это
@@ -120,6 +144,7 @@ SPF и NY Fed — оба OPEN в `protocols/licence_register.json`; их зна�
 | SPF | T2 h=0 | 360 | **117** | 0.325 | 66 из 204 | 51 из 156 |
 | SPF | T2 h=1 | 118 | **116** | 0.983 | 65 из 67 | 51 из 51 |
 | NY Fed | T2 h=0 | 360 | **48** | 0.133 | 0 из 204 | 48 из 156 |
+| **Livingston** | **T2 h=0** | **360** | **32** | **0.089** | **6 из 204** | **26 из 156** |
 
 SPF h=0: 240 — origin не средний месяц квартала, 2 — до 1990Q3, 1 — релиз 2019Q1 (22.03.2019,
 shutdown) позже февральского конца месяца. Это в точности числа docs/95 §2 — независимое
@@ -128,6 +153,10 @@ NY Fed: в W1 нет ни одной PUBLISHED-строки (144 `NO_PUBLICATION
 `RECONSTRUCTED_NOT_REAL_TIME`); в W2 108 начал отброшены как `RECONSTRUCTED_NOT_REAL_TIME`
 (2007–2015) — реально скорится только 2016–2019 (48 начал). Это **не** полное покрытие W2 и не
 «теперь у нас PIT на 2007–2019».
+Livingston: survey semiannual; из 204/156 начал только 30 июня/31 декабря являются квартальными
+концами — остальные отброшены как `LIVINGSTON_NO_QUARTER_END_ORIGIN` (170 в W1, 130 в W2), без
+интерполяции; в W1 ещё 28 начал до strict-старта отброшены как `LIVINGSTON_BASE_VALUE_CAVEAT`.
+Итог — 6 точек 2004–2006 в W1 и 26 в 2007–2019 W2; покрытие 0.089, а не «весь период».
 
 ## 6. Результаты
 
@@ -165,14 +194,28 @@ NY Fed только 2016–2019), поэтому RMSE нельзя читать 
 выборки, разные кризисные эпизоды и разное покрытие. Для честного сравнения нужны общие начала; это
 следующий шаг (§10), а не вывод этого документа.
 
+### 6.3 Livingston Survey (новое, task-88)
+
+| Цель/h | Окно | n | RMSE | MAE | bias | RMSE (secondary) | coverage |
+|---|---|---:|---:|---:|---:|---:|---:|
+| T2 h=0 | W1 | **6** | **1.0168** | 0.7888 | +0.7888 | 1.0496 | 0.0294 |
+| T2 h=0 | W2 | **26** | **1.2823** | 1.0472 | −0.0995 | 1.3531 | 0.1667 |
+| T2 h=0 | W1+W2 | 32 | 1.2369 | 0.9988 | +0.0671 | 1.3016 | 0.0889 |
+
+Livingston — semiannual survey; строгий поднабор 2004Q2–2019Q4. RMSE 1.24 на 32 точках — это
+**не** рейтинг против SPF/NY Fed: разные выборки (W1 у Livingston — только 6 точек 2004–2006,
+W2 — 26) и другая частота. Значения в отчёт не публикуются; forecast — документированное
+преобразование median-уровней `400·ln(RGDPX_ZM/RGDPX_BP)`, не отдельно опубликованный median growth.
+Расширить нельзя без протокольного решения: T1/T2 h>0 не мaпятся, pre-2004 исключён из-за caveat.
+
 ## 7. Что не посчитано и почему (честно)
 
 | Метрика | Статус | Причина |
 |---|---|---|
-| CRPS | `NO_PREDICTIVE_DISTRIBUTION` | SPF и NY Fed публикуют точечный прогноз/медиану, а не плотность; распределение не подставляется (docs/95 §6.4: «SPF-распределение — производная статистика проекта», другой объект) |
+| CRPS | `NO_PREDICTIVE_DISTRIBUTION` | SPF, NY Fed и Livingston публикуют точечный прогноз/медиану, а не плотность; распределение не подставляется (docs/95 §6.4: «SPF-распределение — производная статистика проекта», другой объект) |
 | Brier | `NO_EVENT_PROBABILITY_MAPPING` | ни у одного источника нет вероятности протокольного события; SPF RECESS/Anxious Index — вероятность падения GDP, а не событие NBER (docs/86: `NO_NBER_RECESSION_PROBABILITY_AND_EVENT_MISMATCH`) |
 | coverage_90 | `NO_PREDICTIVE_DISTRIBUTION` | нет 5–95% интервала у точечного прогноза |
-| Покрытие (`coverage_share`) | **AVAILABLE** | SPF 0.325 (h=0), 0.983 (h=1); NY Fed 0.133 (h=0, W1+W2), 0.308 (W2) — это доля покрытых начал, не точность |
+| Покрытие (`coverage_share`) | **AVAILABLE** | SPF 0.325 (h=0), 0.983 (h=1); NY Fed 0.133 (h=0, W1+W2), 0.308 (W2); Livingston 0.089 (h=0, W1+W2) — это доля покрытых начал, не точность |
 
 CRPS и Brier не «выключены навсегда»: обе функции реализованы (`crps_from_quantiles`,
 `brier_score`), проверены на синтетике и включатся автоматически, как только появится источник с
@@ -182,54 +225,59 @@ CRPS и Brier не «выключены навсегда»: обе функци�
 
 | Критерий | Требуется | Факт | Проходит |
 |---|---|---:|---:|
-| MVP docs/173: источников со scorecard | ≥ 3 | **2** (SPF, NY Fed) | **нет** |
-| M2 docs/207: scorable источников | ≥ 2 | **2** | **да** |
-| Общих PIT-точек | ≥ 50 | **281** | да |
+| MVP docs/173: источников со scorecard | ≥ 3 | **3** (SPF, NY Fed, Livingston) | **да** |
+| M2 docs/207: scorable источников | ≥ 2 | **3** | **да** |
+| Общих PIT-точек | ≥ 50 | **313** | да |
 | Даты публикации и ошибки в отчёте | есть | есть | да |
 | Без нарушения лицензий | обязательно | 0 RESTRICTED-источников использовано, 0 значений опубликовано | да |
 
-Отсюда `status = PARTIAL`, `status_reasons = ["SCORED_SOURCES_BELOW_CRITERION(2<3)"]`. Это
-сознательно: M2 закрыт, но MVP docs/173 требует третьего scorable источника; подгонять третий
-(взять GDPNow вопреки RESTRICTED, посчитать Cleveland «примерно» на другой цели или выдать
-реконструкции NY Fed за real-time) означало бы нарушить и лицензию, и протокол. Разблокировка — §10.
+Отсюда `status = OK`, `status_reasons = []`. Это закрывает и M2 docs/207, и MVP docs/173: третий
+scorable — Livingston (32 точки), не GDPNow (остаётся RESTRICTED), не Cleveland-«примерно» и не
+реконструкции NY Fed, выданные за real-time. Livingston добавлен в строгом виде: только T2 h=0,
+только post-2004 strict subset, median-уровни → q/q annualised growth — документированное
+преобразование, значения не публикуются. Ограничения §9 сохраняются.
 
 В отчёте это видно машинно: `criteria.min_scored_sources = 3`,
-`criteria.m2_min_scored_sources = 2`, `cross_source.criteria_pass = {"sources": false,
-"points": true, "m2_sources": true}`.
+`criteria.m2_min_scored_sources = 2`, `cross_source.criteria_pass = {"sources": true,
+"points": true, "m2_sources": true}`, `cross_source.scored_points_total = 313`.
 
 ## 9. Ограничения
 
-1. **MVP-объём:** только T2_GDP_GROWTH, h=0 и h=1. T1/T3 и h=2/h=4 не скорились.
+1. **MVP-объём:** только T2_GDP_GROWTH: SPF h=0/h=1, NY Fed h=0, Livingston h=0 (strict
+   post-2004). T1/T3 и h=2/h=4 не скорились.
 2. **SPF — последняя редакция файла, не винтаж:** дата релиза фиксирует доступность, но errata и
    ревизии после опроса не аудированы (та же оговорка, что в docs/95 §6.3).
 3. **NY Fed — values-only архив:** нет underlying series → ре-оценка невозможна; 2002Q1–2015Q4 —
    реконструкции, не публикации; архив заканчивается 2021Q3, поэтому W2 покрыт только 2016–2019.
    Это PIT-архив **частично**, и отчёт не выдаёт его за полный.
-4. **Нет плотности/вероятности** у доступных источников → CRPS/Brier/coverage_90 пусты (см. §7).
-5. **Перекрывающиеся начала h=0:** 117 точек SPF = ~39 независимых кварталов, 48 NY Fed = 12
-   кварталов 2016–2019; значимость (DM/RW) в этом MVP не считается, и отчёт это пишет.
-6. **«Внешние vs наши» ещё нет:** в отчёт попадают только внешние прогнозы; присоединение своих
+4. **Livingston — только T2 h=0 и только strict post-2004:** semi-annual survey, в W1 всего 6 точек
+   (2004–2006), в W2 — 26; 2020+ не входят в окна, pre-2004 исключён из-за caveat к X_BP; T1/T2 h>0
+   не мaпятся. Forecast `400·ln(RGDPX_ZM/RGDPX_BP)` — документированное преобразование median-уровней,
+   а не отдельно опубликованный median growth; это ограничение нельзя скрывать при сравнении.
+5. **Нет плотности/вероятности** у доступных источников → CRPS/Brier/coverage_90 пусты (см. §7).
+6. **Перекрывающиеся начала h=0:** 117 точек SPF = ~39 независимых кварталов, 48 NY Fed = 12
+   кварталов 2016–2019, 32 Livingston = 16 полугодий 2004–2019; значимость (DM/RW) в этом MVP не
+   считается, и отчёт это пишет.
+7. **«Внешние vs наши» ещё нет:** в отчёт попадают только внешние прогнозы; присоединение своих
    базлайнов (C6-журнал, R3-ансамбль) — отдельный шаг, зафиксирован в `gaps`.
-7. **Данные только из локальных артефактов.** Без `data/raw/spf/spf_median.json` инструмент честно
+8. **Данные только из локальных артефактов.** Без `data/raw/spf/spf_median.json` инструмент честно
    пишет `NOT_AVAILABLE / SPF_VALUES_NOT_DOWNLOADED`; без `data/raw/ny_fed/nowcast.csv` —
-   `UNAVAILABLE / ARCHIVE_NOT_LOCAL`; ни один источник не фабрикуется. `tools/fetch_scorecard_data.py`
-   восстанавливает NY Fed-архив, `tools/fetch_spf.py` — SPF.
-8. **Не admission-инструмент:** C1–C6, стадии и допуск не применяются; отчёт диагностический.
+   `UNAVAILABLE / ARCHIVE_NOT_LOCAL`; без `data/raw/livingston/livingston_t2_h0.csv` —
+   `UNAVAILABLE / LIVINGSTON_VALUES_NOT_DOWNLOADED`; ни один источник не фабрикуется.
+   `tools/fetch_scorecard_data.py` восстанавливает NY Fed-архив и Livingston (--livingston),
+   `tools/fetch_spf.py` — SPF.
+9. **Не admission-инструмент:** C1–C6, стадии и допуск не применяются; отчёт диагностический.
 
-## 10. Как разблокировать третий источник (следующие шаги)
+## 10. Дальнейшие шаги (третий источник уже добавлен)
 
-1. **GDPNow:** только если владелец/Lead изменит запись `ATLANTA_FED_GDPNOW` в
-   `protocols/licence_register.json` после проверки условий (сейчас `RESTRICTED`: страница данных
-   разрешает personal/educational reproduction, а site terms запрещают derivative works без
-   разрешения; строгое чтение применяется). Без решения владельца значения не читаются — это не
-   «техническое» ограничение, а лицензионное.
-2. **Cleveland:** нужен источник с годичным y/y горизонтом (или регистрация T1-мэппинга с
-   пересчётом m/m → y/y, что меняет цель) — до этого источник остаётся метаданными.
-3. **Другие OPEN источники:** проверено 2026-11-26 (ECB SPF, OECD EO, IMF WEO — §13): третий
-   scorable не найден; искать ряд с T2-мэппингом **США** и публичной датой релиза (не только текущее
-   значение); без PIT-архива источник не scorable — «лучше честные 2, чем фиктивные 3».
-4. **«Внешние vs наши»:** добавить к тем же началам свои OPEN-базлайны (C6 forward-registry и
+1. **«Внешние vs наши»:** добавить к тем же началам свои OPEN-базлайны (C6 forward-registry и
    R3-ансамбль) — это сделает UC-44 продуктом, а не диагностикой.
+2. **Расширение целей:** T1/T3 и T2 h=2/h=4 — только при появлении источника с точным
+   протокольным мэппингом или отдельном протокольном решении (FROZEN v5 не меняется этой задачей).
+3. **Livingston:** расширять нельзя без решения о серии/сезонности для T1 и без снятия caveat к
+   pre-2004 X_BP; текущий строгий вариант — 32 точки, и это надо оставлять явным.
+4. **GDPNow/Cleveland:** GDPNow остаётся RESTRICTED (значения не читаются); Cleveland — без
+   PIT-архива и протокольного мэппинга, UNAVAILABLE.
 5. **API-слой:** после ≥3 источников отдать отчёт как `/v1/external-forecasts` (docs/174, UC-45).
 
 ## 11. Воспроизведение и CI
@@ -237,7 +285,9 @@ CRPS и Brier не «выключены навсегда»: обе функци�
 ```powershell
 # 1) открытые данные (значения — только в git-ignored data/raw/)
 python tools/fetch_scorecard_data.py --expect-sha256 b0ce3db1592672375e3bd43d827da6cf512fbbb602252abb927e6b6d577c234f
+python tools/fetch_scorecard_data.py --livingston
 python tools/fetch_scorecard_data.py --check
+python tools/fetch_scorecard_data.py --livingston --check
 # SPF (если ещё не загружен): python tools/fetch_spf.py
 
 # 2) scorecard
@@ -246,41 +296,52 @@ python tools/external_forecast_scorecard.py                    # полный п
 python tools/external_forecast_scorecard.py --horizons 0 --max-origins 24 --out <tmp>.json
 
 # 3) тесты
-python -m unittest tests.test_external_forecast_scorecard tests.test_external_forecast_scorecard_fetch
+python -m unittest tests.test_external_forecast_scorecard tests.test_external_forecast_scorecard_fetch tests.test_external_scorecard_v2
 ```
 
-`--check` возвращает 0 только при `status = OK`; сейчас он ожидаемо возвращает **3** (PARTIAL,
-2<3). Полный прогон возвращает 0 и печатает сводку с `content_sha256`; `--max-origins` не
-используется для отчёта (иначе NY Fed не попадает в первые 30 начал W2 и источник может выглядеть
-пустым).
+`--check` возвращает 0 только при `status = OK`; сейчас он ожидаемо возвращает **0** (3 scorable,
+313 доступных точек). Полный прогон возвращает 0 и печатает сводку с `content_sha256`;
+`--max-origins` не используется для отчёта (иначе NY Fed не попадает в первые 30 начал W2 и источник
+может выглядеть пустым).
 
 Детерминизм: отчёт не зависит от времени (`generated_at` исключён из `content_sha256`), порядок
 обхода начал и источников фиксирован, средние считаются через `math.fsum`; тесты проверяют
 совпадение digest'а у двух прогонов и независимость от `generated_at`. CSV NY Fed детерминирован:
-повторный `fetch_scorecard_data.py` даёт тот же sha256 `11cb535c…` при том же xlsx.
+повторный `fetch_scorecard_data.py` даёт тот же sha256 `11cb535c…` при том же xlsx; Livingston CSV
+детерминирован: повторный `fetch_scorecard_data.py --livingston` даёт sha256 `f2d72a83…` при тех же
+xlsx.
 
 Сырые данные: SPF-значения — в git-ignored `data/raw/spf/spf_median.json`; NY Fed xlsx/CSV — в
-`data/raw/ny_fed/`; архивы ALFRED (`data/raw/GDPC1/vintages.zip`) только читаются. Инструменты
-пишут единственный tracked-файл scorecard — `protocols/external_forecast_scorecard.json`; в git
-попадают только агрегаты, даты, пути и SHA-256.
+`data/raw/ny_fed/`; Livingston — `data/raw/livingston/`; архивы ALFRED (`data/raw/GDPC1/vintages.zip`)
+только читаются. Инструменты пишут единственный tracked-файл scorecard —
+`protocols/external_forecast_scorecard.json`; в git попадают только агрегаты, даты, пути и SHA-256.
 
 ## 12. Файлы
 
 | Файл | Размер | SHA-256 / примечание |
 |---|---|---|
-| `tools/external_forecast_scorecard.py` | 70 690 B | `f6f6b60879123309…`; добавлены M2-критерий, publication policy, NY Fed URL |
-| `tools/fetch_scorecard_data.py` | 17 265 B | `c757f6b3c3edffc3…`; URL/дата/размер/sha256 в manifest + JSONL-лог; `--check` |
-| `protocols/external_forecast_scorecard.json` | 30 987 B | sha256 `073775dfd17c1fef…`; `content_sha256` `494cb0060b306f42…`; `generated_at` 2026-11-26T17:04:43Z |
-| `tests/test_external_forecast_scorecard.py` | 29 976 B | 41 тест; `Ran 41 tests OK` |
-| `tests/test_external_forecast_scorecard_fetch.py` | 9 531 B | 10 тестов; `Ran 10 tests OK` |
+| `tools/external_forecast_scorecard.py` | 83 028 B | `8615864d51054017…`; добавлены Livingston spec/adapter, strict post-2004, T2 h=0 |
+| `tools/fetch_scorecard_data.py` | 37 550 B | `2e6fe7ab58c6b6a6…`; NY Fed + `--livingston` (два xlsx → CSV `livingston_t2_h0.csv`), manifest, `--check` |
+| `protocols/external_forecast_scorecard.json` | 40 548 B | sha256 `7386e1a8600f3a6f…`; `content_sha256` `fd038a777a430a7e…`; `generated_at` 2026-11-26T19:48:03Z |
+| `tests/test_external_forecast_scorecard.py` | 34 716 B | 48 тестов (`Ran 48 tests OK`) |
+| `tests/test_external_forecast_scorecard_fetch.py` | 16 041 B | 14 тестов (`Ran 14 tests OK`) |
+| `tests/test_external_scorecard_v2.py` | 23 365 B | 49 тестов (`Ran 49 tests OK`) |
 | `protocols/evaluation_protocol_v5.json` | FROZEN | sha256 `48c2f6a18a28cefc…` (в отчёте — `protocol.sha256`) |
-| `protocols/licence_register.json` | — | sha256 `4c1ab61c0a4b85f1…` (в отчёте — `licence_register.sha256`) |
+| `protocols/licence_register.json` | 50 922 B | sha256 `f660ee11fb31bcd4…` (в отчёте — `licence_register.sha256`); добавлена запись `LIVINGSTON_SURVEY` |
+| `protocols/external_forecasts_v2.json` | 43 821 B | sha256 `1bf389f7f7087110…`; 27 источников, 3 `ADAPTER_READY` |
 
 Новые данные (git-ignored, не коммитятся): `data/raw/ny_fed/nowcast.csv` (64 203 B, sha256
-`11cb535c…`), `data/raw/ny_fed/nowcast.meta.json` (URL/дата/размер/sha256/counts),
+`11cb535c…`), `data/raw/ny_fed/nowcast.meta.json`; `data/raw/livingston/medians.xlsx` (162 457 B,
+`ddb2a9f7…`), `livingston-release-dates.xlsx` (22 357 B, `22d621f3…`),
+`livingston_t2_h0.csv` (3 079 B, `f2d72a83…`), `livingston.meta.json` (URL/дата/размер/sha256/counts);
 `data/raw/scorecard_fetch_log.jsonl` (история загрузок).
 
 ## 13. Попытка третьего scorable источника: ECB SPF / OECD EO / IMF WEO (2026-11-26)
+
+> Историческая запись: на момент этой попытки (task-82) третьего scorable не было, scorecard = 2
+> источника / 281 PIT-точка. Позже (task-88) третий источник найден среди других кандидатов —
+> **Livingston Survey**, см. §14; текст ниже оставлен как есть для аудита, его цифры относятся
+> именно к той попытке.
 
 Правило владельца — без платных лицензий; третий scorable нужен как замена Consensus/Blue Chip
 (RESTRICTED). Проверены открытые машиночитаемые каналы; **ни одно значение не скачивалось в проект и
@@ -311,4 +372,47 @@ publication dates и регистрация документированного
 
 **Тесты:** `tests/test_external_scorecard_v2.py` дополнен проверками статусов ECB SPF/IMF WEO и
 наличием этого раздела; `tests/test_external_forecast_scorecard*.py` не менялись и остаются зелёными.
+
+## 14. Livingston Survey — третий scorable (task-88, 2026-11-26)
+
+Третий источник найден не среди ECB/OECD/IMF (§13), а в **Philadelphia Fed Livingston Survey**:
+это публичный PIT-архив median-прогнозов с 1946 года, из которого документированным
+преобразованием получается протокольная T2 h=0 (`400·ln(RGDPX_ZM/RGDPX_BP)`), а даты публикации
+берутся из официального `livingston-release-dates.xlsx` (`Exact`, иначе `Not After`). OSINT-разбор
+кандидата — [`docs/254`](254_PIT_кандидат_NYFed_SMP.md); здесь — реализованная часть.
+
+**Что сделано (task-88):**
+
+1. `tools/fetch_scorecard_data.py --livingston`: скачивает `medians.xlsx` (162 457 B, sha256
+   `ddb2a9f7…`) и `livingston-release-dates.xlsx` (22 357 B, sha256 `22d621f3…`) в git-ignored
+   `data/raw/livingston/`, деривирует `livingston_t2_h0.csv` (45 strict post-2004 строк; 3 079 B,
+   sha256 `f2d72a83…`) с колонками
+   `survey_date,release_date,release_basis,origin,target_period,horizon,forecast`; пишет
+   `livingston.meta.json` (URL, дата, bytes, sha256, счётчики, no row values) и поддерживает
+   `--check`.
+2. `tools/external_forecast_scorecard.py`: source spec `LIVINGSTON_SURVEY` + adapter
+   `livingston_local` (target T2, horizons [0]); PIT: `publication_date = release_date` и только
+   `release_date ≤ origin`; причины `LIVINGSTON_NO_QUARTER_END_ORIGIN`,
+   `LIVINGSTON_RELEASE_AFTER_ORIGIN`, `LIVINGSTON_BASE_VALUE_CAVEAT`,
+   `LIVINGSTON_NO_SURVEY_FOR_ORIGIN`, `LIVINGSTON_VALUES_NOT_DOWNLOADED`; другие месячные концы не
+   интерполируются.
+3. `protocols/licence_register.json`: запись `LIVINGSTON_SURVEY` — **OPEN** (research use,
+   attribution, values outside git; якорь `PHILADELPHIA_FED`).
+4. `protocols/external_forecasts_v2.json`: `LIVINGSTON_SURVEY` → `ADAPTER_READY`
+   (`SCORED_IN_CURRENT_SCORECARD`), adapter `livingston_local`, data_path
+   `data/raw/livingston/livingston_t2_h0.csv`; реестр 27 источников, 3 `ADAPTER_READY`, 0 errors /
+   0 warnings.
+5. `protocols/external_forecast_scorecard.json` перегенерирован: **3 scorable**, **313 точек**,
+   `status = OK`, `status_reasons = []` (SPF 233 + NY Fed 48 + Livingston 32). Значения Livingston
+   в отчёт не попадают (`values_published = false`, `sample = null`); в отчёт идут только counts,
+   RMSE/MAE/bias/coverage и метаданные.
+6. Тесты: scorecard +4 Livingston-теста (fixture/PIT/reason-коды), fetch +4 (parse/CSV/manifest/
+   `--check`), v2 обновлён на 27 источников/3 ADAPTER_READY; суммарно `Ran 111 tests OK` по трём
+   модулям.
+
+**Ограничения Livingston (не скрывать):** только T2 h=0; только strict post-2004 (pre-2004 `X_BP`
+по документации ненадёжен, кроме CPI); survey semiannual — в W1 всего 6 точек (2004–2006), в W2 26
+(2007–2019); forecast — документированное преобразование опубликованных median-уровней, а не
+отдельно опубликованный median growth; T1/T2 h>0 не мaпятся; значения третьей стороны лежат только
+в git-ignored `data/raw/livingston/` и не публикуются.
 

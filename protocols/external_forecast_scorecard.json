@@ -2,17 +2,15 @@
  "report_id": "AMFE-EXTERNAL-FORECAST-SCORECARD",
  "version": "0.1.0",
  "tool": "tools/external_forecast_scorecard.py",
- "generated_at": "2026-11-26T17:04:43Z",
+ "generated_at": "2026-11-26T19:48:03Z",
  "purpose": "point-in-time scorecard of external forecasts against the first publication of the fact on the frozen protocol windows W1/W2: who is more accurate, when, and with what coverage",
  "publication_policy": {
   "third_party_values": "aggregates_and_metadata_only",
   "note": "even when the licence register would allow publishing a sample (NY Fed), the committed report keeps third-party forecast/actual values outside git; only aggregates, counts, metadata and hashes are written",
   "raw_data_location": "data/raw/ (git-ignored; fetched with tools/fetch_scorecard_data.py)"
  },
- "status": "PARTIAL",
- "status_reasons": [
-  "SCORED_SOURCES_BELOW_CRITERION(2<3)"
- ],
+ "status": "OK",
+ "status_reasons": [],
  "protocol": {
   "file": "protocols/evaluation_protocol_v5.json",
   "protocol_id": "AMFE-EVAL",
@@ -44,10 +42,11 @@
  },
  "licence_register": {
   "file": "protocols/licence_register.json",
-  "sha256": "4c1ab61c0a4b85f19da8c53e22831528197ce580d4dc8c4e71756e170de42f37",
+  "sha256": "f660ee11fb31bcd4a3e69cf1b73ea6b4df2865bda4916ed1ad8a302d39e5452f",
   "entries_used": {
    "SPF_GDP_MEDIAN": "PHILADELPHIA_FED",
    "NY_FED_STAFF_NOWCAST": "NY_FED",
+   "LIVINGSTON_SURVEY": "LIVINGSTON_SURVEY",
    "CLEVELAND_FED_NOWCAST": "CLEVELAND_FED",
    "ATLANTA_FED_GDPNOW": "ATLANTA_FED_GDPNOW"
   }
@@ -670,6 +669,250 @@
     "sample": null
    }
   },
+  "LIVINGSTON_SURVEY": {
+   "metadata": {
+    "source_id": "LIVINGSTON_SURVEY",
+    "name": "Livingston Survey - median real GDP level, derived q/q growth",
+    "provider": "Federal Reserve Bank of Philadelphia",
+    "urls": [
+     "https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/livingston-survey",
+     "https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/livingston-historical-data",
+     "https://www.philadelphiafed.org/about-us/privacy-notice"
+    ],
+    "attribution": "Source: Federal Reserve Bank of Philadelphia, Livingston Survey, median forecasts (https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/livingston-survey); research use, attribution to the Federal Reserve Bank of Philadelphia, values never published",
+    "licence_entry": "LIVINGSTON_SURVEY",
+    "values_location": "data/raw/livingston/livingston_t2_h0.csv (git-ignored)",
+    "publication_rule": "official Livingston release date from livingston-release-dates.xlsx: Exact if present, else Not After as a PIT-safe upper bound; only rows with release_date <= origin are used",
+    "pit_notes": [
+     "survey is semiannual (June/December): only the 30 June / 31 December quarter-end origins are origin-compatible with h=0; other month ends are excluded, never interpolated",
+     "strict subset starts 2004-06: the survey documentation warns that X_BP before June 2004 is unreliable for variables other than CPI",
+     "forecast is a documented transformation of published median levels, not a separately published median growth forecast; no reconstruction or interpolation is applied",
+     "release dates before 2001 are 'Not After' upper bounds where no Exact date is published"
+    ],
+    "supported_targets": {
+     "T2_GDP_GROWTH": [
+      0
+     ]
+    },
+    "target_mapping": {
+     "T2_GDP_GROWTH": {
+      "0": "400*ln(RGDPX_ZM/RGDPX_BP) from published median levels; strict post-2004 subset only"
+     }
+    },
+    "distribution": null,
+    "event_probability": null,
+    "licence": {
+     "status": "OPEN",
+     "level": "extraction",
+     "register_date": "2026-11-26",
+     "last_reviewed": "2026-11-26",
+     "url": [
+      "https://www.philadelphiafed.org/about-us/privacy-notice",
+      "https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/livingston-survey",
+      "https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/livingston-historical-data",
+      "https://www.philadelphiafed.org/-/media/FRBP/Assets/Surveys-And-Data/livingston-survey/livingston-documentation.pdf"
+     ],
+     "conditions": [
+      "research use only",
+      "attribution to the Federal Reserve Bank of Philadelphia",
+      "values outside git: median forecasts stay in data/raw/livingston/ and are never committed or published",
+      "no redistribution of raw files",
+      "documented transformation only: 400*ln(RGDPX_ZM/RGDPX_BP); no interpolation or reconstruction",
+      "strict post-2004 subset only: the documentation warns that X_BP before June 2004 is unreliable for variables other than CPI"
+     ],
+     "usable": true,
+     "usage": "SCORED",
+     "values_publishable": false,
+     "publication_blocker": "values outside git: median forecasts stay in data/raw/livingston/ and are never committed or published",
+     "decision": "usable for non-commercial research in the external forecast scorecard on the owner's OPEN reading of the Philadelphia Fed site terms (the same reading as PHILADELPHIA_FED), not a legal opinion; values never published",
+     "reason": null
+    },
+    "adapter": "livingston_local",
+    "values_file": {
+     "schema": {
+      "path": "data/raw/livingston/livingston_t2_h0.csv (git-ignored)",
+      "columns": [
+       "survey_date",
+       "release_date",
+       "release_basis",
+       "origin",
+       "target_period",
+       "horizon",
+       "forecast"
+      ],
+      "survey_date": "survey date from RGDPX.Date, YYYY-MM-DD (1 June / 1 December)",
+      "release_date": "publication date: Exact if present, else Not After (PIT-safe upper bound)",
+      "release_basis": "exact | not_after; anything else is rejected",
+      "origin": "quarter end of the survey (30 June / 31 December), YYYY-MM-DD",
+      "target_period": "survey quarter, YYYYQ2 / YYYYQ4",
+      "horizon": "0 only",
+      "derived_value": "400*ln(RGDPX_ZM/RGDPX_BP), percent; derived from published median levels",
+      "strict_start": "2004-06-01"
+     },
+     "values_present": true,
+     "archive_path": "data/raw/livingston/livingston_t2_h0.csv",
+     "rows": 45,
+     "row_errors": {},
+     "strict_start": "2004-06-01",
+     "release_basis": {
+      "exact": 45,
+      "not_after": 0
+     },
+     "transformation": "400*ln(RGDPX_ZM/RGDPX_BP) from published median levels",
+     "values_only_archive": false,
+     "sha256": "f2d72a83210c830a892b9ab5e6c8efe04d5a80867a42114b72c406e8444850fa"
+    }
+   },
+   "status": {
+    "status": "AVAILABLE",
+    "reason": null,
+    "detail": "45 strict Livingston PIT rows",
+    "available": true
+   },
+   "targets": {
+    "T2_GDP_GROWTH": {
+     "0": {
+      "windows": {
+       "W1": {
+        "window": "W1",
+        "origins_eligible": 204,
+        "available": 6,
+        "scored": 6,
+        "coverage_share": 0.0294117647,
+        "lookahead_excluded": 0,
+        "exclusions": {
+         "LIVINGSTON_BASE_VALUE_CAVEAT": 28,
+         "LIVINGSTON_NO_QUARTER_END_ORIGIN": 170
+        },
+        "n": 6,
+        "metrics": {
+         "rmse": 1.016787188,
+         "mae": 0.788822229,
+         "bias": 0.788822229,
+         "crps": null,
+         "brier": null,
+         "coverage_90": null
+        },
+        "metric_status": {
+         "rmse": "AVAILABLE",
+         "mae": "AVAILABLE",
+         "bias": "AVAILABLE",
+         "crps": "NO_PREDICTIVE_DISTRIBUTION",
+         "brier": "NO_EVENT_PROBABILITY_MAPPING",
+         "coverage_90": "NO_PREDICTIVE_DISTRIBUTION"
+        },
+        "secondary": {
+         "n": 6,
+         "rmse": 1.0496104438,
+         "mae": 0.9168929183,
+         "rmse_delta_vs_primary": 0.0328232558,
+         "rule": "protocol actuals.secondary, value in the vintage 12 months after the period"
+        }
+       },
+       "W2": {
+        "window": "W2",
+        "origins_eligible": 156,
+        "available": 26,
+        "scored": 26,
+        "coverage_share": 0.1666666667,
+        "lookahead_excluded": 0,
+        "exclusions": {
+         "LIVINGSTON_NO_QUARTER_END_ORIGIN": 130
+        },
+        "n": 26,
+        "metrics": {
+         "rmse": 1.2823418441,
+         "mae": 1.0472277491,
+         "bias": -0.0994767949,
+         "crps": null,
+         "brier": null,
+         "coverage_90": null
+        },
+        "metric_status": {
+         "rmse": "AVAILABLE",
+         "mae": "AVAILABLE",
+         "bias": "AVAILABLE",
+         "crps": "NO_PREDICTIVE_DISTRIBUTION",
+         "brier": "NO_EVENT_PROBABILITY_MAPPING",
+         "coverage_90": "NO_PREDICTIVE_DISTRIBUTION"
+        },
+        "secondary": {
+         "n": 26,
+         "rmse": 1.353052615,
+         "mae": 1.1972948834,
+         "rmse_delta_vs_primary": 0.0707107709,
+         "rule": "protocol actuals.secondary, value in the vintage 12 months after the period"
+        }
+       },
+       "ALL": {
+        "window": "ALL",
+        "origins_eligible": 360,
+        "scored": 32,
+        "available": 32,
+        "coverage_share": 0.0888888889,
+        "lookahead_excluded": 0,
+        "exclusions": {
+         "LIVINGSTON_BASE_VALUE_CAVEAT": 28,
+         "LIVINGSTON_NO_QUARTER_END_ORIGIN": 300
+        },
+        "n": 32,
+        "metrics": {
+         "rmse": 1.2369007747,
+         "mae": 0.9987767141,
+         "bias": 0.0670792721,
+         "crps": null,
+         "brier": null,
+         "coverage_90": null
+        },
+        "metric_status": {
+         "rmse": "AVAILABLE",
+         "mae": "AVAILABLE",
+         "bias": "AVAILABLE",
+         "crps": "NO_PREDICTIVE_DISTRIBUTION",
+         "brier": "NO_EVENT_PROBABILITY_MAPPING",
+         "coverage_90": "NO_PREDICTIVE_DISTRIBUTION"
+        },
+        "secondary": {
+         "n": 32,
+         "rmse": 1.3015571006,
+         "mae": 1.144719515,
+         "rmse_delta_vs_primary": 0.0646563259,
+         "rule": "protocol actuals.secondary, value in the vintage 12 months after the period"
+        }
+       }
+      },
+      "totals": {
+       "eligible": 360,
+       "scored": 32,
+       "available": 32,
+       "coverage_share": 0.0888888889
+      }
+     }
+    }
+   },
+   "points": {
+    "scored": 32,
+    "available": 32,
+    "eligible": 360,
+    "by_target": {
+     "T2_GDP_GROWTH/h0": {
+      "eligible": 360,
+      "scored": 32,
+      "available": 32,
+      "coverage_share": 0.0888888889
+     }
+    }
+   },
+   "counts_mode": "scored",
+   "values": {
+    "values_published": false,
+    "reason": "PROJECT_VALUES_NOT_PUBLISHED",
+    "licence_status": "OPEN",
+    "publication_blocker": null,
+    "note": "project policy: third-party forecast/actual values stay outside git; only aggregates, counts, metadata and hashes are published",
+    "sample": null
+   }
+  },
   "CLEVELAND_FED_NOWCAST": {
    "metadata": {
     "source_id": "CLEVELAND_FED_NOWCAST",
@@ -810,14 +1053,14 @@
  "gaps": [
   "CLEVELAND_FED_NOWCAST: UNAVAILABLE (NO_PROTOCOL_HORIZON_MAPPING)",
   "ATLANTA_FED_GDPNOW: RESTRICTED_NOT_USED (LICENCE_RESTRICTED)",
-  "only 2 of 4 catalogue sources could be scored; docs/207 M2 (>=2) is met, docs/173 MVP asks for >=3",
   "project's own baselines are not joined to these origins yet ('external vs ours' is open)",
   "CRPS and Brier are NOT_AVAILABLE for every scored source (point-only, no event probability)"
  ],
  "limitations": [
-  "MVP scope: T2_GDP_GROWTH at h=0 and h=1 only; T1/T3 and h=2/h=4 are not scored yet",
+  "MVP scope: T2_GDP_GROWTH only. SPF contributes h=0 and h=1; NY Fed Staff Nowcast h=0; Livingston Survey h=0 only (strict post-2004 subset). T1/T3 are not scored yet.",
   "the SPF file is the latest revision of the medians, not a point-in-time vintage snapshot: the release date fixes availability, errata after the survey are not audited",
   "NY Fed Staff Nowcast is a values-only archive: 2002Q1-2015Q4 are historical reconstructions (excluded from real-time scoring) and only 2016Q1-2021Q3 rows are as published; the archive has no underlying series, so no re-estimation is possible",
+  "Livingston Survey is semiannual and only the strict post-2004 subset is scored: 32 PIT points (W1 6, W2 26). Its forecast is 400*ln(RGDPX_ZM/RGDPX_BP) derived from published median levels, a documented transformation rather than a separately published median growth forecast; T1 and T2 h>0 are not mapped, and the pre-2004 base values are excluded because the documentation warns that X_BP is unreliable for variables other than CPI",
   "SPF forecasts are point (median) forecasts: CRPS and interval coverage are NOT_AVAILABLE for that source, and no distribution is imputed to make a number appear",
   "no external source in this MVP publishes a probability for a protocol event, so Brier is implemented and tested but NOT_AVAILABLE for every scored source",
   "GDPNow is RESTRICTED and is not used; its model quantity is represented by the project's own OPEN OWN_NOWCAST_BRIDGE, which is a different object and is not a like-for-like substitute",
@@ -826,26 +1069,28 @@
  ],
  "next_steps": [
   "add the project's own OPEN baselines (C6 forward-registry rows, R3 ensemble) to the same origins to produce the 'external vs ours' table",
-  "seek at least one more OPEN source with a matching T2 horizon mapping: GDPNow is RESTRICTED in the licence register (owner decision needed before any use) and Cleveland publishes a current-month CPI nowcast with no protocol T2 horizon mapping",
-  "extend to h=2/h=4 and to T1 once a source with a matching horizon mapping is registered",
-  "turn the report into the UC-44 subscription artifact: per-source error tables, charts and a stable API payload once >=3 sources are scored"
+  "extend to h=2/h=4 and T1/T3 once a source with a matching horizon/event mapping is registered; Livingston currently supports only T2 h=0 on the strict post-2004 subset",
+  "widen Livingston coverage only through a protocol decision: T1 mapping would need a series/seasonality decision, and pre-2004 points stay excluded because of the documented X_BP caveat",
+  "turn the report into the UC-44 subscription artifact: per-source error tables, charts and a stable API payload now that three sources are scored"
  ],
  "cross_source": {
   "scored_sources": [
    "SPF_GDP_MEDIAN",
-   "NY_FED_STAFF_NOWCAST"
+   "NY_FED_STAFF_NOWCAST",
+   "LIVINGSTON_SURVEY"
   ],
-  "scored_sources_count": 2,
-  "scored_points_total": 281,
-  "eligible_origins_total": 838,
+  "scored_sources_count": 3,
+  "scored_points_total": 313,
+  "eligible_origins_total": 1198,
   "sources_by_status": {
    "SPF_GDP_MEDIAN": "AVAILABLE",
    "NY_FED_STAFF_NOWCAST": "AVAILABLE",
+   "LIVINGSTON_SURVEY": "AVAILABLE",
    "CLEVELAND_FED_NOWCAST": "UNAVAILABLE",
    "ATLANTA_FED_GDPNOW": "RESTRICTED_NOT_USED"
   },
   "criteria_pass": {
-   "sources": false,
+   "sources": true,
    "points": true,
    "m2_sources": true
   },
@@ -854,5 +1099,5 @@
    "values_published": []
   }
  },
- "content_sha256": "494cb0060b306f421811d52772b8f997f86dc462f201224a7306195c9bd4f93a"
+ "content_sha256": "fd038a777a430a7ef63b3d7262e6852a4dafd67705cccfc5d300d0ca707af9fe"
 }

@@ -22,8 +22,9 @@ import external_forecast_scorecard as sc  # noqa: E402
 VALUES = ROOT / "data" / "raw" / "spf" / "spf_median.json"
 VINTAGES = ROOT / "data" / "raw" / "GDPC1" / "vintages.zip"
 NYFED = ROOT / "data" / "raw" / "ny_fed" / "nowcast.csv"
+LIVINGSTON = ROOT / "data" / "raw" / "livingston" / "livingston_t2_h0.csv"
 LOCAL_DATA = VALUES.exists() and VINTAGES.exists()
-LOCAL_SCORECARD_DATA = LOCAL_DATA and NYFED.exists()
+LOCAL_SCORECARD_DATA = LOCAL_DATA and NYFED.exists() and LIVINGSTON.exists()
 
 
 def quantile_dict(value, levels=sc.PROTOCOL_QUANTILES):
@@ -384,10 +385,75 @@ class NyFedAdapterTests(TempDirMixin):
 # --------------------------------------------------------------------------------------------
 @unittest.skipUnless(LOCAL_SCORECARD_DATA,
                      "local SPF values, NY Fed archive or ALFRED vintages are absent (git-ignored)")
+class LivingstonAdapterTests(TempDirMixin):
+    """Livingston Survey: strict CSV schema, quarter-end origins and the PIT release date."""
+
+    def _write(self, rows):
+        directory = self.tmp / "livingston"
+        directory.mkdir(parents=True, exist_ok=True)
+        path = directory / "livingston_t2_h0.csv"
+        header = "survey_date,release_date,release_basis,origin,target_period,horizon,forecast\n"
+        body = "".join(",".join(str(value) for value in row) + "\n" for row in rows)
+        path.write_text(header + body, encoding="utf-8", newline="\n")
+        return path
+
+    @staticmethod
+    def _row(survey="2019-06-01", release="2019-06-07", basis="exact",
+             origin="2019-06-30", target="2019Q2", horizon=0, forecast=2.5):
+        return (survey, release, basis, origin, target, horizon, forecast)
+
+    def test_loader_accepts_the_strict_schema_and_forecasts_at_the_quarter_end(self):
+        self._write([self._row()])
+        adapter = sc.LivingstonAdapter(data_root=self.tmp)
+        self.assertEqual(adapter.status()["status"], "AVAILABLE")
+        self.assertEqual(adapter.row_errors, {})
+        record = adapter.forecast(sc.TARGET_T2, "2019-06-30", 0)
+        self.assertTrue(record["available"], record)
+        self.assertEqual(record["publication_date"], "2019-06-07")
+        self.assertEqual(record["forecast"], 2.5)
+        self.assertEqual(record["provenance"], "PUBLISHED_MEDIAN_LEVELS_DERIVED_GROWTH")
+
+    def test_other_month_ends_are_not_interpolated(self):
+        self._write([self._row()])
+        adapter = sc.LivingstonAdapter(data_root=self.tmp)
+        for origin in ("2019-03-31", "2019-09-30", "2019-05-31"):
+            record = adapter.forecast(sc.TARGET_T2, origin, 0)
+            self.assertFalse(record["available"])
+            self.assertIn(record["reason"], {"LIVINGSTON_NO_QUARTER_END_ORIGIN",
+                                             "ORIGIN_NOT_MONTH_END"})
+
+    def test_missing_archive_is_unavailable_with_the_download_reason(self):
+        adapter = sc.LivingstonAdapter(data_root=self.tmp)
+        self.assertEqual(adapter.status()["status"], "UNAVAILABLE")
+        self.assertEqual(adapter.status()["reason"], "LIVINGSTON_VALUES_NOT_DOWNLOADED")
+
+    def test_bad_release_basis_is_rejected_at_load(self):
+        self._write([self._row(basis="reconstructed")])
+        adapter = sc.LivingstonAdapter(data_root=self.tmp)
+        self.assertEqual(adapter.status()["status"], "UNAVAILABLE")
+        self.assertEqual(adapter.row_errors, {"ROW_RELEASE_BASIS_UNKNOWN": 1})
+
+    def test_release_after_origin_is_excluded_with_its_own_reason(self):
+        row = {"survey_date": "2019-06-01", "release_date": "2019-07-01", "release_basis": "exact",
+               "origin": "2019-06-30", "target_period": "2019Q2", "horizon": 0, "forecast": 2.5}
+        adapter = sc.LivingstonAdapter(data_root=self.tmp, table=[row])
+        record = adapter.forecast(sc.TARGET_T2, "2019-06-30", 0)
+        self.assertFalse(record["available"])
+        self.assertEqual(record["reason"], "LIVINGSTON_RELEASE_AFTER_ORIGIN")
+
+    def test_pre_2004_origins_carry_the_base_value_caveat(self):
+        row = {"survey_date": "2003-06-01", "release_date": "2003-06-20", "release_basis": "exact",
+               "origin": "2003-06-30", "target_period": "2003Q2", "horizon": 0, "forecast": 2.0}
+        adapter = sc.LivingstonAdapter(data_root=self.tmp, table=[row])
+        record = adapter.forecast(sc.TARGET_T2, "2003-06-30", 0)
+        self.assertFalse(record["available"])
+        self.assertEqual(record["reason"], "LIVINGSTON_BASE_VALUE_CAVEAT")
+
+
 class ReportTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.report = sc.build_report(horizons=(0,), generated_at="2026-11-18T00:00:00Z")
+        cls.report = sc.build_report(horizons=(0, 1), generated_at="2026-11-18T00:00:00Z")
 
     def test_report_structure(self):
         report = self.report
@@ -441,20 +507,38 @@ class ReportTests(unittest.TestCase):
         nyfed = self.report["sources"]["NY_FED_STAFF_NOWCAST"]
         self.assertFalse(nyfed["values"]["values_published"])
         self.assertIsNone(nyfed["values"]["sample"])
+        livingston = self.report["sources"]["LIVINGSTON_SURVEY"]
+        self.assertFalse(livingston["values"]["values_published"])
+        self.assertIsNone(livingston["values"]["sample"])
         self.assertIn("values_published", self.report["sources"]["ATLANTA_FED_GDPNOW"]["values"])
 
-    def test_two_scorable_sources_meet_the_m2_requirement(self):
+    def test_three_scorable_sources_meet_the_mvp_requirement(self):
         report = self.report
         cross = report["cross_source"]
-        self.assertGreaterEqual(cross["scored_sources_count"], sc.M2_MIN_SCORED_SOURCES)
         self.assertIn("SPF_GDP_MEDIAN", cross["scored_sources"])
         self.assertIn("NY_FED_STAFF_NOWCAST", cross["scored_sources"])
+        self.assertIn("LIVINGSTON_SURVEY", cross["scored_sources"])
+        self.assertEqual(cross["scored_sources_count"], 3)
+        self.assertEqual(cross["scored_points_total"], 313)
         self.assertTrue(cross["criteria_pass"]["m2_sources"])
+        self.assertTrue(cross["criteria_pass"]["sources"])
         self.assertTrue(cross["criteria_pass"]["points"])
         self.assertGreaterEqual(cross["scored_points_total"], sc.MIN_SCORED_POINTS)
-        # 2 >= 2 (M2) but still below the stricter docs/173 MVP target of 3
-        if cross["scored_sources_count"] < sc.MIN_SCORED_SOURCES:
-            self.assertFalse(cross["criteria_pass"]["sources"])
+
+    def test_livingston_block_is_strict_post_2004_h0_and_values_absent(self):
+        block = self.report["sources"]["LIVINGSTON_SURVEY"]
+        self.assertEqual(block["status"]["status"], "AVAILABLE")
+        h0 = block["targets"][sc.TARGET_T2]["0"]
+        self.assertEqual(h0["windows"]["W1"]["scored"], 6)
+        self.assertEqual(h0["windows"]["W2"]["scored"], 26)
+        self.assertEqual(h0["windows"]["ALL"]["scored"], 32)
+        self.assertEqual(block["points"]["scored"], 32)
+        self.assertFalse(block["values"]["values_published"])
+        self.assertIsNone(block["values"]["sample"])
+        metadata = block["metadata"]["values_file"]
+        self.assertEqual(metadata["strict_start"], sc.LIVINGSTON_STRICT_START)
+        self.assertEqual(metadata["release_basis"], {"exact": 45, "not_after": 0})
+        self.assertEqual(metadata["rows"], 45)
 
     def test_nyfed_archive_is_partial_and_not_overclaimed(self):
         block = self.report["sources"]["NY_FED_STAFF_NOWCAST"]["targets"][sc.TARGET_T2]["0"]
@@ -471,20 +555,21 @@ class ReportTests(unittest.TestCase):
         self.assertLess(w2["coverage_share"], 0.5)
 
     def test_report_is_deterministic(self):
-        again = sc.build_report(horizons=(0,), generated_at="2026-11-18T00:00:00Z")
+        again = sc.build_report(horizons=(0, 1), generated_at="2026-11-18T00:00:00Z")
         self.assertEqual(self.report["content_sha256"], again["content_sha256"])
-        other_stamp = sc.build_report(horizons=(0,), generated_at="2030-01-01T00:00:00Z")
+        other_stamp = sc.build_report(horizons=(0, 1), generated_at="2030-01-01T00:00:00Z")
         self.assertEqual(self.report["content_sha256"], other_stamp["content_sha256"],
                          "generated_at must be excluded from the content digest")
 
-    def test_status_is_honest_about_the_missing_sources(self):
+    def test_status_is_honest_about_the_remaining_sources(self):
         report = self.report
         cross = report["cross_source"]
-        self.assertEqual(report["status"], "PARTIAL")
-        self.assertIn("SCORED_SOURCES_BELOW_CRITERION(2<3)", report["status_reasons"])
-        self.assertFalse(cross["criteria_pass"]["sources"])
+        self.assertEqual(report["status"], "OK")
+        self.assertEqual(report["status_reasons"], [])
+        self.assertTrue(cross["criteria_pass"]["sources"])
         self.assertTrue(cross["criteria_pass"]["m2_sources"])
-        self.assertEqual(cross["scored_sources_count"], 2)
+        self.assertEqual(cross["scored_sources_count"], 3)
+        self.assertEqual(cross["scored_points_total"], 313)
         self.assertEqual(cross["licence_compliance"]["restricted_used"], [])
         self.assertEqual(cross["licence_compliance"]["values_published"], [])
         self.assertEqual(report["sources"]["ATLANTA_FED_GDPNOW"]["status"]["status"],

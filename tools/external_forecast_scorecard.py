@@ -142,6 +142,28 @@ GDPNOW_ATTRIBUTION = (
     "(https://www.atlantafed.org/research-and-data/data/gdpnow); terms allow personal and "
     "educational use only - the project does not use these values"
 )
+LIVINGSTON_ATTRIBUTION = (
+    "Source: Federal Reserve Bank of Philadelphia, Livingston Survey, median forecasts "
+    "(https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/livingston-survey); "
+    "research use, attribution to the Federal Reserve Bank of Philadelphia, values never published"
+)
+LIVINGSTON_STRICT_START = "2004-06-01"
+
+#: The Livingston adapter's local archive schema (documented, validated row by row).
+LIVINGSTON_SCHEMA = {
+    "path": "data/raw/livingston/livingston_t2_h0.csv (git-ignored)",
+    "columns": ["survey_date", "release_date", "release_basis", "origin",
+                "target_period", "horizon", "forecast"],
+    "survey_date": "survey date from RGDPX.Date, YYYY-MM-DD (1 June / 1 December)",
+    "release_date": "publication date: Exact if present, else Not After (PIT-safe upper bound)",
+    "release_basis": "exact | not_after; anything else is rejected",
+    "origin": "quarter end of the survey (30 June / 31 December), YYYY-MM-DD",
+    "target_period": "survey quarter, YYYYQ2 / YYYYQ4",
+    "horizon": "0 only",
+    "derived_value": "400*ln(RGDPX_ZM/RGDPX_BP), percent; derived from published median levels",
+    "strict_start": LIVINGSTON_STRICT_START,
+}
+
 
 #: The NY Fed adapter's local archive schema (documented, validated row by row).
 NYFED_SCHEMA = {
@@ -155,7 +177,8 @@ NYFED_SCHEMA = {
 
 #: Reasons that mean "the information was not public at the origin" (counted as look-ahead).
 LOOKAHEAD_REASONS = frozenset(
-    {"LOOKAHEAD_REJECTED", "SPF_RELEASE_AFTER_ORIGIN", "NO_PUBLICATION_BEFORE_ORIGIN", "PUBLICATION_DATE_UNKNOWN"}
+    {"LOOKAHEAD_REJECTED", "SPF_RELEASE_AFTER_ORIGIN", "NO_PUBLICATION_BEFORE_ORIGIN",
+     "PUBLICATION_DATE_UNKNOWN", "LIVINGSTON_RELEASE_AFTER_ORIGIN"}
 )
 
 #: Register conditions that forbid publishing the source's values, even when the entry is OPEN.
@@ -572,6 +595,39 @@ SOURCE_SPECS: dict[str, dict] = {
             "the archive is values-only: it carries no underlying series, so no re-estimation is possible",
             "2002Q1-2015Q4 rows in the public archive are historical reconstructions, not publications",
             "updates were suspended from September 2021 to September 2023 (licence register note)",
+        ],
+        "distribution": None,
+        "event_probability": None,
+    },
+    "LIVINGSTON_SURVEY": {
+        "name": "Livingston Survey - median real GDP level, derived q/q growth",
+        "provider": "Federal Reserve Bank of Philadelphia",
+        "licence_entry": "PHILADELPHIA_FED",
+        "adapter": "livingston_local",
+        "urls": [
+            "https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/livingston-survey",
+            "https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/livingston-historical-data",
+            "https://www.philadelphiafed.org/about-us/privacy-notice",
+        ],
+        "values_location": LIVINGSTON_SCHEMA["path"],
+        "attribution": LIVINGSTON_ATTRIBUTION,
+        "supported_targets": {TARGET_T2: [0]},
+        "target_mapping": {
+            TARGET_T2: {"0": "400*ln(RGDPX_ZM/RGDPX_BP) from published median levels; "
+                            "strict post-2004 subset only"},
+        },
+        "publication_rule": (
+            "official Livingston release date from livingston-release-dates.xlsx: Exact if present, "
+            "else Not After as a PIT-safe upper bound; only rows with release_date <= origin are used"
+        ),
+        "pit_notes": [
+            "survey is semiannual (June/December): only the 30 June / 31 December quarter-end origins "
+            "are origin-compatible with h=0; other month ends are excluded, never interpolated",
+            "strict subset starts 2004-06: the survey documentation warns that X_BP before June 2004 "
+            "is unreliable for variables other than CPI",
+            "forecast is a documented transformation of published median levels, not a separately "
+            "published median growth forecast; no reconstruction or interpolation is applied",
+            "release dates before 2001 are 'Not After' upper bounds where no Exact date is published",
         ],
         "distribution": None,
         "event_probability": None,
@@ -1019,9 +1075,190 @@ class NyFedAdapter(Adapter):
         return base
 
 
+class LivingstonAdapter(Adapter):
+    """Livingston Survey median levels -> protocol T2 h=0 q/q annualised growth (strict post-2004).
+
+    The local CSV is derived by ``tools/fetch_scorecard_data.py --livingston`` from the published
+    ``medians.xlsx`` (sheet RGDPX: RGDPX_BP, RGDPX_ZM) and ``livingston-release-dates.xlsx``
+    (sheet Dates: Exact / Not After).  ``forecast = 400*ln(RGDPX_ZM/RGDPX_BP)`` is the protocol T2
+    definition applied to published median levels, a documented transformation rather than a
+    separately published median growth forecast.  Only the 30 June / 31 December quarter-end origins
+    are used; no interpolation is applied to other month ends.
+    """
+
+    source_id = "LIVINGSTON_SURVEY"
+
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.rows: list[dict] | None = None
+        self.row_errors: dict[str, int] = {}
+        self._load()
+
+    def _load(self) -> None:
+        if self.table_override is not None:
+            # Test/derivation override: normalise the documented keys so forecast() can use them.
+            normalised: list[dict] = []
+            for raw in self.table_override:
+                row = dict(raw)
+                try:
+                    row["survey_date"] = _as_date(row["survey_date"])
+                    row["release_date"] = _as_date(row["release_date"])
+                    row["origin"] = _as_date(row["origin"])
+                    row["target_period"] = str(row["target_period"]).strip().upper()
+                    row["horizon"] = int(row["horizon"])
+                    row["forecast"] = float(row["forecast"])
+                except (KeyError, TypeError, ValueError, ScorecardError):
+                    self.row_errors["ROW_UNPARSEABLE"] = self.row_errors.get("ROW_UNPARSEABLE", 0) + 1
+                    continue
+                row["release_basis"] = str(row.get("release_basis") or "").strip().lower()
+                normalised.append(row)
+            self.rows = normalised
+            if not normalised:
+                self.load_error = "LIVINGSTON_ARCHIVE_HAS_NO_USABLE_ROWS"
+            return
+        path = self.data_root / "livingston" / "livingston_t2_h0.csv"
+        self.values_path = path
+        if not path.exists():
+            self.load_error = "LIVINGSTON_VALUES_NOT_DOWNLOADED"
+            return
+        try:
+            with path.open("r", encoding="utf-8", newline="") as handle:
+                raw_rows = list(csv.DictReader(handle))
+        except OSError:
+            self.load_error = "LIVINGSTON_ARCHIVE_UNREADABLE"
+            return
+        parsed: list[dict] = []
+        errors: dict[str, int] = {}
+        seen_origins: set[str] = set()
+        for raw in raw_rows:
+            row, why = self._parse_row(raw)
+            if row is None:
+                errors[why] = errors.get(why, 0) + 1
+                continue
+            if row["origin"].isoformat() in seen_origins:
+                errors["ROW_DUPLICATE_ORIGIN"] = errors.get("ROW_DUPLICATE_ORIGIN", 0) + 1
+                continue
+            seen_origins.add(row["origin"].isoformat())
+            parsed.append(row)
+        parsed.sort(key=lambda item: item["origin"])
+        self.rows = parsed
+        self.row_errors = errors
+        if not parsed:
+            self.load_error = "LIVINGSTON_ARCHIVE_HAS_NO_USABLE_ROWS"
+
+    @staticmethod
+    def _parse_row(raw: Mapping) -> tuple[dict | None, str]:
+        try:
+            survey = _as_date(raw.get("survey_date"))
+            release = _as_date(raw.get("release_date"))
+            origin = _as_date(raw.get("origin"))
+            horizon = int(str(raw.get("horizon", "")).strip())
+            forecast = float(str(raw.get("forecast", "")).strip())
+        except (TypeError, ValueError, ScorecardError):
+            return None, "ROW_UNPARSEABLE"
+        if not math.isfinite(forecast):
+            return None, "ROW_UNPARSEABLE"
+        basis = str(raw.get("release_basis") or "").strip().lower()
+        if basis not in ("exact", "not_after"):
+            return None, "ROW_RELEASE_BASIS_UNKNOWN"
+        if horizon != 0:
+            return None, "ROW_HORIZON_NON_ZERO"
+        target = str(raw.get("target_period") or "").strip().upper()
+        if (len(target) != 6 or target[4] != "Q" or not target[:4].isdigit()
+                or target[5] not in "24"):
+            return None, "ROW_BAD_TARGET_PERIOD"
+        if quarter_of(survey) != target:
+            return None, "ROW_TARGET_NOT_SURVEY_QUARTER"
+        if origin != _as_date(quarter_end(survey)):
+            return None, "ROW_ORIGIN_NOT_SURVEY_QUARTER_END"
+        if origin.month not in (6, 12) or origin != month_end(origin.year, origin.month):
+            return None, "ROW_ORIGIN_NOT_JUNE_DECEMBER_QUARTER_END"
+        if release > origin:
+            return None, "ROW_RELEASE_AFTER_ORIGIN"
+        if survey < _as_date(LIVINGSTON_STRICT_START):
+            return None, "ROW_PRE_2004_BASE_VALUE_CAVEAT"
+        return {"survey_date": survey, "release_date": release, "release_basis": basis,
+                "origin": origin, "target_period": target, "horizon": horizon,
+                "forecast": forecast}, "OK"
+
+    def status(self) -> dict:
+        if not self.verdict["usable"]:
+            return {
+                "status": "RESTRICTED_NOT_USED",
+                "reason": self.verdict.get("reason") or "LICENCE_NOT_OPEN",
+                "detail": "the licence register entry does not allow use; values are never read",
+                "available": False,
+            }
+        if self.rows is None or not self.rows:
+            return {
+                "status": "UNAVAILABLE",
+                "reason": self.load_error or "LIVINGSTON_VALUES_NOT_DOWNLOADED",
+                "detail": f"optional local archive not usable; expected schema {LIVINGSTON_SCHEMA}",
+                "available": False,
+            }
+        return {"status": "AVAILABLE", "reason": None,
+                "detail": f"{len(self.rows)} strict Livingston PIT rows", "available": True}
+
+    def metadata(self) -> dict:
+        out = super().metadata()
+        rows = self.rows or []
+        block: dict = {
+            "schema": LIVINGSTON_SCHEMA,
+            "values_present": bool(rows),
+            "archive_path": _relpath(self.values_path) if self.values_path is not None else None,
+            "rows": len(rows),
+            "row_errors": dict(sorted(self.row_errors.items())),
+            "strict_start": LIVINGSTON_STRICT_START,
+            "release_basis": {
+                "exact": sum(1 for row in rows if row["release_basis"] == "exact"),
+                "not_after": sum(1 for row in rows if row["release_basis"] == "not_after"),
+            },
+            "transformation": "400*ln(RGDPX_ZM/RGDPX_BP) from published median levels",
+            "values_only_archive": False,
+        }
+        if self.values_path is not None and self.values_path.exists():
+            block["sha256"] = sha256_file(self.values_path)
+        out["values_file"] = block
+        return out
+
+    def forecast(self, target: str, origin, horizon: int) -> dict:
+        base = self._base(target, origin, horizon)
+        if not self.verdict["usable"]:
+            return self._licence_refusal(base)
+        if target != TARGET_T2 or int(horizon) != 0:
+            base["reason"] = "NO_PROTOCOL_HORIZON_MAPPING"
+            return base
+        d = _as_date(origin)
+        if not is_month_end(d):
+            base["reason"] = "ORIGIN_NOT_MONTH_END"
+            return base
+        if d.month not in (6, 12):
+            base["reason"] = "LIVINGSTON_NO_QUARTER_END_ORIGIN"
+            return base
+        if d < _as_date(LIVINGSTON_STRICT_START):
+            base["reason"] = "LIVINGSTON_BASE_VALUE_CAVEAT"
+            return base
+        if not self.rows:
+            base["reason"] = self.load_error or "LIVINGSTON_VALUES_NOT_DOWNLOADED"
+            return base
+        row = next((item for item in self.rows if item["origin"] == d), None)
+        if row is None:
+            base["reason"] = "LIVINGSTON_NO_SURVEY_FOR_ORIGIN"
+            return base
+        base["publication_date"] = row["release_date"].isoformat()
+        if row["release_date"] > d:
+            base["reason"] = "LIVINGSTON_RELEASE_AFTER_ORIGIN"
+            return base
+        base.update({"available": True, "reason": "AVAILABLE",
+                     "forecast": float(row["forecast"]),
+                     "provenance": "PUBLISHED_MEDIAN_LEVELS_DERIVED_GROWTH"})
+        return base
+
+
 ADAPTERS: dict[str, type[Adapter]] = {
     "SPF_GDP_MEDIAN": SpfAdapter,
     "NY_FED_STAFF_NOWCAST": NyFedAdapter,
+    "LIVINGSTON_SURVEY": LivingstonAdapter,
     "CLEVELAND_FED_NOWCAST": MetadataOnlyAdapter,
     "ATLANTA_FED_GDPNOW": RestrictedAdapter,
 }
@@ -1322,12 +1559,18 @@ def build_report(*, data_root=None, horizons: Sequence[int] = (0, 1), max_origin
         },
         "gaps": [],
         "limitations": [
-            "MVP scope: T2_GDP_GROWTH at h=0 and h=1 only; T1/T3 and h=2/h=4 are not scored yet",
+            "MVP scope: T2_GDP_GROWTH only. SPF contributes h=0 and h=1; NY Fed Staff Nowcast h=0; "
+            "Livingston Survey h=0 only (strict post-2004 subset). T1/T3 are not scored yet.",
             "the SPF file is the latest revision of the medians, not a point-in-time vintage snapshot: "
             "the release date fixes availability, errata after the survey are not audited",
             "NY Fed Staff Nowcast is a values-only archive: 2002Q1-2015Q4 are historical "
             "reconstructions (excluded from real-time scoring) and only 2016Q1-2021Q3 rows are as "
             "published; the archive has no underlying series, so no re-estimation is possible",
+            "Livingston Survey is semiannual and only the strict post-2004 subset is scored: 32 PIT "
+            "points (W1 6, W2 26). Its forecast is 400*ln(RGDPX_ZM/RGDPX_BP) derived from published "
+            "median levels, a documented transformation rather than a separately published median "
+            "growth forecast; T1 and T2 h>0 are not mapped, and the pre-2004 base values are excluded "
+            "because the documentation warns that X_BP is unreliable for variables other than CPI",
             "SPF forecasts are point (median) forecasts: CRPS and interval coverage are NOT_AVAILABLE "
             "for that source, and no distribution is imputed to make a number appear",
             "no external source in this MVP publishes a probability for a protocol event, so Brier is "
@@ -1343,12 +1586,12 @@ def build_report(*, data_root=None, horizons: Sequence[int] = (0, 1), max_origin
         "next_steps": [
             "add the project's own OPEN baselines (C6 forward-registry rows, R3 ensemble) to the same "
             "origins to produce the 'external vs ours' table",
-            "seek at least one more OPEN source with a matching T2 horizon mapping: GDPNow is "
-            "RESTRICTED in the licence register (owner decision needed before any use) and Cleveland "
-            "publishes a current-month CPI nowcast with no protocol T2 horizon mapping",
-            "extend to h=2/h=4 and to T1 once a source with a matching horizon mapping is registered",
+            "extend to h=2/h=4 and T1/T3 once a source with a matching horizon/event mapping is "
+            "registered; Livingston currently supports only T2 h=0 on the strict post-2004 subset",
+            "widen Livingston coverage only through a protocol decision: T1 mapping would need a series/"
+            "seasonality decision, and pre-2004 points stay excluded because of the documented X_BP caveat",
             "turn the report into the UC-44 subscription artifact: per-source error tables, charts and a "
-            "stable API payload once >=3 sources are scored",
+            "stable API payload now that three sources are scored",
         ],
     }
     for source_id, adapter in adapters.items():

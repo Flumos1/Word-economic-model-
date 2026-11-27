@@ -197,6 +197,40 @@
       "notes": "the adapter and its strict schema exist and are covered by tests, but the archive is not in the repository; the current scorecard reports UNAVAILABLE/ARCHIVE_NOT_LOCAL and the registry repeats that, it does not claim coverage"
     },
     {
+      "id": "LIVINGSTON_SURVEY",
+      "provider": "Federal Reserve Bank of Philadelphia",
+      "provider_type": "CENTRAL_BANK",
+      "target": "GDP",
+      "target_secondary": [],
+      "frequency": "SEMIANNUAL",
+      "horizon": {
+        "native": "survey-quarter real GDP level (Q2/Q4); forecast of the current quarter's level",
+        "protocol_h": [
+          0
+        ],
+        "mapping": "EXACT"
+      },
+      "publication": {
+        "cadence": "semiannual survey (June and December) with official release dates",
+        "vintage_policy": "publication date from the official livingston-release-dates.xlsx: Exact if present, else Not After as a PIT-safe upper bound; only release_date <= origin is used; strict post-2004 subset; the medians workbook is the latest revision, not a vintage store",
+        "publication_date_source": "livingston-release-dates.xlsx (sheet Dates; see docs/254 and tools/fetch_scorecard_data.py --livingston)"
+      },
+      "licence": {
+        "status": "OPEN",
+        "entry": "PHILADELPHIA_FED",
+        "values_publishable": false,
+        "terms_url": "https://www.philadelphiafed.org/about-us/privacy-notice",
+        "note": "research use, attribution required; same publisher and terms as the SPF entry, so the existing PHILADELPHIA_FED register entry covers it (see docs/254)"
+      },
+      "status": "ADAPTER_READY",
+      "status_reason": "SCORED_IN_CURRENT_SCORECARD",
+      "adapter": "livingston_local",
+      "adapter_state": "IMPLEMENTED",
+      "data_path": "data/raw/livingston/livingston_t2_h0.csv (git-ignored; see tools/fetch_scorecard_data.py --livingston)",
+      "url": "https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/livingston-survey",
+      "notes": "third scorable source: 32 strict PIT points (2004Q2-2019Q4; W1 6, W2 26) for T2_GDP_GROWTH h=0 (docs/254). Forecast = 400*ln(RGDPX_ZM/RGDPX_BP) from published median levels; T1 and T2 h>0 are not mapped; survey is semiannual and the strict subset starts June 2004 (X_BP caveat before that); values never published"
+    },
+    {
       "id": "NY_FED_SCE",
       "provider": "Federal Reserve Bank of New York",
       "provider_type": "CENTRAL_BANK",

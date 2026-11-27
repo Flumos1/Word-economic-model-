@@ -162,7 +162,7 @@ class RegistryValidationTests(TempDirMixin):
         ready = set(report["coverage"]["adapter_ready"]["sources"])
         scored = set(report["coverage"]["scorecard_comparison"]["scored_sources"])
         self.assertEqual(ready, scored)
-        self.assertEqual(ready, {"NY_FED_STAFF_NOWCAST", "SPF_GDP_MEDIAN"})
+        self.assertEqual(ready, {"LIVINGSTON_SURVEY", "NY_FED_STAFF_NOWCAST", "SPF_GDP_MEDIAN"})
         self.assertEqual(report["coverage"]["scorecard_comparison"]["mismatches"], [])
 
     def test_licence_register_references_exist_and_are_not_more_permissive(self):
@@ -328,7 +328,7 @@ class FailClosedTests(TempDirMixin):
         self.assertTrue(comparison["file"].endswith("/scorecard.json"), comparison["file"])
         self.assertEqual(comparison["scored_sources"], [])
         self.assertEqual(comparison["ready_but_not_scored"],
-                         ["NY_FED_STAFF_NOWCAST", "SPF_GDP_MEDIAN"])
+                         ["LIVINGSTON_SURVEY", "NY_FED_STAFF_NOWCAST", "SPF_GDP_MEDIAN"])
         self.assertEqual(len(comparison["registry_only"]), len(load_registry()["sources"]))
 
 
@@ -385,8 +385,8 @@ class CoverageTests(TempDirMixin):
         self.assertIsInstance(blob, str)
 
     def test_status_and_reasons_are_explained(self):
-        self.assertEqual(self.report["status"], "PARTIAL")
-        self.assertIn("ADAPTER_READY_BELOW_CRITERION(2<3)", self.report["status_reasons"])
+        self.assertEqual(self.report["status"], "OK")
+        self.assertEqual(self.report["status_reasons"], [])
         self.assertTrue(self.report["gaps"])
         self.assertTrue(any("RESTRICTED" in gap for gap in self.report["gaps"]))
 
@@ -436,16 +436,16 @@ class CliTests(TempDirMixin):
         path.write_text(json.dumps(registry, ensure_ascii=False), encoding="utf-8")
         return path
 
-    def test_check_returns_zero_for_a_valid_partial_registry(self):
+    def test_check_returns_zero_for_a_valid_registry(self):
         code, out, _ = self.run_cli(["--check"])
         self.assertEqual(code, 0)
-        self.assertIn("26 sources", out)
-        self.assertIn("status: PARTIAL", out)
-        self.assertIn("ADAPTER_READY 2", out)
+        self.assertIn("27 sources", out)
+        self.assertIn("status: OK", out)
+        self.assertIn("ADAPTER_READY 3", out)
 
-    def test_strict_turns_partial_into_exit_three(self):
+    def test_strict_keeps_exit_zero_when_all_criteria_pass(self):
         code, _, _ = self.run_cli(["--check", "--strict"])
-        self.assertEqual(code, 3)
+        self.assertEqual(code, 0)
 
     def test_json_flag_prints_the_report(self):
         code, out, _ = self.run_cli(["--json"])
@@ -483,7 +483,7 @@ class CliTests(TempDirMixin):
         self.assertEqual(code, 0)
         text = md_path.read_text(encoding="utf-8")
         self.assertIn("# External forecasts registry v2 - coverage", text)
-        self.assertIn("| ADAPTER_READY | 2 |", text)
+        self.assertIn("| ADAPTER_READY | 3 |", text)
 
     def test_unknown_out_suffix_exits_two(self):
         code, _, err = self.run_cli(["--out", str(self.tmp / "coverage.txt")])

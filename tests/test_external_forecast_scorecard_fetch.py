@@ -56,6 +56,122 @@ def make_workbook() -> bytes:
 
 
 @unittest.skipUnless(openpyxl is not None, "openpyxl is not installed")
+class LivingstonFetchTests(unittest.TestCase):
+    """Livingston fetch/derive/check with synthetic RGDPX and release-date workbooks."""
+
+    @staticmethod
+    def make_workbooks() -> tuple[bytes, bytes]:
+        medians = openpyxl.Workbook()
+        sheet = medians.active
+        sheet.title = fetch.LIVINGSTON_SHEET_MEDIANS
+        sheet.append(["Date", "RGDPX_BP", "RGDPX_ZM"])
+        sheet.append([datetime(2003, 12, 1), 100.0, 101.0])       # strict subset excludes this
+        sheet.append([datetime(2004, 6, 1), 101.0, 102.0])        # exact release
+        sheet.append([datetime(2004, 12, 1), 103.0, 104.0])       # Not After release
+        sheet.append([datetime(2005, 6, 1), 105.0, "#N/A"])       # missing level
+        median_buffer = io.BytesIO()
+        medians.save(median_buffer)
+
+        releases = openpyxl.Workbook()
+        dates = releases.active
+        dates.title = fetch.LIVINGSTON_SHEET_DATES
+        dates.cell(row=1, column=1, value="Survey")
+        dates.cell(row=1, column=2, value="Livingston Survey Release Date")
+        dates.cell(row=3, column=2, value="Exact")
+        dates.cell(row=3, column=3, value="Not After")
+        rows = [
+            (datetime(2003, 12, 1), None, datetime(2003, 12, 20)),
+            (datetime(2004, 6, 1), datetime(2004, 6, 18), None),
+            (datetime(2004, 12, 1), None, datetime(2004, 12, 21)),
+            (datetime(2005, 6, 1), datetime(2005, 6, 10), None),
+        ]
+        for offset, row in enumerate(rows, start=5):
+            for column, value in enumerate(row, start=1):
+                if value is not None:
+                    dates.cell(row=offset, column=column, value=value)
+        release_buffer = io.BytesIO()
+        releases.save(release_buffer)
+        return median_buffer.getvalue(), release_buffer.getvalue()
+
+    def test_parse_derives_only_strict_post_2004_rows(self):
+        medians, releases = self.make_workbooks()
+        parsed = fetch.parse_livingston(medians, releases)
+        self.assertEqual(parsed["medians_rows"], 4)
+        self.assertEqual(parsed["release_rows"], 4)
+        self.assertEqual(len(parsed["rows"]), 2)
+        self.assertEqual(parsed["release_basis"], {"exact": 1, "not_after": 1})
+        self.assertEqual(parsed["first_survey"], "2004-06-01")
+        self.assertEqual(parsed["last_survey"], "2004-12-01")
+        self.assertEqual(parsed["first_origin"], "2004-06-30")
+        self.assertEqual(parsed["rows"][0]["target_period"], "2004Q2")
+        self.assertEqual(parsed["rows"][1]["target_period"], "2004Q4")
+        self.assertEqual(parsed["skipped"],
+                         {"missing_or_nonpositive_level": 1, "pre_2004_not_strict": 1})
+        expected = 400.0 * __import__("math").log(102.0 / 101.0)
+        self.assertAlmostEqual(parsed["rows"][0]["forecast"], expected)
+
+    def test_manifest_and_check_do_not_contain_row_values(self):
+        medians, releases = self.make_workbooks()
+        parsed = fetch.parse_livingston(medians, releases)
+        with tempfile.TemporaryDirectory() as directory:
+            out = Path(directory) / "livingston_t2_h0.csv"
+            info = fetch.write_livingston_csv(parsed["rows"], out)
+            data = out.read_bytes()
+            self.assertTrue(data.endswith(b"\n"))
+            self.assertNotIn(b"\r\n", data)
+            self.assertEqual(data.splitlines()[0].decode(),
+                             ",".join(fetch.LIVINGSTON_COLUMNS))
+            manifest = fetch.build_livingston_manifest(
+                medians=medians, release_dates=releases, parsed=parsed, csv_info=info,
+                retrieved_at="2026-11-26T00:00:00Z")
+            text = json.dumps(manifest, ensure_ascii=False)
+            self.assertEqual(manifest["schema"], fetch.LIVINGSTON_SCHEMA)
+            self.assertEqual(manifest["parse"]["rows_total"], 2)
+            self.assertEqual(manifest["parse"]["release_basis"], {"exact": 1, "not_after": 1})
+            self.assertEqual(manifest["output"]["sha256"], info["sha256"])
+            self.assertFalse(manifest["raw_files_committed"])
+            self.assertNotIn("102.0", text)  # no per-row forecasts in the manifest
+            meta = Path(directory) / "livingston.meta.json"
+            meta.write_text(text, encoding="utf-8")
+            good = fetch.check_livingston(out=out, meta=meta)
+            self.assertTrue(good["ok"], good)
+            out.write_text(out.read_text(encoding="utf-8") + "tampered\n", encoding="utf-8")
+            bad = fetch.check_livingston(out=out, meta=meta)
+            self.assertFalse(bad["ok"])
+            self.assertEqual(bad["reason"], "RAW_CSV_SHA256_MISMATCH")
+
+    def test_fetch_livingston_writes_csv_and_manifest_with_mocked_network(self):
+        medians, releases = self.make_workbooks()
+        with tempfile.TemporaryDirectory() as directory:
+            out = Path(directory) / "livingston_t2_h0.csv"
+            meta = Path(directory) / "livingston.meta.json"
+            with mock.patch.object(fetch, "fetch_workbook", side_effect=[medians, releases]):
+                summary = fetch.fetch_livingston(out=out, meta=meta, log=None)
+            self.assertEqual(summary["status"], "FETCHED")
+            self.assertEqual(summary["rows_total"], 2)
+            self.assertTrue(out.is_file())
+            self.assertTrue(meta.is_file())
+            self.assertTrue(fetch.check_livingston(out=out, meta=meta)["ok"])
+
+    def test_cli_check_for_livingston_returns_zero_only_when_matching(self):
+        with tempfile.TemporaryDirectory() as directory:
+            out = Path(directory) / "livingston_t2_h0.csv"
+            meta = Path(directory) / "livingston.meta.json"
+            self.assertEqual(fetch.main(["--livingston", "--check", "--livingston-out", str(out),
+                                         "--livingston-meta", str(meta)]), 3)
+            medians, releases = self.make_workbooks()
+            with mock.patch.object(fetch, "fetch_workbook", side_effect=[medians, releases]):
+                fetch.main(["--livingston", "--livingston-out", str(out),
+                            "--livingston-meta", str(meta)])
+            buffer = io.StringIO()
+            with redirect_stdout(buffer):
+                code = fetch.main(["--livingston", "--check", "--livingston-out", str(out),
+                                   "--livingston-meta", str(meta)])
+            self.assertEqual(code, 0)
+            self.assertTrue(json.loads(buffer.getvalue())["ok"])
+
+
+@unittest.skipUnless(openpyxl is not None, "openpyxl is not installed")
 class WorkbookParserTests(unittest.TestCase):
     def test_parse_workbook_uses_target_quarter_provenance_and_skips_bad_values(self):
         parsed = fetch.parse_workbook(make_workbook())
